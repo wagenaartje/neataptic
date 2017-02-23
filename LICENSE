@@ -1,5 +1,9 @@
 The MIT License (MIT)
 
+Copyright for portions of Gynaptic are held by Juan Cazala - juancazala.com, 2016 
+as part of project Synaptic. All other copyright for project Gynaptic are held by
+Thomas Wagenaar, 2016.
+
 Copyright (c) 2016 Juan Cazala - juancazala.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -19,28 +23,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE
-
-
-
-********************************************************************************************
-                                  SYNAPTIC (v1.0.8)
-********************************************************************************************
-
-Synaptic is a javascript neural network library for node.js and the browser, its generalized
-algorithm is architecture-free, so you can build and train basically any type of first order
-or even second order neural network architectures.
-
-http://en.wikipedia.org/wiki/Recurrent_neural_network#Second_Order_Recurrent_Neural_Network
-
-The library includes a few built-in architectures like multilayer perceptrons, multilayer
-long-short term memory networks (LSTM) or liquid state machines, and a trainer capable of
-training any given network, and includes built-in training tasks/tests like solving an XOR,
-passing a Distracted Sequence Recall test or an Embeded Reber Grammar test.
-
-The algorithm implemented by this library has been taken from Derek D. Monner's paper:
-
-
-A generalized LSTM-like training algorithm for second-order recurrent neural networks
-http://www.overcomplete.net/papers/nn2012.pdf
-
-There are references to the equations in that paper commented through the source code.

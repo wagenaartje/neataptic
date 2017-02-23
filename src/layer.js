@@ -1,10 +1,3 @@
-// export
-if (module) module.exports = Layer;
-
-// import
-var Neuron  = require('./neuron')
-,   Network = require('./network')
-
 /*******************************************************************************************
                                             LAYER
 *******************************************************************************************/
@@ -19,6 +12,8 @@ function Layer(size, label) {
     var neuron = new Neuron();
     this.list.push(neuron);
   }
+
+
 }
 
 Layer.prototype = {
@@ -204,6 +199,68 @@ Layer.prototype = {
         neuron.bias = options.bias;
     }
     return this;
+  },
+
+  mutate: function(method){
+    this.clear();
+    switch(method){
+      case Mutate.SWAP_WEIGHT:
+        var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
+        var neuron2 = this.list[Math.floor(Math.random()*this.list.length)];
+
+        var connectionType1 = ['gated', 'inputs', 'projected'];
+        var connectionType2 = ['gated', 'inputs', 'projected'];
+
+        for(var i = 2;i >= 0; i--){
+          if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
+            connectionType1.splice(connectionType1[i], 1);
+          }
+          if(Object.keys(neuron2.connections[connectionType2[i]]).length == 0){
+            connectionType2.splice(connectionType2[i], 1);
+          }
+        }
+
+        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionKeys1 = Object.keys(neuron1.connections[connectionType1]);
+        var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
+
+        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionKeys2 = Object.keys(neuron2.connections[connectionType2]);
+        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
+
+        var temp = neuron1.connections[connectionType1][connection1].weight;
+        neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
+        neuron2.connections[connectionType2][connection2].weight = temp;
+        break;
+      case Mutate.SWAP_BIAS:
+        var neuron1 = Math.floor(Math.random()*this.list.length);
+        var neuron2 = Math.floor(Math.random()*this.list.length);
+
+        var temp = this.list[neuron1].bias;
+        this.list[neuron1].bias = this.list[neuron2].bias;
+        this.list[neuron2].bias = temp;
+        break;
+      case Mutate.MODIFY_RANDOM_BIAS:
+        var neuron = Math.floor(Math.random()*this.list.length);
+        this.list[neuron].bias += (Math.random() - 0.5) * 2;
+        break;
+      case Mutate.MODIFY_RANDOM_WEIGHT:
+        var neuron = this.list[Math.floor(Math.random()*this.list.length)];
+        var connectionType = ['gated', 'inputs', 'projected'];
+
+        for(var i = connectionType.length-1;i >= 0; i--){
+          if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
+            connectionType.splice(connectionType[i], 1);
+          }
+        }
+
+        connectionType = connectionType[Math.floor(Math.random()*connectionType.length)];
+        var connectionKeys = Object.keys(neuron.connections[connectionType]);
+        var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
+
+        neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
+        break
+    }
   }
 }
 

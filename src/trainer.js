@@ -1,6 +1,3 @@
-// export
-if (module) module.exports = Trainer;
-
 /*******************************************************************************************
                                         TRAINER
 *******************************************************************************************/
@@ -88,7 +85,7 @@ Trainer.prototype = {
         var currentBucket = Math.floor(iterations / bucketSize);
         currentRate = this.rate[currentBucket] || currentRate;
       }
-      
+
       if(typeof this.rate === 'function') {
         currentRate = this.rate(iterations, lastError);
       }

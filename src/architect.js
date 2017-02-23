@@ -1,8 +1,3 @@
-// import
-var Layer   = require('./layer')
-,   Network = require('./network')
-,   Trainer = require('./trainer')
-
 /*******************************************************************************************
                                         ARCHITECT
 *******************************************************************************************/
@@ -268,6 +263,3 @@ for (var architecture in Architect) {
   Architect[architecture].prototype = new Network();
   Architect[architecture].prototype.constructor = Architect[architecture];
 }
-
-// export
-if (module) module.exports = Architect;

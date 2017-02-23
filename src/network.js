@@ -1,11 +1,3 @@
-// export
-if (module) module.exports = Network;
-
-// import
-var Neuron  = require('./neuron')
-,   Layer   = require('./layer')
-,   Trainer = require('./trainer')
-
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -558,6 +550,15 @@ Network.prototype = {
   // returns a copy of the network
   clone: function() {
     return Network.fromJSON(this.toJSON());
+  },
+
+  mutate: function(method){
+    if(method == Mutate.SWAPWEIGHT){
+    } else if(method == Mutate.SWAPBIAS){
+
+    } else if(method == Mutate.ADDRANDOM){
+      
+    }
   }
 };
 

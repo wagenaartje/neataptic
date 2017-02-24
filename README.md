@@ -5,7 +5,7 @@ Gynaptic is a modification of [Synaptic](https://github.com/cazala/synaptic), ad
 ## Usage
 This is simple documentation on how to use the methods. Once the project has been sufficiently attributed, I will add a Wiki going into debt of each method and showing how you can add your own.
 
-###### Mutation methods
+### Mutation methods
 There are 4 mutation methods at the moment. More will be added in the future.
 ```javascript
 Mutate.SWAP_WEIGHT // swaps two random connection weights
@@ -18,19 +18,19 @@ Each of these mutation methods can be used on the `Neuron`, `Layer` and `Network
 
 Before mutating, make sure to `clear()` your object! For some reason not doing this will have no effects on your activiation values. I'm trying to figure out why contextual data enhances mutation. For now, the code would look like this:
 
-*for networks*
+###### networks
 ```javascript
 var layer = new Layer(4);
 layer.clear();
 layer.mutate(Mutate.SWAP_WEIGHT); // e.g.
 ```
-*for layers*
+###### layers
 ```javascript
 var network = new Architect.Perceptron(2,4,2);
 network.clear();
 network.mutate(Mutate.SWAP_WEIGHT); // e.g.
 ```
-*for neurons*
+###### neurons
 ```javascript
 var neuron = new Neuron();
 neuron.clear();
@@ -38,7 +38,7 @@ neuron.mutate(Mutate.SWAP_WEIGHT); // e.g.
 ```
 
 
-###### Crossover methods
+### Crossover methods
 Work in progress, planned methods:
 ```javascript
 Crossover.SINGLE_POINT
@@ -47,7 +47,7 @@ Crossover.UNIFORM
 // more to come
 ```
 
-###### Selection methods
+### Selection methods
 Work in progress, planned methods:
 ```javascript
 Selection.ELITISM

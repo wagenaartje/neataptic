@@ -16,9 +16,10 @@ Mutate.MODIFY_RANDOM_BIAS // adds or substracts a random value from a random neu
 ```
 Each of these mutation methods can be used on the `Neuron`, `Layer` and `Network` objects. At the moment, the methods are only ready for Layers. They other objects will be done soon.
 
-Please notice that mutation will clear contextual data of your neural object at the moment! This will stay until a workaround is discovered. You can use each of the methods like so:
+Before mutating, make sure to `clear()` your object! For some reason not doing this will have no effects on your activiation values. I'm trying to figure out why contextual data enhances mutation. For now, the code would look like this:
 ```javascript
 var layer = new Layer(4);
+layer.clear();
 layer.mutate(Mutate.SWAP_WEIGHT); // e.g.
 ```
 

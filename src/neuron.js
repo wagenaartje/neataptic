@@ -794,6 +794,26 @@ Neuron.connection = function Connection(from, to, weight) {
   this.gater = null;
 }
 
+Neuron.crossOver = function(neuron1, neuron2, method){
+  method = method || Crossover.UNIFORM;
+  var offspring = new Neuron();
+
+  switch(method){
+    case Crossover.UNIFORM:
+      if(Math.random() >= 0.5){
+        offspring.bias = neuron1.bias;
+      } else {
+        offspring.bias = neuron2.bias;
+      }
+      break;
+    case Crossover.AVERAGE:
+      offspring.bias = (neuron1.bias + neuron2.bias) / 2;
+      break;
+  }
+
+  return offspring;
+}
+
 
 // squashing functions
 Neuron.squash = {};

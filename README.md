@@ -1,6 +1,6 @@
 Gynaptic
 ========
-Gynaptic is a modification of [Synaptic](https://github.com/cazala/synaptic), adding methods to insert genetic algorithms in your code. Numerous of mutation, crossover and selection methods are created so you don't have to create your own. 
+Gynaptic is a modification of [Synaptic](https://github.com/cazala/synaptic), adding methods to insert genetic algorithms in your code. Numerous of mutation, crossover and selection methods are created so you don't have to create your own.
 
 ## Usage
 This is simple documentation on how to use the methods. Once the project has been sufficiently attributed, I will add a Wiki going into debt of each method and showing how you can add your own.
@@ -22,19 +22,19 @@ Before mutating, make sure to `clear()` your object! For some reason not doing t
 ```javascript
 var layer = new Layer(4);
 layer.clear();
-layer.mutate(Mutate.SWAP_WEIGHT); // e.g.
+layer.mutate(Mutate.SWAP_WEIGHT);
 ```
 ###### layers
 ```javascript
 var network = new Architect.Perceptron(2,4,2);
 network.clear();
-network.mutate(Mutate.SWAP_WEIGHT); // e.g.
+network.mutate(Mutate.SWAP_BIAS);
 ```
 ###### neurons
 ```javascript
 var neuron = new Neuron();
 neuron.clear();
-neuron.mutate(Mutate.SWAP_WEIGHT); // e.g.
+neuron.mutate(Mutate.MODIFY_RANDOM_WEIGHT);
 ```
 
 
@@ -45,14 +45,34 @@ Crossover.SINGLE_POINT // takes all the values from one parent till a certain po
 Crossover.TWO_POINT // same as single point, but switches twice
 Crossover.UNIFORM // the offspring inherits a random 50% of each parents biases and weights
 Crossover.AVERAGE // the offspring inherits the average value of each weight and bias of its parents
-// more to come
+
+// Planned methods
+Crossover.PERCENTAGE;
 ```
-Currently the crossovermethod is only implemented on networks. The rest will be added soon. Crossing over two networks looks like this:
+Please note, when you crossover layers or neurons, this will *not* crossover the weights of the connections! In the future, it will be possible to crossover internal connections (self-connections). If you crossover a layer or a neuron, you can use this to construct new connections. You cannot insert these layers or neurons into existing networks, as they won't be connected! Also, if you crossover a network or a layer, they should be the same size!
+
+###### networks
 ```javascript
 var network1 = new Architect.Perceptron(2,4,2);
 var network2 = new Architect.Perceptron(2,4,2);
 
-var offspring = Network.crossOver(network1, network2, Crossover.UNIFORM)
+var offspring = Network.crossOver(network1, network2, Crossover.UNIFORM);
+```
+
+###### layers
+```javascript
+var layer1 = new Layer(4);
+var layer2 = new Layer(4);
+
+var offspring = Layer.crossOver(layer1, layer2, Crossover.SINGLE_POINT);
+```
+
+###### neurons
+```javascript
+var neuron1 = new Neuron();
+var neuron2 = new Neuron();
+
+var offspring = Neuron.crossOver(neuron1, neuron2, Crossover.AVERAGE);
 ```
 
 The `Crossover.SINGLE_POINT` and `Crossover.TWO_POINT` have configurable points which can be set as follows:
@@ -60,13 +80,17 @@ The `Crossover.SINGLE_POINT` and `Crossover.TWO_POINT` have configurable points 
 // e.g. 0.4 --> first 40% from parent1, next 60% from parent2
 Crossover.SINGLE_POINT = [point];
 // e.g. 0.3 and 0.8 --> first 30% from parent1, next 50% from parent2, last 20% from parent1
-Crossover.TWO_POINT = [point, point]; 
+Crossover.TWO_POINT = [point, point];
 ```
 ### Selection methods
 Work in progress, planned methods:
 ```javascript
+// Planned methods
 Selection.ELITISM
 Selection.FITNESS_PROPORTIONATE
-// more to come
 ```
 Some of the selection methods will be combinable with others.
+
+## Planned improvements
+- Turn connections into objects
+- Create the ability to crossover connections

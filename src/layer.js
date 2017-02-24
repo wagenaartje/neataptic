@@ -264,6 +264,51 @@ Layer.prototype = {
   }
 }
 
+Layer.crossOver = function(layer1, layer2, method){
+  method = method || Crossover.UNIFORM;
+  var offspring = new Layer(layer1.list.length);
+
+  switch(method){
+    case Crossover.UNIFORM:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(Math.round() >= 0.5){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+    case Crossover.AVERAGE:
+      for(var i = 0; i < offspring.list.length; i++){
+        var bias1 = layer1.list[i].bias;
+        var bias2 = layer2.list[i].bias;
+
+        offspring.list[i].bias = (bias1 + bias2) / 2;
+      }
+      break;
+    case Crossover.SINGLE_POINT:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(i/offspring.list.length < Crossover.SINGLE_POINT[0]){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+    case Crossover.TWO_POINT:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(i/offspring.list.length < Crossover.SINGLE_POINT[0] || i/offspring.list.length > Crossover.SINGLE_POINT[1]){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+  }
+
+  return offspring;
+}
+
 // represents a connection from one layer to another, and keeps track of its weight and gain
 Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
   this.ID = Layer.connection.uid();

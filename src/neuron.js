@@ -296,6 +296,56 @@ Neuron.prototype = {
     this.old = this.state = this.activation = 0;
   },
 
+  mutate: function(method){
+    this.clear();
+    switch(method){
+      case Mutate.SWAP_WEIGHT:
+        var connectionType1 = ['gated', 'inputs', 'projected'];
+        var connectionType2 = ['gated', 'inputs', 'projected'];
+
+        for(var i = 2;i >= 0; i--){
+          if(Object.keys(this.connections[connectionType1[i]]).length == 0){
+            connectionType1.splice(connectionType1[i], 1);
+          }
+          if(Object.keys(this.connections[connectionType2[i]]).length == 0){
+            connectionType2.splice(connectionType2[i], 1);
+          }
+        }
+
+        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionKeys1 = Object.keys(this.connections[connectionType1]);
+        var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
+
+        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionKeys2 = Object.keys(this.connections[connectionType2]);
+        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
+
+        var temp = this.connections[connectionType1][connection1].weight;
+        this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
+        this.connections[connectionType2][connection2].weight = temp;
+        break;
+      case Mutate.MODIFY_RANDOM_BIAS:
+        // just modifies the bias of the neuron
+        this.bias += (Math.random() - 0.5) * 2;
+        break;
+      case Mutate.MODIFY_RANDOM_WEIGHT:
+        var connectionType = ['gated', 'inputs', 'projected'];
+
+        for(var i = 2; i >= 0; i--){
+          if(Object.keys(this.connections[connectionType[i]]).length == 0){
+            connectionType.splice(connectionType[i], 1);
+          }
+        }
+
+        connectionType = connectionType[Math.floor(Math.random()*connectionType.length)];
+        var connectionKeys = Object.keys(this.connections[connectionType]);
+        var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
+
+        this.connections[connectionType][connection].weight += (Math.random() - 0.5) *2;
+        break
+    }
+  },
+
   // hardcodes the behaviour of the neuron into an optimized function
   optimize: function(optimized, layer) {
 

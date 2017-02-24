@@ -202,7 +202,6 @@ Layer.prototype = {
   },
 
   mutate: function(method){
-    this.clear();
     switch(method){
       case Mutate.SWAP_WEIGHT:
         var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
@@ -213,10 +212,10 @@ Layer.prototype = {
 
         for(var i = 2;i >= 0; i--){
           if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
-            connectionType1.splice(connectionType1[i], 1);
+            connectionType1.splice(i, 1);
           }
           if(Object.keys(neuron2.connections[connectionType2[i]]).length == 0){
-            connectionType2.splice(connectionType2[i], 1);
+            connectionType2.splice(i, 1);
           }
         }
 
@@ -250,7 +249,7 @@ Layer.prototype = {
 
         for(var i = connectionType.length-1;i >= 0; i--){
           if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
-            connectionType.splice(connectionType[i], 1);
+            connectionType.splice(i, 1);
           }
         }
 
@@ -259,7 +258,7 @@ Layer.prototype = {
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
         neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
-        break
+        break;
     }
   }
 }

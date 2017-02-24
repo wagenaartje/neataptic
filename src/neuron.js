@@ -297,7 +297,6 @@ Neuron.prototype = {
   },
 
   mutate: function(method){
-    this.clear();
     switch(method){
       case Mutate.SWAP_WEIGHT:
         var connectionType1 = ['gated', 'inputs', 'projected'];
@@ -305,10 +304,10 @@ Neuron.prototype = {
 
         for(var i = 2;i >= 0; i--){
           if(Object.keys(this.connections[connectionType1[i]]).length == 0){
-            connectionType1.splice(connectionType1[i], 1);
+            connectionType1.splice(i, 1);
           }
           if(Object.keys(this.connections[connectionType2[i]]).length == 0){
-            connectionType2.splice(connectionType2[i], 1);
+            connectionType2.splice(i, 1);
           }
         }
 
@@ -333,7 +332,7 @@ Neuron.prototype = {
 
         for(var i = 2; i >= 0; i--){
           if(Object.keys(this.connections[connectionType[i]]).length == 0){
-            connectionType.splice(connectionType[i], 1);
+            connectionType.splice(i, 1);
           }
         }
 
@@ -342,7 +341,7 @@ Neuron.prototype = {
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
         this.connections[connectionType][connection].weight += (Math.random() - 0.5) *2;
-        break
+        break;
     }
   },
 

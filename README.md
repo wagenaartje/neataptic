@@ -39,14 +39,29 @@ neuron.mutate(Mutate.SWAP_WEIGHT); // e.g.
 
 
 ### Crossover methods
-Work in progress, planned methods:
+The `Network`, `Layer` and `Neuron` objects all have a `object.crossOver()` function which returns a new offspring from the two parents provided. Below are all the crossover methods as of now, `Crossover.UNIFORM` is the default method.
 ```javascript
-Crossover.SINGLE_POINT
-Crossover.TWO_POINT
-Crossover.UNIFORM
+Crossover.SINGLE_POINT // takes all the values from one parent till a certain point, afterwards the other parent
+Crossover.TWO_POINT // same as single point, but switches twice
+Crossover.UNIFORM // the offspring inherits a random 50% of each parents biases and weights
+Crossover.AVERAGE // the offspring inherits the average value of each weight and bias of its parents
 // more to come
 ```
+Currently the crossovermethod is only implemented on networks. The rest will be added soon. Crossing over two networks looks like this:
+```javascript
+var network1 = new Architect.Perceptron(2,4,2);
+var network2 = new Architect.Perceptron(2,4,2);
 
+var offspring = Network.crossOver(network1, network2, Crossover.UNIFORM)
+```
+
+The `Crossover.SINGLE_POINT` and `Crossover.TWO_POINT` have configurable points which can be set as follows:
+```javascript
+// e.g. 0.4 --> first 40% from parent1, next 60% from parent2
+Crossover.SINGLE_POINT = [point];
+// e.g. 0.3 and 0.8 --> first 30% from parent1, next 50% from parent2, last 20% from parent1
+Crossover.TWO_POINT = [point, point]; 
+```
 ### Selection methods
 Work in progress, planned methods:
 ```javascript

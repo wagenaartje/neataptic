@@ -297,6 +297,7 @@ Neuron.prototype = {
   },
 
   mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
         var connectionType1 = ['gated', 'inputs', 'projected'];

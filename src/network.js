@@ -314,6 +314,7 @@ Network.prototype = {
   },
 
   mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
         var neuron1 = Math.floor(Math.random()*this.neurons().length);
@@ -701,3 +702,76 @@ Network.fromJSON = function(json) {
 
   return new Network(layers);
 };
+
+Network.crossOver = function(network1, network2, method){
+  method = method || Crossover.UNIFORM;
+
+  var network1 = network1.toJSON();
+  var network2 = network2.toJSON()
+  var offspring = Network.fromJSON(network1).toJSON();
+
+  switch(method){
+    case Crossover.UNIFORM:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(Math.random() >= 0.5){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(Math.random() >= 0.5){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+    case Crossover.AVERAGE:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        var bias1 = network1.neurons[i].bias;
+        var bias2 = network2.neurons[i].bias;
+        offspring.neurons[i].bias = (bias1 + bias2) / 2;
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        var weight1 = network1.connections[i].weight;
+        var weight2 = network2.connections[i].weight;
+        offspring.connections[i].weight = (weight1 + weight2) / 2;
+      }
+      break;
+    case Crossover.SINGLE_POINT:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0]){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0]){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+    case Crossover.TWO_POINT:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0] || i / offspring.neurons.length > Crossover.SINGLE_POINT[1]){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0] || i / offspring.connections.length > Crossover.SINGLE_POINT[1]){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+  }
+
+  return Network.fromJSON(offspring);
+}

@@ -202,6 +202,7 @@ Layer.prototype = {
   },
 
   mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
         var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];

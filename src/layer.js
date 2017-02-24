@@ -12,8 +12,6 @@ function Layer(size, label) {
     var neuron = new Neuron();
     this.list.push(neuron);
   }
-
-
 }
 
 Layer.prototype = {

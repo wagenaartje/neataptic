@@ -12,5 +12,4 @@ Crossover.UNIFORM = "UNIFORM";
 Crossover.AVERAGE = "AVERAGE";
 
 Selection = {};
-Selection.ELITISM = "ELITISM";
-Selection.FITNESS_PROPORTIONATE = "FITNESS_PROPORTIONATE";
+Selection.FITNESS_PROPORTIONATE = function(r){ return Math.pow(r,2); }

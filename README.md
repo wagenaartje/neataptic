@@ -5,6 +5,42 @@ Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/
 ## Usage
 Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.
 
+## Genetic neural network example
+
+This is an example of the creation and loop of a genetic neural network. The goal of this genetic algorithm is too create a population that will output a value that is as high as possible (=`1`) when inputted `0`. Please note that this is just an example, and this problem is much easier to 'solve' by backpropagating.
+
+```js
+// Create the evolutionary algorithm
+var GNN = new Evolution({
+  size: 50,
+  elitism: 5,
+  mutationRate: 0.05,
+  networkSize = [1,4,1],
+  mutationMethod: [Mutate.MODIFY_RANDOM_BIAS, Mutate.MODIFY_RANDOM_WEIGHT],
+  crossOverMethod: [Crossover.UNIFORM, Crossover.AVERAGE],
+  selectionMethod: [Selection.FITNESS_PROPORTIONATE],
+  fitnessFunction: function(network){
+     return Math.round(network.activate([0]) * 200);
+  }
+});
+
+// Loop the evolution process until a certain average score is reached
+var notFinished = true;;
+while(notFinished){
+  GNN.evaluate();
+  if(GNN.getAverage() > 190){
+    notFinished = false;
+  }
+
+  GNN.select();
+  GNN.crossOver();
+  GNN.mutate();
+  GNN.replace();
+};
+```
+
+If you want to know how to set up one of these algorithms yourself, feel free to take a look at the wiki pages! If you want to implement a genetic neural network algorithm, but don't know how, feel free to contact me at wagenaartje@protonmail.com!
+
 ## Planned improvements
 - Turn connections into objects
 - Create the ability to crossover connections

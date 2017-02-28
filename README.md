@@ -42,8 +42,10 @@ while(notFinished){
 If you want to know how to set up one of these algorithms yourself, feel free to take a look at the wiki pages! If you want to implement a genetic neural network algorithm, but don't know how, feel free to contact me at wagenaartje@protonmail.com!
 
 ## Installation
-Gynaptic files are hosted by rawgit, just use this link as the source of the script:
-`https://cdn.rawgit.com/wagenaartje/gynaptic/c1682e4f/dist/gynaptic.js`
+Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
+```html
+<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/c1682e4f/dist/gynaptic.js"></script>
+```
 
 ## Planned improvements
 - Turn connections into objects

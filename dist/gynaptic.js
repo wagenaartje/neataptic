@@ -2998,6 +2998,8 @@ function Evolution(options){
   this.newPopulation = [];
   this.parentSelection = [];
   this.scores = [];
+
+  this.generation = 0;
 }
 
 Evolution.prototype = {
@@ -3070,7 +3072,6 @@ Evolution.prototype = {
   },
 
   replace: function(){
-
     this.population = [];
     for(var i = 0; i < this.newPopulation.length; i++){
       this.population.push(this.newPopulation[i]);
@@ -3078,6 +3079,8 @@ Evolution.prototype = {
     this.newPopulation = [];
     this.parentSelection = [];
     this.scores = [];
+
+    this.generation++;
   },
 
   getParent: function(sortedIndex){

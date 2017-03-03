@@ -594,16 +594,6 @@
         handleEvent: function (e) {
             return (function (evtType, events) {
                 switch (evtType) {
-                    case events.KEYDOWN:
-                    case events.TOUCHSTART:
-                    case events.MOUSEDOWN:
-                        this.onKeyDown(e);
-                        break;
-                    case events.KEYUP:
-                    case events.TOUCHEND:
-                    case events.MOUSEUP:
-                        this.onKeyUp(e);
-                        break;
                 }
             }.bind(this))(e.type, Runner.events);
         },
@@ -612,37 +602,12 @@
          * Bind relevant key / mouse / touch listeners.
          */
         startListening: function () {
-            // Keys.
-            document.addEventListener(Runner.events.KEYDOWN, this);
-            document.addEventListener(Runner.events.KEYUP, this);
-
-            if (IS_MOBILE) {
-                // Mobile only touch devices.
-                this.touchController.addEventListener(Runner.events.TOUCHSTART, this);
-                this.touchController.addEventListener(Runner.events.TOUCHEND, this);
-                this.containerEl.addEventListener(Runner.events.TOUCHSTART, this);
-            } else {
-                // Mouse.
-                document.addEventListener(Runner.events.MOUSEDOWN, this);
-                document.addEventListener(Runner.events.MOUSEUP, this);
-            }
         },
 
         /**
          * Remove all listeners.
          */
         stopListening: function () {
-            document.removeEventListener(Runner.events.KEYDOWN, this);
-            document.removeEventListener(Runner.events.KEYUP, this);
-
-            if (IS_MOBILE) {
-                this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
-                this.touchController.removeEventListener(Runner.events.TOUCHEND, this);
-                this.containerEl.removeEventListener(Runner.events.TOUCHSTART, this);
-            } else {
-                document.removeEventListener(Runner.events.MOUSEDOWN, this);
-                document.removeEventListener(Runner.events.MOUSEUP, this);
-            }
         },
 
         /**
@@ -764,15 +729,6 @@
             this.distanceMeter.acheivement = false;
 
             this.tRex.update(100, Trex.status.CRASHED);
-
-            // Game over panel.
-            if (!this.gameOverPanel) {
-                this.gameOverPanel = new GameOverPanel(this.canvas,
-                    this.spriteDef.TEXT_SPRITE, this.spriteDef.RESTART,
-                    this.dimensions);
-            } else {
-                this.gameOverPanel.draw();
-            }
 
             // Update the high score.
             if (this.distanceRan > this.highestScore) {
@@ -2066,6 +2022,8 @@
                 this.draw(i, parseInt(this.highScore[i], 10), true);
             }
             this.canvasCtx.restore();
+
+            drawGeneration();
         },
 
         /**

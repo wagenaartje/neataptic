@@ -7,18 +7,17 @@ function sleep(ms) {
 
 $( document ).ready(function() {
   evol = new Evolution({
-    size: 5,
+    size: 50,
     mutationRate: 0.05,
     networkSize: [6,10,1],
     mutationMethod: [Mutate.MODIFY_RANDOM_BIAS, Mutate.MODIFY_RANDOM_WEIGHT],
     crossOverMethod: [Crossover.UNIFORM, Crossover.AVERAGE],
     selectionMethod: [Selection.FITNESS_PROPORTIONATE],
-    elitism: 1,
+    elitism: 5,
     fitnessFunction: fitness,
   });
 
   game = new Runner(".interstitial-wrapper");
-
   startGame();
   customLoop();
 });
@@ -94,6 +93,14 @@ function responseToKey(response){
   }
 }
 
+drawGeneration = function(){
+  game.distanceMeter.draw(-10, 12, true);
+  game.distanceMeter.draw(-9, 13, true);
+  game.distanceMeter.draw(-8, 14, true);
+  game.distanceMeter.draw(-6, Math.floor(evol.generation / 10), true);
+  game.distanceMeter.draw(-5, evol.generation % 10, true);
+}
+
 customLoop = async function(){
   var notFinished = true;
   while(notFinished){
@@ -105,6 +112,7 @@ customLoop = async function(){
         evol.scores.push(value);
       });
     }
+    game.distanceMeter.highScore = ["10", "11", "", "0", "0", "0", "0", "0"];
     if(evol.getAverage() > 5000) notFinished = false;
     evol.select();
     evol.crossOver();

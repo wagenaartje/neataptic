@@ -24,6 +24,9 @@ function Evolution(options){
 }
 
 Evolution.prototype = {
+  /**
+   * Creates the initial set of genomes
+   */
   createPool: function(){
     for(var i = 0; i < this.size; i++){
       var inputLayer = new Layer(this.networkSize[0]);
@@ -48,6 +51,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Evaluates the population and assigns each genome a score
+   */
   evaluate: function(){
     for(var i in this.population){
       var score = this.fitnessFunction(this.population[i]);
@@ -55,6 +61,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Selects genomes from the population based on their score
+   */
   select: function(){
     var sortedIndex = this.getSortedIndex();
 
@@ -71,6 +80,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Breeds new genomes from the selected genomes of the previous generation
+   */
   crossOver: function(){
     for(var i = 0; i < this.parentSelection.length; i+=2 ){
       var crossOverMethod = this.crossOverMethod[Math.floor(Math.random()*this.crossOverMethod.length)];
@@ -83,6 +95,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Mutates the new population
+   */
   mutate: function(){
     for(var i = 0; i < this.newPopulation.length; i++){
       if(Math.random() < this.mutationRate){
@@ -92,6 +107,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Replaces the old generation with the new generation
+   */
   replace: function(){
     this.population = [];
     for(var i = 0; i < this.newPopulation.length; i++){
@@ -104,6 +122,11 @@ Evolution.prototype = {
     this.generation ++;
   },
 
+  /**
+   * Gets a genome based on the selection function
+   * @param {Array} sortedIndex
+   * @return {Number} genome
+   */
   getParent: function(sortedIndex){
     switch(this.selectionMethod[0]){
       case Selection.FITNESS_PROPORTIONATE:
@@ -113,6 +136,9 @@ Evolution.prototype = {
     }
   },
 
+  /**
+   * Returns a list of sorted population indices based on score
+   */
   getSortedIndex: function(){
     // Makes an array with indices of scores from highest -> lowest values
     var copyScores = this.scores.slice();
@@ -126,8 +152,47 @@ Evolution.prototype = {
     return sortedIndex;
   },
 
+  /**
+   * Returns the average fitness of the population
+   */
   getAverage: function(){
     var sum = this.scores.reduce(function(a, b) { return a + b; });
     return sum / this.scores.length;
-  }
+  },
+
+  /**
+   * Returns the highest scoring genome of the current population
+   */
+   getFittestGenome: function(){
+     if(this.scores.length != 0){
+       var sortedIndex = this.getSortedIndex();
+       return this.population[sortedIndex[0]];
+     } else {
+       throw {name : "Empty array", message: "Please run .evaluate() before calling getFittestGenome()!"};
+     }
+   },
+
+   /**
+    * Exports the population to a JSON file
+    */
+    exportPool: function(){
+      var file = [];
+      for(var i in this.population){
+        file.push(this.population[i].toJSON());
+      }
+      return file;
+    },
+
+    /**
+     * Imports the population from an array
+     */
+     importPool: function(file){
+       this.size = file.length;
+       this.population = [];
+
+       for(var i in file){
+         var genome = Network.fromJSON(file[i]);
+         this.population.push(genome)
+       }
+     }
 }

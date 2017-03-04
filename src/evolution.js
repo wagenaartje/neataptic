@@ -173,7 +173,7 @@ Evolution.prototype = {
    },
 
    /**
-    * Exports the population to a JSON file
+    * Exports the population to an array
     */
     exportPool: function(){
       var file = [];

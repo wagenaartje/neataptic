@@ -6,7 +6,8 @@ function Evolution(options){
   options = options || {};
   this.size = options.size || 50;
   this.mutationRate = options.mutationRate || 0.05;
-  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT];
+  this.generationMethod = options.generationMethod || [Generation.POINTS];
+  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT, Mutate.MODIFY_RANDOM_BIAS];
   this.crossOverMethod = options.crossOverMethod || [Crossover.UNIFORM];
   this.selectionMethod = options.selectionMethod || [Selection.FITNESS_PROPORTIONATE];
   this.fitnessFunction = options.fitnessFunction;
@@ -29,26 +30,70 @@ Evolution.prototype = {
    */
   createPool: function(){
     for(var i = 0; i < this.size; i++){
-      var inputLayer = new Layer(this.networkSize[0]);
-      var outputLayer = new Layer(this.networkSize[this.networkSize.length-1]);
-      var hiddenLayers = [];
-
-      for(var j = 0; j < this.networkSize.length - 2; j++){
-        hiddenLayers.push(new Layer(this.networkSize[j+1]));
-        if(j > 0){
-          hiddenLayers[j-1].project(hiddenLayers[j]);
-        }
-      }
-
-      inputLayer.project(hiddenLayers[0]);
-      hiddenLayers[hiddenLayers.length-1].project(outputLayer);
-
-      this.population.push(new Network({
-        input: inputLayer,
-        hidden: hiddenLayers,
-        output: outputLayer
-      }));
+      var network = this.createNetwork();
+      this.population.push(network);
     }
+  },
+
+  /**
+   * Creates and modifies a network based on Generation.METHOD
+   */
+  createNetwork: function(){
+    var inputLayer = new Layer(this.networkSize[0]);
+    var outputLayer = new Layer(this.networkSize[this.networkSize.length-1]);
+    var hiddenLayers = [];
+
+    for(var j = 0; j < this.networkSize.length - 2; j++){
+      hiddenLayers.push(new Layer(this.networkSize[j+1]));
+      if(j > 0){
+        hiddenLayers[j-1].project(hiddenLayers[j]);
+      }
+    }
+
+    inputLayer.project(hiddenLayers[0]);
+    hiddenLayers[hiddenLayers.length-1].project(outputLayer);
+
+    var network = new Network({
+      input: inputLayer,
+      hidden: hiddenLayers,
+      output: outputLayer
+    });
+
+    var generationMethod = this.generationMethod[Math.floor(Math.random() * this.generationMethod.length)];
+    switch(generationMethod){
+      case(Generation.DEFAULT):
+        break;
+      case(Generation.POINTS):
+        var trainer = new Trainer(network);
+        var trainingSet = []
+        for(var i = 0; i < Generation.POINTS.config.points; i++){
+          var randomInput = [];
+          var randomOutput = [];
+
+          for(var i = 0; i < this.networkSize[0]; i++){
+            randomInput.push(Math.random());
+          }
+          for(var i = 0; i < this.networkSize[this.networkSize.length - 1]; i++){
+            randomOutput.push(Math.random());
+          }
+
+          for(var i = 0; i < 100; i++){
+            trainingSet.push({input: randomInput, output: randomOutput});
+          }
+        }
+
+        trainer.train(trainingSet, {
+          rate: Generation.POINTS.config.rate,
+          error: Generation.POINTS.config.error,
+          iterations: Generation.POINTS.config.iterations,
+          shuffle: Generation.POINTS.config.shuffle,
+          cost: Generation.POINTS.config.cost,
+        });
+    }
+
+
+
+    return network;
   },
 
   /**
@@ -128,9 +173,10 @@ Evolution.prototype = {
    * @return {Number} genome
    */
   getParent: function(sortedIndex){
-    switch(this.selectionMethod[0]){
+    var selectionMethod = this.selectionMethod[Math.floor(Math.random() * this.selectionMethod.length)];
+    switch(selectionMethod){
       case Selection.FITNESS_PROPORTIONATE:
-        var r = Math.floor(Selection.FITNESS_PROPORTIONATE(Math.random()) * this.size);
+        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.size);
         return this.population[sortedIndex[r]];
         break;
     }

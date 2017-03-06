@@ -47,7 +47,7 @@ If you want to know how to set up one of these algorithms yourself, feel free to
 ========
 Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/324e3fa7/dist/gynaptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/d93630db/dist/gynaptic.js"></script>
 ```
 
 <img src='http://i.imgur.com/isZsxET.png' width="100%"/>

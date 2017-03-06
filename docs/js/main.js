@@ -17,6 +17,8 @@ $( document ).ready(function() {
     fitnessFunction: fitness,
   });
 
+  loadPopulation();
+
   game = new Runner(".interstitial-wrapper");
   startGame();
   customLoop();
@@ -112,8 +114,9 @@ customLoop = async function(){
         evol.scores.push(value);
       });
     }
-    game.distanceMeter.highScore = ["10", "11", "", "0", "0", "0", "0", "0"];
+
     if(evol.getAverage() > 5000) notFinished = false;
+
     evol.select();
     evol.crossOver();
     evol.mutate();

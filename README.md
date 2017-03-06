@@ -55,5 +55,6 @@ Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 - Turn connections into objects
 - Crossover connections
 - Export/Import layers, neurons, evolutions to/from JSON
+- Create pool generation methods
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

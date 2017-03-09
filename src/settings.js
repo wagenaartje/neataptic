@@ -1,7 +1,10 @@
 /*******************************************************************************************
-                                        GENETICS
+                                        SETTINGS
 *******************************************************************************************/
 
+/*
+  Mutation methods
+*/
 Mutate = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
@@ -10,14 +13,31 @@ Mutate = {
     name: "SWAP_BIAS"
   },
   MODIFY_RANDOM_WEIGHT: {
-    name: "MODIFY_RANDOM_WEIGHT"
+    name: "MODIFY_RANDOM_WEIGHT",
+    config: {
+      min: -1,
+      max: 1
+    }
   },
   MODIFY_RANDOM_BIAS: {
-    name: "MODIFY_RANDOM_BIAS"
+    name: "MODIFY_RANDOM_BIAS",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_CONNECTIONS: {
+    name: "MODIFY_CONNECTIONS"
+  },
+  MODIFY_NEURONS: {
+    name: "MODIFY_NEURONS"
   }
 };
 
-// For now, parents for crossover should be the same size!
+/*
+  Crossover methods
+  For now, parents for crossover should be the same size!
+*/
 Crossover = {
   SINGLE_POINT: {
     name: "SINGLE_POINT",
@@ -35,6 +55,9 @@ Crossover = {
   }
 };
 
+/*
+  Selection methods
+*/
 Selection = {
   FITNESS_PROPORTIONATE: {
     name: "FITNESS_PROPORTIONATE",
@@ -42,6 +65,9 @@ Selection = {
   }
 };
 
+/*
+  Generation methods
+*/
 Generation = {
   POINTS: {
     name: "POINTS",
@@ -58,3 +84,18 @@ Generation = {
     name: "DEFAULT"
   }
 };
+
+/*
+  Pooling methods
+*/
+Pooling = {
+  config: {
+    size: [2,2]
+  },
+  MAX: {
+    name: "MAX",
+  },
+  NONE: {
+    name: "NONE"
+  }
+}

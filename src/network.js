@@ -358,7 +358,8 @@ Network.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.neurons().length);
-        this.neurons()[neuron].neuron.bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.neurons()[neuron].neuron.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var neuron = Math.floor(Math.random()*this.neurons().length);
@@ -375,7 +376,116 @@ Network.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        neuron.connections[connectionType][connection].weight += modification;
+        break;
+      case Mutate.MODIFY_NEURONS:
+        // Select random hidden layer to add/remove a neuron
+        var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
+        var layer = this.layers.hidden[layerIndex];
+
+        if(Math.random() >= 0.5){
+          // remove a neuron
+          var index = Math.floor(layer.list.length * Math.random())
+          var neuron = layer.list[index];
+
+          // remove all connections to and from this neuron in the network
+          neuron.connections = [];
+
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.projected){
+              if(list[n].connections.projected[conn].to == neuron){
+                delete list[n].connections.projected[conn];
+              }
+            }
+          }
+
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.inputs){
+              if(list[n].connections.inputs[conn].from == neuron){
+                delete list[n].connections.inputs[conn];
+              }
+            }
+          }
+
+          layer.list.splice(index, 1);
+          layer.size--;
+        } else {
+          // add a neuron
+          var neuron = new Neuron();
+
+          // project FROM
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            list[n].project(neuron);
+          }
+
+          // project TO
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in this.layers.output.list){
+            neuron.project(this.layers.output.list[n]);
+          }
+
+          layer.list.push(neuron);
+          layer.size++;
+        }
+        break;
+      case Mutate.MODIFY_CONNECTIONS:
+        // decide to make or break a connection
+        if(Math.random() >= 0.5){
+          // remove a connection to a certain neuron
+          var neuron;
+          while(neuron == null || Object.keys(neuron.connections.inputs).length == 0){
+            neuron = Math.floor(Math.random()*this.neurons().length);
+            neuron = this.neurons()[neuron].neuron;
+          }
+
+          var connections = neuron.connections.inputs;
+          var key = Object.keys(connections)[Math.floor(Object.keys(connections).length * Math.random())];
+          var fromID = connections[key].from.ID;
+
+          delete connections[key];
+
+          for(var n in this.neurons()){
+            if(this.neurons()[n].neuron.ID == fromID){
+              delete this.neurons()[n].neuron.connections.projected[key];
+              break;
+            }
+          }
+
+          // check if neuron is 'dead', a.k.a receives no more activation
+          if(Object.keys(connections).length == 0){
+            for(var n in this.neurons()){
+              var fromConnections = this.neurons()[n].neuron.connections.inputs;
+              var keys = Object.keys(fromConnections);
+
+              for(var conn in keys){
+                if(fromConnections[keys[conn]].from.ID == neuron.ID){
+                  delete this.neurons()[n].neuron.connections.inputs[keys[conn]];
+                }
+              }
+            }
+          }
+          break;
+        } else {
+          // make connection from neuron1 => neuron2, neuron1 != output neuron
+          var neuron1;
+          while(neuron1 == null || Object.keys(neuron1.connections.projected).length == 0){
+            neuron1 = Math.floor(Math.random()*this.neurons().length);
+            neuron1 = this.neurons()[neuron1].neuron;
+          }
+          var neuron2;
+          while(neuron2 == null || Object.keys(neuron2.connections.projected).length == 0){
+            neuron2 = Math.floor(Math.random()*this.neurons().length);
+            neuron2 = this.neurons()[neuron2].neuron;
+          }
+
+          neuron1.project(neuron2);
+        }
+
+
         break;
     }
   },

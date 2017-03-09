@@ -240,7 +240,8 @@ Layer.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.list.length);
-        this.list[neuron].bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.list[neuron].bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var neuron = this.list[Math.floor(Math.random()*this.list.length)];
@@ -256,7 +257,8 @@ Layer.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        neuron.connections[connectionType][connection].weight += modification;
         break;
     }
   }

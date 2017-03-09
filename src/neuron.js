@@ -326,7 +326,8 @@ Neuron.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         // just modifies the bias of the neuron
-        this.bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var connectionType = ['gated', 'inputs', 'projected'];
@@ -341,7 +342,8 @@ Neuron.prototype = {
         var connectionKeys = Object.keys(this.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        this.connections[connectionType][connection].weight += (Math.random() - 0.5) *2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        this.connections[connectionType][connection].weight += modification;
         break;
     }
   },

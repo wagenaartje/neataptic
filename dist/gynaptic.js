@@ -1,945 +1,4 @@
 /*******************************************************************************************
-                                        ARCHITECT
-*******************************************************************************************/
-
-// Collection of useful built-in architectures
-var Architect = {
-
-  // Multilayer Perceptron
-  Perceptron: function Perceptron() {
-
-    var args = Array.prototype.slice.call(arguments); // convert arguments to Array
-    if (args.length < 3)
-      throw new Error("not enough layers (minimum 3) !!");
-
-    var inputs = args.shift(); // first argument
-    var outputs = args.pop(); // last argument
-    var layers = args; // all the arguments in the middle
-
-    var input = new Layer(inputs);
-    var hidden = [];
-    var output = new Layer(outputs);
-
-    var previous = input;
-
-    // generate hidden layers
-    for (var level in layers) {
-      var size = layers[level];
-      var layer = new Layer(size);
-      hidden.push(layer);
-      previous.project(layer);
-      previous = layer;
-    }
-    previous.project(output);
-
-    // set layers of the neural network
-    this.set({
-      input: input,
-      hidden: hidden,
-      output: output
-    });
-
-    // trainer for the network
-    this.trainer = new Trainer(this);
-  },
-
-  // Multilayer Long Short-Term Memory
-  LSTM: function LSTM() {
-
-    var args = Array.prototype.slice.call(arguments); // convert arguments to array
-    if (args.length < 3)
-      throw new Error("not enough layers (minimum 3) !!");
-
-    var last = args.pop();
-    var option = {
-      peepholes: Layer.connectionType.ALL_TO_ALL,
-      hiddenToHidden: false,
-      outputToHidden: false,
-      outputToGates: false,
-      inputToOutput: true,
-    };
-    if (typeof last != 'number') {
-      var outputs = args.pop();
-      if (last.hasOwnProperty('peepholes'))
-        option.peepholes = last.peepholes;
-      if (last.hasOwnProperty('hiddenToHidden'))
-        option.hiddenToHidden = last.hiddenToHidden;
-      if (last.hasOwnProperty('outputToHidden'))
-        option.outputToHidden = last.outputToHidden;
-      if (last.hasOwnProperty('outputToGates'))
-        option.outputToGates = last.outputToGates;
-      if (last.hasOwnProperty('inputToOutput'))
-        option.inputToOutput = last.inputToOutput;
-    } else
-      var outputs = last;
-
-    var inputs = args.shift();
-    var layers = args;
-
-    var inputLayer = new Layer(inputs);
-    var hiddenLayers = [];
-    var outputLayer = new Layer(outputs);
-
-    var previous = null;
-
-    // generate layers
-    for (var layer in layers) {
-      // generate memory blocks (memory cell and respective gates)
-      var size = layers[layer];
-
-      var inputGate = new Layer(size).set({
-        bias: 1
-      });
-      var forgetGate = new Layer(size).set({
-        bias: 1
-      });
-      var memoryCell = new Layer(size);
-      var outputGate = new Layer(size).set({
-        bias: 1
-      });
-
-      hiddenLayers.push(inputGate);
-      hiddenLayers.push(forgetGate);
-      hiddenLayers.push(memoryCell);
-      hiddenLayers.push(outputGate);
-
-      // connections from input layer
-      var input = inputLayer.project(memoryCell);
-      inputLayer.project(inputGate);
-      inputLayer.project(forgetGate);
-      inputLayer.project(outputGate);
-
-      // connections from previous memory-block layer to this one
-      if (previous != null) {
-        var cell = previous.project(memoryCell);
-        previous.project(inputGate);
-        previous.project(forgetGate);
-        previous.project(outputGate);
-      }
-
-      // connections from memory cell
-      var output = memoryCell.project(outputLayer);
-
-      // self-connection
-      var self = memoryCell.project(memoryCell);
-
-      // hidden to hidden recurrent connection
-      if (option.hiddenToHidden)
-        memoryCell.project(memoryCell, Layer.connectionType.ALL_TO_ELSE);
-
-      // out to hidden recurrent connection
-      if (option.outputToHidden)
-        outputLayer.project(memoryCell);
-
-      // out to gates recurrent connection
-      if (option.outputToGates) {
-        outputLayer.project(inputGate);
-        outputLayer.project(outputGate);
-        outputLayer.project(forgetGate);
-      }
-
-      // peepholes
-      memoryCell.project(inputGate, option.peepholes);
-      memoryCell.project(forgetGate, option.peepholes);
-      memoryCell.project(outputGate, option.peepholes);
-
-      // gates
-      inputGate.gate(input, Layer.gateType.INPUT);
-      forgetGate.gate(self, Layer.gateType.ONE_TO_ONE);
-      outputGate.gate(output, Layer.gateType.OUTPUT);
-      if (previous != null)
-        inputGate.gate(cell, Layer.gateType.INPUT);
-
-      previous = memoryCell;
-    }
-
-    // input to output direct connection
-    if (option.inputToOutput)
-      inputLayer.project(outputLayer);
-
-    // set the layers of the neural network
-    this.set({
-      input: inputLayer,
-      hidden: hiddenLayers,
-      output: outputLayer
-    });
-
-    // trainer
-    this.trainer = new Trainer(this);
-  },
-
-  // Liquid State Machine
-  Liquid: function Liquid(inputs, hidden, outputs, connections, gates) {
-
-    // create layers
-    var inputLayer = new Layer(inputs);
-    var hiddenLayer = new Layer(hidden);
-    var outputLayer = new Layer(outputs);
-
-    // make connections and gates randomly among the neurons
-    var neurons = hiddenLayer.neurons();
-    var connectionList = [];
-
-    for (var i = 0; i < connections; i++) {
-      // connect two random neurons
-      var from = Math.random() * neurons.length | 0;
-      var to = Math.random() * neurons.length | 0;
-      var connection = neurons[from].project(neurons[to]);
-      connectionList.push(connection);
-    }
-
-    for (var j = 0; j < gates; j++) {
-      // pick a random gater neuron
-      var gater = Math.random() * neurons.length | 0;
-      // pick a random connection to gate
-      var connection = Math.random() * connectionList.length | 0;
-      // let the gater gate the connection
-      neurons[gater].gate(connectionList[connection]);
-    }
-
-    // connect the layers
-    inputLayer.project(hiddenLayer);
-    hiddenLayer.project(outputLayer);
-
-    // set the layers of the network
-    this.set({
-      input: inputLayer,
-      hidden: [hiddenLayer],
-      output: outputLayer
-    });
-
-    // trainer
-    this.trainer = new Trainer(this);
-  },
-
-  Hopfield: function Hopfield(size) {
-
-    var inputLayer = new Layer(size);
-    var outputLayer = new Layer(size);
-
-    inputLayer.project(outputLayer, Layer.connectionType.ALL_TO_ALL);
-
-    this.set({
-      input: inputLayer,
-      hidden: [],
-      output: outputLayer
-    });
-
-    var trainer = new Trainer(this);
-
-    var proto = Architect.Hopfield.prototype;
-
-    proto.learn = proto.learn || function(patterns)
-    {
-      var set = [];
-      for (var p in patterns)
-        set.push({
-          input: patterns[p],
-          output: patterns[p]
-        });
-
-      return trainer.train(set, {
-        iterations: 500000,
-        error: .00005,
-        rate: 1
-      });
-    };
-
-    proto.feed = proto.feed || function(pattern)
-    {
-      var output = this.activate(pattern);
-
-      var pattern = [];
-      for (var i in output)
-        pattern[i] = output[i] > .5 ? 1 : 0;
-
-      return pattern;
-    }
-  }
-}
-
-// Extend prototype chain (so every architectures is an instance of Network)
-for (var architecture in Architect) {
-  Architect[architecture].prototype = new Network();
-  Architect[architecture].prototype.constructor = Architect[architecture];
-}
-
-
-/*******************************************************************************************
-                                        TRAINER
-*******************************************************************************************/
-
-function Trainer(network, options) {
-  options = options || {};
-  this.network = network;
-  this.rate = options.rate || .2;
-  this.iterations = options.iterations || 100000;
-  this.error = options.error || .005;
-  this.cost = options.cost || null;
-  this.crossValidate = options.crossValidate || null;
-}
-
-Trainer.prototype = {
-
-  // trains any given set to a network
-  train: function(set, options) {
-
-    var error = 1;
-    var iterations = bucketSize = 0;
-    var abort = false;
-    var currentRate;
-    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
-    var crossValidate = false, testSet, trainSet;
-
-    var start = Date.now();
-
-    if (options) {
-      if (options.shuffle) {
-        //+ Jonas Raoni Soares Silva
-        //@ http://jsfromhell.com/array/shuffle [v1.0]
-        function shuffle(o) { //v1.0
-          for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-          return o;
-        };
-      }
-      if (options.iterations)
-        this.iterations = options.iterations;
-      if (options.error)
-        this.error = options.error;
-      if (options.rate)
-        this.rate = options.rate;
-      if (options.cost)
-        this.cost = options.cost;
-      if (options.schedule)
-        this.schedule = options.schedule;
-      if (options.customLog){
-        // for backward compatibility with code that used customLog
-        console.log('Deprecated: use schedule instead of customLog')
-        this.schedule = options.customLog;
-      }
-      if (this.crossValidate || options.crossValidate) {
-        if(!this.crossValidate) this.crossValidate = {};
-        crossValidate = true;
-        if (options.crossValidate.testSize)
-          this.crossValidate.testSize = options.crossValidate.testSize;
-        if (options.crossValidate.testError)
-          this.crossValidate.testError = options.crossValidate.testError;
-      }
-    }
-
-    currentRate = this.rate;
-    if(Array.isArray(this.rate)) {
-      var bucketSize = Math.floor(this.iterations / this.rate.length);
-    }
-
-    if(crossValidate) {
-      var numTrain = Math.ceil((1 - this.crossValidate.testSize) * set.length);
-      trainSet = set.slice(0, numTrain);
-      testSet = set.slice(numTrain);
-    }
-
-    var lastError = 0;
-    while ((!abort && iterations < this.iterations && error > this.error)) {
-      if (crossValidate && error <= this.crossValidate.testError) {
-        break;
-      }
-
-      var currentSetSize = set.length;
-      error = 0;
-      iterations++;
-
-      if(bucketSize > 0) {
-        var currentBucket = Math.floor(iterations / bucketSize);
-        currentRate = this.rate[currentBucket] || currentRate;
-      }
-
-      if(typeof this.rate === 'function') {
-        currentRate = this.rate(iterations, lastError);
-      }
-
-      if (crossValidate) {
-        this._trainSet(trainSet, currentRate, cost);
-        error += this.test(testSet).error;
-        currentSetSize = 1;
-      } else {
-        error += this._trainSet(set, currentRate, cost);
-        currentSetSize = set.length;
-      }
-
-      // check error
-      error /= currentSetSize;
-      lastError = error;
-
-      if (options) {
-        if (this.schedule && this.schedule.every && iterations %
-          this.schedule.every == 0)
-          abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate });
-        else if (options.log && iterations % options.log == 0) {
-          console.log('iterations', iterations, 'error', error, 'rate', currentRate);
-        };
-        if (options.shuffle)
-          shuffle(set);
-      }
-    }
-
-    var results = {
-      error: error,
-      iterations: iterations,
-      time: Date.now() - start
-    };
-
-    return results;
-  },
-
-  // trains any given set to a network, using a WebWorker (only for the browser). Returns a Promise of the results.
-  trainAsync: function(set, options) {
-    var train = this.workerTrain.bind(this);
-    return new Promise(function(resolve, reject) {
-      try {
-        train(set, resolve, options, true)
-      } catch(e) {
-        reject(e)
-      }
-    })
-  },
-
-  // preforms one training epoch and returns the error (private function used in this.train)
-  _trainSet: function(set, currentRate, costFunction) {
-    var errorSum = 0;
-    for (var train in set) {
-      var input = set[train].input;
-      var target = set[train].output;
-
-      var output = this.network.activate(input);
-      this.network.propagate(currentRate, target);
-
-      errorSum += costFunction(target, output);
-    }
-    return errorSum;
-  },
-
-  // tests a set and returns the error and elapsed time
-  test: function(set, options) {
-
-    var error = 0;
-    var input, output, target;
-    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
-
-    var start = Date.now();
-
-    for (var test in set) {
-      input = set[test].input;
-      target = set[test].output;
-      output = this.network.activate(input);
-      error += cost(target, output);
-    }
-
-    error /= set.length;
-
-    var results = {
-      error: error,
-      time: Date.now() - start
-    };
-
-    return results;
-  },
-
-  // trains any given set to a network using a WebWorker [deprecated: use trainAsync instead]
-  workerTrain: function(set, callback, options, suppressWarning) {
-
-    if (!suppressWarning) {
-      console.warn('Deprecated: do not use `workerTrain`, use `trainAsync` instead.')
-    }
-    var that = this;
-
-    if (!this.network.optimized)
-      this.network.optimize();
-
-    // Create a new worker
-    var worker = this.network.worker(this.network.optimized.memory, set, options);
-
-    // train the worker
-    worker.onmessage = function(e) {
-      switch(e.data.action) {
-          case 'done':
-            var iterations = e.data.message.iterations;
-            var error = e.data.message.error;
-            var time = e.data.message.time;
-
-            that.network.optimized.ownership(e.data.memoryBuffer);
-
-            // Done callback
-            callback({
-              error: error,
-              iterations: iterations,
-              time: time
-            });
-
-            // Delete the worker and all its associated memory
-            worker.terminate();
-          break;
-
-          case 'log':
-            console.log(e.data.message);
-
-          case 'schedule':
-            if (options && options.schedule && typeof options.schedule.do === 'function') {
-              var scheduled = options.schedule.do
-              scheduled(e.data.message)
-            }
-          break;
-      }
-    };
-
-    // Start the worker
-    worker.postMessage({action: 'startTraining'});
-  },
-
-  // trains an XOR to the network
-  XOR: function(options) {
-
-    if (this.network.inputs() != 2 || this.network.outputs() != 1)
-      throw new Error("Incompatible network (2 inputs, 1 output)");
-
-    var defaults = {
-      iterations: 100000,
-      log: false,
-      shuffle: true,
-      cost: Trainer.cost.MSE
-    };
-
-    if (options)
-      for (var i in options)
-        defaults[i] = options[i];
-
-    return this.train([{
-      input: [0, 0],
-      output: [0]
-    }, {
-      input: [1, 0],
-      output: [1]
-    }, {
-      input: [0, 1],
-      output: [1]
-    }, {
-      input: [1, 1],
-      output: [0]
-    }], defaults);
-  },
-
-  // trains the network to pass a Distracted Sequence Recall test
-  DSR: function(options) {
-    options = options || {};
-
-    var targets = options.targets || [2, 4, 7, 8];
-    var distractors = options.distractors || [3, 5, 6, 9];
-    var prompts = options.prompts || [0, 1];
-    var length = options.length || 24;
-    var criterion = options.success || 0.95;
-    var iterations = options.iterations || 100000;
-    var rate = options.rate || .1;
-    var log = options.log || 0;
-    var schedule = options.schedule || {};
-    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
-
-    var trial, correct, i, j, success;
-    trial = correct = i = j = success = 0;
-    var error = 1,
-      symbols = targets.length + distractors.length + prompts.length;
-
-    var noRepeat = function(range, avoid) {
-      var number = Math.random() * range | 0;
-      var used = false;
-      for (var i in avoid)
-        if (number == avoid[i])
-          used = true;
-      return used ? noRepeat(range, avoid) : number;
-    };
-
-    var equal = function(prediction, output) {
-      for (var i in prediction)
-        if (Math.round(prediction[i]) != output[i])
-          return false;
-      return true;
-    };
-
-    var start = Date.now();
-
-    while (trial < iterations && (success < criterion || trial % 1000 != 0)) {
-      // generate sequence
-      var sequence = [],
-        sequenceLength = length - prompts.length;
-      for (i = 0; i < sequenceLength; i++) {
-        var any = Math.random() * distractors.length | 0;
-        sequence.push(distractors[any]);
-      }
-      var indexes = [],
-        positions = [];
-      for (i = 0; i < prompts.length; i++) {
-        indexes.push(Math.random() * targets.length | 0);
-        positions.push(noRepeat(sequenceLength, positions));
-      }
-      positions = positions.sort();
-      for (i = 0; i < prompts.length; i++) {
-        sequence[positions[i]] = targets[indexes[i]];
-        sequence.push(prompts[i]);
-      }
-
-      //train sequence
-      var distractorsCorrect;
-      var targetsCorrect = distractorsCorrect = 0;
-      error = 0;
-      for (i = 0; i < length; i++) {
-        // generate input from sequence
-        var input = [];
-        for (j = 0; j < symbols; j++)
-          input[j] = 0;
-        input[sequence[i]] = 1;
-
-        // generate target output
-        var output = [];
-        for (j = 0; j < targets.length; j++)
-          output[j] = 0;
-
-        if (i >= sequenceLength) {
-          var index = i - sequenceLength;
-          output[indexes[index]] = 1;
-        }
-
-        // check result
-        var prediction = this.network.activate(input);
-
-        if (equal(prediction, output))
-          if (i < sequenceLength)
-            distractorsCorrect++;
-          else
-            targetsCorrect++;
-        else {
-          this.network.propagate(rate, output);
-        }
-
-        error += cost(output, prediction);
-
-        if (distractorsCorrect + targetsCorrect == length)
-          correct++;
-      }
-
-      // calculate error
-      if (trial % 1000 == 0)
-        correct = 0;
-      trial++;
-      var divideError = trial % 1000;
-      divideError = divideError == 0 ? 1000 : divideError;
-      success = correct / divideError;
-      error /= length;
-
-      // log
-      if (log && trial % log == 0)
-        console.log("iterations:", trial, " success:", success, " correct:",
-          correct, " time:", Date.now() - start, " error:", error);
-      if (schedule.do && schedule.every && trial % schedule.every == 0)
-        schedule.do({
-          iterations: trial,
-          success: success,
-          error: error,
-          time: Date.now() - start,
-          correct: correct
-        });
-    }
-
-    return {
-      iterations: trial,
-      success: success,
-      error: error,
-      time: Date.now() - start
-    }
-  },
-
-  // train the network to learn an Embeded Reber Grammar
-  ERG: function(options) {
-
-    options = options || {};
-    var iterations = options.iterations || 150000;
-    var criterion = options.error || .05;
-    var rate = options.rate || .1;
-    var log = options.log || 500;
-    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
-
-    // gramar node
-    var Node = function() {
-      this.paths = [];
-    };
-    Node.prototype = {
-      connect: function(node, value) {
-        this.paths.push({
-          node: node,
-          value: value
-        });
-        return this;
-      },
-      any: function() {
-        if (this.paths.length == 0)
-          return false;
-        var index = Math.random() * this.paths.length | 0;
-        return this.paths[index];
-      },
-      test: function(value) {
-        for (var i in this.paths)
-          if (this.paths[i].value == value)
-            return this.paths[i];
-        return false;
-      }
-    };
-
-    var reberGrammar = function() {
-
-      // build a reber grammar
-      var output = new Node();
-      var n1 = (new Node()).connect(output, "E");
-      var n2 = (new Node()).connect(n1, "S");
-      var n3 = (new Node()).connect(n1, "V").connect(n2, "P");
-      var n4 = (new Node()).connect(n2, "X");
-      n4.connect(n4, "S");
-      var n5 = (new Node()).connect(n3, "V");
-      n5.connect(n5, "T");
-      n2.connect(n5, "X");
-      var n6 = (new Node()).connect(n4, "T").connect(n5, "P");
-      var input = (new Node()).connect(n6, "B");
-
-      return {
-        input: input,
-        output: output
-      }
-    };
-
-    // build an embeded reber grammar
-    var embededReberGrammar = function() {
-      var reber1 = reberGrammar();
-      var reber2 = reberGrammar();
-
-      var output = new Node();
-      var n1 = (new Node).connect(output, "E");
-      reber1.output.connect(n1, "T");
-      reber2.output.connect(n1, "P");
-      var n2 = (new Node).connect(reber1.input, "P").connect(reber2.input,
-        "T");
-      var input = (new Node).connect(n2, "B");
-
-      return {
-        input: input,
-        output: output
-      }
-
-    };
-
-    // generate an ERG sequence
-    var generate = function() {
-      var node = embededReberGrammar().input;
-      var next = node.any();
-      var str = "";
-      while (next) {
-        str += next.value;
-        next = next.node.any();
-      }
-      return str;
-    };
-
-    // test if a string matches an embeded reber grammar
-    var test = function(str) {
-      var node = embededReberGrammar().input;
-      var i = 0;
-      var ch = str.charAt(i);
-      while (i < str.length) {
-        var next = node.test(ch);
-        if (!next)
-          return false;
-        node = next.node;
-        ch = str.charAt(++i);
-      }
-      return true;
-    };
-
-    // helper to check if the output and the target vectors match
-    var different = function(array1, array2) {
-      var max1 = 0;
-      var i1 = -1;
-      var max2 = 0;
-      var i2 = -1;
-      for (var i in array1) {
-        if (array1[i] > max1) {
-          max1 = array1[i];
-          i1 = i;
-        }
-        if (array2[i] > max2) {
-          max2 = array2[i];
-          i2 = i;
-        }
-      }
-
-      return i1 != i2;
-    };
-
-    var iteration = 0;
-    var error = 1;
-    var table = {
-      "B": 0,
-      "P": 1,
-      "T": 2,
-      "X": 3,
-      "S": 4,
-      "E": 5
-    };
-
-    var start = Date.now();
-    while (iteration < iterations && error > criterion) {
-      var i = 0;
-      error = 0;
-
-      // ERG sequence to learn
-      var sequence = generate();
-
-      // input
-      var read = sequence.charAt(i);
-      // target
-      var predict = sequence.charAt(i + 1);
-
-      // train
-      while (i < sequence.length - 1) {
-        var input = [];
-        var target = [];
-        for (var j = 0; j < 6; j++) {
-          input[j] = 0;
-          target[j] = 0;
-        }
-        input[table[read]] = 1;
-        target[table[predict]] = 1;
-
-        var output = this.network.activate(input);
-
-        if (different(output, target))
-          this.network.propagate(rate, target);
-
-        read = sequence.charAt(++i);
-        predict = sequence.charAt(i + 1);
-
-        error += cost(target, output);
-      }
-      error /= sequence.length;
-      iteration++;
-      if (iteration % log == 0) {
-        console.log("iterations:", iteration, " time:", Date.now() - start,
-          " error:", error);
-      }
-    }
-
-    return {
-      iterations: iteration,
-      error: error,
-      time: Date.now() - start,
-      test: test,
-      generate: generate
-    }
-  },
-
-  timingTask: function(options){
-
-    if (this.network.inputs() != 2 || this.network.outputs() != 1)
-      throw new Error("Invalid Network: must have 2 inputs and one output");
-
-    if (typeof options == 'undefined')
-      options = {};
-
-    // helper
-    function getSamples (trainingSize, testSize){
-
-      // sample size
-      var size = trainingSize + testSize;
-
-      // generate samples
-      var t = 0;
-      var set = [];
-      for (var i = 0; i < size; i++) {
-        set.push({ input: [0,0], output: [0] });
-      }
-      while(t < size - 20) {
-          var n = Math.round(Math.random() * 20);
-          set[t].input[0] = 1;
-          for (var j = t; j <= t + n; j++){
-              set[j].input[1] = n / 20;
-              set[j].output[0] = 0.5;
-          }
-          t += n;
-          n = Math.round(Math.random() * 20);
-          for (var k = t+1; k <= (t + n) &&  k < size; k++)
-              set[k].input[1] = set[t].input[1];
-          t += n;
-      }
-
-      // separate samples between train and test sets
-      var trainingSet = []; var testSet = [];
-      for (var l = 0; l < size; l++)
-          (l < trainingSize ? trainingSet : testSet).push(set[l]);
-
-      // return samples
-      return {
-          train: trainingSet,
-          test: testSet
-      }
-    }
-
-    var iterations = options.iterations || 200;
-    var error = options.error || .005;
-    var rate = options.rate || [.03, .02];
-    var log = options.log === false ? false : options.log || 10;
-    var cost = options.cost || this.cost || Trainer.cost.MSE;
-    var trainingSamples = options.trainSamples || 7000;
-    var testSamples = options.trainSamples || 1000;
-
-    // samples for training and testing
-    var samples = getSamples(trainingSamples, testSamples);
-
-    // train
-    var result = this.train(samples.train, {
-      rate: rate,
-      log: log,
-      iterations: iterations,
-      error: error,
-      cost: cost
-    });
-
-    return {
-      train: result,
-      test: this.test(samples.test)
-    }
-  }
-};
-
-// Built-in cost functions
-Trainer.cost = {
-  // Eq. 9
-  CROSS_ENTROPY: function(target, output)
-  {
-    var crossentropy = 0;
-    for (var i in output)
-      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
-    return crossentropy;
-  },
-  MSE: function(target, output)
-  {
-    var mse = 0;
-    for (var i in output)
-      mse += Math.pow(target[i] - output[i], 2);
-    return mse / output.length;
-  },
-  BINARY: function(target, output){
-    var misses = 0;
-    for (var i in output)
-      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
-    return misses;
-  }
-}
-
-/*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/
 
@@ -1185,67 +244,6 @@ Evolution.prototype = {
 }
 
 /*******************************************************************************************
-                                        GENETICS
-*******************************************************************************************/
-
-Mutate = {
-  SWAP_WEIGHT: {
-    name: "SWAP_WEIGHT"
-  },
-  SWAP_BIAS: {
-    name: "SWAP_BIAS"
-  },
-  MODIFY_RANDOM_WEIGHT: {
-    name: "MODIFY_RANDOM_WEIGHT"
-  },
-  MODIFY_RANDOM_BIAS: {
-    name: "MODIFY_RANDOM_BIAS"
-  }
-};
-
-// For now, parents for crossover should be the same size!
-Crossover = {
-  SINGLE_POINT: {
-    name: "SINGLE_POINT",
-    config: [0.4]
-  },
-  TWO_POINT: {
-    name: "TWO_POINT",
-    config: [0.4, 0.9]
-  },
-  UNIFORM: {
-    name: "UNIFORM"
-  },
-  AVERAGE: {
-    name: "AVERAGE"
-  }
-};
-
-Selection = {
-  FITNESS_PROPORTIONATE: {
-    name: "FITNESS_PROPORTIONATE",
-    config: function(r){ return Math.pow(r,2); }
-  }
-};
-
-Generation = {
-  POINTS: {
-    name: "POINTS",
-    config: {
-      points: 2,
-      learningRate : 0.3,
-      iterations: 50,
-      shuffle: true,
-      error: 0.0001,
-      cost: Trainer.cost.MSE
-    }
-  },
-  DEFAULT: {
-    name: "DEFAULT"
-  }
-};
-
-/*******************************************************************************************
                                             LAYER
 *******************************************************************************************/
 
@@ -1487,7 +485,8 @@ Layer.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.list.length);
-        this.list[neuron].bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.list[neuron].bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var neuron = this.list[Math.floor(Math.random()*this.list.length)];
@@ -1503,7 +502,8 @@ Layer.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        neuron.connections[connectionType][connection].weight += modification;
         break;
     }
   }
@@ -1982,7 +982,8 @@ Network.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.neurons().length);
-        this.neurons()[neuron].neuron.bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.neurons()[neuron].neuron.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var neuron = Math.floor(Math.random()*this.neurons().length);
@@ -1999,7 +1000,116 @@ Network.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        neuron.connections[connectionType][connection].weight += (Math.random() - 0.5) *2 ;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        neuron.connections[connectionType][connection].weight += modification;
+        break;
+      case Mutate.MODIFY_NEURONS:
+        // Select random hidden layer to add/remove a neuron
+        var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
+        var layer = this.layers.hidden[layerIndex];
+
+        if(Math.random() >= 0.5){
+          // remove a neuron
+          var index = Math.floor(layer.list.length * Math.random())
+          var neuron = layer.list[index];
+
+          // remove all connections to and from this neuron in the network
+          neuron.connections = [];
+
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.projected){
+              if(list[n].connections.projected[conn].to == neuron){
+                delete list[n].connections.projected[conn];
+              }
+            }
+          }
+
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.inputs){
+              if(list[n].connections.inputs[conn].from == neuron){
+                delete list[n].connections.inputs[conn];
+              }
+            }
+          }
+
+          layer.list.splice(index, 1);
+          layer.size--;
+        } else {
+          // add a neuron
+          var neuron = new Neuron();
+
+          // project FROM
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            list[n].project(neuron);
+          }
+
+          // project TO
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in this.layers.output.list){
+            neuron.project(this.layers.output.list[n]);
+          }
+
+          layer.list.push(neuron);
+          layer.size++;
+        }
+        break;
+      case Mutate.MODIFY_CONNECTIONS:
+        // decide to make or break a connection
+        if(Math.random() >= 0.5){
+          // remove a connection to a certain neuron
+          var neuron;
+          while(neuron == null || Object.keys(neuron.connections.inputs).length == 0){
+            neuron = Math.floor(Math.random()*this.neurons().length);
+            neuron = this.neurons()[neuron].neuron;
+          }
+
+          var connections = neuron.connections.inputs;
+          var key = Object.keys(connections)[Math.floor(Object.keys(connections).length * Math.random())];
+          var fromID = connections[key].from.ID;
+
+          delete connections[key];
+
+          for(var n in this.neurons()){
+            if(this.neurons()[n].neuron.ID == fromID){
+              delete this.neurons()[n].neuron.connections.projected[key];
+              break;
+            }
+          }
+
+          // check if neuron is 'dead', a.k.a receives no more activation
+          if(Object.keys(connections).length == 0){
+            for(var n in this.neurons()){
+              var fromConnections = this.neurons()[n].neuron.connections.inputs;
+              var keys = Object.keys(fromConnections);
+
+              for(var conn in keys){
+                if(fromConnections[keys[conn]].from.ID == neuron.ID){
+                  delete this.neurons()[n].neuron.connections.inputs[keys[conn]];
+                }
+              }
+            }
+          }
+          break;
+        } else {
+          // make connection from neuron1 => neuron2, neuron1 != output neuron
+          var neuron1;
+          while(neuron1 == null || Object.keys(neuron1.connections.projected).length == 0){
+            neuron1 = Math.floor(Math.random()*this.neurons().length);
+            neuron1 = this.neurons()[neuron1].neuron;
+          }
+          var neuron2;
+          while(neuron2 == null || Object.keys(neuron2.connections.projected).length == 0){
+            neuron2 = Math.floor(Math.random()*this.neurons().length);
+            neuron2 = this.neurons()[neuron2].neuron;
+          }
+
+          neuron1.project(neuron2);
+        }
+
+
         break;
     }
   },
@@ -2728,7 +1838,8 @@ Neuron.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         // just modifies the bias of the neuron
-        this.bias += (Math.random() - 0.5) * 2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var connectionType = ['gated', 'inputs', 'projected'];
@@ -2743,7 +1854,8 @@ Neuron.prototype = {
         var connectionKeys = Object.keys(this.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        this.connections[connectionType][connection].weight += (Math.random() - 0.5) *2;
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        this.connections[connectionType][connection].weight += modification;
         break;
     }
   },
@@ -3263,3 +2375,1045 @@ Neuron.squash.RELU = function(x, derivate) {
     }
   }
 })();
+
+/*******************************************************************************************
+                                        TRAINER
+*******************************************************************************************/
+
+function Trainer(network, options) {
+  options = options || {};
+  this.network = network;
+  this.rate = options.rate || .2;
+  this.iterations = options.iterations || 100000;
+  this.error = options.error || .005;
+  this.cost = options.cost || null;
+  this.crossValidate = options.crossValidate || null;
+}
+
+Trainer.prototype = {
+
+  // trains any given set to a network
+  train: function(set, options) {
+
+    var error = 1;
+    var iterations = bucketSize = 0;
+    var abort = false;
+    var currentRate;
+    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
+    var crossValidate = false, testSet, trainSet;
+
+    var start = Date.now();
+
+    if (options) {
+      if (options.shuffle) {
+        //+ Jonas Raoni Soares Silva
+        //@ http://jsfromhell.com/array/shuffle [v1.0]
+        function shuffle(o) { //v1.0
+          for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+          return o;
+        };
+      }
+      if (options.iterations)
+        this.iterations = options.iterations;
+      if (options.error)
+        this.error = options.error;
+      if (options.rate)
+        this.rate = options.rate;
+      if (options.cost)
+        this.cost = options.cost;
+      if (options.schedule)
+        this.schedule = options.schedule;
+      if (options.customLog){
+        // for backward compatibility with code that used customLog
+        console.log('Deprecated: use schedule instead of customLog')
+        this.schedule = options.customLog;
+      }
+      if (this.crossValidate || options.crossValidate) {
+        if(!this.crossValidate) this.crossValidate = {};
+        crossValidate = true;
+        if (options.crossValidate.testSize)
+          this.crossValidate.testSize = options.crossValidate.testSize;
+        if (options.crossValidate.testError)
+          this.crossValidate.testError = options.crossValidate.testError;
+      }
+    }
+
+    currentRate = this.rate;
+    if(Array.isArray(this.rate)) {
+      var bucketSize = Math.floor(this.iterations / this.rate.length);
+    }
+
+    if(crossValidate) {
+      var numTrain = Math.ceil((1 - this.crossValidate.testSize) * set.length);
+      trainSet = set.slice(0, numTrain);
+      testSet = set.slice(numTrain);
+    }
+
+    var lastError = 0;
+    while ((!abort && iterations < this.iterations && error > this.error)) {
+      if (crossValidate && error <= this.crossValidate.testError) {
+        break;
+      }
+
+      var currentSetSize = set.length;
+      error = 0;
+      iterations++;
+
+      if(bucketSize > 0) {
+        var currentBucket = Math.floor(iterations / bucketSize);
+        currentRate = this.rate[currentBucket] || currentRate;
+      }
+
+      if(typeof this.rate === 'function') {
+        currentRate = this.rate(iterations, lastError);
+      }
+
+      if (crossValidate) {
+        this._trainSet(trainSet, currentRate, cost);
+        error += this.test(testSet).error;
+        currentSetSize = 1;
+      } else {
+        error += this._trainSet(set, currentRate, cost);
+        currentSetSize = set.length;
+      }
+
+      // check error
+      error /= currentSetSize;
+      lastError = error;
+
+      if (options) {
+        if (this.schedule && this.schedule.every && iterations %
+          this.schedule.every == 0)
+          abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate });
+        else if (options.log && iterations % options.log == 0) {
+          console.log('iterations', iterations, 'error', error, 'rate', currentRate);
+        };
+        if (options.shuffle)
+          shuffle(set);
+      }
+    }
+
+    var results = {
+      error: error,
+      iterations: iterations,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  // trains any given set to a network, using a WebWorker (only for the browser). Returns a Promise of the results.
+  trainAsync: function(set, options) {
+    var train = this.workerTrain.bind(this);
+    return new Promise(function(resolve, reject) {
+      try {
+        train(set, resolve, options, true)
+      } catch(e) {
+        reject(e)
+      }
+    })
+  },
+
+  // preforms one training epoch and returns the error (private function used in this.train)
+  _trainSet: function(set, currentRate, costFunction) {
+    var errorSum = 0;
+    for (var train in set) {
+      var input = set[train].input;
+      var target = set[train].output;
+
+      var output = this.network.activate(input);
+      this.network.propagate(currentRate, target);
+
+      errorSum += costFunction(target, output);
+    }
+    return errorSum;
+  },
+
+  // tests a set and returns the error and elapsed time
+  test: function(set, options) {
+
+    var error = 0;
+    var input, output, target;
+    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
+
+    var start = Date.now();
+
+    for (var test in set) {
+      input = set[test].input;
+      target = set[test].output;
+      output = this.network.activate(input);
+      error += cost(target, output);
+    }
+
+    error /= set.length;
+
+    var results = {
+      error: error,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  // trains any given set to a network using a WebWorker [deprecated: use trainAsync instead]
+  workerTrain: function(set, callback, options, suppressWarning) {
+
+    if (!suppressWarning) {
+      console.warn('Deprecated: do not use `workerTrain`, use `trainAsync` instead.')
+    }
+    var that = this;
+
+    if (!this.network.optimized)
+      this.network.optimize();
+
+    // Create a new worker
+    var worker = this.network.worker(this.network.optimized.memory, set, options);
+
+    // train the worker
+    worker.onmessage = function(e) {
+      switch(e.data.action) {
+          case 'done':
+            var iterations = e.data.message.iterations;
+            var error = e.data.message.error;
+            var time = e.data.message.time;
+
+            that.network.optimized.ownership(e.data.memoryBuffer);
+
+            // Done callback
+            callback({
+              error: error,
+              iterations: iterations,
+              time: time
+            });
+
+            // Delete the worker and all its associated memory
+            worker.terminate();
+          break;
+
+          case 'log':
+            console.log(e.data.message);
+
+          case 'schedule':
+            if (options && options.schedule && typeof options.schedule.do === 'function') {
+              var scheduled = options.schedule.do
+              scheduled(e.data.message)
+            }
+          break;
+      }
+    };
+
+    // Start the worker
+    worker.postMessage({action: 'startTraining'});
+  },
+
+  // trains an XOR to the network
+  XOR: function(options) {
+
+    if (this.network.inputs() != 2 || this.network.outputs() != 1)
+      throw new Error("Incompatible network (2 inputs, 1 output)");
+
+    var defaults = {
+      iterations: 100000,
+      log: false,
+      shuffle: true,
+      cost: Trainer.cost.MSE
+    };
+
+    if (options)
+      for (var i in options)
+        defaults[i] = options[i];
+
+    return this.train([{
+      input: [0, 0],
+      output: [0]
+    }, {
+      input: [1, 0],
+      output: [1]
+    }, {
+      input: [0, 1],
+      output: [1]
+    }, {
+      input: [1, 1],
+      output: [0]
+    }], defaults);
+  },
+
+  // trains the network to pass a Distracted Sequence Recall test
+  DSR: function(options) {
+    options = options || {};
+
+    var targets = options.targets || [2, 4, 7, 8];
+    var distractors = options.distractors || [3, 5, 6, 9];
+    var prompts = options.prompts || [0, 1];
+    var length = options.length || 24;
+    var criterion = options.success || 0.95;
+    var iterations = options.iterations || 100000;
+    var rate = options.rate || .1;
+    var log = options.log || 0;
+    var schedule = options.schedule || {};
+    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
+
+    var trial, correct, i, j, success;
+    trial = correct = i = j = success = 0;
+    var error = 1,
+      symbols = targets.length + distractors.length + prompts.length;
+
+    var noRepeat = function(range, avoid) {
+      var number = Math.random() * range | 0;
+      var used = false;
+      for (var i in avoid)
+        if (number == avoid[i])
+          used = true;
+      return used ? noRepeat(range, avoid) : number;
+    };
+
+    var equal = function(prediction, output) {
+      for (var i in prediction)
+        if (Math.round(prediction[i]) != output[i])
+          return false;
+      return true;
+    };
+
+    var start = Date.now();
+
+    while (trial < iterations && (success < criterion || trial % 1000 != 0)) {
+      // generate sequence
+      var sequence = [],
+        sequenceLength = length - prompts.length;
+      for (i = 0; i < sequenceLength; i++) {
+        var any = Math.random() * distractors.length | 0;
+        sequence.push(distractors[any]);
+      }
+      var indexes = [],
+        positions = [];
+      for (i = 0; i < prompts.length; i++) {
+        indexes.push(Math.random() * targets.length | 0);
+        positions.push(noRepeat(sequenceLength, positions));
+      }
+      positions = positions.sort();
+      for (i = 0; i < prompts.length; i++) {
+        sequence[positions[i]] = targets[indexes[i]];
+        sequence.push(prompts[i]);
+      }
+
+      //train sequence
+      var distractorsCorrect;
+      var targetsCorrect = distractorsCorrect = 0;
+      error = 0;
+      for (i = 0; i < length; i++) {
+        // generate input from sequence
+        var input = [];
+        for (j = 0; j < symbols; j++)
+          input[j] = 0;
+        input[sequence[i]] = 1;
+
+        // generate target output
+        var output = [];
+        for (j = 0; j < targets.length; j++)
+          output[j] = 0;
+
+        if (i >= sequenceLength) {
+          var index = i - sequenceLength;
+          output[indexes[index]] = 1;
+        }
+
+        // check result
+        var prediction = this.network.activate(input);
+
+        if (equal(prediction, output))
+          if (i < sequenceLength)
+            distractorsCorrect++;
+          else
+            targetsCorrect++;
+        else {
+          this.network.propagate(rate, output);
+        }
+
+        error += cost(output, prediction);
+
+        if (distractorsCorrect + targetsCorrect == length)
+          correct++;
+      }
+
+      // calculate error
+      if (trial % 1000 == 0)
+        correct = 0;
+      trial++;
+      var divideError = trial % 1000;
+      divideError = divideError == 0 ? 1000 : divideError;
+      success = correct / divideError;
+      error /= length;
+
+      // log
+      if (log && trial % log == 0)
+        console.log("iterations:", trial, " success:", success, " correct:",
+          correct, " time:", Date.now() - start, " error:", error);
+      if (schedule.do && schedule.every && trial % schedule.every == 0)
+        schedule.do({
+          iterations: trial,
+          success: success,
+          error: error,
+          time: Date.now() - start,
+          correct: correct
+        });
+    }
+
+    return {
+      iterations: trial,
+      success: success,
+      error: error,
+      time: Date.now() - start
+    }
+  },
+
+  // train the network to learn an Embeded Reber Grammar
+  ERG: function(options) {
+
+    options = options || {};
+    var iterations = options.iterations || 150000;
+    var criterion = options.error || .05;
+    var rate = options.rate || .1;
+    var log = options.log || 500;
+    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
+
+    // gramar node
+    var Node = function() {
+      this.paths = [];
+    };
+    Node.prototype = {
+      connect: function(node, value) {
+        this.paths.push({
+          node: node,
+          value: value
+        });
+        return this;
+      },
+      any: function() {
+        if (this.paths.length == 0)
+          return false;
+        var index = Math.random() * this.paths.length | 0;
+        return this.paths[index];
+      },
+      test: function(value) {
+        for (var i in this.paths)
+          if (this.paths[i].value == value)
+            return this.paths[i];
+        return false;
+      }
+    };
+
+    var reberGrammar = function() {
+
+      // build a reber grammar
+      var output = new Node();
+      var n1 = (new Node()).connect(output, "E");
+      var n2 = (new Node()).connect(n1, "S");
+      var n3 = (new Node()).connect(n1, "V").connect(n2, "P");
+      var n4 = (new Node()).connect(n2, "X");
+      n4.connect(n4, "S");
+      var n5 = (new Node()).connect(n3, "V");
+      n5.connect(n5, "T");
+      n2.connect(n5, "X");
+      var n6 = (new Node()).connect(n4, "T").connect(n5, "P");
+      var input = (new Node()).connect(n6, "B");
+
+      return {
+        input: input,
+        output: output
+      }
+    };
+
+    // build an embeded reber grammar
+    var embededReberGrammar = function() {
+      var reber1 = reberGrammar();
+      var reber2 = reberGrammar();
+
+      var output = new Node();
+      var n1 = (new Node).connect(output, "E");
+      reber1.output.connect(n1, "T");
+      reber2.output.connect(n1, "P");
+      var n2 = (new Node).connect(reber1.input, "P").connect(reber2.input,
+        "T");
+      var input = (new Node).connect(n2, "B");
+
+      return {
+        input: input,
+        output: output
+      }
+
+    };
+
+    // generate an ERG sequence
+    var generate = function() {
+      var node = embededReberGrammar().input;
+      var next = node.any();
+      var str = "";
+      while (next) {
+        str += next.value;
+        next = next.node.any();
+      }
+      return str;
+    };
+
+    // test if a string matches an embeded reber grammar
+    var test = function(str) {
+      var node = embededReberGrammar().input;
+      var i = 0;
+      var ch = str.charAt(i);
+      while (i < str.length) {
+        var next = node.test(ch);
+        if (!next)
+          return false;
+        node = next.node;
+        ch = str.charAt(++i);
+      }
+      return true;
+    };
+
+    // helper to check if the output and the target vectors match
+    var different = function(array1, array2) {
+      var max1 = 0;
+      var i1 = -1;
+      var max2 = 0;
+      var i2 = -1;
+      for (var i in array1) {
+        if (array1[i] > max1) {
+          max1 = array1[i];
+          i1 = i;
+        }
+        if (array2[i] > max2) {
+          max2 = array2[i];
+          i2 = i;
+        }
+      }
+
+      return i1 != i2;
+    };
+
+    var iteration = 0;
+    var error = 1;
+    var table = {
+      "B": 0,
+      "P": 1,
+      "T": 2,
+      "X": 3,
+      "S": 4,
+      "E": 5
+    };
+
+    var start = Date.now();
+    while (iteration < iterations && error > criterion) {
+      var i = 0;
+      error = 0;
+
+      // ERG sequence to learn
+      var sequence = generate();
+
+      // input
+      var read = sequence.charAt(i);
+      // target
+      var predict = sequence.charAt(i + 1);
+
+      // train
+      while (i < sequence.length - 1) {
+        var input = [];
+        var target = [];
+        for (var j = 0; j < 6; j++) {
+          input[j] = 0;
+          target[j] = 0;
+        }
+        input[table[read]] = 1;
+        target[table[predict]] = 1;
+
+        var output = this.network.activate(input);
+
+        if (different(output, target))
+          this.network.propagate(rate, target);
+
+        read = sequence.charAt(++i);
+        predict = sequence.charAt(i + 1);
+
+        error += cost(target, output);
+      }
+      error /= sequence.length;
+      iteration++;
+      if (iteration % log == 0) {
+        console.log("iterations:", iteration, " time:", Date.now() - start,
+          " error:", error);
+      }
+    }
+
+    return {
+      iterations: iteration,
+      error: error,
+      time: Date.now() - start,
+      test: test,
+      generate: generate
+    }
+  },
+
+  timingTask: function(options){
+
+    if (this.network.inputs() != 2 || this.network.outputs() != 1)
+      throw new Error("Invalid Network: must have 2 inputs and one output");
+
+    if (typeof options == 'undefined')
+      options = {};
+
+    // helper
+    function getSamples (trainingSize, testSize){
+
+      // sample size
+      var size = trainingSize + testSize;
+
+      // generate samples
+      var t = 0;
+      var set = [];
+      for (var i = 0; i < size; i++) {
+        set.push({ input: [0,0], output: [0] });
+      }
+      while(t < size - 20) {
+          var n = Math.round(Math.random() * 20);
+          set[t].input[0] = 1;
+          for (var j = t; j <= t + n; j++){
+              set[j].input[1] = n / 20;
+              set[j].output[0] = 0.5;
+          }
+          t += n;
+          n = Math.round(Math.random() * 20);
+          for (var k = t+1; k <= (t + n) &&  k < size; k++)
+              set[k].input[1] = set[t].input[1];
+          t += n;
+      }
+
+      // separate samples between train and test sets
+      var trainingSet = []; var testSet = [];
+      for (var l = 0; l < size; l++)
+          (l < trainingSize ? trainingSet : testSet).push(set[l]);
+
+      // return samples
+      return {
+          train: trainingSet,
+          test: testSet
+      }
+    }
+
+    var iterations = options.iterations || 200;
+    var error = options.error || .005;
+    var rate = options.rate || [.03, .02];
+    var log = options.log === false ? false : options.log || 10;
+    var cost = options.cost || this.cost || Trainer.cost.MSE;
+    var trainingSamples = options.trainSamples || 7000;
+    var testSamples = options.trainSamples || 1000;
+
+    // samples for training and testing
+    var samples = getSamples(trainingSamples, testSamples);
+
+    // train
+    var result = this.train(samples.train, {
+      rate: rate,
+      log: log,
+      iterations: iterations,
+      error: error,
+      cost: cost
+    });
+
+    return {
+      train: result,
+      test: this.test(samples.test)
+    }
+  }
+};
+
+// Built-in cost functions
+Trainer.cost = {
+  // Eq. 9
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+}
+
+/*******************************************************************************************
+                                        SETTINGS
+*******************************************************************************************/
+
+/*
+  Mutation methods
+*/
+Mutate = {
+  SWAP_WEIGHT: {
+    name: "SWAP_WEIGHT"
+  },
+  SWAP_BIAS: {
+    name: "SWAP_BIAS"
+  },
+  MODIFY_RANDOM_WEIGHT: {
+    name: "MODIFY_RANDOM_WEIGHT",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_RANDOM_BIAS: {
+    name: "MODIFY_RANDOM_BIAS",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_CONNECTIONS: {
+    name: "MODIFY_CONNECTIONS"
+  },
+  MODIFY_NEURONS: {
+    name: "MODIFY_NEURONS"
+  }
+};
+
+/*
+  Crossover methods
+  For now, parents for crossover should be the same size!
+*/
+Crossover = {
+  SINGLE_POINT: {
+    name: "SINGLE_POINT",
+    config: [0.4]
+  },
+  TWO_POINT: {
+    name: "TWO_POINT",
+    config: [0.4, 0.9]
+  },
+  UNIFORM: {
+    name: "UNIFORM"
+  },
+  AVERAGE: {
+    name: "AVERAGE"
+  }
+};
+
+/*
+  Selection methods
+*/
+Selection = {
+  FITNESS_PROPORTIONATE: {
+    name: "FITNESS_PROPORTIONATE",
+    config: function(r){ return Math.pow(r,2); }
+  }
+};
+
+/*
+  Generation methods
+*/
+Generation = {
+  POINTS: {
+    name: "POINTS",
+    config: {
+      points: 2,
+      learningRate : 0.3,
+      iterations: 50,
+      shuffle: true,
+      error: 0.0001,
+      cost: Trainer.cost.MSE
+    }
+  },
+  DEFAULT: {
+    name: "DEFAULT"
+  }
+};
+
+/*
+  Pooling methods
+*/
+Pooling = {
+  config: {
+    size: [2,2]
+  },
+  MAX: {
+    name: "MAX",
+  },
+  NONE: {
+    name: "NONE"
+  }
+}
+
+/*******************************************************************************************
+                                        ARCHITECT
+*******************************************************************************************/
+
+// Collection of useful built-in architectures
+var Architect = {
+
+  // Multilayer Perceptron
+  Perceptron: function Perceptron() {
+
+    var args = Array.prototype.slice.call(arguments); // convert arguments to Array
+    if (args.length < 3)
+      throw new Error("not enough layers (minimum 3) !!");
+
+    var inputs = args.shift(); // first argument
+    var outputs = args.pop(); // last argument
+    var layers = args; // all the arguments in the middle
+
+    var input = new Layer(inputs);
+    var hidden = [];
+    var output = new Layer(outputs);
+
+    var previous = input;
+
+    // generate hidden layers
+    for (var level in layers) {
+      var size = layers[level];
+      var layer = new Layer(size);
+      hidden.push(layer);
+      previous.project(layer);
+      previous = layer;
+    }
+    previous.project(output);
+
+    // set layers of the neural network
+    this.set({
+      input: input,
+      hidden: hidden,
+      output: output
+    });
+
+    // trainer for the network
+    this.trainer = new Trainer(this);
+  },
+
+  // Multilayer Long Short-Term Memory
+  LSTM: function LSTM() {
+
+    var args = Array.prototype.slice.call(arguments); // convert arguments to array
+    if (args.length < 3)
+      throw new Error("not enough layers (minimum 3) !!");
+
+    var last = args.pop();
+    var option = {
+      peepholes: Layer.connectionType.ALL_TO_ALL,
+      hiddenToHidden: false,
+      outputToHidden: false,
+      outputToGates: false,
+      inputToOutput: true,
+    };
+    if (typeof last != 'number') {
+      var outputs = args.pop();
+      if (last.hasOwnProperty('peepholes'))
+        option.peepholes = last.peepholes;
+      if (last.hasOwnProperty('hiddenToHidden'))
+        option.hiddenToHidden = last.hiddenToHidden;
+      if (last.hasOwnProperty('outputToHidden'))
+        option.outputToHidden = last.outputToHidden;
+      if (last.hasOwnProperty('outputToGates'))
+        option.outputToGates = last.outputToGates;
+      if (last.hasOwnProperty('inputToOutput'))
+        option.inputToOutput = last.inputToOutput;
+    } else
+      var outputs = last;
+
+    var inputs = args.shift();
+    var layers = args;
+
+    var inputLayer = new Layer(inputs);
+    var hiddenLayers = [];
+    var outputLayer = new Layer(outputs);
+
+    var previous = null;
+
+    // generate layers
+    for (var layer in layers) {
+      // generate memory blocks (memory cell and respective gates)
+      var size = layers[layer];
+
+      var inputGate = new Layer(size).set({
+        bias: 1
+      });
+      var forgetGate = new Layer(size).set({
+        bias: 1
+      });
+      var memoryCell = new Layer(size);
+      var outputGate = new Layer(size).set({
+        bias: 1
+      });
+
+      hiddenLayers.push(inputGate);
+      hiddenLayers.push(forgetGate);
+      hiddenLayers.push(memoryCell);
+      hiddenLayers.push(outputGate);
+
+      // connections from input layer
+      var input = inputLayer.project(memoryCell);
+      inputLayer.project(inputGate);
+      inputLayer.project(forgetGate);
+      inputLayer.project(outputGate);
+
+      // connections from previous memory-block layer to this one
+      if (previous != null) {
+        var cell = previous.project(memoryCell);
+        previous.project(inputGate);
+        previous.project(forgetGate);
+        previous.project(outputGate);
+      }
+
+      // connections from memory cell
+      var output = memoryCell.project(outputLayer);
+
+      // self-connection
+      var self = memoryCell.project(memoryCell);
+
+      // hidden to hidden recurrent connection
+      if (option.hiddenToHidden)
+        memoryCell.project(memoryCell, Layer.connectionType.ALL_TO_ELSE);
+
+      // out to hidden recurrent connection
+      if (option.outputToHidden)
+        outputLayer.project(memoryCell);
+
+      // out to gates recurrent connection
+      if (option.outputToGates) {
+        outputLayer.project(inputGate);
+        outputLayer.project(outputGate);
+        outputLayer.project(forgetGate);
+      }
+
+      // peepholes
+      memoryCell.project(inputGate, option.peepholes);
+      memoryCell.project(forgetGate, option.peepholes);
+      memoryCell.project(outputGate, option.peepholes);
+
+      // gates
+      inputGate.gate(input, Layer.gateType.INPUT);
+      forgetGate.gate(self, Layer.gateType.ONE_TO_ONE);
+      outputGate.gate(output, Layer.gateType.OUTPUT);
+      if (previous != null)
+        inputGate.gate(cell, Layer.gateType.INPUT);
+
+      previous = memoryCell;
+    }
+
+    // input to output direct connection
+    if (option.inputToOutput)
+      inputLayer.project(outputLayer);
+
+    // set the layers of the neural network
+    this.set({
+      input: inputLayer,
+      hidden: hiddenLayers,
+      output: outputLayer
+    });
+
+    // trainer
+    this.trainer = new Trainer(this);
+  },
+
+  // Liquid State Machine
+  Liquid: function Liquid(inputs, hidden, outputs, connections, gates) {
+
+    // create layers
+    var inputLayer = new Layer(inputs);
+    var hiddenLayer = new Layer(hidden);
+    var outputLayer = new Layer(outputs);
+
+    // make connections and gates randomly among the neurons
+    var neurons = hiddenLayer.neurons();
+    var connectionList = [];
+
+    for (var i = 0; i < connections; i++) {
+      // connect two random neurons
+      var from = Math.random() * neurons.length | 0;
+      var to = Math.random() * neurons.length | 0;
+      var connection = neurons[from].project(neurons[to]);
+      connectionList.push(connection);
+    }
+
+    for (var j = 0; j < gates; j++) {
+      // pick a random gater neuron
+      var gater = Math.random() * neurons.length | 0;
+      // pick a random connection to gate
+      var connection = Math.random() * connectionList.length | 0;
+      // let the gater gate the connection
+      neurons[gater].gate(connectionList[connection]);
+    }
+
+    // connect the layers
+    inputLayer.project(hiddenLayer);
+    hiddenLayer.project(outputLayer);
+
+    // set the layers of the network
+    this.set({
+      input: inputLayer,
+      hidden: [hiddenLayer],
+      output: outputLayer
+    });
+
+    // trainer
+    this.trainer = new Trainer(this);
+  },
+
+  Hopfield: function Hopfield(size) {
+
+    var inputLayer = new Layer(size);
+    var outputLayer = new Layer(size);
+
+    inputLayer.project(outputLayer, Layer.connectionType.ALL_TO_ALL);
+
+    this.set({
+      input: inputLayer,
+      hidden: [],
+      output: outputLayer
+    });
+
+    var trainer = new Trainer(this);
+
+    var proto = Architect.Hopfield.prototype;
+
+    proto.learn = proto.learn || function(patterns)
+    {
+      var set = [];
+      for (var p in patterns)
+        set.push({
+          input: patterns[p],
+          output: patterns[p]
+        });
+
+      return trainer.train(set, {
+        iterations: 500000,
+        error: .00005,
+        rate: 1
+      });
+    };
+
+    proto.feed = proto.feed || function(pattern)
+    {
+      var output = this.activate(pattern);
+
+      var pattern = [];
+      for (var i in output)
+        pattern[i] = output[i] > .5 ? 1 : 0;
+
+      return pattern;
+    }
+  }
+}
+
+// Extend prototype chain (so every architectures is an instance of Network)
+for (var architecture in Architect) {
+  Architect[architecture].prototype = new Network();
+  Architect[architecture].prototype.constructor = Architect[architecture];
+}

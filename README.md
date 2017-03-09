@@ -55,5 +55,7 @@ Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 - Create pool generation methods :white_check_mark:
 - Export/Import layers, neurons, evolutions to/from JSON
 - Working on convolutional neural network, not sure if it will work out with synaptic yet
+- Add SHIFT mutation method, which replaces a random connection somewhere else in the network, dead neurons will be removed
+- Add ADD/REMOVE mutation method, which adds or removes a random neuron in a network
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

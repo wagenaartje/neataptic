@@ -2,6 +2,17 @@
 ========
 Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/Artificial_neural_network) library with implementations to create [genetic neural networks](https://en.wikipedia.org/wiki/Neuroevolution). It gives the user the ability to create train neurol networks with evolutionary algorithms with just a few lines of code. The library is constantly updated with new mutation, crossover and selection methods. Gynaptics' main neural network code comes from the library [Synaptic](https://github.com/cazala/synaptic) by [Juan Cazala](https://github.com/cazala). Gynaptic will stay up to date with Synaptic's improvements as much as possible.
 
+What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
+- an easy-to-use genetic algorithm function
+- 6 mutation methods
+- 4 crossover methods
+- 1 selection method
+- 2 generation methods
+
+In the future
+- More network types
+- Flexible network creation (no more 'layers',  these will become 'clusters')
+
 <img src='http://i.imgur.com/OgUyWpC.png' width="100%"/>
 ========
 Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.
@@ -53,9 +64,9 @@ Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 <img src='http://i.imgur.com/isZsxET.png' width="100%"/>
 ========
 - Create pool generation methods :white_check_mark:
+- Add SHIFT mutation method, which replaces a random connection somewhere else in the network :white_check_mark:
+- Add ADD/REMOVE mutation method, which adds or removes a random neuron in a network :white_check_mark:
 - Export/Import layers, neurons, evolutions to/from JSON
-- Working on convolutional neural network, not sure if it will work out with synaptic yet
-- Add SHIFT mutation method, which replaces a random connection somewhere else in the network, dead neurons will be removed
-- Add ADD/REMOVE mutation method, which adds or removes a random neuron in a network
+- Convolutional neural network, not sure if it will work out with synaptic yet :clock5:
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

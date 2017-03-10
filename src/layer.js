@@ -261,6 +261,40 @@ Layer.prototype = {
         neuron.connections[connectionType][connection].weight += modification;
         break;
     }
+  },
+
+  toJSON: function(){
+    var list = this.list;
+    var neurons = []
+    // link id's to positions in the array
+    var ids = {};
+    for (var i in list) {
+      var neuron = list[i];
+      ids[neuron.ID] = i;
+
+      var copy = {
+        trace: {
+          elegibility: {},
+          extended: {}
+        },
+        state: neuron.state,
+        old: neuron.old,
+        activation: neuron.activation,
+        bias: neuron.bias,
+      };
+
+      copy.squash = neuron.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
+        neuron.squash == Neuron.squash.TANH ? "TANH" :
+        neuron.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
+        neuron.squash == Neuron.squash.HLIM ? "HLIM" :
+        null;
+
+      neurons.push(copy);
+    }
+
+    return {
+      neurons: neurons
+    }
   }
 }
 
@@ -307,6 +341,27 @@ Layer.crossOver = function(layer1, layer2, method){
   }
 
   return offspring;
+}
+
+Layer.fromJSON = function(json){
+  var neurons = [];
+  for (var i in json.neurons) {
+    var config = json.neurons[i];
+
+    var neuron = new Neuron();
+    neuron.trace.elegibility = {};
+    neuron.trace.extended = {};
+    neuron.state = config.state;
+    neuron.old = config.old;
+    neuron.activation = config.activation;
+    neuron.bias = config.bias;
+    neuron.squash = config.squash in Neuron.squash ? Neuron.squash[config.squash] : Neuron.squash.LOGISTIC;
+    neurons.push(neuron);
+  }
+
+  var layer = new Layer(neurons.length);
+  layer.list = neurons;
+  return layer;
 }
 
 // represents a connection from one layer to another, and keeps track of its weight and gain

@@ -777,9 +777,42 @@ Neuron.prototype = {
       propagation_sentences: propagation_sentences,
       layers: layers
     }
+  },
+
+  toJSON: function(){
+    var copy = {
+      trace: {
+        elegibility: {},
+        extended: {}
+      },
+      state: this.state,
+      old: this.old,
+      activation: this.activation,
+      bias: this.bias,
+    };
+
+    copy.squash = this.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
+      this.squash == Neuron.squash.TANH ? "TANH" :
+      this.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
+      this.squash == Neuron.squash.HLIM ? "HLIM" :
+      null;
+
+    return copy;
   }
 }
 
+Neuron.fromJSON = function(json){
+  var neuron = new Neuron();
+  neuron.trace.elegibility = {};
+  neuron.trace.extended = {};
+  neuron.state = json.state;
+  neuron.old = json.old;
+  neuron.activation = json.activation;
+  neuron.bias = json.bias;
+  neuron.squash = json.squash in Neuron.squash ? Neuron.squash[json.squash] : Neuron.squash.LOGISTIC;
+
+  return neuron;
+}
 
 // represents a connection between two neurons
 Neuron.connection = function Connection(from, to, weight) {

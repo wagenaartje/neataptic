@@ -468,9 +468,11 @@ Network.prototype = {
 
           neuron1.project(neuron2);
         }
-
-
         break;
+      case Mutate.MODIFY_SQUASH:
+        var neuron = Math.floor(Math.random()*this.neurons().length);
+        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -490,24 +492,7 @@ Network.prototype = {
       while (neuron.neuron)
         neuron = neuron.neuron;
       ids[neuron.ID] = i;
-
-      var copy = {
-        trace: {
-          elegibility: {},
-          extended: {}
-        },
-        state: neuron.state,
-        old: neuron.old,
-        activation: neuron.activation,
-        bias: neuron.bias,
-        layer: list[i].layer
-      };
-
-      copy.squash = neuron.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
-        neuron.squash == Neuron.squash.TANH ? "TANH" :
-        neuron.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
-        neuron.squash == Neuron.squash.HLIM ? "HLIM" :
-        null;
+      var copy = neuron.toJSON();
 
       neurons.push(copy);
     }

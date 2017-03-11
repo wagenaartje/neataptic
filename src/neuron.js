@@ -345,6 +345,9 @@ Neuron.prototype = {
         var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
         this.connections[connectionType][connection].weight += modification;
         break;
+      case Mutate.MODIFY_SQUASH:
+        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        this.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -512,9 +515,22 @@ Neuron.prototype = {
         case Neuron.squash.HLIM:
           buildSentence(activation, ' = +(', state, ' > 0)', store_activation);
           buildSentence(derivative, ' = 1', store_activation);
+          break;
         case Neuron.squash.RELU:
           buildSentence(activation, ' = ', state, ' > 0 ? ', state, ' : 0', store_activation);
           buildSentence(derivative, ' = ', state, ' > 0 ? 1 : 0', store_activation);
+          break;
+        case Neuron.squash.SOFTSIGN:
+          buildSentence(activation, ' = ', state, ' / (1 + Math.abs(', state, '))', store_activation);
+          buildSentence(derivative, ' = ', state, ' / Math.pow(', '(1 + Math.abs(', state, '))',', 2)', store_activation);
+          break;
+        case Neuron.squash.SINUSOID:
+          buildSentence(activation, ' = Math.sin(', state, ')', store_activation);
+          buildSentence(derivative, ' = Math.cos(', state, ')', store_activation);
+          break;
+        case Neuron.squash.GAUSSIAN:
+          buildSentence(activation, ' = ', 'Math.exp(-Math.pow(', state, ', 2))');
+          buildSentence(derivative, ' = ', '-2 * ', state, ' * Math.exp(-Math.pow(', state, ', 2))');
           break;
       }
 
@@ -795,6 +811,10 @@ Neuron.prototype = {
       this.squash == Neuron.squash.TANH ? "TANH" :
       this.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
       this.squash == Neuron.squash.HLIM ? "HLIM" :
+      this.squash == Neuron.squash.RELU ? "RELU" :
+      this.squash == Neuron.squash.SOFTSIGN ? "SOFTSIGN" :
+      this.squash == Neuron.squash.SINUSOID ? "SINUSOID" :
+      this.squash == Neuron.squash.GAUSSIAN ? "GAUSSIAN" :
       null;
 
     return copy;

@@ -31,6 +31,21 @@ Mutate = {
   },
   MODIFY_NEURONS: {
     name: "MODIFY_NEURONS"
+  },
+  MODIFY_SQUASH: {
+    name: "MODIFY_SQUASH",
+    config: {
+      allowed: [
+        Neuron.squash.LOGISTIC,
+        Neuron.squash.TANH,
+        Neuron.squash.RELU,
+        Neuron.squash.IDENTITY,
+        Neuron.squash.HLIM,
+        Neuron.squash.SOFTSIGN,
+        Neuron.squash.SINUSOID,
+        Neuron.squash.GAUSSIAN
+      ]
+    }
   }
 };
 

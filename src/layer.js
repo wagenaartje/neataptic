@@ -260,6 +260,10 @@ Layer.prototype = {
         var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
         neuron.connections[connectionType][connection].weight += modification;
         break;
+      case Mutate.MODIFY_SQUASH:
+        var neuron = Math.floor(Math.random()*this.list.length);
+        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -271,24 +275,8 @@ Layer.prototype = {
     for (var i in list) {
       var neuron = list[i];
       ids[neuron.ID] = i;
-
-      var copy = {
-        trace: {
-          elegibility: {},
-          extended: {}
-        },
-        state: neuron.state,
-        old: neuron.old,
-        activation: neuron.activation,
-        bias: neuron.bias,
-      };
-
-      copy.squash = neuron.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
-        neuron.squash == Neuron.squash.TANH ? "TANH" :
-        neuron.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
-        neuron.squash == Neuron.squash.HLIM ? "HLIM" :
-        null;
-
+      var copy = neuron.toJSON();
+      
       neurons.push(copy);
     }
 

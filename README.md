@@ -9,6 +9,7 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - 1 selection method
 - 2 generation methods
 - to/fromJSON for layers and neurons
+- 3 squashing functions
 
 In the future
 - More network types

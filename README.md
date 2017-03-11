@@ -13,7 +13,7 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 
 In the future
 - More network types
-- Flexible network creation (no more 'layers',  these will become 'clusters')
+- Overhal network creation (flexible, with layer types e.g. `convolutional` and `pooling`)
 
 <img src='http://i.imgur.com/OgUyWpC.png' width="100%"/>
 ========

@@ -863,9 +863,7 @@ Neuron.squash.LOGISTIC = function(x, derivate) {
 Neuron.squash.TANH = function(x, derivate) {
   if (derivate)
     return 1 - Math.pow(Neuron.squash.TANH(x), 2);
-  var eP = Math.exp(x);
-  var eN = 1 / eP;
-  return (eP - eN) / (eP + eN);
+  return Math.tanh(x);
 };
 Neuron.squash.IDENTITY = function(x, derivate) {
   return derivate ? 1 : x;
@@ -877,6 +875,23 @@ Neuron.squash.RELU = function(x, derivate) {
   if (derivate)
     return x > 0 ? 1 : 0;
   return x > 0 ? x : 0;
+};
+Neuron.squash.SOFTSIGN = function(x, derivate){
+  var d = 1 + Math.abs(x);
+  if(derivate)
+    return x / Math.pow(d, 2);
+  return x / d;
+};
+Neuron.squash.SINUSOID = function(x, derivate){
+  if(derivate)
+    return Math.cos(x);
+  return Math.sin(x);
+};
+Neuron.squash.GAUSSIAN = function(x, derivate){
+  var d = Math.exp(-Math.pow(x, 2));
+  if(derivate)
+    return -2 * x * d;
+  return d;
 };
 
 // unique ID's

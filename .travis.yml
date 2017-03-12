@@ -1,4 +1,9 @@
-language: node_js
-script: "npm run test:travis"
-  - "node"
-  - "6"
+ language: node_js
+ script: "npm run test:travis"
+ node_js:
+    # always latest release
+    - "node"
+    # previous releases
+    - "6"
+    - "5"
+    - "4"

@@ -60,6 +60,7 @@ If you want to know how to set up one of these algorithms yourself, feel free to
 ========
 Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
+// This is outdated, please download from /dist 
 <script src="https://cdn.rawgit.com/wagenaartje/gynaptic/d93630db/dist/gynaptic.js"></script>
 ```
 

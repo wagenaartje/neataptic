@@ -17,7 +17,7 @@ In the future
 
 <img src='http://i.imgur.com/OgUyWpC.png' width="100%"/>
 ========
-Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.
+Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation. [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
 
 For the browser, embedding this code makes life easier:
 ```javascript
@@ -71,7 +71,7 @@ If you want to know how to set up one of these algorithms yourself, feel free to
 ========
 Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-// This is outdated, please download from /dist 
+// This is outdated, please download from /dist
 <script src="https://cdn.rawgit.com/wagenaartje/gynaptic/d93630db/dist/gynaptic.js"></script>
 ```
 

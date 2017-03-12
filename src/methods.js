@@ -1,11 +1,59 @@
+//import
+var Trainer = require('./trainer')
+
 /*******************************************************************************************
                                         SETTINGS
 *******************************************************************************************/
 
+
+var methods = {};
+
+methods.Squash = {
+  LOGISTIC : function(x, derivate) {
+    if (!derivate)
+      return 1 / (1 + Math.exp(-x));
+    var fx = methods.Squash.LOGISTIC(x);
+    return fx * (1 - fx);
+  },
+  TANH : function(x, derivate) {
+    if (derivate)
+      return 1 - Math.pow(methods.Squash.TANH(x), 2);
+    return Math.tanh(x);
+  },
+  IDENTITY : function(x, derivate) {
+    return derivate ? 1 : x;
+  },
+  HLIM : function(x, derivate) {
+    return derivate ? 1 : x > 0 ? 1 : 0;
+  },
+  RELU : function(x, derivate) {
+    if (derivate)
+      return x > 0 ? 1 : 0;
+    return x > 0 ? x : 0;
+  },
+  SOFTSIGN : function(x, derivate){
+    var d = 1 + Math.abs(x);
+    if(derivate)
+      return x / Math.pow(d, 2);
+    return x / d;
+  },
+  SINUSOID : function(x, derivate){
+    if(derivate)
+      return Math.cos(x);
+    return Math.sin(x);
+  },
+  GAUSSIAN : function(x, derivate){
+    var d = Math.exp(-Math.pow(x, 2));
+    if(derivate)
+      return -2 * x * d;
+    return d;
+  }
+}
+
 /*
   Mutation methods
 */
-Mutate = {
+methods.Mutate = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
   },
@@ -36,24 +84,24 @@ Mutate = {
     name: "MODIFY_SQUASH",
     config: {
       allowed: [
-        Neuron.squash.LOGISTIC,
-        Neuron.squash.TANH,
-        Neuron.squash.RELU,
-        Neuron.squash.IDENTITY,
-        Neuron.squash.HLIM,
-        Neuron.squash.SOFTSIGN,
-        Neuron.squash.SINUSOID,
-        Neuron.squash.GAUSSIAN
+        methods.Squash.LOGISTIC,
+        methods.Squash.TANH,
+        methods.Squash.RELU,
+        methods.Squash.IDENTITY,
+        methods.Squash.HLIM,
+        methods.Squash.SOFTSIGN,
+        methods.Squash.SINUSOID,
+        methods.Squash.GAUSSIAN
       ]
     }
   }
-};
+},
 
 /*
   Crossover methods
   For now, parents for crossover should be the same size!
 */
-Crossover = {
+methods.Crossover =  {
   SINGLE_POINT: {
     name: "SINGLE_POINT",
     config: [0.4]
@@ -68,22 +116,22 @@ Crossover = {
   AVERAGE: {
     name: "AVERAGE"
   }
-};
+},
 
 /*
   Selection methods
 */
-Selection = {
+methods.Selection = {
   FITNESS_PROPORTIONATE: {
     name: "FITNESS_PROPORTIONATE",
     config: function(r){ return Math.pow(r,2); }
   }
-};
+},
 
 /*
   Generation methods
 */
-Generation = {
+methods.Generation = {
   POINTS: {
     name: "POINTS",
     config: {
@@ -98,12 +146,12 @@ Generation = {
   DEFAULT: {
     name: "DEFAULT"
   }
-};
+},
 
 /*
   Pooling methods
 */
-Pooling = {
+methods.Pooling = {
   config: {
     size: [2,2]
   },
@@ -114,3 +162,6 @@ Pooling = {
     name: "NONE"
   }
 }
+
+// export
+if (module) module.exports = methods;

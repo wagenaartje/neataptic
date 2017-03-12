@@ -1,3 +1,17 @@
+// export
+if (module) module.exports = Evolution;
+
+// import
+var Layer   = require('./layer')
+,   Network = require('./network')
+,   methods = require('./methods')
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash
 /*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/

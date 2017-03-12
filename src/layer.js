@@ -1,3 +1,18 @@
+// export
+if (module) module.exports = Layer;
+
+// import
+var Neuron  = require('./neuron')
+,   Network = require('./network')
+,   methods = require('./methods')
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash
+
 /*******************************************************************************************
                                             LAYER
 *******************************************************************************************/
@@ -132,8 +147,8 @@ Layer.prototype = {
     // Check if ALL to ALL connection
     var connections = 0;
     for (var here in this.list) {
+      var from = this.list[here];
       for (var there in layer.list) {
-        var from = this.list[here];
         var to = layer.list[there];
         var connected = from.connected(to);
         if (connected.type == 'projected')
@@ -192,7 +207,7 @@ Layer.prototype = {
       if (options.label)
         neuron.label = options.label + '_' + neuron.ID;
       if (options.squash)
-        neuron.squash = options.squash;
+        Squash = options.squash;
       if (options.bias)
         neuron.bias = options.bias;
     }
@@ -276,7 +291,7 @@ Layer.prototype = {
       var neuron = list[i];
       ids[neuron.ID] = i;
       var copy = neuron.toJSON();
-      
+
       neurons.push(copy);
     }
 
@@ -343,7 +358,7 @@ Layer.fromJSON = function(json){
     neuron.old = config.old;
     neuron.activation = config.activation;
     neuron.bias = config.bias;
-    neuron.squash = config.squash in Neuron.squash ? Neuron.squash[config.squash] : Neuron.squash.LOGISTIC;
+    Squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
     neurons.push(neuron);
   }
 

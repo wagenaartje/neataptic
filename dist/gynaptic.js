@@ -1,247 +1,1629 @@
+/*!
+ * The MIT License (MIT)
+ * 
+ * Copyright for portions of Gynaptic are held by Copyright (c) 2016 Juan Cazala -
+ * juancazala.com, as part of project Synaptic. All other copyright for project
+ * Gynaptic are held by Copyright (c) 2017 Thomas Wagenaar.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE
+ * 
+ */
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {//import
+var Trainer = __webpack_require__(4)
+
 /*******************************************************************************************
-                                        EVOLUTION
+                                        SETTINGS
 *******************************************************************************************/
 
-function Evolution(options){
-  options = options || {};
-  this.size = options.size || 50;
-  this.mutationRate = options.mutationRate || 0.05;
-  this.generationMethod = options.generationMethod || [Generation.POINTS];
-  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT, Mutate.MODIFY_RANDOM_BIAS];
-  this.crossOverMethod = options.crossOverMethod || [Crossover.UNIFORM];
-  this.selectionMethod = options.selectionMethod || [Selection.FITNESS_PROPORTIONATE];
-  this.fitnessFunction = options.fitnessFunction;
-  this.networkSize = options.networkSize || [1, 4, 1];
-  this.elitism = options.elitism || Math.round(this.size/20);
 
-  this.population = [];
-  this.createPool();
+var methods = {};
 
-  this.newPopulation = [];
-  this.parentSelection = [];
-  this.scores = [];
-
-  this.generation = 0;
+methods.Squash = {
+  LOGISTIC : function(x, derivate) {
+    if (!derivate)
+      return 1 / (1 + Math.exp(-x));
+    var fx = methods.Squash.LOGISTIC(x);
+    return fx * (1 - fx);
+  },
+  TANH : function(x, derivate) {
+    if (derivate)
+      return 1 - Math.pow(methods.Squash.TANH(x), 2);
+    return Math.tanh(x);
+  },
+  IDENTITY : function(x, derivate) {
+    return derivate ? 1 : x;
+  },
+  HLIM : function(x, derivate) {
+    return derivate ? 1 : x > 0 ? 1 : 0;
+  },
+  RELU : function(x, derivate) {
+    if (derivate)
+      return x > 0 ? 1 : 0;
+    return x > 0 ? x : 0;
+  },
+  SOFTSIGN : function(x, derivate){
+    var d = 1 + Math.abs(x);
+    if(derivate)
+      return x / Math.pow(d, 2);
+    return x / d;
+  },
+  SINUSOID : function(x, derivate){
+    if(derivate)
+      return Math.cos(x);
+    return Math.sin(x);
+  },
+  GAUSSIAN : function(x, derivate){
+    var d = Math.exp(-Math.pow(x, 2));
+    if(derivate)
+      return -2 * x * d;
+    return d;
+  }
 }
 
-Evolution.prototype = {
-  /**
-   * Creates the initial set of genomes
-   */
-  createPool: function(){
-    for(var i = 0; i < this.size; i++){
-      var network = this.createNetwork();
-      this.population.push(network);
+/*
+  Mutation methods
+*/
+methods.Mutate = {
+  SWAP_WEIGHT: {
+    name: "SWAP_WEIGHT"
+  },
+  SWAP_BIAS: {
+    name: "SWAP_BIAS"
+  },
+  MODIFY_RANDOM_WEIGHT: {
+    name: "MODIFY_RANDOM_WEIGHT",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_RANDOM_BIAS: {
+    name: "MODIFY_RANDOM_BIAS",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_CONNECTIONS: {
+    name: "MODIFY_CONNECTIONS"
+  },
+  MODIFY_NEURONS: {
+    name: "MODIFY_NEURONS"
+  },
+  MODIFY_SQUASH: {
+    name: "MODIFY_SQUASH",
+    config: {
+      allowed: [
+        methods.Squash.LOGISTIC,
+        methods.Squash.TANH,
+        methods.Squash.RELU,
+        methods.Squash.IDENTITY,
+        methods.Squash.HLIM,
+        methods.Squash.SOFTSIGN,
+        methods.Squash.SINUSOID,
+        methods.Squash.GAUSSIAN
+      ]
+    }
+  }
+},
+
+/*
+  Crossover methods
+  For now, parents for crossover should be the same size!
+*/
+methods.Crossover =  {
+  SINGLE_POINT: {
+    name: "SINGLE_POINT",
+    config: [0.4]
+  },
+  TWO_POINT: {
+    name: "TWO_POINT",
+    config: [0.4, 0.9]
+  },
+  UNIFORM: {
+    name: "UNIFORM"
+  },
+  AVERAGE: {
+    name: "AVERAGE"
+  }
+},
+
+/*
+  Selection methods
+*/
+methods.Selection = {
+  FITNESS_PROPORTIONATE: {
+    name: "FITNESS_PROPORTIONATE",
+    config: function(r){ return Math.pow(r,2); }
+  }
+},
+
+/*
+  Generation methods
+*/
+methods.Generation = {
+  POINTS: {
+    name: "POINTS",
+    config: {
+      points: 2,
+      learningRate : 0.3,
+      iterations: 50,
+      shuffle: true,
+      error: 0.0001,
+      cost: Trainer.cost.MSE
+    }
+  },
+  DEFAULT: {
+    name: "DEFAULT"
+  }
+},
+
+/*
+  Pooling methods
+*/
+methods.Pooling = {
+  config: {
+    size: [2,2]
+  },
+  MAX: {
+    name: "MAX",
+  },
+  NONE: {
+    name: "NONE"
+  }
+}
+
+// export
+if (module) module.exports = methods;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// export
+if (module) module.exports = Layer;
+
+// import
+var Neuron  = __webpack_require__(5)
+,   Network = __webpack_require__(3)
+,   methods = __webpack_require__(1)
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash
+
+/*******************************************************************************************
+                                            LAYER
+*******************************************************************************************/
+
+function Layer(size, label) {
+  this.size = size | 0;
+  this.list = [];
+  this.label = label || null;
+  this.connectedTo = [];
+
+  while (size--) {
+    var neuron = new Neuron();
+    this.list.push(neuron);
+  }
+}
+
+Layer.prototype = {
+
+  // activates all the neurons in the layer
+  activate: function(input) {
+
+    var activations = [];
+
+    if (typeof input != 'undefined') {
+      if (input.length != this.size)
+        throw new Error("INPUT size and LAYER size must be the same to activate!");
+
+      for (var id in this.list) {
+        var neuron = this.list[id];
+        var activation = neuron.activate(input[id]);
+        activations.push(activation);
+      }
+    } else {
+      for (var id in this.list) {
+        var neuron = this.list[id];
+        var activation = neuron.activate();
+        activations.push(activation);
+      }
+    }
+    return activations;
+  },
+
+  // propagates the error on all the neurons of the layer
+  propagate: function(rate, target) {
+
+    if (typeof target != 'undefined') {
+      if (target.length != this.size)
+        throw new Error("TARGET size and LAYER size must be the same to propagate!");
+
+      for (var id = this.list.length - 1; id >= 0; id--) {
+        var neuron = this.list[id];
+        neuron.propagate(rate, target[id]);
+      }
+    } else {
+      for (var id = this.list.length - 1; id >= 0; id--) {
+        var neuron = this.list[id];
+        neuron.propagate(rate);
+      }
     }
   },
 
-  /**
-   * Creates and modifies a network based on Generation.METHOD
-   */
-  createNetwork: function(){
-    var inputLayer = new Layer(this.networkSize[0]);
-    var outputLayer = new Layer(this.networkSize[this.networkSize.length-1]);
-    var hiddenLayers = [];
+  // projects a connection from this layer to another one
+  project: function(layer, type, weights) {
 
-    for(var j = 0; j < this.networkSize.length - 2; j++){
-      hiddenLayers.push(new Layer(this.networkSize[j+1]));
-      if(j > 0){
-        hiddenLayers[j-1].project(hiddenLayers[j]);
+    if (layer instanceof Network)
+      layer = layer.layers.input;
+
+    if (layer instanceof Layer) {
+      if (!this.connected(layer))
+        return new Layer.connection(this, layer, type, weights);
+    } else
+      throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
+
+
+  },
+
+  // gates a connection betwenn two layers
+  gate: function(connection, type) {
+
+    if (type == Layer.gateType.INPUT) {
+      if (connection.to.size != this.size)
+        throw new Error("GATER layer and CONNECTION.TO layer must be the same size in order to gate!");
+
+      for (var id in connection.to.list) {
+        var neuron = connection.to.list[id];
+        var gater = this.list[id];
+        for (var input in neuron.connections.inputs) {
+          var gated = neuron.connections.inputs[input];
+          if (gated.ID in connection.connections)
+            gater.gate(gated);
+        }
+      }
+    } else if (type == Layer.gateType.OUTPUT) {
+      if (connection.from.size != this.size)
+        throw new Error("GATER layer and CONNECTION.FROM layer must be the same size in order to gate!");
+
+      for (var id in connection.from.list) {
+        var neuron = connection.from.list[id];
+        var gater = this.list[id];
+        for (var projected in neuron.connections.projected) {
+          var gated = neuron.connections.projected[projected];
+          if (gated.ID in connection.connections)
+            gater.gate(gated);
+        }
+      }
+    } else if (type == Layer.gateType.ONE_TO_ONE) {
+      if (connection.size != this.size)
+        throw new Error("The number of GATER UNITS must be the same as the number of CONNECTIONS to gate!");
+
+      for (var id in connection.list) {
+        var gater = this.list[id];
+        var gated = connection.list[id];
+        gater.gate(gated);
       }
     }
+    connection.gatedfrom.push({layer: this, type: type});
+  },
 
-    inputLayer.project(hiddenLayers[0]);
-    hiddenLayers[hiddenLayers.length-1].project(outputLayer);
+  // true or false whether the whole layer is self-connected or not
+  selfconnected: function() {
 
-    var network = new Network({
-      input: inputLayer,
-      hidden: hiddenLayers,
-      output: outputLayer
-    });
+    for (var id in this.list) {
+      var neuron = this.list[id];
+      if (!neuron.selfconnected())
+        return false;
+    }
+    return true;
+  },
 
-    var generationMethod = this.generationMethod[Math.floor(Math.random() * this.generationMethod.length)];
-    switch(generationMethod){
-      case(Generation.DEFAULT):
-        break;
-      case(Generation.POINTS):
-        var trainer = new Trainer(network);
-        var trainingSet = []
-        for(var i = 0; i < Generation.POINTS.config.points; i++){
-          var randomInput = [];
-          var randomOutput = [];
+  // true of false whether the layer is connected to another layer (parameter) or not
+  connected: function(layer) {
+    // Check if ALL to ALL connection
+    var connections = 0;
+    for (var here in this.list) {
+      var from = this.list[here];
+      for (var there in layer.list) {
+        var to = layer.list[there];
+        var connected = from.connected(to);
+        if (connected.type == 'projected')
+          connections++;
+      }
+    }
+    if (connections == this.size * layer.size)
+      return Layer.connectionType.ALL_TO_ALL;
 
-          for(var i = 0; i < this.networkSize[0]; i++){
-            randomInput.push(Math.random());
+    // Check if ONE to ONE connection
+    connections = 0;
+    for (var neuron in this.list) {
+      var from = this.list[neuron];
+      var to = layer.list[neuron];
+      var connected = from.connected(to);
+      if (connected.type == 'projected')
+        connections++;
+    }
+    if (connections == this.size)
+      return Layer.connectionType.ONE_TO_ONE;
+  },
+
+  // clears all the neuorns in the layer
+  clear: function() {
+    for (var id in this.list) {
+      var neuron = this.list[id];
+      neuron.clear();
+    }
+  },
+
+  // resets all the neurons in the layer
+  reset: function() {
+    for (var id in this.list) {
+      var neuron = this.list[id];
+      neuron.reset();
+    }
+  },
+
+  // returns all the neurons in the layer (array)
+  neurons: function() {
+    return this.list;
+  },
+
+  // adds a neuron to the layer
+  add: function(neuron) {
+    this.neurons[neuron.ID] = neuron || new Neuron();
+    this.list.push(neuron);
+    this.size++;
+  },
+
+  set: function(options) {
+    options = options || {};
+
+    for (var i in this.list) {
+      var neuron = this.list[i];
+      if (options.label)
+        neuron.label = options.label + '_' + neuron.ID;
+      if (options.squash)
+        Squash = options.squash;
+      if (options.bias)
+        neuron.bias = options.bias;
+    }
+    return this;
+  },
+
+  mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    switch(method){
+      case Mutate.SWAP_WEIGHT:
+        var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
+        var neuron2 = this.list[Math.floor(Math.random()*this.list.length)];
+
+        var connectionType1 = ['gated', 'inputs', 'projected'];
+        var connectionType2 = ['gated', 'inputs', 'projected'];
+
+        for(var i = 2;i >= 0; i--){
+          if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
+            connectionType1.splice(i, 1);
           }
-          for(var i = 0; i < this.networkSize[this.networkSize.length - 1]; i++){
-            randomOutput.push(Math.random());
-          }
-
-          for(var i = 0; i < 100; i++){
-            trainingSet.push({input: randomInput, output: randomOutput});
+          if(Object.keys(neuron2.connections[connectionType2[i]]).length == 0){
+            connectionType2.splice(i, 1);
           }
         }
 
-        trainer.train(trainingSet, {
-          rate: Generation.POINTS.config.rate,
-          error: Generation.POINTS.config.error,
-          iterations: Generation.POINTS.config.iterations,
-          shuffle: Generation.POINTS.config.shuffle,
-          cost: Generation.POINTS.config.cost,
+        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionKeys1 = Object.keys(neuron1.connections[connectionType1]);
+        var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
+
+        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionKeys2 = Object.keys(neuron2.connections[connectionType2]);
+        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
+
+        var temp = neuron1.connections[connectionType1][connection1].weight;
+        neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
+        neuron2.connections[connectionType2][connection2].weight = temp;
+        break;
+      case Mutate.SWAP_BIAS:
+        var neuron1 = Math.floor(Math.random()*this.list.length);
+        var neuron2 = Math.floor(Math.random()*this.list.length);
+
+        var temp = this.list[neuron1].bias;
+        this.list[neuron1].bias = this.list[neuron2].bias;
+        this.list[neuron2].bias = temp;
+        break;
+      case Mutate.MODIFY_RANDOM_BIAS:
+        var neuron = Math.floor(Math.random()*this.list.length);
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.list[neuron].bias += modification;
+        break;
+      case Mutate.MODIFY_RANDOM_WEIGHT:
+        var neuron = this.list[Math.floor(Math.random()*this.list.length)];
+        var connectionType = ['gated', 'inputs', 'projected'];
+
+        for(var i = connectionType.length-1;i >= 0; i--){
+          if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
+            connectionType.splice(i, 1);
+          }
+        }
+
+        connectionType = connectionType[Math.floor(Math.random()*connectionType.length)];
+        var connectionKeys = Object.keys(neuron.connections[connectionType]);
+        var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
+
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        neuron.connections[connectionType][connection].weight += modification;
+        break;
+      case Mutate.MODIFY_SQUASH:
+        var neuron = Math.floor(Math.random()*this.list.length);
+        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+    }
+  },
+
+  toJSON: function(){
+    var list = this.list;
+    var neurons = []
+    // link id's to positions in the array
+    var ids = {};
+    for (var i in list) {
+      var neuron = list[i];
+      ids[neuron.ID] = i;
+      var copy = neuron.toJSON();
+
+      neurons.push(copy);
+    }
+
+    return {
+      neurons: neurons
+    }
+  }
+}
+
+Layer.crossOver = function(layer1, layer2, method){
+  method = method || Crossover.UNIFORM;
+  var offspring = new Layer(layer1.list.length);
+
+  switch(method){
+    case Crossover.UNIFORM:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(Math.round() >= 0.5){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+    case Crossover.AVERAGE:
+      for(var i = 0; i < offspring.list.length; i++){
+        var bias1 = layer1.list[i].bias;
+        var bias2 = layer2.list[i].bias;
+
+        offspring.list[i].bias = (bias1 + bias2) / 2;
+      }
+      break;
+    case Crossover.SINGLE_POINT:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(i/offspring.list.length < Crossover.SINGLE_POINT[0]){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+    case Crossover.TWO_POINT:
+      for(var i = 0; i < offspring.list.length; i++){
+        if(i/offspring.list.length < Crossover.SINGLE_POINT[0] || i/offspring.list.length > Crossover.SINGLE_POINT[1]){
+          offspring.list[i].bias = layer1.list[i].bias;
+        } else {
+          offspring.list[i].bias = layer2.list[i].bias;
+        }
+      }
+      break;
+  }
+
+  return offspring;
+}
+
+Layer.fromJSON = function(json){
+  var neurons = [];
+  for (var i in json.neurons) {
+    var config = json.neurons[i];
+
+    var neuron = new Neuron();
+    neuron.trace.elegibility = {};
+    neuron.trace.extended = {};
+    neuron.state = config.state;
+    neuron.old = config.old;
+    neuron.activation = config.activation;
+    neuron.bias = config.bias;
+    Squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
+    neurons.push(neuron);
+  }
+
+  var layer = new Layer(neurons.length);
+  layer.list = neurons;
+  return layer;
+}
+
+// represents a connection from one layer to another, and keeps track of its weight and gain
+Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
+  this.ID = Layer.connection.uid();
+  this.from = fromLayer;
+  this.to = toLayer;
+  this.selfconnection = toLayer == fromLayer;
+  this.type = type;
+  this.connections = {};
+  this.list = [];
+  this.size = 0;
+  this.gatedfrom = [];
+
+  if (typeof this.type == 'undefined')
+  {
+    if (fromLayer == toLayer)
+      this.type = Layer.connectionType.ONE_TO_ONE;
+    else
+      this.type = Layer.connectionType.ALL_TO_ALL;
+  }
+
+  if (this.type == Layer.connectionType.ALL_TO_ALL ||
+      this.type == Layer.connectionType.ALL_TO_ELSE) {
+    for (var here in this.from.list) {
+      for (var there in this.to.list) {
+        var from = this.from.list[here];
+        var to = this.to.list[there];
+        if(this.type == Layer.connectionType.ALL_TO_ELSE && from == to)
+          continue;
+        var connection = from.project(to, weights);
+
+        this.connections[connection.ID] = connection;
+        this.size = this.list.push(connection);
+      }
+    }
+  } else if (this.type == Layer.connectionType.ONE_TO_ONE) {
+
+    for (var neuron in this.from.list) {
+      var from = this.from.list[neuron];
+      var to = this.to.list[neuron];
+      var connection = from.project(to, weights);
+
+      this.connections[connection.ID] = connection;
+      this.size = this.list.push(connection);
+    }
+  }
+
+  fromLayer.connectedTo.push(this);
+}
+
+// types of connections
+Layer.connectionType = {};
+Layer.connectionType.ALL_TO_ALL = "ALL TO ALL";
+Layer.connectionType.ONE_TO_ONE = "ONE TO ONE";
+Layer.connectionType.ALL_TO_ELSE = "ALL TO ELSE";
+
+// types of gates
+Layer.gateType = {};
+Layer.gateType.INPUT = "INPUT";
+Layer.gateType.OUTPUT = "OUTPUT";
+Layer.gateType.ONE_TO_ONE = "ONE TO ONE";
+
+(function() {
+  var connections = 0;
+  Layer.connection.uid = function() {
+    return connections++;
+  }
+})();
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// export
+if (module) module.exports = Network;
+
+// import
+var Neuron  = __webpack_require__(5)
+,   Layer   = __webpack_require__(2)
+,   Trainer = __webpack_require__(4)
+,   methods = __webpack_require__(1)
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash;
+
+/*******************************************************************************************
+                                         NETWORK
+*******************************************************************************************/
+
+function Network(layers) {
+  if (typeof layers != 'undefined') {
+    this.layers = layers || {
+      input: null,
+      hidden: {},
+      output: null
+    };
+    this.optimized = null;
+  }
+}
+Network.prototype = {
+
+  // feed-forward activation of all the layers to produce an ouput
+  activate: function(input) {
+
+    if (this.optimized === false)
+    {
+      this.layers.input.activate(input);
+      for (var layer in this.layers.hidden)
+        this.layers.hidden[layer].activate();
+      return this.layers.output.activate();
+    }
+    else
+    {
+      if (this.optimized == null)
+        this.optimize();
+      return this.optimized.activate(input);
+    }
+  },
+
+  // back-propagate the error thru the network
+  propagate: function(rate, target) {
+
+    if (this.optimized === false)
+    {
+      this.layers.output.propagate(rate, target);
+      var reverse = [];
+      for (var layer in this.layers.hidden)
+        reverse.push(this.layers.hidden[layer]);
+      reverse.reverse();
+      for (var layer in reverse)
+        reverse[layer].propagate(rate);
+    }
+    else
+    {
+      if (this.optimized == null)
+        this.optimize();
+      this.optimized.propagate(rate, target);
+    }
+  },
+
+  // project a connection to another unit (either a network or a layer)
+  project: function(unit, type, weights) {
+
+    if (this.optimized)
+      this.optimized.reset();
+
+    if (unit instanceof Network)
+      return this.layers.output.project(unit.layers.input, type, weights);
+
+    if (unit instanceof Layer)
+      return this.layers.output.project(unit, type, weights);
+
+    throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
+  },
+
+  // let this network gate a connection
+  gate: function(connection, type) {
+    if (this.optimized)
+      this.optimized.reset();
+    this.layers.output.gate(connection, type);
+  },
+
+  // clear all elegibility traces and extended elegibility traces (the network forgets its context, but not what was trained)
+  clear: function() {
+
+    this.restore();
+
+    var inputLayer = this.layers.input,
+      outputLayer = this.layers.output;
+
+    inputLayer.clear();
+    for (var layer in this.layers.hidden) {
+      var hiddenLayer = this.layers.hidden[layer];
+      hiddenLayer.clear();
+    }
+    outputLayer.clear();
+
+    if (this.optimized)
+      this.optimized.reset();
+  },
+
+  // reset all weights and clear all traces (ends up like a new network)
+  reset: function() {
+
+    this.restore();
+
+    var inputLayer = this.layers.input,
+      outputLayer = this.layers.output;
+
+    inputLayer.reset();
+    for (var layer in this.layers.hidden) {
+      var hiddenLayer = this.layers.hidden[layer];
+      hiddenLayer.reset();
+    }
+    outputLayer.reset();
+
+    if (this.optimized)
+      this.optimized.reset();
+  },
+
+  // hardcodes the behaviour of the whole network into a single optimized function
+  optimize: function() {
+
+    var that = this;
+    var optimized = {};
+    var neurons = this.neurons();
+
+    for (var i in neurons) {
+      var neuron = neurons[i].neuron;
+      var layer = neurons[i].layer;
+      while (neuron.neuron)
+        neuron = neuron.neuron;
+      optimized = neuron.optimize(optimized, layer);
+    }
+    for (var i in optimized.propagation_sentences)
+      optimized.propagation_sentences[i].reverse();
+    optimized.propagation_sentences.reverse();
+
+    var hardcode = "";
+    hardcode += "var F = Float64Array ? new Float64Array(" + optimized.memory +
+      ") : []; ";
+    for (var i in optimized.variables)
+      hardcode += "F[" + optimized.variables[i].id + "] = " + (optimized.variables[
+        i].value || 0) + "; ";
+    hardcode += "var activate = function(input){\n";
+    for (var i in optimized.inputs)
+      hardcode += "F[" + optimized.inputs[i] + "] = input[" + i + "]; ";
+    for (var currentLayer in optimized.activation_sentences) {
+      if (optimized.activation_sentences[currentLayer].length > 0) {
+        for (var currentNeuron in optimized.activation_sentences[currentLayer]) {
+          hardcode += optimized.activation_sentences[currentLayer][currentNeuron].join(" ");
+          hardcode += optimized.trace_sentences[currentLayer][currentNeuron].join(" ");
+        }
+      }
+    }
+    hardcode += " var output = []; "
+    for (var i in optimized.outputs)
+      hardcode += "output[" + i + "] = F[" + optimized.outputs[i] + "]; ";
+    hardcode += "return output; }; "
+    hardcode += "var propagate = function(rate, target){\n";
+    hardcode += "F[" + optimized.variables.rate.id + "] = rate; ";
+    for (var i in optimized.targets)
+      hardcode += "F[" + optimized.targets[i] + "] = target[" + i + "]; ";
+    for (var currentLayer in optimized.propagation_sentences)
+      for (var currentNeuron in optimized.propagation_sentences[currentLayer])
+        hardcode += optimized.propagation_sentences[currentLayer][currentNeuron].join(" ") + " ";
+    hardcode += " };\n";
+    hardcode +=
+      "var ownership = function(memoryBuffer){\nF = memoryBuffer;\nthis.memory = F;\n};\n";
+    hardcode +=
+      "return {\nmemory: F,\nactivate: activate,\npropagate: propagate,\nownership: ownership\n};";
+    hardcode = hardcode.split(";").join(";\n");
+
+    var constructor = new Function(hardcode);
+
+    var network = constructor();
+    network.data = {
+      variables: optimized.variables,
+      activate: optimized.activation_sentences,
+      propagate: optimized.propagation_sentences,
+      trace: optimized.trace_sentences,
+      inputs: optimized.inputs,
+      outputs: optimized.outputs,
+      check_activation: this.activate,
+      check_propagation: this.propagate
+    }
+
+    network.reset = function() {
+      if (that.optimized) {
+        that.optimized = null;
+        that.activate = network.data.check_activation;
+        that.propagate = network.data.check_propagation;
+      }
+    }
+
+    this.optimized = network;
+    this.activate = network.activate;
+    this.propagate = network.propagate;
+  },
+
+  // restores all the values from the optimized network the their respective objects in order to manipulate the network
+  restore: function() {
+    if (!this.optimized)
+      return;
+
+    var optimized = this.optimized;
+
+    var getValue = function() {
+      var args = Array.prototype.slice.call(arguments);
+
+      var unit = args.shift();
+      var prop = args.pop();
+
+      var id = prop + '_';
+      for (var property in args)
+        id += args[property] + '_';
+      id += unit.ID;
+
+      var memory = optimized.memory;
+      var variables = optimized.data.variables;
+
+      if (id in variables)
+        return memory[variables[id].id];
+      return 0;
+    }
+
+    var list = this.neurons();
+
+    // link id's to positions in the array
+    var ids = {};
+    for (var i in list) {
+      var neuron = list[i].neuron;
+      while (neuron.neuron)
+        neuron = neuron.neuron;
+
+      neuron.state = getValue(neuron, 'state');
+      neuron.old = getValue(neuron, 'old');
+      neuron.activation = getValue(neuron, 'activation');
+      neuron.bias = getValue(neuron, 'bias');
+
+      for (var input in neuron.trace.elegibility)
+        neuron.trace.elegibility[input] = getValue(neuron, 'trace',
+          'elegibility', input);
+
+      for (var gated in neuron.trace.extended)
+        for (var input in neuron.trace.extended[gated])
+          neuron.trace.extended[gated][input] = getValue(neuron, 'trace',
+            'extended', gated, input);
+    }
+
+    // get connections
+    for (var i in list) {
+      var neuron = list[i].neuron;
+      while (neuron.neuron)
+        neuron = neuron.neuron;
+
+      for (var j in neuron.connections.projected) {
+        var connection = neuron.connections.projected[j];
+        connection.weight = getValue(connection, 'weight');
+        connection.gain = getValue(connection, 'gain');
+      }
+    }
+  },
+
+  // returns all the neurons in the network
+  neurons: function() {
+
+    var neurons = [];
+
+    var inputLayer = this.layers.input.neurons(),
+      outputLayer = this.layers.output.neurons();
+
+    for (var neuron in inputLayer)
+      neurons.push({
+        neuron: inputLayer[neuron],
+        layer: 'input'
+      });
+
+    for (var layer in this.layers.hidden) {
+      var hiddenLayer = this.layers.hidden[layer].neurons();
+      for (var neuron in hiddenLayer)
+        neurons.push({
+          neuron: hiddenLayer[neuron],
+          layer: layer
+        });
+    }
+    for (var neuron in outputLayer)
+      neurons.push({
+        neuron: outputLayer[neuron],
+        layer: 'output'
+      });
+
+    return neurons;
+  },
+
+  // returns number of inputs of the network
+  inputs: function() {
+    return this.layers.input.size;
+  },
+
+  // returns number of outputs of hte network
+  outputs: function() {
+    return this.layers.output.size;
+  },
+
+  // sets the layers of the network
+  set: function(layers) {
+
+    this.layers = layers;
+    if (this.optimized)
+      this.optimized.reset();
+  },
+
+  setOptimize: function(bool){
+    this.restore();
+    if (this.optimized)
+      this.optimized.reset();
+    this.optimized = bool? null : false;
+  },
+
+  mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    switch(method){
+      case Mutate.SWAP_WEIGHT:
+        // Select random input or hidden layer, they have all connections
+        var index1 = Math.floor(Math.random(1 + this.layers.hidden.length));
+        var layer1 = (index1 == 0 ) ? this.layers.input : this.layers.hidden[index1 - 1];
+
+        var layerConnection1 = layer1.connectedTo[Math.floor(Math.random() * layer1.connectedTo.length)];
+        var keys1 = Object.keys(layerConnection1.connections);
+        var connection1 = layerConnection1.connections[keys1[Math.floor(Math.random()* keys1.length)]];
+
+        var index2 = Math.floor(Math.random(1 + this.layers.hidden.length));
+        var layer2 = (index2 == 0 ) ? this.layers.input : this.layers.hidden[index2 - 1];
+
+        var layerConnection2 = layer2.connectedTo[Math.floor(Math.random() * layer2.connectedTo.length)];
+        var keys2 = Object.keys(layerConnection2.connections);
+        var connection2 = layerConnection2.connections[keys2[Math.floor(Math.random()* keys2.length)]];
+
+        var temp = connection1.weight;
+        connection1.weight = connection2.weight;
+        connection2.weight = temp;
+        break;
+      case Mutate.SWAP_BIAS:
+        var neuron1 = Math.floor(Math.random()*this.neurons().length);
+        var neuron1 = this.neurons()[neuron1].neuron;
+        var neuron2 = Math.floor(Math.random()*this.neurons().length);
+        var neuron2 = this.neurons()[neuron2].neuron;
+
+        var temp = neuron1.bias;
+        neuron1.bias = neuron2.bias;
+        neuron2.bias = temp;
+        break;
+      case Mutate.MODIFY_RANDOM_BIAS:
+        var neuron = Math.floor(Math.random()*this.neurons().length);
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        this.neurons()[neuron].neuron.bias += modification;
+        break;
+      case Mutate.MODIFY_RANDOM_WEIGHT:
+        // Select random input or hidden layer, they have all connections
+        var index = Math.floor(Math.random(1 + this.layers.hidden.length));
+        var layer = (index == 0 ) ? this.layers.input : this.layers.hidden[index - 1];
+
+        var layerConnection = layer.connectedTo[Math.floor(Math.random() * layer.connectedTo.length)];
+        var keys = Object.keys(layerConnection.connections);
+        var connection = layerConnection.connections[keys[Math.floor(Math.random()* keys.length)]];
+
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        connection.weight += modification;
+        break;
+      case Mutate.MODIFY_NEURONS:
+        // Select random hidden layer to add/remove a neuron
+        var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
+        var layer = this.layers.hidden[layerIndex];
+
+        if(Math.random() >= 0.5){
+          // remove a neuron
+          var index = Math.floor(layer.list.length * Math.random())
+          var neuron = layer.list[index];
+
+          // remove all connections to and from this neuron in the network
+          neuron.connections = [];
+
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.projected){
+              if(list[n].connections.projected[conn].to == neuron){
+                delete list[n].connections.projected[conn];
+              }
+            }
+          }
+
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in list){
+            for(var conn in list[n].connections.inputs){
+              if(list[n].connections.inputs[conn].from == neuron){
+                delete list[n].connections.inputs[conn];
+              }
+            }
+          }
+
+          layer.list.splice(index, 1);
+          layer.size--;
+        } else {
+          // add a neuron
+          var neuron = new Neuron();
+
+          // project FROM
+          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
+          for(var n in list){
+            list[n].project(neuron);
+          }
+
+          // project TO
+          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
+          for(var n in this.layers.output.list){
+            neuron.project(this.layers.output.list[n]);
+          }
+
+          layer.list.push(neuron);
+          layer.size++;
+        }
+        break;
+      case Mutate.MODIFY_CONNECTIONS:
+        // decide to make or break a connection
+        if(Math.random() >= 0.5){
+          // remove a connection to a certain neuron
+          var neuron;
+          while(neuron == null || Object.keys(neuron.connections.inputs).length == 0){
+            neuron = Math.floor(Math.random()*this.neurons().length);
+            neuron = this.neurons()[neuron].neuron;
+          }
+
+          var connections = neuron.connections.inputs;
+          var key = Object.keys(connections)[Math.floor(Object.keys(connections).length * Math.random())];
+          var fromID = connections[key].from.ID;
+
+          delete connections[key];
+
+          for(var n in this.neurons()){
+            if(this.neurons()[n].neuron.ID == fromID){
+              delete this.neurons()[n].neuron.connections.projected[key];
+              break;
+            }
+          }
+
+          // check if neuron is 'dead', a.k.a receives no more activation
+          if(Object.keys(connections).length == 0){
+            for(var n in this.neurons()){
+              var fromConnections = this.neurons()[n].neuron.connections.inputs;
+              var keys = Object.keys(fromConnections);
+
+              for(var conn in keys){
+                if(fromConnections[keys[conn]].from.ID == neuron.ID){
+                  delete this.neurons()[n].neuron.connections.inputs[keys[conn]];
+                }
+              }
+            }
+          }
+          break;
+        } else {
+          // make connection from neuron1 => neuron2, neuron1 != output neuron
+          var neuron1;
+          while(neuron1 == null || Object.keys(neuron1.connections.projected).length == 0){
+            neuron1 = Math.floor(Math.random()*this.neurons().length);
+            neuron1 = this.neurons()[neuron1].neuron;
+          }
+          var neuron2;
+          while(neuron2 == null || Object.keys(neuron2.connections.projected).length == 0){
+            neuron2 = Math.floor(Math.random()*this.neurons().length);
+            neuron2 = this.neurons()[neuron2].neuron;
+          }
+
+          neuron1.project(neuron2);
+        }
+        break;
+      case Mutate.MODIFY_SQUASH:
+        var neuron = Math.floor(Math.random()*this.neurons().length);
+        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        this.neurons()[neuron].Squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+    }
+  },
+
+  // returns a json that represents all the neurons and connections of the network
+  toJSON: function(ignoreTraces) {
+
+    this.restore();
+
+    var list = this.neurons();
+    var neurons = [];
+    var connections = [];
+
+    // link id's to positions in the array
+    var ids = {};
+    for (var i in list) {
+      var neuron = list[i].neuron;
+      while (neuron.neuron)
+        neuron = neuron.neuron;
+      ids[neuron.ID] = i;
+      var copy = neuron.toJSON();
+
+      copy.layer = list[i].layer;
+
+      neurons.push(copy);
+    }
+
+    // get connections
+    for (var i in list) {
+      var neuron = list[i].neuron;
+      while (neuron.neuron)
+        neuron = neuron.neuron;
+
+      for (var j in neuron.connections.projected) {
+        var connection = neuron.connections.projected[j];
+        connections.push({
+          from: ids[connection.from.ID],
+          to: ids[connection.to.ID],
+          weight: connection.weight,
+          gater: connection.gater ? ids[connection.gater.ID] : null,
+        });
+      }
+      if (neuron.selfconnected())
+        connections.push({
+          from: ids[neuron.ID],
+          to: ids[neuron.ID],
+          weight: neuron.selfconnection.weight,
+          gater: neuron.selfconnection.gater ? ids[neuron.selfconnection.gater.ID] : null,
         });
     }
 
-
-
-    return network;
-  },
-
-  /**
-   * Evaluates the population and assigns each genome a score
-   */
-  evaluate: function(){
-    for(var i in this.population){
-      var score = this.fitnessFunction(this.population[i]);
-      this.scores.push(score);
+    return {
+      neurons: neurons,
+      connections: connections
     }
   },
 
-  /**
-   * Selects genomes from the population based on their score
-   */
-  select: function(){
-    var sortedIndex = this.getSortedIndex();
-
-    if(this.elitism > 0){
-      for(var i = 0; i < this.elitism; i++){
-        this.newPopulation.push(this.population[sortedIndex[i]]);
+  // export the topology into dot language which can be visualized as graphs using dot
+  /* example: ... console.log(net.toDotLang());
+              $ node example.js > example.dot
+              $ dot example.dot -Tpng > out.png
+  */
+  toDot: function(edgeConnection) {
+    if (! typeof edgeConnection)
+      edgeConnection = false;
+    var code = "digraph nn {\n    rankdir = BT\n";
+    var layers = [this.layers.input].concat(this.layers.hidden, this.layers.output);
+    for (var layer in layers) {
+      for (var to in layers[layer].connectedTo) { // projections
+        var connection = layers[layer].connectedTo[to];
+        var layerTo = connection.to;
+        var size = connection.size;
+        var layerID = layers.indexOf(layers[layer]);
+        var layerToID = layers.indexOf(layerTo);
+        /* http://stackoverflow.com/questions/26845540/connect-edges-with-graph-dot
+         * DOT does not support edge-to-edge connections
+         * This workaround produces somewhat weird graphs ...
+        */
+        if ( edgeConnection) {
+          if (connection.gatedfrom.length) {
+            var fakeNode = "fake" + layerID + "_" + layerToID;
+            code += "    " + fakeNode +
+              " [label = \"\", shape = point, width = 0.01, height = 0.01]\n";
+            code += "    " + layerID + " -> " + fakeNode + " [label = " + size + ", arrowhead = none]\n";
+            code += "    " + fakeNode + " -> " + layerToID + "\n";
+          } else
+            code += "    " + layerID + " -> " + layerToID + " [label = " + size + "]\n";
+          for (var from in connection.gatedfrom) { // gatings
+            var layerfrom = connection.gatedfrom[from].layer;
+            var layerfromID = layers.indexOf(layerfrom);
+            code += "    " + layerfromID + " -> " + fakeNode + " [color = blue]\n";
+          }
+        } else {
+          code += "    " + layerID + " -> " + layerToID + " [label = " + size + "]\n";
+          for (var from in connection.gatedfrom) { // gatings
+            var layerfrom = connection.gatedfrom[from].layer;
+            var layerfromID = layers.indexOf(layerfrom);
+            code += "    " + layerfromID + " -> " + layerToID + " [color = blue]\n";
+          }
+        }
       }
     }
-    for(var i = 0; i < this.size - this.elitism; i++){
-      var parent = this.getParent(sortedIndex);
-      this.parentSelection.push(parent);
-      var parent = this.getParent(sortedIndex);
-      this.parentSelection.push(parent);
+    code += "}\n";
+    return {
+      code: code,
+      link: "https://chart.googleapis.com/chart?chl=" + escape(code.replace("/ /g", "+")) + "&cht=gv"
     }
   },
 
-  /**
-   * Breeds new genomes from the selected genomes of the previous generation
-   */
-  crossOver: function(){
-    for(var i = 0; i < this.parentSelection.length; i+=2 ){
-      var crossOverMethod = this.crossOverMethod[Math.floor(Math.random()*this.crossOverMethod.length)];
-      var offspring = Network.crossOver(
-        this.parentSelection[i],
-        this.parentSelection[i+1],
-        crossOverMethod
-      );
-      this.newPopulation.push(offspring);
-    }
-  },
+  // returns a function that works as the activation of the network and can be used without depending on the library
+  standalone: function() {
+    if (!this.optimized)
+      this.optimize();
 
-  /**
-   * Mutates the new population
-   */
-  mutate: function(){
-    for(var i = 0; i < this.newPopulation.length; i++){
-      if(Math.random() < this.mutationRate){
-        var mutateMethod = this.mutationMethod[Math.floor(Math.random() * this.mutationMethod.length)];
-        this.newPopulation[i].mutate(mutateMethod);
+    var data = this.optimized.data;
+
+    // build activation function
+    var activation = "function (input) {\n";
+
+    // build inputs
+    for (var i in data.inputs)
+      activation += "F[" + data.inputs[i] + "] = input[" + i + "];\n";
+
+    // build network activation
+    for (var neuron in data.activate) { // shouldn't this be layer?
+      for (var sentence in data.activate[neuron])
+        activation += data.activate[neuron][sentence].join('') + "\n";
+    }
+
+    // build outputs
+    activation += "var output = [];\n";
+    for (var i in data.outputs)
+      activation += "output[" + i + "] = F[" + data.outputs[i] + "];\n";
+    activation += "return output;\n}";
+
+    // reference all the positions in memory
+    var memory = activation.match(/F\[(\d+)\]/g);
+    var dimension = 0;
+    var ids = {};
+    for (var address in memory) {
+      var tmp = memory[address].match(/\d+/)[0];
+      if (!(tmp in ids)) {
+        ids[tmp] = dimension++;
       }
     }
+    var hardcode = "F = {\n";
+    for (var i in ids)
+      hardcode += ids[i] + ": " + this.optimized.memory[i] + ",\n";
+    hardcode = hardcode.substring(0, hardcode.length - 2) + "\n};\n";
+    hardcode = "var run = " + activation.replace(/F\[(\d+)]/g, function(
+      index) {
+      return 'F[' + ids[index.match(/\d+/)[0]] + ']'
+    }).replace("{\n", "{\n" + hardcode + "") + ";\n";
+    hardcode += "return run";
+
+    // return standalone function
+    return new Function(hardcode)();
   },
 
-  /**
-   * Replaces the old generation with the new generation
-   */
-  replace: function(){
-    this.population = [];
-    for(var i = 0; i < this.newPopulation.length; i++){
-      this.population.push(this.newPopulation[i]);
+
+  // Return a HTML5 WebWorker specialized on training the network stored in `memory`.
+  // Train based on the given dataSet and options.
+  // The worker returns the updated `memory` when done.
+  worker: function(memory, set, options) {
+
+    // Copy the options and set defaults (options might be different for each worker)
+    var workerOptions = {};
+    if(options) workerOptions = options;
+    workerOptions.rate = options.rate || .2;
+    workerOptions.iterations = options.iterations || 100000;
+    workerOptions.error = options.error || .005;
+    workerOptions.cost = options.cost || null;
+    workerOptions.crossValidate = options.crossValidate || null;
+
+    // Cost function might be different for each worker
+    costFunction = "var cost = " + (options && options.cost || this.cost || Trainer.cost.MSE) + ";\n";
+    var workerFunction = Network.getWorkerSharedFunctions();
+    workerFunction = workerFunction.replace(/var cost = options && options\.cost \|\| this\.cost \|\| Trainer\.cost\.MSE;/g, costFunction);
+
+    // Set what we do when training is finished
+    workerFunction = workerFunction.replace('return results;',
+                      'postMessage({action: "done", message: results, memoryBuffer: F}, [F.buffer]);');
+
+    // Replace log with postmessage
+    workerFunction = workerFunction.replace("console.log('iterations', iterations, 'error', error, 'rate', currentRate)",
+              "postMessage({action: 'log', message: {\n" +
+                  "iterations: iterations,\n" +
+                  "error: error,\n" +
+                  "rate: currentRate\n" +
+                "}\n" +
+              "})");
+
+    // Replace schedule with postmessage
+    workerFunction = workerFunction.replace("abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate })",
+              "postMessage({action: 'schedule', message: {\n" +
+                  "iterations: iterations,\n" +
+                  "error: error,\n" +
+                  "rate: currentRate\n" +
+                "}\n" +
+              "})");
+
+    if (!this.optimized)
+      this.optimize();
+
+    var hardcode = "var inputs = " + this.optimized.data.inputs.length + ";\n";
+    hardcode += "var outputs = " + this.optimized.data.outputs.length + ";\n";
+    hardcode += "var F =  new Float64Array([" + this.optimized.memory.toString() + "]);\n";
+    hardcode += "var activate = " + this.optimized.activate.toString() + ";\n";
+    hardcode += "var propagate = " + this.optimized.propagate.toString() + ";\n";
+    hardcode +=
+        "onmessage = function(e) {\n" +
+          "if (e.data.action == 'startTraining') {\n" +
+            "train(" + JSON.stringify(set) + "," + JSON.stringify(workerOptions) + ");\n" +
+          "}\n" +
+        "}";
+
+    var workerSourceCode = workerFunction + '\n' + hardcode;
+    var blob = new Blob([workerSourceCode]);
+    var blobURL = window.URL.createObjectURL(blob);
+
+    return new Worker(blobURL);
+  },
+
+  // returns a copy of the network
+  clone: function() {
+    return Network.fromJSON(this.toJSON());
+  }
+};
+
+/**
+ * Creates a static String to store the source code of the functions
+ *  that are identical for all the workers (train, _trainSet, test)
+ *
+ * @return {String} Source code that can train a network inside a worker.
+ * @static
+ */
+Network.getWorkerSharedFunctions = function() {
+  // If we already computed the source code for the shared functions
+  if(typeof Network._SHARED_WORKER_FUNCTIONS !== 'undefined')
+    return Network._SHARED_WORKER_FUNCTIONS;
+
+  // Otherwise compute and return the source code
+  // We compute them by simply copying the source code of the train, _trainSet and test functions
+  //  using the .toString() method
+
+  // Load and name the train function
+  var train_f = Trainer.prototype.train.toString();
+  train_f = train_f.replace('function (set', 'function train(set') + '\n';
+
+  // Load and name the _trainSet function
+  var _trainSet_f = Trainer.prototype._trainSet.toString().replace(/this.network./g, '');
+  _trainSet_f = _trainSet_f.replace('function (set', 'function _trainSet(set') + '\n';
+  _trainSet_f = _trainSet_f.replace('this.crossValidate', 'crossValidate');
+  _trainSet_f = _trainSet_f.replace('crossValidate = true', 'crossValidate = { }');
+
+  // Load and name the test function
+  var test_f = Trainer.prototype.test.toString().replace(/this.network./g, '');
+  test_f = test_f.replace('function (set', 'function test(set') + '\n';
+
+  return Network._SHARED_WORKER_FUNCTIONS = train_f + _trainSet_f + test_f;
+};
+
+// rebuild a network that has been stored in a json using the method toJSON()
+Network.fromJSON = function(json) {
+
+  var neurons = [];
+
+  var layers = {
+    input: new Layer(),
+    hidden: [],
+    output: new Layer()
+  };
+
+  for (var i in json.neurons) {
+    var config = json.neurons[i];
+
+    var neuron = new Neuron();
+    neuron.trace.elegibility = {};
+    neuron.trace.extended = {};
+    neuron.state = config.state;
+    neuron.old = config.old;
+    neuron.activation = config.activation;
+    neuron.bias = config.bias;
+    neuron.squash = config.squash in neuron.squash ? neuron.squash[config.squash] : Squash.LOGISTIC;
+    neurons.push(neuron);
+
+    if (config.layer == 'input')
+      layers.input.add(neuron);
+    else if (config.layer == 'output')
+      layers.output.add(neuron);
+    else {
+      if (typeof layers.hidden[config.layer] == 'undefined')
+        layers.hidden[config.layer] = new Layer();
+      layers.hidden[config.layer].add(neuron);
     }
-    this.newPopulation = [];
-    this.parentSelection = [];
-    this.scores = [];
+  }
 
-    this.generation ++;
-  },
+  for (var i in json.connections) {
+    var config = json.connections[i];
+    var from = neurons[config.from];
+    var to = neurons[config.to];
+    var weight = config.weight;
+    var gater = neurons[config.gater];
 
-  /**
-   * Gets a genome based on the selection function
-   * @param {Array} sortedIndex
-   * @return {Number} genome
-   */
-  getParent: function(sortedIndex){
-    var selectionMethod = this.selectionMethod[Math.floor(Math.random() * this.selectionMethod.length)];
-    switch(selectionMethod){
-      case Selection.FITNESS_PROPORTIONATE:
-        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.size);
-        return this.population[sortedIndex[r]];
-        break;
-    }
-  },
+    var connection = from.project(to, weight);
+    if (gater)
+      gater.gate(connection);
+  }
 
-  /**
-   * Returns a list of sorted population indices based on score
-   */
-  getSortedIndex: function(){
-    // Makes an array with indices of scores from highest -> lowest values
-    var copyScores = this.scores.slice();
-    var sortedIndex = [];
+  return new Network(layers);
+};
 
-    for(var i = 0; i < copyScores.length; i++){
-      var indexHighest = copyScores.indexOf(Math.max.apply(Math, copyScores));
-      copyScores[indexHighest] = -1;
-      sortedIndex.push(indexHighest);
-    }
-    return sortedIndex;
-  },
+Network.crossOver = function(network1, network2, method){
+  method = method || Crossover.UNIFORM;
 
-  /**
-   * Returns the average fitness of the population
-   */
-  getAverage: function(){
-    var sum = this.scores.reduce(function(a, b) { return a + b; });
-    return sum / this.scores.length;
-  },
+  var network1 = network1.toJSON();
+  var network2 = network2.toJSON()
+  var offspring = Network.fromJSON(network1).toJSON();
 
-  /**
-   * Returns the highest scoring genome of the current population
-   */
-   getFittestGenome: function(){
-     if(this.scores.length != 0){
-       var sortedIndex = this.getSortedIndex();
-       return this.population[sortedIndex[0]];
-     } else {
-       throw {name : "Empty array", message: "Please run .evaluate() before calling getFittestGenome()!"};
-     }
-   },
-
-   /**
-    * Exports the population to an array
-    */
-    exportPool: function(){
-      var file = [];
-      for(var i in this.population){
-        file.push(this.population[i].toJSON());
+  switch(method){
+    case Crossover.UNIFORM:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(Math.random() >= 0.5){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
       }
-      return file;
-    },
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(Math.random() >= 0.5){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+    case Crossover.AVERAGE:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        var bias1 = network1.neurons[i].bias;
+        var bias2 = network2.neurons[i].bias;
+        offspring.neurons[i].bias = (bias1 + bias2) / 2;
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        var weight1 = network1.connections[i].weight;
+        var weight2 = network2.connections[i].weight;
+        offspring.connections[i].weight = (weight1 + weight2) / 2;
+      }
+      break;
+    case Crossover.SINGLE_POINT:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0]){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0]){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+    case Crossover.TWO_POINT:
+      for(var i = 0; i < offspring.neurons.length; i++){
+        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0] || i / offspring.neurons.length > Crossover.SINGLE_POINT[1]){
+          offspring.neurons[i].bias = network1.neurons[i].bias;
+        } else {
+          offspring.neurons[i].bias = network2.neurons[i].bias;
+        }
+      }
+      for(var i = 0; i < offspring.connections.length; i++){
+        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0] || i / offspring.connections.length > Crossover.SINGLE_POINT[1]){
+          offspring.connections[i].weight = network1.connections[i].weight;
+        } else {
+          offspring.connections[i].weight = network2.connections[i].weight;
+        }
+      }
+      break;
+  }
 
-    /**
-     * Imports the population from an array
-     */
-     importPool: function(file){
-       this.size = file.length;
-       this.population = [];
-
-       for(var i in file){
-         var genome = Network.fromJSON(file[i]);
-         this.population.push(genome)
-       }
-     }
+  return Network.fromJSON(offspring);
 }
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// export
+if (module) module.exports = Trainer;
 
 /*******************************************************************************************
                                         TRAINER
@@ -917,6 +2299,23 @@ Trainer.cost = {
   }
 }
 
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// export
+if (module) module.exports = Neuron;
+
+var methods = __webpack_require__(1);
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Generation = methods.Generation
+,   Pooling    = methods.Pooling;
+
 /******************************************************************************************
                                          NEURON
 *******************************************************************************************/
@@ -943,7 +2342,7 @@ function Neuron() {
   this.old = 0;
   this.activation = 0;
   this.selfconnection = new Neuron.connection(this, this, 0); // weight = 0 -> not connected
-  this.squash = Neuron.squash.LOGISTIC;
+  this.squash = Squash.LOGISTIC;
   this.neighboors = {};
   this.bias = Math.random() * .2 - .1;
 }
@@ -1413,13 +2812,13 @@ Neuron.prototype = {
       }
       var derivative = getVar(this, 'derivative');
       switch (this.squash) {
-        case Neuron.squash.LOGISTIC:
+        case Squash.LOGISTIC:
           buildSentence(activation, ' = (1 / (1 + Math.exp(-', state, ')))',
             store_activation);
           buildSentence(derivative, ' = ', activation, ' * (1 - ',
             activation, ')', store_activation);
           break;
-        case Neuron.squash.TANH:
+        case Squash.TANH:
           var eP = getVar('aux');
           var eN = getVar('aux_2');
           buildSentence(eP, ' = Math.exp(', state, ')', store_activation);
@@ -1427,27 +2826,27 @@ Neuron.prototype = {
           buildSentence(activation, ' = (', eP, ' - ', eN, ') / (', eP, ' + ', eN, ')', store_activation);
           buildSentence(derivative, ' = 1 - (', activation, ' * ', activation, ')', store_activation);
           break;
-        case Neuron.squash.IDENTITY:
+        case Squash.IDENTITY:
           buildSentence(activation, ' = ', state, store_activation);
           buildSentence(derivative, ' = 1', store_activation);
           break;
-        case Neuron.squash.HLIM:
+        case Squash.HLIM:
           buildSentence(activation, ' = +(', state, ' > 0)', store_activation);
           buildSentence(derivative, ' = 1', store_activation);
           break;
-        case Neuron.squash.RELU:
+        case Squash.RELU:
           buildSentence(activation, ' = ', state, ' > 0 ? ', state, ' : 0', store_activation);
           buildSentence(derivative, ' = ', state, ' > 0 ? 1 : 0', store_activation);
           break;
-        case Neuron.squash.SOFTSIGN:
+        case Squash.SOFTSIGN:
           buildSentence(activation, ' = ', state, ' / (1 + Math.abs(', state, '))', store_activation);
           buildSentence(derivative, ' = ', state, ' / Math.pow(', '(1 + Math.abs(', state, '))',', 2)', store_activation);
           break;
-        case Neuron.squash.SINUSOID:
+        case Squash.SINUSOID:
           buildSentence(activation, ' = Math.sin(', state, ')', store_activation);
           buildSentence(derivative, ' = Math.cos(', state, ')', store_activation);
           break;
-        case Neuron.squash.GAUSSIAN:
+        case Squash.GAUSSIAN:
           buildSentence(activation, ' = ', 'Math.exp(-Math.pow(', state, ', 2))');
           buildSentence(derivative, ' = ', '-2 * ', state, ' * Math.exp(-Math.pow(', state, ', 2))');
           break;
@@ -1726,14 +3125,14 @@ Neuron.prototype = {
       bias: this.bias,
     };
 
-    copy.squash = this.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
-      this.squash == Neuron.squash.TANH ? "TANH" :
-      this.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
-      this.squash == Neuron.squash.HLIM ? "HLIM" :
-      this.squash == Neuron.squash.RELU ? "RELU" :
-      this.squash == Neuron.squash.SOFTSIGN ? "SOFTSIGN" :
-      this.squash == Neuron.squash.SINUSOID ? "SINUSOID" :
-      this.squash == Neuron.squash.GAUSSIAN ? "GAUSSIAN" :
+    copy.squash = this.squash == Squash.LOGISTIC ? "LOGISTIC" :
+      this.squash == Squash.TANH ? "TANH" :
+      this.squash == Squash.IDENTITY ? "IDENTITY" :
+      this.squash == Squash.HLIM ? "HLIM" :
+      this.squash == Squash.RELU ? "RELU" :
+      this.squash == Squash.SOFTSIGN ? "SOFTSIGN" :
+      this.squash == Squash.SINUSOID ? "SINUSOID" :
+      this.squash == Squash.GAUSSIAN ? "GAUSSIAN" :
       null;
 
     return copy;
@@ -1748,7 +3147,7 @@ Neuron.fromJSON = function(json){
   neuron.old = json.old;
   neuron.activation = json.activation;
   neuron.bias = json.bias;
-  neuron.squash = json.squash in Neuron.squash ? Neuron.squash[json.squash] : Neuron.squash.LOGISTIC;
+  Squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
 
   return neuron;
 }
@@ -1788,7 +3187,6 @@ Neuron.crossOver = function(neuron1, neuron2, method){
   return offspring;
 }
 
-
 // squashing functions
 Neuron.squash = {};
 
@@ -1802,7 +3200,9 @@ Neuron.squash.LOGISTIC = function(x, derivate) {
 Neuron.squash.TANH = function(x, derivate) {
   if (derivate)
     return 1 - Math.pow(Neuron.squash.TANH(x), 2);
-  return Math.tanh(x);
+  var eP = Math.exp(x);
+  var eN = 1 / eP;
+  return (eP - eN) / (eP + eN);
 };
 Neuron.squash.IDENTITY = function(x, derivate) {
   return derivate ? 1 : x;
@@ -1814,23 +3214,6 @@ Neuron.squash.RELU = function(x, derivate) {
   if (derivate)
     return x > 0 ? 1 : 0;
   return x > 0 ? x : 0;
-};
-Neuron.squash.SOFTSIGN = function(x, derivate){
-  var d = 1 + Math.abs(x);
-  if(derivate)
-    return x / Math.pow(d, 2);
-  return x / d;
-};
-Neuron.squash.SINUSOID = function(x, derivate){
-  if(derivate)
-    return Math.cos(x);
-  return Math.sin(x);
-};
-Neuron.squash.GAUSSIAN = function(x, derivate){
-  var d = Math.exp(-Math.pow(x, 2));
-  if(derivate)
-    return -2 * x * d;
-  return d;
 };
 
 // unique ID's
@@ -1851,1401 +3234,16 @@ Neuron.squash.GAUSSIAN = function(x, derivate){
   }
 })();
 
-/*******************************************************************************************
-                                        SETTINGS
-*******************************************************************************************/
-
-/*
-  Mutation methods
-*/
-Mutate = {
-  SWAP_WEIGHT: {
-    name: "SWAP_WEIGHT"
-  },
-  SWAP_BIAS: {
-    name: "SWAP_BIAS"
-  },
-  MODIFY_RANDOM_WEIGHT: {
-    name: "MODIFY_RANDOM_WEIGHT",
-    config: {
-      min: -1,
-      max: 1
-    }
-  },
-  MODIFY_RANDOM_BIAS: {
-    name: "MODIFY_RANDOM_BIAS",
-    config: {
-      min: -1,
-      max: 1
-    }
-  },
-  MODIFY_CONNECTIONS: {
-    name: "MODIFY_CONNECTIONS"
-  },
-  MODIFY_NEURONS: {
-    name: "MODIFY_NEURONS"
-  },
-  MODIFY_SQUASH: {
-    name: "MODIFY_SQUASH",
-    config: {
-      allowed: [
-        Neuron.squash.LOGISTIC,
-        Neuron.squash.TANH,
-        Neuron.squash.RELU,
-        Neuron.squash.IDENTITY,
-        Neuron.squash.HLIM,
-        Neuron.squash.SOFTSIGN,
-        Neuron.squash.SINUSOID,
-        Neuron.squash.GAUSSIAN
-      ]
-    }
-  }
-};
-
-/*
-  Crossover methods
-  For now, parents for crossover should be the same size!
-*/
-Crossover = {
-  SINGLE_POINT: {
-    name: "SINGLE_POINT",
-    config: [0.4]
-  },
-  TWO_POINT: {
-    name: "TWO_POINT",
-    config: [0.4, 0.9]
-  },
-  UNIFORM: {
-    name: "UNIFORM"
-  },
-  AVERAGE: {
-    name: "AVERAGE"
-  }
-};
-
-/*
-  Selection methods
-*/
-Selection = {
-  FITNESS_PROPORTIONATE: {
-    name: "FITNESS_PROPORTIONATE",
-    config: function(r){ return Math.pow(r,2); }
-  }
-};
-
-/*
-  Generation methods
-*/
-Generation = {
-  POINTS: {
-    name: "POINTS",
-    config: {
-      points: 2,
-      learningRate : 0.3,
-      iterations: 50,
-      shuffle: true,
-      error: 0.0001,
-      cost: Trainer.cost.MSE
-    }
-  },
-  DEFAULT: {
-    name: "DEFAULT"
-  }
-};
-
-/*
-  Pooling methods
-*/
-Pooling = {
-  config: {
-    size: [2,2]
-  },
-  MAX: {
-    name: "MAX",
-  },
-  NONE: {
-    name: "NONE"
-  }
-}
-
-/*******************************************************************************************
-                                            LAYER
-*******************************************************************************************/
-
-function Layer(size, label) {
-  this.size = size | 0;
-  this.list = [];
-  this.label = label || null;
-  this.connectedTo = [];
-
-  while (size--) {
-    var neuron = new Neuron();
-    this.list.push(neuron);
-  }
-}
-
-Layer.prototype = {
-
-  // activates all the neurons in the layer
-  activate: function(input) {
-
-    var activations = [];
-
-    if (typeof input != 'undefined') {
-      if (input.length != this.size)
-        throw new Error("INPUT size and LAYER size must be the same to activate!");
-
-      for (var id in this.list) {
-        var neuron = this.list[id];
-        var activation = neuron.activate(input[id]);
-        activations.push(activation);
-      }
-    } else {
-      for (var id in this.list) {
-        var neuron = this.list[id];
-        var activation = neuron.activate();
-        activations.push(activation);
-      }
-    }
-    return activations;
-  },
-
-  // propagates the error on all the neurons of the layer
-  propagate: function(rate, target) {
-
-    if (typeof target != 'undefined') {
-      if (target.length != this.size)
-        throw new Error("TARGET size and LAYER size must be the same to propagate!");
-
-      for (var id = this.list.length - 1; id >= 0; id--) {
-        var neuron = this.list[id];
-        neuron.propagate(rate, target[id]);
-      }
-    } else {
-      for (var id = this.list.length - 1; id >= 0; id--) {
-        var neuron = this.list[id];
-        neuron.propagate(rate);
-      }
-    }
-  },
-
-  // projects a connection from this layer to another one
-  project: function(layer, type, weights) {
-
-    if (layer instanceof Network)
-      layer = layer.layers.input;
-
-    if (layer instanceof Layer) {
-      if (!this.connected(layer))
-        return new Layer.connection(this, layer, type, weights);
-    } else
-      throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
-
-
-  },
-
-  // gates a connection betwenn two layers
-  gate: function(connection, type) {
-
-    if (type == Layer.gateType.INPUT) {
-      if (connection.to.size != this.size)
-        throw new Error("GATER layer and CONNECTION.TO layer must be the same size in order to gate!");
-
-      for (var id in connection.to.list) {
-        var neuron = connection.to.list[id];
-        var gater = this.list[id];
-        for (var input in neuron.connections.inputs) {
-          var gated = neuron.connections.inputs[input];
-          if (gated.ID in connection.connections)
-            gater.gate(gated);
-        }
-      }
-    } else if (type == Layer.gateType.OUTPUT) {
-      if (connection.from.size != this.size)
-        throw new Error("GATER layer and CONNECTION.FROM layer must be the same size in order to gate!");
-
-      for (var id in connection.from.list) {
-        var neuron = connection.from.list[id];
-        var gater = this.list[id];
-        for (var projected in neuron.connections.projected) {
-          var gated = neuron.connections.projected[projected];
-          if (gated.ID in connection.connections)
-            gater.gate(gated);
-        }
-      }
-    } else if (type == Layer.gateType.ONE_TO_ONE) {
-      if (connection.size != this.size)
-        throw new Error("The number of GATER UNITS must be the same as the number of CONNECTIONS to gate!");
-
-      for (var id in connection.list) {
-        var gater = this.list[id];
-        var gated = connection.list[id];
-        gater.gate(gated);
-      }
-    }
-    connection.gatedfrom.push({layer: this, type: type});
-  },
-
-  // true or false whether the whole layer is self-connected or not
-  selfconnected: function() {
-
-    for (var id in this.list) {
-      var neuron = this.list[id];
-      if (!neuron.selfconnected())
-        return false;
-    }
-    return true;
-  },
-
-  // true of false whether the layer is connected to another layer (parameter) or not
-  connected: function(layer) {
-    // Check if ALL to ALL connection
-    var connections = 0;
-    for (var here in this.list) {
-      for (var there in layer.list) {
-        var from = this.list[here];
-        var to = layer.list[there];
-        var connected = from.connected(to);
-        if (connected.type == 'projected')
-          connections++;
-      }
-    }
-    if (connections == this.size * layer.size)
-      return Layer.connectionType.ALL_TO_ALL;
-
-    // Check if ONE to ONE connection
-    connections = 0;
-    for (var neuron in this.list) {
-      var from = this.list[neuron];
-      var to = layer.list[neuron];
-      var connected = from.connected(to);
-      if (connected.type == 'projected')
-        connections++;
-    }
-    if (connections == this.size)
-      return Layer.connectionType.ONE_TO_ONE;
-  },
-
-  // clears all the neuorns in the layer
-  clear: function() {
-    for (var id in this.list) {
-      var neuron = this.list[id];
-      neuron.clear();
-    }
-  },
-
-  // resets all the neurons in the layer
-  reset: function() {
-    for (var id in this.list) {
-      var neuron = this.list[id];
-      neuron.reset();
-    }
-  },
-
-  // returns all the neurons in the layer (array)
-  neurons: function() {
-    return this.list;
-  },
-
-  // adds a neuron to the layer
-  add: function(neuron) {
-    this.neurons[neuron.ID] = neuron || new Neuron();
-    this.list.push(neuron);
-    this.size++;
-  },
-
-  set: function(options) {
-    options = options || {};
-
-    for (var i in this.list) {
-      var neuron = this.list[i];
-      if (options.label)
-        neuron.label = options.label + '_' + neuron.ID;
-      if (options.squash)
-        neuron.squash = options.squash;
-      if (options.bias)
-        neuron.bias = options.bias;
-    }
-    return this;
-  },
-
-  mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
-    switch(method){
-      case Mutate.SWAP_WEIGHT:
-        var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
-        var neuron2 = this.list[Math.floor(Math.random()*this.list.length)];
-
-        var connectionType1 = ['gated', 'inputs', 'projected'];
-        var connectionType2 = ['gated', 'inputs', 'projected'];
-
-        for(var i = 2;i >= 0; i--){
-          if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
-            connectionType1.splice(i, 1);
-          }
-          if(Object.keys(neuron2.connections[connectionType2[i]]).length == 0){
-            connectionType2.splice(i, 1);
-          }
-        }
-
-        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
-        var connectionKeys1 = Object.keys(neuron1.connections[connectionType1]);
-        var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
-
-        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
-        var connectionKeys2 = Object.keys(neuron2.connections[connectionType2]);
-        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
-
-        var temp = neuron1.connections[connectionType1][connection1].weight;
-        neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
-        neuron2.connections[connectionType2][connection2].weight = temp;
-        break;
-      case Mutate.SWAP_BIAS:
-        var neuron1 = Math.floor(Math.random()*this.list.length);
-        var neuron2 = Math.floor(Math.random()*this.list.length);
-
-        var temp = this.list[neuron1].bias;
-        this.list[neuron1].bias = this.list[neuron2].bias;
-        this.list[neuron2].bias = temp;
-        break;
-      case Mutate.MODIFY_RANDOM_BIAS:
-        var neuron = Math.floor(Math.random()*this.list.length);
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
-        this.list[neuron].bias += modification;
-        break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
-        var neuron = this.list[Math.floor(Math.random()*this.list.length)];
-        var connectionType = ['gated', 'inputs', 'projected'];
-
-        for(var i = connectionType.length-1;i >= 0; i--){
-          if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
-            connectionType.splice(i, 1);
-          }
-        }
-
-        connectionType = connectionType[Math.floor(Math.random()*connectionType.length)];
-        var connectionKeys = Object.keys(neuron.connections[connectionType]);
-        var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
-
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
-        neuron.connections[connectionType][connection].weight += modification;
-        break;
-      case Mutate.MODIFY_SQUASH:
-        var neuron = Math.floor(Math.random()*this.list.length);
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
-        this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
-    }
-  },
-
-  toJSON: function(){
-    var list = this.list;
-    var neurons = []
-    // link id's to positions in the array
-    var ids = {};
-    for (var i in list) {
-      var neuron = list[i];
-      ids[neuron.ID] = i;
-      var copy = neuron.toJSON();
-
-      neurons.push(copy);
-    }
-
-    return {
-      neurons: neurons
-    }
-  }
-}
-
-Layer.crossOver = function(layer1, layer2, method){
-  method = method || Crossover.UNIFORM;
-  var offspring = new Layer(layer1.list.length);
-
-  switch(method){
-    case Crossover.UNIFORM:
-      for(var i = 0; i < offspring.list.length; i++){
-        if(Math.round() >= 0.5){
-          offspring.list[i].bias = layer1.list[i].bias;
-        } else {
-          offspring.list[i].bias = layer2.list[i].bias;
-        }
-      }
-      break;
-    case Crossover.AVERAGE:
-      for(var i = 0; i < offspring.list.length; i++){
-        var bias1 = layer1.list[i].bias;
-        var bias2 = layer2.list[i].bias;
-
-        offspring.list[i].bias = (bias1 + bias2) / 2;
-      }
-      break;
-    case Crossover.SINGLE_POINT:
-      for(var i = 0; i < offspring.list.length; i++){
-        if(i/offspring.list.length < Crossover.SINGLE_POINT[0]){
-          offspring.list[i].bias = layer1.list[i].bias;
-        } else {
-          offspring.list[i].bias = layer2.list[i].bias;
-        }
-      }
-      break;
-    case Crossover.TWO_POINT:
-      for(var i = 0; i < offspring.list.length; i++){
-        if(i/offspring.list.length < Crossover.SINGLE_POINT[0] || i/offspring.list.length > Crossover.SINGLE_POINT[1]){
-          offspring.list[i].bias = layer1.list[i].bias;
-        } else {
-          offspring.list[i].bias = layer2.list[i].bias;
-        }
-      }
-      break;
-  }
-
-  return offspring;
-}
-
-Layer.fromJSON = function(json){
-  var neurons = [];
-  for (var i in json.neurons) {
-    var config = json.neurons[i];
-
-    var neuron = new Neuron();
-    neuron.trace.elegibility = {};
-    neuron.trace.extended = {};
-    neuron.state = config.state;
-    neuron.old = config.old;
-    neuron.activation = config.activation;
-    neuron.bias = config.bias;
-    neuron.squash = config.squash in Neuron.squash ? Neuron.squash[config.squash] : Neuron.squash.LOGISTIC;
-    neurons.push(neuron);
-  }
-
-  var layer = new Layer(neurons.length);
-  layer.list = neurons;
-  return layer;
-}
-
-// represents a connection from one layer to another, and keeps track of its weight and gain
-Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
-  this.ID = Layer.connection.uid();
-  this.from = fromLayer;
-  this.to = toLayer;
-  this.selfconnection = toLayer == fromLayer;
-  this.type = type;
-  this.connections = {};
-  this.list = [];
-  this.size = 0;
-  this.gatedfrom = [];
-
-  if (typeof this.type == 'undefined')
-  {
-    if (fromLayer == toLayer)
-      this.type = Layer.connectionType.ONE_TO_ONE;
-    else
-      this.type = Layer.connectionType.ALL_TO_ALL;
-  }
-
-  if (this.type == Layer.connectionType.ALL_TO_ALL ||
-      this.type == Layer.connectionType.ALL_TO_ELSE) {
-    for (var here in this.from.list) {
-      for (var there in this.to.list) {
-        var from = this.from.list[here];
-        var to = this.to.list[there];
-        if(this.type == Layer.connectionType.ALL_TO_ELSE && from == to)
-          continue;
-        var connection = from.project(to, weights);
-
-        this.connections[connection.ID] = connection;
-        this.size = this.list.push(connection);
-      }
-    }
-  } else if (this.type == Layer.connectionType.ONE_TO_ONE) {
-
-    for (var neuron in this.from.list) {
-      var from = this.from.list[neuron];
-      var to = this.to.list[neuron];
-      var connection = from.project(to, weights);
-
-      this.connections[connection.ID] = connection;
-      this.size = this.list.push(connection);
-    }
-  }
-
-  fromLayer.connectedTo.push(this);
-}
-
-// types of connections
-Layer.connectionType = {};
-Layer.connectionType.ALL_TO_ALL = "ALL TO ALL";
-Layer.connectionType.ONE_TO_ONE = "ONE TO ONE";
-Layer.connectionType.ALL_TO_ELSE = "ALL TO ELSE";
-
-// types of gates
-Layer.gateType = {};
-Layer.gateType.INPUT = "INPUT";
-Layer.gateType.OUTPUT = "OUTPUT";
-Layer.gateType.ONE_TO_ONE = "ONE TO ONE";
-
-(function() {
-  var connections = 0;
-  Layer.connection.uid = function() {
-    return connections++;
-  }
-})();
-
-/*******************************************************************************************
-                                         NETWORK
-*******************************************************************************************/
-
-function Network(layers) {
-  if (typeof layers != 'undefined') {
-    this.layers = layers || {
-      input: null,
-      hidden: {},
-      output: null
-    };
-    this.optimized = null;
-  }
-}
-Network.prototype = {
-
-  // feed-forward activation of all the layers to produce an ouput
-  activate: function(input) {
-
-    if (this.optimized === false)
-    {
-      this.layers.input.activate(input);
-      for (var layer in this.layers.hidden)
-        this.layers.hidden[layer].activate();
-      return this.layers.output.activate();
-    }
-    else
-    {
-      if (this.optimized == null)
-        this.optimize();
-      return this.optimized.activate(input);
-    }
-  },
-
-  // back-propagate the error thru the network
-  propagate: function(rate, target) {
-
-    if (this.optimized === false)
-    {
-      this.layers.output.propagate(rate, target);
-      var reverse = [];
-      for (var layer in this.layers.hidden)
-        reverse.push(this.layers.hidden[layer]);
-      reverse.reverse();
-      for (var layer in reverse)
-        reverse[layer].propagate(rate);
-    }
-    else
-    {
-      if (this.optimized == null)
-        this.optimize();
-      this.optimized.propagate(rate, target);
-    }
-  },
-
-  // project a connection to another unit (either a network or a layer)
-  project: function(unit, type, weights) {
-
-    if (this.optimized)
-      this.optimized.reset();
-
-    if (unit instanceof Network)
-      return this.layers.output.project(unit.layers.input, type, weights);
-
-    if (unit instanceof Layer)
-      return this.layers.output.project(unit, type, weights);
-
-    throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
-  },
-
-  // let this network gate a connection
-  gate: function(connection, type) {
-    if (this.optimized)
-      this.optimized.reset();
-    this.layers.output.gate(connection, type);
-  },
-
-  // clear all elegibility traces and extended elegibility traces (the network forgets its context, but not what was trained)
-  clear: function() {
-
-    this.restore();
-
-    var inputLayer = this.layers.input,
-      outputLayer = this.layers.output;
-
-    inputLayer.clear();
-    for (var layer in this.layers.hidden) {
-      var hiddenLayer = this.layers.hidden[layer];
-      hiddenLayer.clear();
-    }
-    outputLayer.clear();
-
-    if (this.optimized)
-      this.optimized.reset();
-  },
-
-  // reset all weights and clear all traces (ends up like a new network)
-  reset: function() {
-
-    this.restore();
-
-    var inputLayer = this.layers.input,
-      outputLayer = this.layers.output;
-
-    inputLayer.reset();
-    for (var layer in this.layers.hidden) {
-      var hiddenLayer = this.layers.hidden[layer];
-      hiddenLayer.reset();
-    }
-    outputLayer.reset();
-
-    if (this.optimized)
-      this.optimized.reset();
-  },
-
-  // hardcodes the behaviour of the whole network into a single optimized function
-  optimize: function() {
-
-    var that = this;
-    var optimized = {};
-    var neurons = this.neurons();
-
-    for (var i in neurons) {
-      var neuron = neurons[i].neuron;
-      var layer = neurons[i].layer;
-      while (neuron.neuron)
-        neuron = neuron.neuron;
-      optimized = neuron.optimize(optimized, layer);
-    }
-    for (var i in optimized.propagation_sentences)
-      optimized.propagation_sentences[i].reverse();
-    optimized.propagation_sentences.reverse();
-
-    var hardcode = "";
-    hardcode += "var F = Float64Array ? new Float64Array(" + optimized.memory +
-      ") : []; ";
-    for (var i in optimized.variables)
-      hardcode += "F[" + optimized.variables[i].id + "] = " + (optimized.variables[
-        i].value || 0) + "; ";
-    hardcode += "var activate = function(input){\n";
-    for (var i in optimized.inputs)
-      hardcode += "F[" + optimized.inputs[i] + "] = input[" + i + "]; ";
-    for (var currentLayer in optimized.activation_sentences) {
-      if (optimized.activation_sentences[currentLayer].length > 0) {
-        for (var currentNeuron in optimized.activation_sentences[currentLayer]) {
-          hardcode += optimized.activation_sentences[currentLayer][currentNeuron].join(" ");
-          hardcode += optimized.trace_sentences[currentLayer][currentNeuron].join(" ");
-        }
-      }
-    }
-    hardcode += " var output = []; "
-    for (var i in optimized.outputs)
-      hardcode += "output[" + i + "] = F[" + optimized.outputs[i] + "]; ";
-    hardcode += "return output; }; "
-    hardcode += "var propagate = function(rate, target){\n";
-    hardcode += "F[" + optimized.variables.rate.id + "] = rate; ";
-    for (var i in optimized.targets)
-      hardcode += "F[" + optimized.targets[i] + "] = target[" + i + "]; ";
-    for (var currentLayer in optimized.propagation_sentences)
-      for (var currentNeuron in optimized.propagation_sentences[currentLayer])
-        hardcode += optimized.propagation_sentences[currentLayer][currentNeuron].join(" ") + " ";
-    hardcode += " };\n";
-    hardcode +=
-      "var ownership = function(memoryBuffer){\nF = memoryBuffer;\nthis.memory = F;\n};\n";
-    hardcode +=
-      "return {\nmemory: F,\nactivate: activate,\npropagate: propagate,\nownership: ownership\n};";
-    hardcode = hardcode.split(";").join(";\n");
-
-    var constructor = new Function(hardcode);
-
-    var network = constructor();
-    network.data = {
-      variables: optimized.variables,
-      activate: optimized.activation_sentences,
-      propagate: optimized.propagation_sentences,
-      trace: optimized.trace_sentences,
-      inputs: optimized.inputs,
-      outputs: optimized.outputs,
-      check_activation: this.activate,
-      check_propagation: this.propagate
-    }
-
-    network.reset = function() {
-      if (that.optimized) {
-        that.optimized = null;
-        that.activate = network.data.check_activation;
-        that.propagate = network.data.check_propagation;
-      }
-    }
-
-    this.optimized = network;
-    this.activate = network.activate;
-    this.propagate = network.propagate;
-  },
-
-  // restores all the values from the optimized network the their respective objects in order to manipulate the network
-  restore: function() {
-    if (!this.optimized)
-      return;
-
-    var optimized = this.optimized;
-
-    var getValue = function() {
-      var args = Array.prototype.slice.call(arguments);
-
-      var unit = args.shift();
-      var prop = args.pop();
-
-      var id = prop + '_';
-      for (var property in args)
-        id += args[property] + '_';
-      id += unit.ID;
-
-      var memory = optimized.memory;
-      var variables = optimized.data.variables;
-
-      if (id in variables)
-        return memory[variables[id].id];
-      return 0;
-    }
-
-    var list = this.neurons();
-
-    // link id's to positions in the array
-    var ids = {};
-    for (var i in list) {
-      var neuron = list[i].neuron;
-      while (neuron.neuron)
-        neuron = neuron.neuron;
-
-      neuron.state = getValue(neuron, 'state');
-      neuron.old = getValue(neuron, 'old');
-      neuron.activation = getValue(neuron, 'activation');
-      neuron.bias = getValue(neuron, 'bias');
-
-      for (var input in neuron.trace.elegibility)
-        neuron.trace.elegibility[input] = getValue(neuron, 'trace',
-          'elegibility', input);
-
-      for (var gated in neuron.trace.extended)
-        for (var input in neuron.trace.extended[gated])
-          neuron.trace.extended[gated][input] = getValue(neuron, 'trace',
-            'extended', gated, input);
-    }
-
-    // get connections
-    for (var i in list) {
-      var neuron = list[i].neuron;
-      while (neuron.neuron)
-        neuron = neuron.neuron;
-
-      for (var j in neuron.connections.projected) {
-        var connection = neuron.connections.projected[j];
-        connection.weight = getValue(connection, 'weight');
-        connection.gain = getValue(connection, 'gain');
-      }
-    }
-  },
-
-  // returns all the neurons in the network
-  neurons: function() {
-
-    var neurons = [];
-
-    var inputLayer = this.layers.input.neurons(),
-      outputLayer = this.layers.output.neurons();
-
-    for (var neuron in inputLayer)
-      neurons.push({
-        neuron: inputLayer[neuron],
-        layer: 'input'
-      });
-
-    for (var layer in this.layers.hidden) {
-      var hiddenLayer = this.layers.hidden[layer].neurons();
-      for (var neuron in hiddenLayer)
-        neurons.push({
-          neuron: hiddenLayer[neuron],
-          layer: layer
-        });
-    }
-    for (var neuron in outputLayer)
-      neurons.push({
-        neuron: outputLayer[neuron],
-        layer: 'output'
-      });
-
-    return neurons;
-  },
-
-  // returns number of inputs of the network
-  inputs: function() {
-    return this.layers.input.size;
-  },
-
-  // returns number of outputs of hte network
-  outputs: function() {
-    return this.layers.output.size;
-  },
-
-  // sets the layers of the network
-  set: function(layers) {
-
-    this.layers = layers;
-    if (this.optimized)
-      this.optimized.reset();
-  },
-
-  setOptimize: function(bool){
-    this.restore();
-    if (this.optimized)
-      this.optimized.reset();
-    this.optimized = bool? null : false;
-  },
-
-  mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
-    switch(method){
-      case Mutate.SWAP_WEIGHT:
-        // Select random input or hidden layer, they have all connections
-        var index1 = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer1 = (index1 == 0 ) ? this.layers.input : this.layers.hidden[index1 - 1];
-
-        var layerConnection1 = layer1.connectedTo[Math.floor(Math.random() * layer1.connectedTo.length)];
-        var keys1 = Object.keys(layerConnection1.connections);
-        var connection1 = layerConnection1.connections[keys1[Math.floor(Math.random()* keys1.length)]];
-
-        var index2 = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer2 = (index2 == 0 ) ? this.layers.input : this.layers.hidden[index2 - 1];
-
-        var layerConnection2 = layer2.connectedTo[Math.floor(Math.random() * layer2.connectedTo.length)];
-        var keys2 = Object.keys(layerConnection2.connections);
-        var connection2 = layerConnection2.connections[keys2[Math.floor(Math.random()* keys2.length)]];
-
-        var temp = connection1.weight;
-        connection1.weight = connection2.weight;
-        connection2.weight = temp;
-        break;
-      case Mutate.SWAP_BIAS:
-        var neuron1 = Math.floor(Math.random()*this.neurons().length);
-        var neuron1 = this.neurons()[neuron1].neuron;
-        var neuron2 = Math.floor(Math.random()*this.neurons().length);
-        var neuron2 = this.neurons()[neuron2].neuron;
-
-        var temp = neuron1.bias;
-        neuron1.bias = neuron2.bias;
-        neuron2.bias = temp;
-        break;
-      case Mutate.MODIFY_RANDOM_BIAS:
-        var neuron = Math.floor(Math.random()*this.neurons().length);
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
-        this.neurons()[neuron].neuron.bias += modification;
-        break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
-        // Select random input or hidden layer, they have all connections
-        var index = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer = (index == 0 ) ? this.layers.input : this.layers.hidden[index - 1];
-
-        var layerConnection = layer.connectedTo[Math.floor(Math.random() * layer.connectedTo.length)];
-        var keys = Object.keys(layerConnection.connections);
-        var connection = layerConnection.connections[keys[Math.floor(Math.random()* keys.length)]];
-
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
-        connection.weight += modification;
-        break;
-      case Mutate.MODIFY_NEURONS:
-        // Select random hidden layer to add/remove a neuron
-        var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
-        var layer = this.layers.hidden[layerIndex];
-
-        if(Math.random() >= 0.5){
-          // remove a neuron
-          var index = Math.floor(layer.list.length * Math.random())
-          var neuron = layer.list[index];
-
-          // remove all connections to and from this neuron in the network
-          neuron.connections = [];
-
-          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.projected){
-              if(list[n].connections.projected[conn].to == neuron){
-                delete list[n].connections.projected[conn];
-              }
-            }
-          }
-
-          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.inputs){
-              if(list[n].connections.inputs[conn].from == neuron){
-                delete list[n].connections.inputs[conn];
-              }
-            }
-          }
-
-          layer.list.splice(index, 1);
-          layer.size--;
-        } else {
-          // add a neuron
-          var neuron = new Neuron();
-
-          // project FROM
-          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
-          for(var n in list){
-            list[n].project(neuron);
-          }
-
-          // project TO
-          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in this.layers.output.list){
-            neuron.project(this.layers.output.list[n]);
-          }
-
-          layer.list.push(neuron);
-          layer.size++;
-        }
-        break;
-      case Mutate.MODIFY_CONNECTIONS:
-        // decide to make or break a connection
-        if(Math.random() >= 0.5){
-          // remove a connection to a certain neuron
-          var neuron;
-          while(neuron == null || Object.keys(neuron.connections.inputs).length == 0){
-            neuron = Math.floor(Math.random()*this.neurons().length);
-            neuron = this.neurons()[neuron].neuron;
-          }
-
-          var connections = neuron.connections.inputs;
-          var key = Object.keys(connections)[Math.floor(Object.keys(connections).length * Math.random())];
-          var fromID = connections[key].from.ID;
-
-          delete connections[key];
-
-          for(var n in this.neurons()){
-            if(this.neurons()[n].neuron.ID == fromID){
-              delete this.neurons()[n].neuron.connections.projected[key];
-              break;
-            }
-          }
-
-          // check if neuron is 'dead', a.k.a receives no more activation
-          if(Object.keys(connections).length == 0){
-            for(var n in this.neurons()){
-              var fromConnections = this.neurons()[n].neuron.connections.inputs;
-              var keys = Object.keys(fromConnections);
-
-              for(var conn in keys){
-                if(fromConnections[keys[conn]].from.ID == neuron.ID){
-                  delete this.neurons()[n].neuron.connections.inputs[keys[conn]];
-                }
-              }
-            }
-          }
-          break;
-        } else {
-          // make connection from neuron1 => neuron2, neuron1 != output neuron
-          var neuron1;
-          while(neuron1 == null || Object.keys(neuron1.connections.projected).length == 0){
-            neuron1 = Math.floor(Math.random()*this.neurons().length);
-            neuron1 = this.neurons()[neuron1].neuron;
-          }
-          var neuron2;
-          while(neuron2 == null || Object.keys(neuron2.connections.projected).length == 0){
-            neuron2 = Math.floor(Math.random()*this.neurons().length);
-            neuron2 = this.neurons()[neuron2].neuron;
-          }
-
-          neuron1.project(neuron2);
-        }
-        break;
-      case Mutate.MODIFY_SQUASH:
-        var neuron = Math.floor(Math.random()*this.neurons().length);
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
-        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
-    }
-  },
-
-  // returns a json that represents all the neurons and connections of the network
-  toJSON: function(ignoreTraces) {
-
-    this.restore();
-
-    var list = this.neurons();
-    var neurons = [];
-    var connections = [];
-
-    // link id's to positions in the array
-    var ids = {};
-    for (var i in list) {
-      var neuron = list[i].neuron;
-      while (neuron.neuron)
-        neuron = neuron.neuron;
-      ids[neuron.ID] = i;
-      var copy = neuron.toJSON();
-
-      neurons.push(copy);
-    }
-
-    // get connections
-    for (var i in list) {
-      var neuron = list[i].neuron;
-      while (neuron.neuron)
-        neuron = neuron.neuron;
-
-      for (var j in neuron.connections.projected) {
-        var connection = neuron.connections.projected[j];
-        connections.push({
-          from: ids[connection.from.ID],
-          to: ids[connection.to.ID],
-          weight: connection.weight,
-          gater: connection.gater ? ids[connection.gater.ID] : null,
-        });
-      }
-      if (neuron.selfconnected())
-        connections.push({
-          from: ids[neuron.ID],
-          to: ids[neuron.ID],
-          weight: neuron.selfconnection.weight,
-          gater: neuron.selfconnection.gater ? ids[neuron.selfconnection.gater.ID] : null,
-        });
-    }
-
-    return {
-      neurons: neurons,
-      connections: connections
-    }
-  },
-
-  // export the topology into dot language which can be visualized as graphs using dot
-  /* example: ... console.log(net.toDotLang());
-              $ node example.js > example.dot
-              $ dot example.dot -Tpng > out.png
-  */
-  toDot: function(edgeConnection) {
-    if (! typeof edgeConnection)
-      edgeConnection = false;
-    var code = "digraph nn {\n    rankdir = BT\n";
-    var layers = [this.layers.input].concat(this.layers.hidden, this.layers.output);
-    for (var layer in layers) {
-      for (var to in layers[layer].connectedTo) { // projections
-        var connection = layers[layer].connectedTo[to];
-        var layerTo = connection.to;
-        var size = connection.size;
-        var layerID = layers.indexOf(layers[layer]);
-        var layerToID = layers.indexOf(layerTo);
-        /* http://stackoverflow.com/questions/26845540/connect-edges-with-graph-dot
-         * DOT does not support edge-to-edge connections
-         * This workaround produces somewhat weird graphs ...
-        */
-        if ( edgeConnection) {
-          if (connection.gatedfrom.length) {
-            var fakeNode = "fake" + layerID + "_" + layerToID;
-            code += "    " + fakeNode +
-              " [label = \"\", shape = point, width = 0.01, height = 0.01]\n";
-            code += "    " + layerID + " -> " + fakeNode + " [label = " + size + ", arrowhead = none]\n";
-            code += "    " + fakeNode + " -> " + layerToID + "\n";
-          } else
-            code += "    " + layerID + " -> " + layerToID + " [label = " + size + "]\n";
-          for (var from in connection.gatedfrom) { // gatings
-            var layerfrom = connection.gatedfrom[from].layer;
-            var layerfromID = layers.indexOf(layerfrom);
-            code += "    " + layerfromID + " -> " + fakeNode + " [color = blue]\n";
-          }
-        } else {
-          code += "    " + layerID + " -> " + layerToID + " [label = " + size + "]\n";
-          for (var from in connection.gatedfrom) { // gatings
-            var layerfrom = connection.gatedfrom[from].layer;
-            var layerfromID = layers.indexOf(layerfrom);
-            code += "    " + layerfromID + " -> " + layerToID + " [color = blue]\n";
-          }
-        }
-      }
-    }
-    code += "}\n";
-    return {
-      code: code,
-      link: "https://chart.googleapis.com/chart?chl=" + escape(code.replace("/ /g", "+")) + "&cht=gv"
-    }
-  },
-
-  // returns a function that works as the activation of the network and can be used without depending on the library
-  standalone: function() {
-    if (!this.optimized)
-      this.optimize();
-
-    var data = this.optimized.data;
-
-    // build activation function
-    var activation = "function (input) {\n";
-
-    // build inputs
-    for (var i in data.inputs)
-      activation += "F[" + data.inputs[i] + "] = input[" + i + "];\n";
-
-    // build network activation
-    for (var neuron in data.activate) { // shouldn't this be layer?
-      for (var sentence in data.activate[neuron])
-        activation += data.activate[neuron][sentence].join('') + "\n";
-    }
-
-    // build outputs
-    activation += "var output = [];\n";
-    for (var i in data.outputs)
-      activation += "output[" + i + "] = F[" + data.outputs[i] + "];\n";
-    activation += "return output;\n}";
-
-    // reference all the positions in memory
-    var memory = activation.match(/F\[(\d+)\]/g);
-    var dimension = 0;
-    var ids = {};
-    for (var address in memory) {
-      var tmp = memory[address].match(/\d+/)[0];
-      if (!(tmp in ids)) {
-        ids[tmp] = dimension++;
-      }
-    }
-    var hardcode = "F = {\n";
-    for (var i in ids)
-      hardcode += ids[i] + ": " + this.optimized.memory[i] + ",\n";
-    hardcode = hardcode.substring(0, hardcode.length - 2) + "\n};\n";
-    hardcode = "var run = " + activation.replace(/F\[(\d+)]/g, function(
-      index) {
-      return 'F[' + ids[index.match(/\d+/)[0]] + ']'
-    }).replace("{\n", "{\n" + hardcode + "") + ";\n";
-    hardcode += "return run";
-
-    // return standalone function
-    return new Function(hardcode)();
-  },
-
-
-  // Return a HTML5 WebWorker specialized on training the network stored in `memory`.
-  // Train based on the given dataSet and options.
-  // The worker returns the updated `memory` when done.
-  worker: function(memory, set, options) {
-
-    // Copy the options and set defaults (options might be different for each worker)
-    var workerOptions = {};
-    if(options) workerOptions = options;
-    workerOptions.rate = options.rate || .2;
-    workerOptions.iterations = options.iterations || 100000;
-    workerOptions.error = options.error || .005;
-    workerOptions.cost = options.cost || null;
-    workerOptions.crossValidate = options.crossValidate || null;
-
-    // Cost function might be different for each worker
-    costFunction = "var cost = " + (options && options.cost || this.cost || Trainer.cost.MSE) + ";\n";
-    var workerFunction = Network.getWorkerSharedFunctions();
-    workerFunction = workerFunction.replace(/var cost = options && options\.cost \|\| this\.cost \|\| Trainer\.cost\.MSE;/g, costFunction);
-
-    // Set what we do when training is finished
-    workerFunction = workerFunction.replace('return results;',
-                      'postMessage({action: "done", message: results, memoryBuffer: F}, [F.buffer]);');
-
-    // Replace log with postmessage
-    workerFunction = workerFunction.replace("console.log('iterations', iterations, 'error', error, 'rate', currentRate)",
-              "postMessage({action: 'log', message: {\n" +
-                  "iterations: iterations,\n" +
-                  "error: error,\n" +
-                  "rate: currentRate\n" +
-                "}\n" +
-              "})");
-
-    // Replace schedule with postmessage
-    workerFunction = workerFunction.replace("abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate })",
-              "postMessage({action: 'schedule', message: {\n" +
-                  "iterations: iterations,\n" +
-                  "error: error,\n" +
-                  "rate: currentRate\n" +
-                "}\n" +
-              "})");
-
-    if (!this.optimized)
-      this.optimize();
-
-    var hardcode = "var inputs = " + this.optimized.data.inputs.length + ";\n";
-    hardcode += "var outputs = " + this.optimized.data.outputs.length + ";\n";
-    hardcode += "var F =  new Float64Array([" + this.optimized.memory.toString() + "]);\n";
-    hardcode += "var activate = " + this.optimized.activate.toString() + ";\n";
-    hardcode += "var propagate = " + this.optimized.propagate.toString() + ";\n";
-    hardcode +=
-        "onmessage = function(e) {\n" +
-          "if (e.data.action == 'startTraining') {\n" +
-            "train(" + JSON.stringify(set) + "," + JSON.stringify(workerOptions) + ");\n" +
-          "}\n" +
-        "}";
-
-    var workerSourceCode = workerFunction + '\n' + hardcode;
-    var blob = new Blob([workerSourceCode]);
-    var blobURL = window.URL.createObjectURL(blob);
-
-    return new Worker(blobURL);
-  },
-
-  // returns a copy of the network
-  clone: function() {
-    return Network.fromJSON(this.toJSON());
-  }
-};
-
-/**
- * Creates a static String to store the source code of the functions
- *  that are identical for all the workers (train, _trainSet, test)
- *
- * @return {String} Source code that can train a network inside a worker.
- * @static
- */
-Network.getWorkerSharedFunctions = function() {
-  // If we already computed the source code for the shared functions
-  if(typeof Network._SHARED_WORKER_FUNCTIONS !== 'undefined')
-    return Network._SHARED_WORKER_FUNCTIONS;
-
-  // Otherwise compute and return the source code
-  // We compute them by simply copying the source code of the train, _trainSet and test functions
-  //  using the .toString() method
-
-  // Load and name the train function
-  var train_f = Trainer.prototype.train.toString();
-  train_f = train_f.replace('function (set', 'function train(set') + '\n';
-
-  // Load and name the _trainSet function
-  var _trainSet_f = Trainer.prototype._trainSet.toString().replace(/this.network./g, '');
-  _trainSet_f = _trainSet_f.replace('function (set', 'function _trainSet(set') + '\n';
-  _trainSet_f = _trainSet_f.replace('this.crossValidate', 'crossValidate');
-  _trainSet_f = _trainSet_f.replace('crossValidate = true', 'crossValidate = { }');
-
-  // Load and name the test function
-  var test_f = Trainer.prototype.test.toString().replace(/this.network./g, '');
-  test_f = test_f.replace('function (set', 'function test(set') + '\n';
-
-  return Network._SHARED_WORKER_FUNCTIONS = train_f + _trainSet_f + test_f;
-};
-
-// rebuild a network that has been stored in a json using the method toJSON()
-Network.fromJSON = function(json) {
-
-  var neurons = [];
-
-  var layers = {
-    input: new Layer(),
-    hidden: [],
-    output: new Layer()
-  };
-
-  for (var i in json.neurons) {
-    var config = json.neurons[i];
-
-    var neuron = new Neuron();
-    neuron.trace.elegibility = {};
-    neuron.trace.extended = {};
-    neuron.state = config.state;
-    neuron.old = config.old;
-    neuron.activation = config.activation;
-    neuron.bias = config.bias;
-    neuron.squash = config.squash in Neuron.squash ? Neuron.squash[config.squash] : Neuron.squash.LOGISTIC;
-    neurons.push(neuron);
-
-    if (config.layer == 'input')
-      layers.input.add(neuron);
-    else if (config.layer == 'output')
-      layers.output.add(neuron);
-    else {
-      if (typeof layers.hidden[config.layer] == 'undefined')
-        layers.hidden[config.layer] = new Layer();
-      layers.hidden[config.layer].add(neuron);
-    }
-  }
-
-  for (var i in json.connections) {
-    var config = json.connections[i];
-    var from = neurons[config.from];
-    var to = neurons[config.to];
-    var weight = config.weight;
-    var gater = neurons[config.gater];
-
-    var connection = from.project(to, weight);
-    if (gater)
-      gater.gate(connection);
-  }
-
-  return new Network(layers);
-};
-
-Network.crossOver = function(network1, network2, method){
-  method = method || Crossover.UNIFORM;
-
-  var network1 = network1.toJSON();
-  var network2 = network2.toJSON()
-  var offspring = Network.fromJSON(network1).toJSON();
-
-  switch(method){
-    case Crossover.UNIFORM:
-      for(var i = 0; i < offspring.neurons.length; i++){
-        if(Math.random() >= 0.5){
-          offspring.neurons[i].bias = network1.neurons[i].bias;
-        } else {
-          offspring.neurons[i].bias = network2.neurons[i].bias;
-        }
-      }
-      for(var i = 0; i < offspring.connections.length; i++){
-        if(Math.random() >= 0.5){
-          offspring.connections[i].weight = network1.connections[i].weight;
-        } else {
-          offspring.connections[i].weight = network2.connections[i].weight;
-        }
-      }
-      break;
-    case Crossover.AVERAGE:
-      for(var i = 0; i < offspring.neurons.length; i++){
-        var bias1 = network1.neurons[i].bias;
-        var bias2 = network2.neurons[i].bias;
-        offspring.neurons[i].bias = (bias1 + bias2) / 2;
-      }
-      for(var i = 0; i < offspring.connections.length; i++){
-        var weight1 = network1.connections[i].weight;
-        var weight2 = network2.connections[i].weight;
-        offspring.connections[i].weight = (weight1 + weight2) / 2;
-      }
-      break;
-    case Crossover.SINGLE_POINT:
-      for(var i = 0; i < offspring.neurons.length; i++){
-        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0]){
-          offspring.neurons[i].bias = network1.neurons[i].bias;
-        } else {
-          offspring.neurons[i].bias = network2.neurons[i].bias;
-        }
-      }
-      for(var i = 0; i < offspring.connections.length; i++){
-        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0]){
-          offspring.connections[i].weight = network1.connections[i].weight;
-        } else {
-          offspring.connections[i].weight = network2.connections[i].weight;
-        }
-      }
-      break;
-    case Crossover.TWO_POINT:
-      for(var i = 0; i < offspring.neurons.length; i++){
-        if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0] || i / offspring.neurons.length > Crossover.SINGLE_POINT[1]){
-          offspring.neurons[i].bias = network1.neurons[i].bias;
-        } else {
-          offspring.neurons[i].bias = network2.neurons[i].bias;
-        }
-      }
-      for(var i = 0; i < offspring.connections.length; i++){
-        if(i / offspring.connections.length < Crossover.SINGLE_POINT[0] || i / offspring.connections.length > Crossover.SINGLE_POINT[1]){
-          offspring.connections[i].weight = network1.connections[i].weight;
-        } else {
-          offspring.connections[i].weight = network2.connections[i].weight;
-        }
-      }
-      break;
-  }
-
-  return Network.fromJSON(offspring);
-}
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// import
+var Layer   = __webpack_require__(2)
+,   Network = __webpack_require__(3)
+,   Trainer = __webpack_require__(4)
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -3512,3 +3510,318 @@ for (var architecture in Architect) {
   Architect[architecture].prototype = new Network();
   Architect[architecture].prototype.constructor = Architect[architecture];
 }
+
+// export
+if (module) module.exports = Architect;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {// export
+if (module) module.exports = Evolution;
+
+// import
+var Layer   = __webpack_require__(2)
+,   Network = __webpack_require__(3)
+,   methods = __webpack_require__(1)
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash
+/*******************************************************************************************
+                                        EVOLUTION
+*******************************************************************************************/
+
+function Evolution(options){
+  options = options || {};
+  this.size = options.size || 50;
+  this.mutationRate = options.mutationRate || 0.05;
+  this.generationMethod = options.generationMethod || [Generation.POINTS];
+  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT, Mutate.MODIFY_RANDOM_BIAS];
+  this.crossOverMethod = options.crossOverMethod || [Crossover.UNIFORM];
+  this.selectionMethod = options.selectionMethod || [Selection.FITNESS_PROPORTIONATE];
+  this.fitnessFunction = options.fitnessFunction;
+  this.networkSize = options.networkSize || [1, 4, 1];
+  this.elitism = options.elitism || Math.round(this.size/20);
+
+  this.population = [];
+  this.createPool();
+
+  this.newPopulation = [];
+  this.parentSelection = [];
+  this.scores = [];
+
+  this.generation = 0;
+}
+
+Evolution.prototype = {
+  /**
+   * Creates the initial set of genomes
+   */
+  createPool: function(){
+    for(var i = 0; i < this.size; i++){
+      var network = this.createNetwork();
+      this.population.push(network);
+    }
+  },
+
+  /**
+   * Creates and modifies a network based on Generation.METHOD
+   */
+  createNetwork: function(){
+    var inputLayer = new Layer(this.networkSize[0]);
+    var outputLayer = new Layer(this.networkSize[this.networkSize.length-1]);
+    var hiddenLayers = [];
+
+    for(var j = 0; j < this.networkSize.length - 2; j++){
+      hiddenLayers.push(new Layer(this.networkSize[j+1]));
+      if(j > 0){
+        hiddenLayers[j-1].project(hiddenLayers[j]);
+      }
+    }
+
+    inputLayer.project(hiddenLayers[0]);
+    hiddenLayers[hiddenLayers.length-1].project(outputLayer);
+
+    var network = new Network({
+      input: inputLayer,
+      hidden: hiddenLayers,
+      output: outputLayer
+    });
+
+    var generationMethod = this.generationMethod[Math.floor(Math.random() * this.generationMethod.length)];
+    switch(generationMethod){
+      case(Generation.DEFAULT):
+        break;
+      case(Generation.POINTS):
+        var trainer = new Trainer(network);
+        var trainingSet = []
+        for(var i = 0; i < Generation.POINTS.config.points; i++){
+          var randomInput = [];
+          var randomOutput = [];
+
+          for(var i = 0; i < this.networkSize[0]; i++){
+            randomInput.push(Math.random());
+          }
+          for(var i = 0; i < this.networkSize[this.networkSize.length - 1]; i++){
+            randomOutput.push(Math.random());
+          }
+
+          for(var i = 0; i < 100; i++){
+            trainingSet.push({input: randomInput, output: randomOutput});
+          }
+        }
+
+        trainer.train(trainingSet, {
+          rate: Generation.POINTS.config.rate,
+          error: Generation.POINTS.config.error,
+          iterations: Generation.POINTS.config.iterations,
+          shuffle: Generation.POINTS.config.shuffle,
+          cost: Generation.POINTS.config.cost,
+        });
+    }
+
+
+
+    return network;
+  },
+
+  /**
+   * Evaluates the population and assigns each genome a score
+   */
+  evaluate: function(){
+    for(var i in this.population){
+      var score = this.fitnessFunction(this.population[i]);
+      this.scores.push(score);
+    }
+  },
+
+  /**
+   * Selects genomes from the population based on their score
+   */
+  select: function(){
+    var sortedIndex = this.getSortedIndex();
+
+    if(this.elitism > 0){
+      for(var i = 0; i < this.elitism; i++){
+        this.newPopulation.push(this.population[sortedIndex[i]]);
+      }
+    }
+    for(var i = 0; i < this.size - this.elitism; i++){
+      var parent = this.getParent(sortedIndex);
+      this.parentSelection.push(parent);
+      var parent = this.getParent(sortedIndex);
+      this.parentSelection.push(parent);
+    }
+  },
+
+  /**
+   * Breeds new genomes from the selected genomes of the previous generation
+   */
+  crossOver: function(){
+    for(var i = 0; i < this.parentSelection.length; i+=2 ){
+      var crossOverMethod = this.crossOverMethod[Math.floor(Math.random()*this.crossOverMethod.length)];
+      var offspring = Network.crossOver(
+        this.parentSelection[i],
+        this.parentSelection[i+1],
+        crossOverMethod
+      );
+      this.newPopulation.push(offspring);
+    }
+  },
+
+  /**
+   * Mutates the new population
+   */
+  mutate: function(){
+    for(var i = 0; i < this.newPopulation.length; i++){
+      if(Math.random() < this.mutationRate){
+        var mutateMethod = this.mutationMethod[Math.floor(Math.random() * this.mutationMethod.length)];
+        this.newPopulation[i].mutate(mutateMethod);
+      }
+    }
+  },
+
+  /**
+   * Replaces the old generation with the new generation
+   */
+  replace: function(){
+    this.population = [];
+    for(var i = 0; i < this.newPopulation.length; i++){
+      this.population.push(this.newPopulation[i]);
+    }
+    this.newPopulation = [];
+    this.parentSelection = [];
+    this.scores = [];
+
+    this.generation ++;
+  },
+
+  /**
+   * Gets a genome based on the selection function
+   * @param {Array} sortedIndex
+   * @return {Number} genome
+   */
+  getParent: function(sortedIndex){
+    var selectionMethod = this.selectionMethod[Math.floor(Math.random() * this.selectionMethod.length)];
+    switch(selectionMethod){
+      case Selection.FITNESS_PROPORTIONATE:
+        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.size);
+        return this.population[sortedIndex[r]];
+        break;
+    }
+  },
+
+  /**
+   * Returns a list of sorted population indices based on score
+   */
+  getSortedIndex: function(){
+    // Makes an array with indices of scores from highest -> lowest values
+    var copyScores = this.scores.slice();
+    var sortedIndex = [];
+
+    for(var i = 0; i < copyScores.length; i++){
+      var indexHighest = copyScores.indexOf(Math.max.apply(Math, copyScores));
+      copyScores[indexHighest] = -1;
+      sortedIndex.push(indexHighest);
+    }
+    return sortedIndex;
+  },
+
+  /**
+   * Returns the average fitness of the population
+   */
+  getAverage: function(){
+    var sum = this.scores.reduce(function(a, b) { return a + b; });
+    return sum / this.scores.length;
+  },
+
+  /**
+   * Returns the highest scoring genome of the current population
+   */
+   getFittestGenome: function(){
+     if(this.scores.length != 0){
+       var sortedIndex = this.getSortedIndex();
+       return this.population[sortedIndex[0]];
+     } else {
+       throw {name : "Empty array", message: "Please run .evaluate() before calling getFittestGenome()!"};
+     }
+   },
+
+   /**
+    * Exports the population to an array
+    */
+    exportPool: function(){
+      var file = [];
+      for(var i in this.population){
+        file.push(this.population[i].toJSON());
+      }
+      return file;
+    },
+
+    /**
+     * Imports the population from an array
+     */
+     importPool: function(file){
+       this.size = file.length;
+       this.population = [];
+
+       for(var i in file){
+         var genome = Network.fromJSON(file[i]);
+         this.population.push(genome)
+       }
+     }
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
+  Neuron: __webpack_require__(5),
+  Evolution: __webpack_require__(7),
+  Trainer: __webpack_require__(4),
+  Methods: __webpack_require__(1),
+  Layer: __webpack_require__(2),
+  Network: __webpack_require__(3),
+  Architect: __webpack_require__(6)
+};
+
+// CommonJS & AMD
+if (true)
+{
+  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function(){ return Gynaptic }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+}
+
+// Node.js
+if (typeof module !== 'undefined' && module.exports)
+{
+  module.exports = Gynaptic;
+}
+
+// Browser
+if (typeof window == 'object')
+{
+  (function(){
+    var oldGynaptic = window['gynaptic'];
+    Gynaptic.ninja = function(){
+      window['gynaptic'] = oldGynaptic;
+      return Gynaptic;
+    };
+  })();
+
+  window['gynaptic'] = Gynaptic;
+}
+
+
+/***/ })
+/******/ ]);

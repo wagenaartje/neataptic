@@ -1,3 +1,19 @@
+// export
+if (module) module.exports = Network;
+
+// import
+var Neuron  = require('./neuron')
+,   Layer   = require('./layer')
+,   Trainer = require('./trainer')
+,   methods = require('./methods')
+
+var Generation = methods.Generation
+,   Mutate     = methods.Mutate
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Pooling    = methods.Pooling
+,   Squash     = methods.Squash;
+
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -472,7 +488,7 @@ Network.prototype = {
       case Mutate.MODIFY_SQUASH:
         var neuron = Math.floor(Math.random()*this.neurons().length);
         var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
-        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.neurons()[neuron].Squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -493,6 +509,8 @@ Network.prototype = {
         neuron = neuron.neuron;
       ids[neuron.ID] = i;
       var copy = neuron.toJSON();
+
+      copy.layer = list[i].layer;
 
       neurons.push(copy);
     }
@@ -753,7 +771,7 @@ Network.fromJSON = function(json) {
     neuron.old = config.old;
     neuron.activation = config.activation;
     neuron.bias = config.bias;
-    neuron.squash = config.squash in Neuron.squash ? Neuron.squash[config.squash] : Neuron.squash.LOGISTIC;
+    neuron.squash = config.squash in neuron.squash ? neuron.squash[config.squash] : Squash.LOGISTIC;
     neurons.push(neuron);
 
     if (config.layer == 'input')

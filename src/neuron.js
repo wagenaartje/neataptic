@@ -1,3 +1,14 @@
+// export
+if (module) module.exports = Neuron;
+
+var methods = require('./methods');
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Generation = methods.Generation
+,   Pooling    = methods.Pooling;
+
 /******************************************************************************************
                                          NEURON
 *******************************************************************************************/
@@ -24,7 +35,7 @@ function Neuron() {
   this.old = 0;
   this.activation = 0;
   this.selfconnection = new Neuron.connection(this, this, 0); // weight = 0 -> not connected
-  this.squash = Neuron.squash.LOGISTIC;
+  this.squash = Squash.LOGISTIC;
   this.neighboors = {};
   this.bias = Math.random() * .2 - .1;
 }
@@ -494,13 +505,13 @@ Neuron.prototype = {
       }
       var derivative = getVar(this, 'derivative');
       switch (this.squash) {
-        case Neuron.squash.LOGISTIC:
+        case Squash.LOGISTIC:
           buildSentence(activation, ' = (1 / (1 + Math.exp(-', state, ')))',
             store_activation);
           buildSentence(derivative, ' = ', activation, ' * (1 - ',
             activation, ')', store_activation);
           break;
-        case Neuron.squash.TANH:
+        case Squash.TANH:
           var eP = getVar('aux');
           var eN = getVar('aux_2');
           buildSentence(eP, ' = Math.exp(', state, ')', store_activation);
@@ -508,27 +519,27 @@ Neuron.prototype = {
           buildSentence(activation, ' = (', eP, ' - ', eN, ') / (', eP, ' + ', eN, ')', store_activation);
           buildSentence(derivative, ' = 1 - (', activation, ' * ', activation, ')', store_activation);
           break;
-        case Neuron.squash.IDENTITY:
+        case Squash.IDENTITY:
           buildSentence(activation, ' = ', state, store_activation);
           buildSentence(derivative, ' = 1', store_activation);
           break;
-        case Neuron.squash.HLIM:
+        case Squash.HLIM:
           buildSentence(activation, ' = +(', state, ' > 0)', store_activation);
           buildSentence(derivative, ' = 1', store_activation);
           break;
-        case Neuron.squash.RELU:
+        case Squash.RELU:
           buildSentence(activation, ' = ', state, ' > 0 ? ', state, ' : 0', store_activation);
           buildSentence(derivative, ' = ', state, ' > 0 ? 1 : 0', store_activation);
           break;
-        case Neuron.squash.SOFTSIGN:
+        case Squash.SOFTSIGN:
           buildSentence(activation, ' = ', state, ' / (1 + Math.abs(', state, '))', store_activation);
           buildSentence(derivative, ' = ', state, ' / Math.pow(', '(1 + Math.abs(', state, '))',', 2)', store_activation);
           break;
-        case Neuron.squash.SINUSOID:
+        case Squash.SINUSOID:
           buildSentence(activation, ' = Math.sin(', state, ')', store_activation);
           buildSentence(derivative, ' = Math.cos(', state, ')', store_activation);
           break;
-        case Neuron.squash.GAUSSIAN:
+        case Squash.GAUSSIAN:
           buildSentence(activation, ' = ', 'Math.exp(-Math.pow(', state, ', 2))');
           buildSentence(derivative, ' = ', '-2 * ', state, ' * Math.exp(-Math.pow(', state, ', 2))');
           break;
@@ -807,14 +818,14 @@ Neuron.prototype = {
       bias: this.bias,
     };
 
-    copy.squash = this.squash == Neuron.squash.LOGISTIC ? "LOGISTIC" :
-      this.squash == Neuron.squash.TANH ? "TANH" :
-      this.squash == Neuron.squash.IDENTITY ? "IDENTITY" :
-      this.squash == Neuron.squash.HLIM ? "HLIM" :
-      this.squash == Neuron.squash.RELU ? "RELU" :
-      this.squash == Neuron.squash.SOFTSIGN ? "SOFTSIGN" :
-      this.squash == Neuron.squash.SINUSOID ? "SINUSOID" :
-      this.squash == Neuron.squash.GAUSSIAN ? "GAUSSIAN" :
+    copy.squash = this.squash == Squash.LOGISTIC ? "LOGISTIC" :
+      this.squash == Squash.TANH ? "TANH" :
+      this.squash == Squash.IDENTITY ? "IDENTITY" :
+      this.squash == Squash.HLIM ? "HLIM" :
+      this.squash == Squash.RELU ? "RELU" :
+      this.squash == Squash.SOFTSIGN ? "SOFTSIGN" :
+      this.squash == Squash.SINUSOID ? "SINUSOID" :
+      this.squash == Squash.GAUSSIAN ? "GAUSSIAN" :
       null;
 
     return copy;
@@ -829,7 +840,7 @@ Neuron.fromJSON = function(json){
   neuron.old = json.old;
   neuron.activation = json.activation;
   neuron.bias = json.bias;
-  neuron.squash = json.squash in Neuron.squash ? Neuron.squash[json.squash] : Neuron.squash.LOGISTIC;
+  Squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
 
   return neuron;
 }
@@ -869,7 +880,6 @@ Neuron.crossOver = function(neuron1, neuron2, method){
   return offspring;
 }
 
-
 // squashing functions
 Neuron.squash = {};
 
@@ -883,7 +893,9 @@ Neuron.squash.LOGISTIC = function(x, derivate) {
 Neuron.squash.TANH = function(x, derivate) {
   if (derivate)
     return 1 - Math.pow(Neuron.squash.TANH(x), 2);
-  return Math.tanh(x);
+  var eP = Math.exp(x);
+  var eN = 1 / eP;
+  return (eP - eN) / (eP + eN);
 };
 Neuron.squash.IDENTITY = function(x, derivate) {
   return derivate ? 1 : x;
@@ -895,23 +907,6 @@ Neuron.squash.RELU = function(x, derivate) {
   if (derivate)
     return x > 0 ? 1 : 0;
   return x > 0 ? x : 0;
-};
-Neuron.squash.SOFTSIGN = function(x, derivate){
-  var d = 1 + Math.abs(x);
-  if(derivate)
-    return x / Math.pow(d, 2);
-  return x / d;
-};
-Neuron.squash.SINUSOID = function(x, derivate){
-  if(derivate)
-    return Math.cos(x);
-  return Math.sin(x);
-};
-Neuron.squash.GAUSSIAN = function(x, derivate){
-  var d = Math.exp(-Math.pow(x, 2));
-  if(derivate)
-    return -2 * x * d;
-  return d;
 };
 
 // unique ID's

@@ -19,6 +19,17 @@ In the future
 ========
 Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.
 
+For the browser, embedding this code makes life easier:
+```javascript
+Neuron = gynaptic.Neuron;
+Evolution = gynaptic.Evolution;
+Trainer = gynaptic.Trainer;
+Methods = gynaptic.Methods;
+Layer = gynaptic.Layer;
+Network = gynaptic.Network;
+Architect = gynaptic.Architect;
+```
+
 <img src='http://i.imgur.com/yHjswyy.png' width="100%"/>
 ========
 

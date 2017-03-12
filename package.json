@@ -1,0 +1,41 @@
+{
+  "name": "gynaptic",
+  "version": "1.0.0",
+  "description": "architecture-free neural network library with genetic algorithm implementations",
+  "main": "./src/gynaptic",
+  "scripts": {
+    "test": "npm run test:mocha",
+    "test:mocha": "mocha test",
+    "test:travis": "npm run test:mocha && npm run build",
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "webpack": "^2.2.1",
+    "mocha": "^2.2.4",
+    "chai": "^3.5.0",
+    "chai-stats": "^0.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wagenaartje/gynaptic.git"
+  },
+  "keywords": [
+    "neural network",
+    "machine learning",
+    "genetic algorithm",
+    "mutation",
+    "architecture free"
+  ],
+  "author": "Thomas Wagenaar <wagenaartje@protonmail.com>",
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/wagenaartje/gynaptic/blob/master/LICENSE"
+  },
+  "bugs": {
+    "url": "https://github.com/wagenaartje/gynaptic/issues"
+  },
+  "homepage": "http://wagenaartje.github.io/gynaptic/",
+  "engines": {
+    "node": ">=6"
+  }
+}

@@ -8,6 +8,29 @@ var Trainer = require('./trainer')
 
 var methods = {};
 
+methods.Cost = {
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+}
+
 methods.Squash = {
   LOGISTIC : function(x, derivate) {
     if (!derivate)
@@ -140,7 +163,7 @@ methods.Generation = {
       iterations: 50,
       shuffle: true,
       error: 0.0001,
-      cost: Trainer.cost.MSE
+      cost: methods.Cost.MSE
     }
   },
   DEFAULT: {

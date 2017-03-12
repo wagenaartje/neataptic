@@ -7,13 +7,13 @@ var Neuron  = require('./neuron')
 ,   Trainer = require('./trainer')
 ,   methods = require('./methods')
 
-var Generation = methods.Generation
-,   Mutate     = methods.Mutate
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
+,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Squash     = methods.Squash;
-
+,   Cost       = methods.Cost;
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -488,7 +488,7 @@ Network.prototype = {
       case Mutate.MODIFY_SQUASH:
         var neuron = Math.floor(Math.random()*this.neurons().length);
         var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
-        this.neurons()[neuron].Squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -663,7 +663,7 @@ Network.prototype = {
     workerOptions.crossValidate = options.crossValidate || null;
 
     // Cost function might be different for each worker
-    costFunction = "var cost = " + (options && options.cost || this.cost || Trainer.cost.MSE) + ";\n";
+    costFunction = "var cost = " + (options && options.cost || this.cost || Cost.MSE) + ";\n";
     var workerFunction = Network.getWorkerSharedFunctions();
     workerFunction = workerFunction.replace(/var cost = options && options\.cost \|\| this\.cost \|\| Trainer\.cost\.MSE;/g, costFunction);
 
@@ -771,7 +771,7 @@ Network.fromJSON = function(json) {
     neuron.old = config.old;
     neuron.activation = config.activation;
     neuron.bias = config.bias;
-    neuron.squash = config.squash in neuron.squash ? neuron.squash[config.squash] : Squash.LOGISTIC;
+    neuron.squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
     neurons.push(neuron);
 
     if (config.layer == 'input')

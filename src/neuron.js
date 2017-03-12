@@ -7,7 +7,8 @@ var Mutate     = methods.Mutate
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
-,   Pooling    = methods.Pooling;
+,   Pooling    = methods.Pooling
+,   Cost       = methods.Cost;
 
 /******************************************************************************************
                                          NEURON

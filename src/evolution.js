@@ -6,12 +6,13 @@ var Layer   = require('./layer')
 ,   Network = require('./network')
 ,   methods = require('./methods')
 
-var Generation = methods.Generation
-,   Mutate     = methods.Mutate
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
+,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Squash     = methods.Squash
+,   Cost       = methods.Cost;
 /*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/

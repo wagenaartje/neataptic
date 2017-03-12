@@ -134,6 +134,29 @@ var Trainer = __webpack_require__(4)
 
 var methods = {};
 
+methods.Cost = {
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+}
+
 methods.Squash = {
   LOGISTIC : function(x, derivate) {
     if (!derivate)
@@ -266,7 +289,7 @@ methods.Generation = {
       iterations: 50,
       shuffle: true,
       error: 0.0001,
-      cost: Trainer.cost.MSE
+      cost: methods.Cost.MSE
     }
   },
   DEFAULT: {
@@ -306,12 +329,13 @@ var Neuron  = __webpack_require__(5)
 ,   Network = __webpack_require__(3)
 ,   methods = __webpack_require__(1)
 
-var Generation = methods.Generation
-,   Mutate     = methods.Mutate
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
+,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Squash     = methods.Squash
+,   Cost       = methods.Cost;
 
 /*******************************************************************************************
                                             LAYER
@@ -750,13 +774,13 @@ var Neuron  = __webpack_require__(5)
 ,   Trainer = __webpack_require__(4)
 ,   methods = __webpack_require__(1)
 
-var Generation = methods.Generation
-,   Mutate     = methods.Mutate
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
+,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Squash     = methods.Squash;
-
+,   Cost       = methods.Cost;
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -1231,7 +1255,7 @@ Network.prototype = {
       case Mutate.MODIFY_SQUASH:
         var neuron = Math.floor(Math.random()*this.neurons().length);
         var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
-        this.neurons()[neuron].Squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -1406,7 +1430,7 @@ Network.prototype = {
     workerOptions.crossValidate = options.crossValidate || null;
 
     // Cost function might be different for each worker
-    costFunction = "var cost = " + (options && options.cost || this.cost || Trainer.cost.MSE) + ";\n";
+    costFunction = "var cost = " + (options && options.cost || this.cost || Cost.MSE) + ";\n";
     var workerFunction = Network.getWorkerSharedFunctions();
     workerFunction = workerFunction.replace(/var cost = options && options\.cost \|\| this\.cost \|\| Trainer\.cost\.MSE;/g, costFunction);
 
@@ -1514,7 +1538,7 @@ Network.fromJSON = function(json) {
     neuron.old = config.old;
     neuron.activation = config.activation;
     neuron.bias = config.bias;
-    neuron.squash = config.squash in neuron.squash ? neuron.squash[config.squash] : Squash.LOGISTIC;
+    neuron.squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
     neurons.push(neuron);
 
     if (config.layer == 'input')
@@ -1625,6 +1649,15 @@ Network.crossOver = function(network1, network2, method){
 /* WEBPACK VAR INJECTION */(function(module) {// export
 if (module) module.exports = Trainer;
 
+var methods = __webpack_require__(1);
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Generation = methods.Generation
+,   Pooling    = methods.Pooling
+,   Cost       = methods.Cost;
+
 /*******************************************************************************************
                                         TRAINER
 *******************************************************************************************/
@@ -1648,7 +1681,7 @@ Trainer.prototype = {
     var iterations = bucketSize = 0;
     var abort = false;
     var currentRate;
-    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
+    var cost = options && options.cost || this.cost || Cost.MSE;
     var crossValidate = false, testSet, trainSet;
 
     var start = Date.now();
@@ -1783,7 +1816,7 @@ Trainer.prototype = {
 
     var error = 0;
     var input, output, target;
-    var cost = options && options.cost || this.cost || Trainer.cost.MSE;
+    var cost = options && options.cost || this.cost || Cost.MSE;
 
     var start = Date.now();
 
@@ -1865,7 +1898,7 @@ Trainer.prototype = {
       iterations: 100000,
       log: false,
       shuffle: true,
-      cost: Trainer.cost.MSE
+      cost: Cost.MSE
     };
 
     if (options)
@@ -1900,7 +1933,7 @@ Trainer.prototype = {
     var rate = options.rate || .1;
     var log = options.log || 0;
     var schedule = options.schedule || {};
-    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
+    var cost = options.cost || this.cost || Cost.CROSS_ENTROPY;
 
     var trial, correct, i, j, success;
     trial = correct = i = j = success = 0;
@@ -2023,7 +2056,7 @@ Trainer.prototype = {
     var criterion = options.error || .05;
     var rate = options.rate || .1;
     var log = options.log || 500;
-    var cost = options.cost || this.cost || Trainer.cost.CROSS_ENTROPY;
+    var cost = options.cost || this.cost || Cost.CROSS_ENTROPY;
 
     // gramar node
     var Node = function() {
@@ -2251,7 +2284,7 @@ Trainer.prototype = {
     var error = options.error || .005;
     var rate = options.rate || [.03, .02];
     var log = options.log === false ? false : options.log || 10;
-    var cost = options.cost || this.cost || Trainer.cost.MSE;
+    var cost = options.cost || this.cost || Cost.MSE;
     var trainingSamples = options.trainSamples || 7000;
     var testSamples = options.trainSamples || 1000;
 
@@ -2274,31 +2307,6 @@ Trainer.prototype = {
   }
 };
 
-// Built-in cost functions
-Trainer.cost = {
-  // Eq. 9
-  CROSS_ENTROPY: function(target, output)
-  {
-    var crossentropy = 0;
-    for (var i in output)
-      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
-    return crossentropy;
-  },
-  MSE: function(target, output)
-  {
-    var mse = 0;
-    for (var i in output)
-      mse += Math.pow(target[i] - output[i], 2);
-    return mse / output.length;
-  },
-  BINARY: function(target, output){
-    var misses = 0;
-    for (var i in output)
-      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
-    return misses;
-  }
-}
-
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
@@ -2314,7 +2322,8 @@ var Mutate     = methods.Mutate
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
-,   Pooling    = methods.Pooling;
+,   Pooling    = methods.Pooling
+,   Cost       = methods.Cost;
 
 /******************************************************************************************
                                          NEURON
@@ -3528,12 +3537,13 @@ var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   methods = __webpack_require__(1)
 
-var Generation = methods.Generation
-,   Mutate     = methods.Mutate
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
 ,   Selection  = methods.Selection
+,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Squash     = methods.Squash
+,   Cost       = methods.Cost;
 /*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/

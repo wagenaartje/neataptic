@@ -541,8 +541,8 @@ Neuron.prototype = {
           buildSentence(derivative, ' = Math.cos(', state, ')', store_activation);
           break;
         case Squash.GAUSSIAN:
-          buildSentence(activation, ' = ', 'Math.exp(-Math.pow(', state, ', 2))');
-          buildSentence(derivative, ' = ', '-2 * ', state, ' * Math.exp(-Math.pow(', state, ', 2))');
+          buildSentence(activation, ' = ', 'Math.exp(-Math.pow(', state, ', 2))', store_activation);
+          buildSentence(derivative, ' = ', '-2 * ', state, ' * Math.exp(-Math.pow(', state, ', 2))', store_activation);
           break;
       }
 

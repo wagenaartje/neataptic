@@ -4,7 +4,6 @@ debug.html
 debug.css
 
 # Work in progress
-wiki.gif
-outlay.txt
 src/convolutional.js
-connectedTo.zip
+node_modules
+backup.zip

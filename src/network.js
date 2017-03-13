@@ -333,24 +333,34 @@ Network.prototype = {
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
-        // Select random input or hidden layer, they have all connections
-        var index1 = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer1 = (index1 == 0 ) ? this.layers.input : this.layers.hidden[index1 - 1];
+        var neuron1 = Math.floor(Math.random()*this.neurons().length);
+        var neuron1 = this.neurons()[neuron1].neuron;
+        var neuron2 = Math.floor(Math.random()*this.neurons().length);
+        var neuron2 = this.neurons()[neuron2].neuron;
 
-        var layerConnection1 = layer1.connectedTo[Math.floor(Math.random() * layer1.connectedTo.length)];
-        var keys1 = Object.keys(layerConnection1.connections);
-        var connection1 = layerConnection1.connections[keys1[Math.floor(Math.random()* keys1.length)]];
+        var connectionType1 = ['gated', 'inputs', 'projected'];
+        var connectionType2 = ['gated', 'inputs', 'projected'];
 
-        var index2 = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer2 = (index2 == 0 ) ? this.layers.input : this.layers.hidden[index2 - 1];
+        for(var i = 2;i >= 0; i--){
+          if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
+            connectionType1.splice(i, 1);
+          }
+          if(Object.keys(neuron2.connections[connectionType2[i]]).length == 0){
+            connectionType2.splice(i, 1);
+          }
+        }
 
-        var layerConnection2 = layer2.connectedTo[Math.floor(Math.random() * layer2.connectedTo.length)];
-        var keys2 = Object.keys(layerConnection2.connections);
-        var connection2 = layerConnection2.connections[keys2[Math.floor(Math.random()* keys2.length)]];
+        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionKeys1 = Object.keys(neuron1.connections[connectionType1]);
+        var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
 
-        var temp = connection1.weight;
-        connection1.weight = connection2.weight;
-        connection2.weight = temp;
+        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionKeys2 = Object.keys(neuron2.connections[connectionType2]);
+        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
+
+        var temp = neuron1.connections[connectionType1][connection1].weight;
+        neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
+        neuron2.connections[connectionType2][connection2].weight = temp;
         break;
       case Mutate.SWAP_BIAS:
         var neuron1 = Math.floor(Math.random()*this.neurons().length);
@@ -368,16 +378,23 @@ Network.prototype = {
         this.neurons()[neuron].neuron.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
-        // Select random input or hidden layer, they have all connections
-        var index = Math.floor(Math.random(1 + this.layers.hidden.length));
-        var layer = (index == 0 ) ? this.layers.input : this.layers.hidden[index - 1];
+        // Select random input or hidden layer, they have all connections (removed, they don't have new connections!)
+        var neuron = Math.floor(Math.random()*this.neurons().length);
+        var neuron = this.neurons()[neuron].neuron;
+        var connectionType = ['gated', 'inputs', 'projected'];
 
-        var layerConnection = layer.connectedTo[Math.floor(Math.random() * layer.connectedTo.length)];
-        var keys = Object.keys(layerConnection.connections);
-        var connection = layerConnection.connections[keys[Math.floor(Math.random()* keys.length)]];
+        for(var i = connectionType.length-1;i >= 0; i--){
+          if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
+            connectionType.splice(i, 1);
+          }
+        }
+
+        connectionType = connectionType[Math.floor(Math.random()*connectionType.length)];
+        var connectionKeys = Object.keys(neuron.connections[connectionType]);
+        var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
         var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
-        connection.weight += modification;
+        neuron.connections[connectionType][connection].weight += modification;
         break;
       case Mutate.MODIFY_NEURONS:
         // Select random hidden layer to add/remove a neuron

@@ -47,6 +47,12 @@
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
+									<li class="dropdown">
+										<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Examples <span class="caret"></span></a>
+										<ul class="dropdown-menu" role="menu">
+											<li><a href="examples/xor" target="_blank">XOR</a></li>
+										</ul>
+									</li>
                     <li>
                         <a href="https://github.com/wagenaartje/gynaptic/wiki" target="_blank">Documentation</a>
                     </li>
@@ -59,13 +65,13 @@
     </nav>
 
 		<!-- Page Header -->
-		<header class="intro-header" style="background-image: url('assets/background.jpg')">
+		<header class="intro-header" style="background-color: #C83B44">
 		</header>
 		<div class="container main">
 			<div class="row" style="margin-top: 0">
 				<center><p class="title">"an architecture-free<b class="transparent-text"><span class="color-text">neural network</span></b>library with<b class="transparent-text"><span class="color-text">genetic algorithm</span></b>implementations"</p></center>
 
-				<div class="col-md-6">
+				<div class="col-md-12">
 					<div id="t" class="offline">
 						<div id="main-frame-error" class="interstitial-wrapper">
 							<div id="main-content">
@@ -81,54 +87,6 @@
 								</template>
 							</div>
 						</div>
-					</div>
-					<span class="caption text-muted">this is Chrome's offline game, played by neural networks to evaluate their score</span>
-				</div>
-				<div class="col-md-6">
-					<h4>Google T-rex example</h4>
-					<span class="small">Setting up your specific genetic algorithm is simple; just a few built-in functions and you're ready to go. Below is the code that evolves the Google dinosaur on the left! </span>
-					<div class="panel with-nav-tabs panel-default" style="margin-top: 5px">
-							<div class="panel-heading">
-											<ul class="nav nav-tabs">
-													<li class="active"><a href="#tab1default" data-toggle="tab">Evolution creation</a></li>
-													<li><a href="#tab2default" data-toggle="tab">Main loop</a></li>
-													<li><a href="#tab3default" data-toggle="tab">Extra info</a></li>
-											</ul>
-							</div>
-							<div class="panel-body">
-									<div class="tab-content">
-											<div class="tab-pane fade in active" id="tab1default">
-											<pre>
-evol = new Evolution({
-  size: 5,
-  mutationRate: 0.05,
-  networkSize: [6,10,1],
-  mutationMethod: [Mutate.MODIFY_RANDOM_BIAS, Mutate.MODIFY_RANDOM_WEIGHT],
-  crossOverMethod: [Crossover.UNIFORM, Crossover.AVERAGE],
-  selectionMethod: [Selection.FITNESS_PROPORTIONATE],
-  elitism: 1,
-  fitnessFunction: fitness,
-});</pre>
-										</div>
-										<div class="tab-pane fade" id="tab2default">
-											<pre>
-while(notFinished){
-  for(var i in evol.population){
-    var score = evol.fitnessFunction(evol.population[i]);
-    evol.scores.push(value);
-  }
-  if(evol.getAverage() > 5000) notFinished = false;
-  evol.select();
-  evol.crossOver();
-  evol.mutate();
-  evol.replace();
-};</pre>
-										</div>
-										<div class="tab-pane fade" id="tab3default">
-											<span class="small">To evaluate one of the dinosaurs, the game has to be run. This is quite a problem, as this requires the code to be executed async so the DOM can update. By using <i>Javascript promises</i> live simulation was possible. If you need help with simulating while evaluating, please contact <span style="color:#0085A1">wagenaartje@protonmail.com</span>!</span>
-										</div>
-									</div>
-							</div>
 					</div>
 				</div>
 			</div>

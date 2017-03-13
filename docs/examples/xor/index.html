@@ -1,0 +1,138 @@
+<html>
+	<head>
+		<title>Gynaptic.js - XOR</title>
+		<link rel="icon" href="../../assets/favicon.png">
+		<!-- JQuery -->
+		<script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
+		<!-- Bootstrap -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+		<!-- Gynaptic -->
+	  <script src="../../../dist/gynaptic.js"></script>
+
+		<!-- Custom -->
+		<link rel="stylesheet" href="../../css/main.css">
+    <script src="xor.js"></script>
+
+		<!-- Social buttons -->
+		<link rel="stylesheet" href="../../css/bootstrap-social.css">
+
+		<!-- Fonts -->
+		<script src="https://use.fontawesome.com/c33ca51140.js"></script>
+		<link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+	</head>
+
+	<body>
+
+
+		<!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    Menu <i class="fa fa-bars"></i>
+                </button>
+                <a href="../../" class="navbar-brand"><i class="fa fa-lg fa-grav"></i> Gynaptic</a>
+
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+										<li class="dropdown">
+											<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Examples <span class="caret"></span></a>
+											<ul class="dropdown-menu" role="menu">
+                        <li><a href="#">XOR</a></li>
+                      </ul>
+										</li>
+                    <li>
+                        <a href="https://github.com/wagenaartje/gynaptic/wiki" target="_blank">Documentation</a>
+                    </li>
+										<li>
+											<a class="navbar-brand" href="https://github.com/wagenaartje/gynaptic" target="_blank"><i class="fa fa-lg fa-github"></i> Github</a>
+										</li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+		<!-- Page Header -->
+		<header class="intro-header" style="background-color: #C83B44">
+		</header>
+		<div class="container main">
+      <div class="row">
+        <h1>XOR</h1>
+        <hr>
+        <div class="col-md-6" style="padding-left: 0">
+          <p style="margin: 0">
+            An XOR is quite tough to train using genetic algorithms. I have not managed to find the right settings
+            yet to avoid local optima. The local optima is at 4000-5000. If you know how to improve the performance,
+            please make a pull request!
+          <p>
+          <p>
+            <button type="button" class="btn btn-danger train">Train</button>
+          </p>
+
+          <span class="results">
+          </span>
+          <hr>
+          <i>It is ofcourse much more logical to train using backpropagation, but this is merely an example!</i>
+        </div>
+        <div class="col-md-6">
+          <pre>
+// Method settings
+Methods.Selection.FITNESS_PROPORTIONATE.config = function(r){ return Math.pow(r,1.5); };
+Methods.Mutate.MODIFY_RANDOM_BIAS.config.min = -2;
+Methods.Mutate.MODIFY_RANDOM_BIAS.config.max = 2;
+Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.min = -2;
+Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.max = 2;
+
+// Create genetic algorithm
+GNN = new Evolution({
+  size: 50,
+  elitism: 0,
+  mutationRate: 0.45,
+  networkSize : [2,3,1],
+  mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT, Methods.Mutate.SWAP_BIAS, Methods.Mutate.SWAP_WEIGHT],
+  crossOverMethod: [Methods.Crossover.UNIFORM, Methods.Crossover.AVERAGE, Methods.Crossover.SINGLE_POINT, Methods.Crossover.TWO_POINT],
+  selectionMethod: [Methods.Selection.FITNESS_PROPORTIONATE],
+  generationMethod: [Methods.Generation.POINTS],
+  fitnessFunction: function(network){
+    var score = 0;
+
+    score -= network.activate([0, 0]) * 5000;
+    score += network.activate([1, 0]) * 5000;
+    score += network.activate([0, 1]) * 5000;
+    score -= network.activate([1, 1]) * 5000;
+
+    return Math.round(score);
+  }
+});
+
+// Run until trained sufficiently
+var running = true;
+var counter = 0;
+while(running){
+  GNN.evaluate();
+  if(GNN.getAverage() >= 8000 || counter >= 500){
+    running = false;
+  }
+  console.log(Math.round(GNN.getAverage()));
+
+  GNN.select();
+  GNN.crossOver();
+  GNN.mutate();
+  GNN.replace();
+
+  counter++;
+};
+          </pre>
+        </div>
+
+      </div>
+		</div>
+	</body>
+</html>

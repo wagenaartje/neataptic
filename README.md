@@ -1,4 +1,5 @@
-<img src='http://i.imgur.com/2QqZem1.png' width="100%"/>
+# Gynaptic [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
+ 
 ========
 Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/Artificial_neural_network) library with implementations to create [genetic neural networks](https://en.wikipedia.org/wiki/Neuroevolution). It gives the user the ability to create train neurol networks with evolutionary algorithms with just a few lines of code. The library is constantly updated with new mutation, crossover and selection methods. Gynaptics' main neural network code comes from the library [Synaptic](https://github.com/cazala/synaptic) by [Juan Cazala](https://github.com/cazala). Gynaptic will stay up to date with Synaptic's improvements as much as possible.
 
@@ -15,9 +16,9 @@ In the future
 - More network types
 - Overhal network creation (flexible, with layer types e.g. `convolutional` and `pooling`)
 
-<img src='http://i.imgur.com/OgUyWpC.png' width="100%"/>
+# Usage
 ========
-Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation. [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
+Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation. 
 
 For the browser, embedding this code makes life easier:
 ```javascript
@@ -30,7 +31,7 @@ Network = gynaptic.Network;
 Architect = gynaptic.Architect;
 ```
 
-<img src='http://i.imgur.com/yHjswyy.png' width="100%"/>
+# Example
 ========
 
 This is an example of the creation and loop of a genetic neural network. The goal of this genetic algorithm is too create a population that will output a value that is as high as possible (=`1`) when inputted `0`. Please note that this is just an example, and this problem is much easier to 'solve' by backpropagating.
@@ -67,14 +68,16 @@ while(notFinished){
 
 If you want to know how to set up one of these algorithms yourself, feel free to take a look at the wiki pages! If you want to implement a genetic neural network algorithm, but don't know how, feel free to contact me at wagenaartje@protonmail.com!
 
-<img src='http://i.imgur.com/SkJ1Pp6.png' width="100%"/>
+# Installation
 ========
 Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
 <script src="https://cdn.rawgit.com/wagenaartje/gynaptic/ae34bf80/dist/gynaptic.js"></script>
 ```
 
-<img src='http://i.imgur.com/isZsxET.png' width="100%"/>
+Installing with node is also possible.
+
+# Plans
 ========
 - Create pool generation methods :white_check_mark:
 - Add SHIFT mutation method, which replaces a random connection somewhere else in the network :white_check_mark:

@@ -8,10 +8,8 @@ var Methods = gynaptic.Methods;
 var Trainer = gynaptic.Trainer;
 
 Methods.Selection.FITNESS_PROPORTIONATE.config = function(r){ return Math.pow(r,1.5); };
-Methods.Mutate.MODIFY_RANDOM_BIAS.config.min = -2;
-Methods.Mutate.MODIFY_RANDOM_BIAS.config.max = 2;
-Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.min = -2;
-Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.max = 2;
+Methods.Mutate.MODIFY_RANDOM_BIAS.config = {min: -2, max: 2};
+Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
 function TrainXOR(){
   GNN = new Evolution({
@@ -66,7 +64,7 @@ function loop(){
     var fittest = GNN.getFittestGenome();
     $('.train').text('Again');
     $('.results').html(`
-      <p style="margin-bottom: 0; margin-top: 15"><span class="label label-success">Success</span></p>
+      <p style="margin-bottom: 15; margin-top: 15"><span class="label label-success">Success</span></p>
       <p style="margin-bottom: 0; margin-top: 5">Input: <span class="label label-default">[ 0 , 0 ]</span> Output <span class="label label-default">${Math.round(fittest.activate([0,0]) * 100) / 100}</span></p>
       <p style="margin-bottom: 0; margin-top: 5">Input: <span class="label label-default">[ 0 , 1 ]</span> Output <span class="label label-default">${Math.round(fittest.activate([0,1]) * 100) / 100}</span></p>
       <p style="margin-bottom: 0; margin-top: 5">Input: <span class="label label-default">[ 1 , 0 ]</span> Output <span class="label label-default">${Math.round(fittest.activate([1,0]) * 100) / 100}</span></p>
@@ -79,8 +77,6 @@ function loop(){
     $('.results').html(`<span class="label label-success>Success</span>`);
     return false;
   }
-
-  console.log(average);
 
   GNN.select();
   GNN.crossOver();

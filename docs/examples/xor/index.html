@@ -85,10 +85,8 @@
           <pre>
 // Method settings
 Methods.Selection.FITNESS_PROPORTIONATE.config = function(r){ return Math.pow(r,1.5); };
-Methods.Mutate.MODIFY_RANDOM_BIAS.config.min = -2;
-Methods.Mutate.MODIFY_RANDOM_BIAS.config.max = 2;
-Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.min = -2;
-Methods.Mutate.MODIFY_RANDOM_WEIGHT.config.max = 2;
+Methods.Mutate.MODIFY_RANDOM_BIAS.config = {min: -2, max: 2};
+Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
 // Create genetic algorithm
 GNN = new Evolution({
@@ -113,14 +111,15 @@ GNN = new Evolution({
 });
 
 // Run until trained sufficiently
-var running = true;
 var counter = 0;
-while(running){
+while(true){
   GNN.evaluate();
-  if(GNN.getAverage() >= 8000 || counter >= 500){
-    running = false;
-  }
-  console.log(Math.round(GNN.getAverage()));
+
+  if(GNN.getAverage() >= 8000){
+    // reached goal, end genetic algorithm
+  } else if(counter >= 1000){
+		// took to long bc local optima, end genetic algorithm
+	}
 
   GNN.select();
   GNN.crossOver();
@@ -128,8 +127,7 @@ while(running){
   GNN.replace();
 
   counter++;
-};
-          </pre>
+};</pre>
         </div>
 
       </div>

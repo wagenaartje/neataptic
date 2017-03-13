@@ -1,6 +1,12 @@
 var game;
 var evol;
 
+var Network = gynaptic.Network;
+var Architect = gynaptic.Architect;
+var Evolution = gynaptic.Evolution;
+var Methods = gynaptic.Methods;
+var Trainer = gynaptic.Trainer;
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -10,9 +16,9 @@ $( document ).ready(function() {
     size: 50,
     mutationRate: 0.05,
     networkSize: [6,10,1],
-    mutationMethod: [Mutate.MODIFY_RANDOM_BIAS, Mutate.MODIFY_RANDOM_WEIGHT],
-    crossOverMethod: [Crossover.UNIFORM, Crossover.AVERAGE],
-    selectionMethod: [Selection.FITNESS_PROPORTIONATE],
+    mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT],
+    crossOverMethod: [Methods.Crossover.UNIFORM, Methods.Crossover.AVERAGE],
+    selectionMethod: [Methods.Selection.FITNESS_PROPORTIONATE],
     elitism: 5,
     fitnessFunction: fitness,
   });

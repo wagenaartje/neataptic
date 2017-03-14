@@ -40,13 +40,13 @@ methods.Squash = {
       return 1 - Math.pow(methods.Squash.TANH(x), 2);
     return Math.tanh(x);
   },
-  IDENTITY : function(x, derivate) {
+  IDENTITY : function(x, derivate) { // not normalized
     return derivate ? 1 : x;
   },
   HLIM : function(x, derivate) {
     return derivate ? 1 : x > 0 ? 1 : 0;
   },
-  RELU : function(x, derivate) {
+  RELU : function(x, derivate) { // not normalized
     if (derivate)
       return x > 0 ? 1 : 0;
     return x > 0 ? x : 0;

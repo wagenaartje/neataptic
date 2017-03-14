@@ -166,13 +166,13 @@ methods.Squash = {
       return 1 - Math.pow(methods.Squash.TANH(x), 2);
     return Math.tanh(x);
   },
-  IDENTITY : function(x, derivate) {
+  IDENTITY : function(x, derivate) { // not normalized
     return derivate ? 1 : x;
   },
   HLIM : function(x, derivate) {
     return derivate ? 1 : x > 0 ? 1 : 0;
   },
-  RELU : function(x, derivate) {
+  RELU : function(x, derivate) { // not normalized
     if (derivate)
       return x > 0 ? 1 : 0;
     return x > 0 ? x : 0;
@@ -629,10 +629,12 @@ Layer.crossOver = function(layer1, layer2, method){
   switch(method){
     case Crossover.UNIFORM:
       for(var i = 0; i < offspring.list.length; i++){
-        if(Math.round() >= 0.5){
+        if(Math.random() >= 0.5){
           offspring.list[i].bias = layer1.list[i].bias;
+          offspring.list[i].squash = layer1.list[i].squash;
         } else {
           offspring.list[i].bias = layer2.list[i].bias;
+          offspring.list[i].squash = layer2.list[i].squash;
         }
       }
       break;
@@ -642,14 +644,23 @@ Layer.crossOver = function(layer1, layer2, method){
         var bias2 = layer2.list[i].bias;
 
         offspring.list[i].bias = (bias1 + bias2) / 2;
+
+        // Can't average squash...
+        if(Math.random() >= 0.5){
+          offspring.list[i].squash = layer1.list[i].squash;
+        } else {
+          offspring.list[i].squash = layer2.list[i].squash;
+        }
       }
       break;
     case Crossover.SINGLE_POINT:
       for(var i = 0; i < offspring.list.length; i++){
         if(i/offspring.list.length < Crossover.SINGLE_POINT[0]){
           offspring.list[i].bias = layer1.list[i].bias;
+          offspring.list[i].squash = layer1.list[i].squash;
         } else {
           offspring.list[i].bias = layer2.list[i].bias;
+          offspring.list[i].squash = layer2.list[i].squash;
         }
       }
       break;
@@ -657,8 +668,10 @@ Layer.crossOver = function(layer1, layer2, method){
       for(var i = 0; i < offspring.list.length; i++){
         if(i/offspring.list.length < Crossover.SINGLE_POINT[0] || i/offspring.list.length > Crossover.SINGLE_POINT[1]){
           offspring.list[i].bias = layer1.list[i].bias;
+          offspring.list[i].squash = layer1.list[i].squash;
         } else {
           offspring.list[i].bias = layer2.list[i].bias;
+          offspring.list[i].squash = layer2.list[i].squash;
         }
       }
       break;
@@ -1593,8 +1606,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(Math.random() >= 0.5){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){
@@ -1610,7 +1625,15 @@ Network.crossOver = function(network1, network2, method){
         var bias1 = network1.neurons[i].bias;
         var bias2 = network2.neurons[i].bias;
         offspring.neurons[i].bias = (bias1 + bias2) / 2;
+
+        // Squash has to be random.. can't average
+        if(Math.random() >= 0.5){
+          offspring.neurons[i].squash = network1.neurons[i].squash;
+        } else {
+          offspring.neurons[i].squash = network2.neurons[i].squash;
+        }
       }
+
       for(var i = 0; i < offspring.connections.length; i++){
         var weight1 = network1.connections[i].weight;
         var weight2 = network2.connections[i].weight;
@@ -1621,8 +1644,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0]){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){
@@ -1637,8 +1662,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0] || i / offspring.neurons.length > Crossover.SINGLE_POINT[1]){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){
@@ -2531,12 +2558,21 @@ Neuron.crossOver = function(neuron1, neuron2, method){
     case Crossover.UNIFORM:
       if(Math.random() >= 0.5){
         offspring.bias = neuron1.bias;
+        offspring.squash = neuron1.squash;
       } else {
         offspring.bias = neuron2.bias;
+        offspring.squash = neuron2.squash;
       }
       break;
     case Crossover.AVERAGE:
       offspring.bias = (neuron1.bias + neuron2.bias) / 2;
+
+      // Can't average squash...
+      if(Math.random() >= 0.5){
+        offspring.squash = neuron1.squash;
+      } else {
+        offspring.squash = neuron2.squash;
+      }
       break;
   }
 

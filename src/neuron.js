@@ -869,12 +869,21 @@ Neuron.crossOver = function(neuron1, neuron2, method){
     case Crossover.UNIFORM:
       if(Math.random() >= 0.5){
         offspring.bias = neuron1.bias;
+        offspring.squash = neuron1.squash;
       } else {
         offspring.bias = neuron2.bias;
+        offspring.squash = neuron2.squash;
       }
       break;
     case Crossover.AVERAGE:
       offspring.bias = (neuron1.bias + neuron2.bias) / 2;
+
+      // Can't average squash...
+      if(Math.random() >= 0.5){
+        offspring.squash = neuron1.squash;
+      } else {
+        offspring.squash = neuron2.squash;
+      }
       break;
   }
 

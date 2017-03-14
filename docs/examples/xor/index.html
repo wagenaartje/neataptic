@@ -9,7 +9,7 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 		<!-- Gynaptic -->
-	  <script src="https://cdn.rawgit.com/wagenaartje/gynaptic/bf0a6d50/dist/gynaptic.js"></script>
+	  <script src="../../../dist/gynaptic.js"></script><!--https://cdn.rawgit.com/wagenaartje/gynaptic/bf0a6d50/dist/gynaptic.js-->
 
 		<!-- Custom -->
 		<link rel="stylesheet" href="../../css/main.css">
@@ -45,7 +45,7 @@
 										<li class="dropdown">
 											<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Examples <span class="caret"></span></a>
 											<ul class="dropdown-menu" role="menu">
-                        <li><a href="#">XOR</a></li>
+                        <li><a href="#">Learn XOR</a></li>
                       </ul>
 										</li>
                     <li>
@@ -68,9 +68,9 @@
         <hr>
         <div class="col-md-6" style="padding-left: 0">
           <p style="margin: 0">
-            An XOR is quite tough to train using genetic algorithms. I have not managed to find the right settings
-            yet to avoid local optima. The local optima is at 4000-5000. If you know how to improve the performance,
-            please make a pull request!
+            An XOR is quite tough to train using genetic algorithms. After tweaking and tweaking all the
+						different types of methods, I have managed to create a genetic algorithm that needs less than
+						100 (averagely) rounds to create a population of XOR's.
           <p>
           <p>
             <button type="button" class="btn btn-danger train">Train</button>
@@ -90,21 +90,22 @@ Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
 // Create genetic algorithm
 GNN = new Evolution({
-  size: 50,
-  elitism: 0,
-  mutationRate: 0.45,
+  size: 100,
+  elitism: 10,
+  mutationRate: 0.3,
   networkSize : [2,3,1],
-  mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT, Methods.Mutate.SWAP_BIAS, Methods.Mutate.SWAP_WEIGHT],
+  mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT, Methods.Mutate.SWAP_BIAS, Methods.Mutate.SWAP_WEIGHT, Methods.Mutate.MODIFY_SQUASH],
   crossOverMethod: [Methods.Crossover.UNIFORM, Methods.Crossover.AVERAGE, Methods.Crossover.SINGLE_POINT, Methods.Crossover.TWO_POINT],
   selectionMethod: [Methods.Selection.FITNESS_PROPORTIONATE],
   generationMethod: [Methods.Generation.POINTS],
   fitnessFunction: function(network){
     var score = 0;
 
-    score -= network.activate([0, 0]) * 5000;
-    score += network.activate([1, 0]) * 5000;
-    score += network.activate([0, 1]) * 5000;
-    score -= network.activate([1, 1]) * 5000;
+    // Distance to goal
+    score -= Math.abs(0 - network.activate([0, 0])) * 5000;
+    score -= Math.abs(1 - network.activate([1, 0])) * 5000;
+    score -= Math.abs(1 - network.activate([0, 1])) * 5000;
+    score -= Math.abs(0 - network.activate([1, 1])) * 5000;
 
     return Math.round(score);
   }
@@ -115,11 +116,11 @@ var counter = 0;
 while(true){
   GNN.evaluate();
 
-  if(GNN.getAverage() >= 8000){
+  if(GNN.getAverage() >= -2000){
     // reached goal, end genetic algorithm
-  } else if(counter >= 1000){
-		// took to long bc local optima, end genetic algorithm
-	}
+  } else if(counter >= 200){
+    // took to long bc local optima, end genetic algorithm
+  }
 
   GNN.select();
   GNN.crossOver();

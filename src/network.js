@@ -829,8 +829,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(Math.random() >= 0.5){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){
@@ -846,7 +848,15 @@ Network.crossOver = function(network1, network2, method){
         var bias1 = network1.neurons[i].bias;
         var bias2 = network2.neurons[i].bias;
         offspring.neurons[i].bias = (bias1 + bias2) / 2;
+
+        // Squash has to be random.. can't average
+        if(Math.random() >= 0.5){
+          offspring.neurons[i].squash = network1.neurons[i].squash;
+        } else {
+          offspring.neurons[i].squash = network2.neurons[i].squash;
+        }
       }
+
       for(var i = 0; i < offspring.connections.length; i++){
         var weight1 = network1.connections[i].weight;
         var weight2 = network2.connections[i].weight;
@@ -857,8 +867,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0]){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){
@@ -873,8 +885,10 @@ Network.crossOver = function(network1, network2, method){
       for(var i = 0; i < offspring.neurons.length; i++){
         if(i / offspring.neurons.length < Crossover.SINGLE_POINT[0] || i / offspring.neurons.length > Crossover.SINGLE_POINT[1]){
           offspring.neurons[i].bias = network1.neurons[i].bias;
+          offspring.neurons[i].squash = network1.neurons[i].squash;
         } else {
           offspring.neurons[i].bias = network2.neurons[i].bias;
+          offspring.neurons[i].squash = network2.neurons[i].squash;
         }
       }
       for(var i = 0; i < offspring.connections.length; i++){

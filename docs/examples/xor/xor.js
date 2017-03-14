@@ -1,5 +1,5 @@
 var GNN;
-var counter = 0;
+var counter;
 
 var Network = gynaptic.Network;
 var Architect = gynaptic.Architect;
@@ -13,15 +13,16 @@ Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
 function TrainXOR(){
   GNN = new Evolution({
-    size: 50,
-    elitism: 0,
-    mutationRate: 0.45,
+    size: 100,
+    elitism: 10,
+    mutationRate: 0.3,
     networkSize : [2,3,1],
     mutationMethod: [
       Methods.Mutate.MODIFY_RANDOM_BIAS,
       Methods.Mutate.MODIFY_RANDOM_WEIGHT,
       Methods.Mutate.SWAP_BIAS,
-      Methods.Mutate.SWAP_WEIGHT
+      Methods.Mutate.SWAP_WEIGHT,
+      Methods.Mutate.MODIFY_SQUASH
     ],
     crossOverMethod: [
       Methods.Crossover.UNIFORM,
@@ -38,10 +39,10 @@ function TrainXOR(){
     fitnessFunction: function(network){
       var score = 0;
 
-      score -= network.activate([0, 0]) * 5000;
-      score += network.activate([1, 0]) * 5000;
-      score += network.activate([0, 1]) * 5000;
-      score -= network.activate([1, 1]) * 5000;
+      score -= Math.abs(0 - network.activate([0, 0])) * 5000;
+      score -= Math.abs(1 - network.activate([1, 0])) * 5000;
+      score -= Math.abs(1 - network.activate([0, 1])) * 5000;
+      score -= Math.abs(0 - network.activate([1, 1])) * 5000;
 
       return Math.round(score);
     }
@@ -56,11 +57,12 @@ function loop(){
 
   var average = GNN.getAverage();
   $('.results').html(`
-    <p style="margin-bottom: 0; margin-top: 5">Current fitness: <span class="label label-default">${average}</span></p>
-    <p style="margin-bottom: 0; margin-top: 5">Goal fitness: <span class="label label-danger">8000</span></p>
+    <p style="margin-bottom: 0; margin-top: 5">Current average fitness: <span class="label label-default">${average}</span></p>
+    <p style="margin-bottom: 0; margin-top: 5">Goal average fitness: <span class="label label-danger">-2000</span></p>
+    <p style="margin-bottom: 0; margin-top: 5">Iterations: <span class="label label-info">${counter}</span></p>
   `);
 
-  if(average >= 8000){
+  if(average >= -2000){
     var fittest = GNN.getFittestGenome();
     $('.train').text('Again');
     $('.results').html(`
@@ -72,7 +74,7 @@ function loop(){
       <p style="margin-bottom: 0; margin-top: 15"><span class="label label-info">Iterations: ${counter}</span></p>
     `);
     return true;
-  } else if(counter >= 1000){
+  } else if(counter >= 200){
     $('.train').text('Retry');
     $('.results').html(`<span class="label label-success>Success</span>`);
     return false;
@@ -90,6 +92,7 @@ function loop(){
 $( document ).ready(function() {
   $('.train').click(function(){
     $('.train').text('Training...');
+    counter = 0;
     setTimeout(TrainXOR, 1);
   });
 });

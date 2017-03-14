@@ -37,9 +37,9 @@ var GNN = new Evolution({
   elitism: 5,
   mutationRate: 0.05,
   networkSize = [1,4,1],
-  mutationMethod: [Mutate.MODIFY_RANDOM_BIAS, Mutate.MODIFY_RANDOM_WEIGHT],
-  crossOverMethod: [Crossover.UNIFORM, Crossover.AVERAGE],
-  selectionMethod: [Selection.FITNESS_PROPORTIONATE],
+  mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT],
+  crossOverMethod: [Methods.Crossover.UNIFORM, Crossover.AVERAGE],
+  selectionMethod: [Methods.Selection.FITNESS_PROPORTIONATE],
   fitnessFunction: function(network){
      return Math.round(network.activate([0]) * 200);
   }

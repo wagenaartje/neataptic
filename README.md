@@ -10,9 +10,8 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - to/fromJSON for layers and neurons
 - 3 squashing functions
 
-In the future
-- More network types
-- Overhal network creation (flexible, with layer types e.g. `convolutional` and `pooling`)
+Examples
+- [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)
 
 # Usage
 Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation. 

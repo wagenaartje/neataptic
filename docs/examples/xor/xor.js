@@ -11,7 +11,7 @@ Methods.Selection.FITNESS_PROPORTIONATE.config = function(r){ return Math.pow(r,
 Methods.Mutate.MODIFY_RANDOM_BIAS.config = {min: -2, max: 2};
 Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
-function TrainXOR(){
+function CreateEvol(){
   GNN = new Evolution({
     size: 100,
     elitism: 10,
@@ -49,10 +49,10 @@ function TrainXOR(){
   });
 
   // Loop the evolution process until a certain average score is reached
-  setTimeout(loop, 1);
+  setTimeout(Loop, 1);
 }
 
-function loop(){
+function Loop(){
   GNN.evaluate();
 
   var average = GNN.getAverage();
@@ -86,13 +86,13 @@ function loop(){
   GNN.replace();
 
   counter++;
-  setTimeout(loop, 1); // so DOM doesn't freeze
+  setTimeout(Loop, 1); // so DOM doesn't freeze
 }
 
 $( document ).ready(function() {
   $('.train').click(function(){
     $('.train').text('Training...');
     counter = 0;
-    setTimeout(TrainXOR, 1);
+    setTimeout(CreateEvol, 1);
   });
 });

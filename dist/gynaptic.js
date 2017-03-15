@@ -3666,16 +3666,14 @@ Evolution.prototype = {
           var randomInput = [];
           var randomOutput = [];
 
-          for(var i = 0; i < this.networkSize[0]; i++){
+          for(var i = 0; i < inputLayer.size; i++){
             randomInput.push(Math.random());
           }
-          for(var i = 0; i < this.networkSize[this.networkSize.length - 1]; i++){
+          for(var i = 0; i < outputLayer.size; i++){
             randomOutput.push(Math.random());
           }
 
-          for(var i = 0; i < 100; i++){
-            trainingSet.push({input: randomInput, output: randomOutput});
-          }
+          trainingSet.push({input: randomInput, output: randomOutput});
         }
 
         trainer.train(trainingSet, {
@@ -3686,8 +3684,6 @@ Evolution.prototype = {
           cost: Generation.POINTS.config.cost,
         });
     }
-
-
 
     return network;
   },
@@ -3708,14 +3704,11 @@ Evolution.prototype = {
   select: function(){
     var sortedIndex = this.getSortedIndex();
 
-    if(this.elitism > 0){
-      for(var i = 0; i < this.elitism; i++){
-        this.newPopulation.push(this.population[sortedIndex[i]]);
-      }
+    for(var i = 0; i < this.elitism; i++){
+      this.newPopulation.push(this.population[sortedIndex[i]]);
     }
-    for(var i = 0; i < this.size - this.elitism; i++){
-      var parent = this.getParent(sortedIndex);
-      this.parentSelection.push(parent);
+
+    for(var i = 0; i < (this.size - this.elitism) * 2; i++){
       var parent = this.getParent(sortedIndex);
       this.parentSelection.push(parent);
     }
@@ -3752,11 +3745,9 @@ Evolution.prototype = {
    * Replaces the old generation with the new generation
    */
   replace: function(){
-    this.population = [];
-    for(var i = 0; i < this.newPopulation.length; i++){
-      this.population.push(this.newPopulation[i]);
-    }
+    this.population = this.newPopulation;
     this.newPopulation = [];
+
     this.parentSelection = [];
     this.scores = [];
 
@@ -3788,7 +3779,7 @@ Evolution.prototype = {
 
     for(var i = 0; i < copyScores.length; i++){
       var indexHighest = copyScores.indexOf(Math.max.apply(Math, copyScores));
-      copyScores[indexHighest] = -1;
+      copyScores[indexHighest] = -Infinity;
       sortedIndex.push(indexHighest);
     }
     return sortedIndex;
@@ -3806,12 +3797,8 @@ Evolution.prototype = {
    * Returns the highest scoring genome of the current population
    */
    getFittestGenome: function(){
-     if(this.scores.length != 0){
-       var sortedIndex = this.getSortedIndex();
-       return this.population[sortedIndex[0]];
-     } else {
-       throw {name : "Empty array", message: "Please run .evaluate() before calling getFittestGenome()!"};
-     }
+     var sortedIndex = this.getSortedIndex();
+     return this.population[sortedIndex[0]];
    },
 
    /**

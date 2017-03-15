@@ -1,6 +1,8 @@
 # Gynaptic [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
 Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/Artificial_neural_network) library with implementations to create [genetic neural networks](https://en.wikipedia.org/wiki/Neuroevolution). It gives the user the ability to create train neurol networks with evolutionary algorithms with just a few lines of code. The library is constantly updated with new mutation, crossover and selection methods. Gynaptics' main neural network code comes from the library [Synaptic](https://github.com/cazala/synaptic) by [Juan Cazala](https://github.com/cazala). Gynaptic will stay up to date with Synaptic's improvements as much as possible.
 
+<img src="https://assets-cdn.github.com/images/modules/site/home-ill-work.png?sn" width="300px" align="right"/>
+
 What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - an easy-to-use genetic algorithm function
 - 6 mutation methods
@@ -8,7 +10,7 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - 1 selection method
 - 2 generation methods
 - to/fromJSON for layers and neurons
-- 3 squashing functions
+- 3 squashing functions 
 
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)

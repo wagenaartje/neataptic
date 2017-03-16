@@ -1,11 +1,12 @@
-// export
+/* Export */
 if (module) module.exports = Evolution;
 
-// import
+/* Import */
 var Layer   = require('./layer')
 ,   Network = require('./network')
 ,   methods = require('./methods')
 
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -13,10 +14,14 @@ var Mutate     = methods.Mutate
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
 ,   Cost       = methods.Cost;
+
 /*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/
 
+/**
+ * Creates the genetic algorithm based on options
+ */
 function Evolution(options){
   options = options || {};
   this.size = options.size || 50;

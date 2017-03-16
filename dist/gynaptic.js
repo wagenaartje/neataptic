@@ -125,12 +125,14 @@ module.exports = function(module) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                        SETTINGS
+                                        METHODS
 *******************************************************************************************/
-
 
 var methods = {};
 
+/**
+ * Cost functions https://en.wikipedia.org/wiki/Loss_function
+ */
 methods.Cost = {
   CROSS_ENTROPY: function(target, output)
   {
@@ -154,6 +156,9 @@ methods.Cost = {
   }
 }
 
+/**
+ * Squash function https://en.wikipedia.org/wiki/Activation_function
+ */
 methods.Squash = {
   LOGISTIC : function(x, derivate) {
     if (!derivate)
@@ -196,9 +201,9 @@ methods.Squash = {
   }
 }
 
-/*
-  Mutation methods
-*/
+/**
+ * Mutation methods https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
+ */
 methods.Mutate = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
@@ -243,10 +248,10 @@ methods.Mutate = {
   }
 },
 
-/*
-  Crossover methods
-  For now, parents for crossover should be the same size!
-*/
+/**
+ * Crossover methods https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
+ * parents should be the same size!
+ */
 methods.Crossover =  {
   SINGLE_POINT: {
     name: "SINGLE_POINT",
@@ -265,7 +270,7 @@ methods.Crossover =  {
 },
 
 /*
-  Selection methods
+  Selection methods https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
 */
 methods.Selection = {
   FITNESS_PROPORTIONATE: {
@@ -275,7 +280,7 @@ methods.Selection = {
 },
 
 /*
-  Generation methods
+  Generation methods https://en.wikipedia.org/wiki/Genetic_algorithm#Initialization
 */
 methods.Generation = {
   POINTS: {
@@ -309,7 +314,7 @@ methods.Pooling = {
   }
 }
 
-// export
+/* Export */
 if (module) module.exports = methods;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -318,14 +323,15 @@ if (module) module.exports = methods;
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// export
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Layer;
 
-// import
+/* Import */
 var Neuron  = __webpack_require__(4)
 ,   Network = __webpack_require__(3)
 ,   methods = __webpack_require__(1)
 
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -338,10 +344,12 @@ var Mutate     = methods.Mutate
                                             LAYER
 *******************************************************************************************/
 
-function Layer(size, label) {
+/**
+ * Creates a layer
+ */
+function Layer(size) {
   this.size = size | 0;
   this.list = [];
-  this.label = label || null;
   this.connectedTo = [];
 
   while (size--) {
@@ -352,9 +360,10 @@ function Layer(size, label) {
 
 Layer.prototype = {
 
-  // activates all the neurons in the layer
+  /**
+   * Activates all the neurons in the layer
+   */
   activate: function(input) {
-
     var activations = [];
 
     if (typeof input != 'undefined') {
@@ -376,9 +385,10 @@ Layer.prototype = {
     return activations;
   },
 
-  // propagates the error on all the neurons of the layer
+  /**
+   * Back-propagates the error on all the neurons of the layer
+   */
   propagate: function(rate, target) {
-
     if (typeof target != 'undefined') {
       if (target.length != this.size)
         throw new Error("TARGET size and LAYER size must be the same to propagate!");
@@ -395,9 +405,10 @@ Layer.prototype = {
     }
   },
 
-  // projects a connection from this layer to another one
+  /**
+   * Projects a connection from this layer to another layer
+   */
   project: function(layer, type, weights) {
-
     if (layer instanceof Network)
       layer = layer.layers.input;
 
@@ -410,9 +421,10 @@ Layer.prototype = {
 
   },
 
-  // gates a connection betwenn two layers
+  /**
+   * Gates a connection between two layers
+   */
   gate: function(connection, type) {
-
     if (type == Layer.gateType.INPUT) {
       if (connection.to.size != this.size)
         throw new Error("GATER layer and CONNECTION.TO layer must be the same size in order to gate!");
@@ -452,9 +464,10 @@ Layer.prototype = {
     connection.gatedfrom.push({layer: this, type: type});
   },
 
-  // true or false whether the whole layer is self-connected or not
+  /**
+   * Checks if the (whole) layer is self-connected
+   */
   selfconnected: function() {
-
     for (var id in this.list) {
       var neuron = this.list[id];
       if (!neuron.selfconnected())
@@ -463,7 +476,9 @@ Layer.prototype = {
     return true;
   },
 
-  // true of false whether the layer is connected to another layer (parameter) or not
+  /**
+   * Checks if this layer is connected to the given layer
+   */
   connected: function(layer) {
     // Check if ALL to ALL connection
     var connections = 0;
@@ -492,7 +507,9 @@ Layer.prototype = {
       return Layer.connectionType.ONE_TO_ONE;
   },
 
-  // clears all the neuorns in the layer
+  /**
+   * Clears all the neurons in the layer
+   */
   clear: function() {
     for (var id in this.list) {
       var neuron = this.list[id];
@@ -500,7 +517,9 @@ Layer.prototype = {
     }
   },
 
-  // resets all the neurons in the layer
+  /**
+   * Resets all the neurons in the layer
+   */
   reset: function() {
     for (var id in this.list) {
       var neuron = this.list[id];
@@ -508,33 +527,41 @@ Layer.prototype = {
     }
   },
 
-  // returns all the neurons in the layer (array)
+  /**
+   * Returns an array of the neurons in this layer
+   */
   neurons: function() {
     return this.list;
   },
 
-  // adds a neuron to the layer
+  /**
+   * Adds a neuron to the layer
+   */
   add: function(neuron) {
     this.neurons[neuron.ID] = neuron || new Neuron();
     this.list.push(neuron);
     this.size++;
   },
 
+  /**
+   * Sets the biases and squashes of all neurons in a layer
+   */
   set: function(options) {
     options = options || {};
 
     for (var i in this.list) {
       var neuron = this.list[i];
-      if (options.label)
-        neuron.label = options.label + '_' + neuron.ID;
       if (options.squash)
-        Squash = options.squash;
+        neuron.squash = options.squash;
       if (options.bias)
         neuron.bias = options.bias;
     }
     return this;
   },
 
+  /**
+   * Mutates the layer
+   */
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
@@ -542,8 +569,8 @@ Layer.prototype = {
         var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
         var neuron2 = this.list[Math.floor(Math.random()*this.list.length)];
 
-        var connectionType1 = ['gated', 'inputs', 'projected'];
-        var connectionType2 = ['gated', 'inputs', 'projected'];
+        var connectionType1 = Object.keys(neuron1.connections);
+        var connectionType2 = Object.keys(neuron2.connections);
 
         for(var i = 2;i >= 0; i--){
           if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
@@ -581,7 +608,7 @@ Layer.prototype = {
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
         var neuron = this.list[Math.floor(Math.random()*this.list.length)];
-        var connectionType = ['gated', 'inputs', 'projected'];
+        var connectionType = Object.keys(neuron.connections);
 
         for(var i = connectionType.length-1;i >= 0; i--){
           if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
@@ -603,16 +630,17 @@ Layer.prototype = {
     }
   },
 
+  /**
+   * Converts the layer to a json
+   */
   toJSON: function(){
     var list = this.list;
     var neurons = []
-    // link id's to positions in the array
-    var ids = {};
+
     for (var i in list) {
       var neuron = list[i];
-      ids[neuron.ID] = i;
-      var copy = neuron.toJSON();
 
+      var copy = neuron.toJSON();
       neurons.push(copy);
     }
 
@@ -622,6 +650,9 @@ Layer.prototype = {
   }
 }
 
+/**
+ * Creates a new layer from two parent layers
+ */
 Layer.crossOver = function(layer1, layer2, method){
   method = method || Crossover.UNIFORM;
   var offspring = new Layer(layer1.list.length);
@@ -629,28 +660,16 @@ Layer.crossOver = function(layer1, layer2, method){
   switch(method){
     case Crossover.UNIFORM:
       for(var i = 0; i < offspring.list.length; i++){
-        if(Math.random() >= 0.5){
-          offspring.list[i].bias = layer1.list[i].bias;
-          offspring.list[i].squash = layer1.list[i].squash;
-        } else {
-          offspring.list[i].bias = layer2.list[i].bias;
-          offspring.list[i].squash = layer2.list[i].squash;
-        }
+        offspring.list[i].bias = Math.random() >= 0.5 ? layer1.list[i].bias : layer2.list[i].bias;
+        offspring.list[i].squash = Math.random() >= 0.5 ? layer1.list[i].squash : layer2.list[i].squash;
       }
       break;
     case Crossover.AVERAGE:
       for(var i = 0; i < offspring.list.length; i++){
-        var bias1 = layer1.list[i].bias;
-        var bias2 = layer2.list[i].bias;
-
-        offspring.list[i].bias = (bias1 + bias2) / 2;
+        offspring.list[i].bias = (layer1.list[i].bias +layer2.list[i].bias) / 2;
 
         // Can't average squash...
-        if(Math.random() >= 0.5){
-          offspring.list[i].squash = layer1.list[i].squash;
-        } else {
-          offspring.list[i].squash = layer2.list[i].squash;
-        }
+        offspring.list[i].squash = Math.random() >= 0.5 ? layer1.list[i].squash : layer2.list[i].squash;
       }
       break;
     case Crossover.SINGLE_POINT:
@@ -680,19 +699,15 @@ Layer.crossOver = function(layer1, layer2, method){
   return offspring;
 }
 
+/**
+ * Creates a layer from a json
+ */
 Layer.fromJSON = function(json){
   var neurons = [];
   for (var i in json.neurons) {
     var config = json.neurons[i];
 
-    var neuron = new Neuron();
-    neuron.trace.elegibility = {};
-    neuron.trace.extended = {};
-    neuron.state = config.state;
-    neuron.old = config.old;
-    neuron.activation = config.activation;
-    neuron.bias = config.bias;
-    Squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
+    var neuron = Neuron.fromJSON(config);
     neurons.push(neuron);
   }
 
@@ -701,7 +716,9 @@ Layer.fromJSON = function(json){
   return layer;
 }
 
-// represents a connection from one layer to another, and keeps track of its weight and gain
+/**
+ * Represents a connection from one layer to another
+ */
 Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
   this.ID = Layer.connection.uid();
   this.from = fromLayer;
@@ -750,13 +767,13 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
   fromLayer.connectedTo.push(this);
 }
 
-// types of connections
+// types of connections (will be moved to methods.js soon)
 Layer.connectionType = {};
 Layer.connectionType.ALL_TO_ALL = "ALL TO ALL";
 Layer.connectionType.ONE_TO_ONE = "ONE TO ONE";
 Layer.connectionType.ALL_TO_ELSE = "ALL TO ELSE";
 
-// types of gates
+// types of gates (will  be moved to methods.js soon)
 Layer.gateType = {};
 Layer.gateType.INPUT = "INPUT";
 Layer.gateType.OUTPUT = "OUTPUT";
@@ -775,15 +792,16 @@ Layer.gateType.ONE_TO_ONE = "ONE TO ONE";
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// export
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Network;
 
-// import
+/* Import */
 var Neuron  = __webpack_require__(4)
 ,   Layer   = __webpack_require__(2)
 ,   Trainer = __webpack_require__(5)
 ,   methods = __webpack_require__(1)
 
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -795,6 +813,9 @@ var Mutate     = methods.Mutate
                                          NETWORK
 *******************************************************************************************/
 
+/**
+ * Creates a neural network
+ */
 function Network(layers) {
   if (typeof layers != 'undefined') {
     this.layers = layers || {
@@ -805,9 +826,12 @@ function Network(layers) {
     this.optimized = null;
   }
 }
+
 Network.prototype = {
 
-  // feed-forward activation of all the layers to produce an ouput
+  /**
+   * Feed-forward activation of all layers to get an output
+   */
   activate: function(input) {
 
     if (this.optimized === false)
@@ -825,7 +849,9 @@ Network.prototype = {
     }
   },
 
-  // back-propagate the error thru the network
+  /**
+   * Back-propagate the error through the network
+   */
   propagate: function(rate, target) {
 
     if (this.optimized === false)
@@ -846,7 +872,9 @@ Network.prototype = {
     }
   },
 
-  // project a connection to another unit (either a network or a layer)
+  /**
+   * Projects a connection a network or a layer
+   */
   project: function(unit, type, weights) {
 
     if (this.optimized)
@@ -861,16 +889,20 @@ Network.prototype = {
     throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
   },
 
-  // let this network gate a connection
+  /**
+   * Lets this network gate a connection
+   */
   gate: function(connection, type) {
     if (this.optimized)
       this.optimized.reset();
     this.layers.output.gate(connection, type);
   },
 
-  // clear all elegibility traces and extended elegibility traces (the network forgets its context, but not what was trained)
+  /**
+   * Clear all elegibility traces and extended elegibility traces
+   * (the network forgets its context, but not what was trained)
+   */
   clear: function() {
-
     this.restore();
 
     var inputLayer = this.layers.input,
@@ -887,9 +919,10 @@ Network.prototype = {
       this.optimized.reset();
   },
 
-  // reset all weights and clear all traces (ends up like a new network)
+  /**
+   * Resets all weights and clears all traces
+   */
   reset: function() {
-
     this.restore();
 
     var inputLayer = this.layers.input,
@@ -906,9 +939,10 @@ Network.prototype = {
       this.optimized.reset();
   },
 
-  // hardcodes the behaviour of the whole network into a single optimized function
+  /**
+   * Hardcodes the behaviour of the whole network intoa single optimized function
+   */
   optimize: function() {
-
     var that = this;
     var optimized = {};
     var neurons = this.neurons();
@@ -986,7 +1020,10 @@ Network.prototype = {
     this.propagate = network.propagate;
   },
 
-  // restores all the values from the optimized network the their respective objects in order to manipulate the network
+  /**
+   * Restores all the values from the optimized network to their respective
+   * objects in order to manipulate the network
+   */
   restore: function() {
     if (!this.optimized)
       return;
@@ -1050,7 +1087,9 @@ Network.prototype = {
     }
   },
 
-  // returns all the neurons in the network
+  /**
+   * Returns all the neurons in the network
+   */
   neurons: function() {
 
     var neurons = [];
@@ -1081,17 +1120,23 @@ Network.prototype = {
     return neurons;
   },
 
-  // returns number of inputs of the network
+  /**
+   * Gives the input size of the network
+   */
   inputs: function() {
     return this.layers.input.size;
   },
 
-  // returns number of outputs of hte network
+  /**
+   * Gives the output size of the network
+   */
   outputs: function() {
     return this.layers.output.size;
   },
 
-  // sets the layers of the network
+  /**
+   * Sets the layers of the network
+   */
   set: function(layers) {
 
     this.layers = layers;
@@ -1099,6 +1144,9 @@ Network.prototype = {
       this.optimized.reset();
   },
 
+  /**
+   * Toggle hardcode optimization
+   */
   setOptimize: function(bool){
     this.restore();
     if (this.optimized)
@@ -1106,6 +1154,9 @@ Network.prototype = {
     this.optimized = bool? null : false;
   },
 
+  /**
+   * Mutates the network
+   */
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
@@ -1115,8 +1166,8 @@ Network.prototype = {
         var neuron2 = Math.floor(Math.random()*this.neurons().length);
         var neuron2 = this.neurons()[neuron2].neuron;
 
-        var connectionType1 = ['gated', 'inputs', 'projected'];
-        var connectionType2 = ['gated', 'inputs', 'projected'];
+        var connectionType1 = Object.keys(neuron1.connections);
+        var connectionType2 = Object.keys(neuron2.connections);
 
         for(var i = 2;i >= 0; i--){
           if(Object.keys(neuron1.connections[connectionType1[i]]).length == 0){
@@ -1155,10 +1206,9 @@ Network.prototype = {
         this.neurons()[neuron].neuron.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
-        // Select random input or hidden layer, they have all connections (removed, they don't have new connections!)
         var neuron = Math.floor(Math.random()*this.neurons().length);
         var neuron = this.neurons()[neuron].neuron;
-        var connectionType = ['gated', 'inputs', 'projected'];
+        var connectionType = Object.keys(neuron.connections);
 
         for(var i = connectionType.length-1;i >= 0; i--){
           if(Object.keys(neuron.connections[connectionType[i]]).length == 0){
@@ -1222,8 +1272,7 @@ Network.prototype = {
             neuron.project(this.layers.output.list[n]);
           }
 
-          layer.list.push(neuron);
-          layer.size++;
+          layer.add(neuron);
         }
         break;
       case Mutate.MODIFY_CONNECTIONS:
@@ -1286,7 +1335,9 @@ Network.prototype = {
     }
   },
 
-  // returns a json that represents all the neurons and connections of the network
+  /**
+   * Convert the network to a json
+   */
   toJSON: function(ignoreTraces) {
 
     this.restore();
@@ -1339,11 +1390,12 @@ Network.prototype = {
     }
   },
 
-  // export the topology into dot language which can be visualized as graphs using dot
-  /* example: ... console.log(net.toDotLang());
-              $ node example.js > example.dot
-              $ dot example.dot -Tpng > out.png
-  */
+  /**
+   * Export the topology into dot language which can be visualized as graphs using dot
+   * @example: console.log(net.toDotLang());
+   *           $ node example.js > example.dot
+   *           $ dot example.dot -Tpng > out.png
+   */
   toDot: function(edgeConnection) {
     if (! typeof edgeConnection)
       edgeConnection = false;
@@ -1391,7 +1443,9 @@ Network.prototype = {
     }
   },
 
-  // returns a function that works as the activation of the network and can be used without depending on the library
+  /**
+   * Creates a standalone function of the network
+   */
   standalone: function() {
     if (!this.optimized)
       this.optimize();
@@ -1441,12 +1495,12 @@ Network.prototype = {
     return new Function(hardcode)();
   },
 
-
-  // Return a HTML5 WebWorker specialized on training the network stored in `memory`.
-  // Train based on the given dataSet and options.
-  // The worker returns the updated `memory` when done.
+  /**
+   * Return a HTML5 WebWorker specialized on training the network stored in `memory`.
+   * Train based on the given dataSet and options.
+   * The worker returns the updated `memory` when done.
+   */
   worker: function(memory, set, options) {
-
     // Copy the options and set defaults (options might be different for each worker)
     var workerOptions = {};
     if(options) workerOptions = options;
@@ -1505,7 +1559,9 @@ Network.prototype = {
     return new Worker(blobURL);
   },
 
-  // returns a copy of the network
+  /**
+   * Returns a copy of the network
+   */
   clone: function() {
     return Network.fromJSON(this.toJSON());
   }
@@ -1544,9 +1600,10 @@ Network.getWorkerSharedFunctions = function() {
   return Network._SHARED_WORKER_FUNCTIONS = train_f + _trainSet_f + test_f;
 };
 
-// rebuild a network that has been stored in a json using the method toJSON()
+/**
+ * Create a network from a json
+ */
 Network.fromJSON = function(json) {
-
   var neurons = [];
 
   var layers = {
@@ -1558,14 +1615,7 @@ Network.fromJSON = function(json) {
   for (var i in json.neurons) {
     var config = json.neurons[i];
 
-    var neuron = new Neuron();
-    neuron.trace.elegibility = {};
-    neuron.trace.extended = {};
-    neuron.state = config.state;
-    neuron.old = config.old;
-    neuron.activation = config.activation;
-    neuron.bias = config.bias;
-    neuron.squash = config.squash in Squash ? Squash[config.squash] : Squash.LOGISTIC;
+    var neuron = Neuron.fromJSON(config);
     neurons.push(neuron);
 
     if (config.layer == 'input')
@@ -1594,30 +1644,24 @@ Network.fromJSON = function(json) {
   return new Network(layers);
 };
 
+/**
+ * Creates a new network from two parent networks
+ */
 Network.crossOver = function(network1, network2, method){
   method = method || Crossover.UNIFORM;
 
   var network1 = network1.toJSON();
   var network2 = network2.toJSON()
-  var offspring = Network.fromJSON(network1).toJSON();
+  var offspring = Network.fromJSON(network1).toJSON(); // copy
 
   switch(method){
     case Crossover.UNIFORM:
       for(var i = 0; i < offspring.neurons.length; i++){
-        if(Math.random() >= 0.5){
-          offspring.neurons[i].bias = network1.neurons[i].bias;
-          offspring.neurons[i].squash = network1.neurons[i].squash;
-        } else {
-          offspring.neurons[i].bias = network2.neurons[i].bias;
-          offspring.neurons[i].squash = network2.neurons[i].squash;
-        }
+        offspring.neurons[i].bias = Math.random() >= 0.5 ? network1.neurons[i].bias : network2.neurons[i].bias;
+        offspring.neurons[i].squash = Math.random() >= 0.5 ? network1.neurons[i].squash : network2.neurons[i].squash;
       }
       for(var i = 0; i < offspring.connections.length; i++){
-        if(Math.random() >= 0.5){
-          offspring.connections[i].weight = network1.connections[i].weight;
-        } else {
-          offspring.connections[i].weight = network2.connections[i].weight;
-        }
+        offspring.connections[i].weight = Math.random() >= 0.5 ? network1.connections[i].weight : network2.connections[i].weight;
       }
       break;
     case Crossover.AVERAGE:
@@ -1627,11 +1671,7 @@ Network.crossOver = function(network1, network2, method){
         offspring.neurons[i].bias = (bias1 + bias2) / 2;
 
         // Squash has to be random.. can't average
-        if(Math.random() >= 0.5){
-          offspring.neurons[i].squash = network1.neurons[i].squash;
-        } else {
-          offspring.neurons[i].squash = network2.neurons[i].squash;
-        }
+        offspring.neurons[i].squash = Math.random() >= 0.5 ? network1.neurons[i].squash : network2.neurons[i].squash;
       }
 
       for(var i = 0; i < offspring.connections.length; i++){
@@ -1687,10 +1727,13 @@ Network.crossOver = function(network1, network2, method){
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// export
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Neuron;
 
+/* Import */
 var methods = __webpack_require__(1);
+
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -1705,7 +1748,6 @@ var Mutate     = methods.Mutate
 
 function Neuron() {
   this.ID = Neuron.uid();
-  this.label = null;
   this.connections = {
     inputs: {},
     projected: {},
@@ -1732,7 +1774,9 @@ function Neuron() {
 
 Neuron.prototype = {
 
-  // activate the neuron
+  /**
+   * Activates the neuron
+   */
   activate: function(input) {
     // activation from enviroment (for input neurons)
     if (typeof input != 'undefined') {
@@ -1806,7 +1850,9 @@ Neuron.prototype = {
     return this.activation;
   },
 
-  // back-propagate the error
+  /**
+   * Back-propagate the error
+   */
   propagate: function(rate, target) {
     // error accumulator
     var error = 0;
@@ -1874,6 +1920,9 @@ Neuron.prototype = {
     this.bias += rate * this.error.responsibility;
   },
 
+  /**
+   * Project a connection between this neuron and another neuron
+   */
   project: function(neuron, weight) {
     // self-connection
     if (neuron == this) {
@@ -1908,6 +1957,9 @@ Neuron.prototype = {
     return connection;
   },
 
+  /**
+   * Gates a connection
+   */
   gate: function(connection) {
     // add connection to gated list
     this.connections.gated[connection.ID] = connection;
@@ -1933,12 +1985,16 @@ Neuron.prototype = {
     connection.gater = this;
   },
 
-  // returns true or false whether the neuron is self-connected or not
+  /**
+   * Checks if the neuron is self-connected
+   */
   selfconnected: function() {
     return this.selfconnection.weight !== 0;
   },
 
-  // returns true or false whether the neuron is connected to another neuron (parameter)
+  /**
+   * Checks if a neuron is connected to another neuron
+   */
   connected: function(neuron) {
     var result = {
       type: null,
@@ -1972,9 +2028,11 @@ Neuron.prototype = {
     return false;
   },
 
-  // clears all the traces (the neuron forgets it's context, but the connections remain intact)
+  /**
+   * Clears all the traces
+   * (the neuron forgets it's context, but the connections remain intact)
+   */
   clear: function() {
-
     for (var trace in this.trace.elegibility)
       this.trace.elegibility[trace] = 0;
 
@@ -1985,7 +2043,10 @@ Neuron.prototype = {
     this.error.responsibility = this.error.projected = this.error.gated = 0;
   },
 
-  // all the connections are randomized and the traces are cleared
+
+  /**
+   * Randomizes all the connections and clears traces
+   */
   reset: function() {
     this.clear();
 
@@ -1997,27 +2058,27 @@ Neuron.prototype = {
     this.old = this.state = this.activation = 0;
   },
 
+  /**
+   * Mutates the neuron
+   */
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
-        var connectionType1 = ['gated', 'inputs', 'projected'];
-        var connectionType2 = ['gated', 'inputs', 'projected'];
+        var connectionTypes = Object.keys(this.connections);
 
-        for(var i = 2;i >= 0; i--){
-          if(Object.keys(this.connections[connectionType1[i]]).length == 0){
-            connectionType1.splice(i, 1);
-          }
-          if(Object.keys(this.connections[connectionType2[i]]).length == 0){
-            connectionType2.splice(i, 1);
+        // Checks what kind of connections exist
+        for(var i = 2; i >= 0; i--){
+          if(Object.keys(this.connections[connectionTypes[i]]).length == 0){
+            connectionTypes.splice(i, 1);
           }
         }
 
-        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionType1 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
         var connectionKeys1 = Object.keys(this.connections[connectionType1]);
         var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
 
-        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionType2 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
         var connectionKeys2 = Object.keys(this.connections[connectionType2]);
         var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
 
@@ -2031,7 +2092,7 @@ Neuron.prototype = {
         this.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
-        var connectionType = ['gated', 'inputs', 'projected'];
+        var connectionType = Object.keys(this.connections);
 
         for(var i = 2; i >= 0; i--){
           if(Object.keys(this.connections[connectionType[i]]).length == 0){
@@ -2052,9 +2113,11 @@ Neuron.prototype = {
     }
   },
 
-  // hardcodes the behaviour of the neuron into an optimized function
-  optimize: function(optimized, layer) {
 
+  /**
+   * Hardcodes the behaviour of the neuron into an optimized function
+   */
+  optimize: function(optimized, layer) {
     optimized = optimized || {};
     var store_activation = [];
     var store_trace = [];
@@ -2496,6 +2559,9 @@ Neuron.prototype = {
     }
   },
 
+  /**
+   * Converts the neuron to a json
+   */
   toJSON: function(){
     var copy = {
       trace: {
@@ -2522,6 +2588,9 @@ Neuron.prototype = {
   }
 }
 
+/**
+ * Loads a neuron from json
+ */
 Neuron.fromJSON = function(json){
   var neuron = new Neuron();
   neuron.trace.elegibility = {};
@@ -2530,85 +2599,52 @@ Neuron.fromJSON = function(json){
   neuron.old = json.old;
   neuron.activation = json.activation;
   neuron.bias = json.bias;
-  Squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
+  neuron.squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
 
   return neuron;
 }
 
-// represents a connection between two neurons
+/**
+ * Represents a connection between two neurons
+ */
 Neuron.connection = function Connection(from, to, weight) {
-
   if (!from || !to)
     throw new Error("Connection Error: Invalid neurons");
 
   this.ID = Neuron.connection.uid();
   this.from = from;
   this.to = to;
-  this.weight = typeof weight == 'undefined' ? Math.random() * .2 - .1 :
-    weight;
+  this.weight = typeof weight == 'undefined' ? Math.random() * .2 - .1 : weight;
   this.gain = 1;
   this.gater = null;
 }
 
+/**
+ * Creates a new neuron from two parent neurons
+ */
 Neuron.crossOver = function(neuron1, neuron2, method){
   method = method || Crossover.UNIFORM;
   var offspring = new Neuron();
 
   switch(method){
     case Crossover.UNIFORM:
-      if(Math.random() >= 0.5){
-        offspring.bias = neuron1.bias;
-        offspring.squash = neuron1.squash;
-      } else {
-        offspring.bias = neuron2.bias;
-        offspring.squash = neuron2.squash;
-      }
+      offspring.bias = Math.random() >= 0.5 ? neuron1.bias : neuron2.bias;
+      offspring.squash = Math.random() >= 0.5 ? neuron1.squash : neuron2.squash;
       break;
     case Crossover.AVERAGE:
       offspring.bias = (neuron1.bias + neuron2.bias) / 2;
 
       // Can't average squash...
-      if(Math.random() >= 0.5){
-        offspring.squash = neuron1.squash;
-      } else {
-        offspring.squash = neuron2.squash;
-      }
+      offspring.squash = Math.random() >= 0.5 ? neuron1.squash : neuron2.squash;
       break;
   }
 
   return offspring;
-}
-
-// squashing functions
-Neuron.squash = {};
-
-// eq. 5 & 5'
-Neuron.squash.LOGISTIC = function(x, derivate) {
-  if (!derivate)
-    return 1 / (1 + Math.exp(-x));
-  var fx = Neuron.squash.LOGISTIC(x);
-  return fx * (1 - fx);
-};
-Neuron.squash.TANH = function(x, derivate) {
-  if (derivate)
-    return 1 - Math.pow(Neuron.squash.TANH(x), 2);
-  var eP = Math.exp(x);
-  var eN = 1 / eP;
-  return (eP - eN) / (eP + eN);
-};
-Neuron.squash.IDENTITY = function(x, derivate) {
-  return derivate ? 1 : x;
-};
-Neuron.squash.HLIM = function(x, derivate) {
-  return derivate ? 1 : x > 0 ? 1 : 0;
-};
-Neuron.squash.RELU = function(x, derivate) {
-  if (derivate)
-    return x > 0 ? 1 : 0;
-  return x > 0 ? x : 0;
 };
 
-// unique ID's
+/**
+ * Returns a unique ID
+ */
 (function() {
   var neurons = 0;
   var connections = 0;
@@ -2632,10 +2668,13 @@ Neuron.squash.RELU = function(x, derivate) {
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// export
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Trainer;
 
+/* Import */
 var methods = __webpack_require__(1);
+
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -2648,6 +2687,9 @@ var Mutate     = methods.Mutate
                                         TRAINER
 *******************************************************************************************/
 
+/**
+ * Creates a trainer
+ */
 function Trainer(network, options) {
   options = options || {};
   this.network = network;
@@ -2660,7 +2702,9 @@ function Trainer(network, options) {
 
 Trainer.prototype = {
 
-  // trains any given set to a network
+  /**
+   * Train a trainingset to a network
+   */
   train: function(set, options) {
 
     var error = 1;
@@ -2770,7 +2814,10 @@ Trainer.prototype = {
     return results;
   },
 
-  // trains any given set to a network, using a WebWorker (only for the browser). Returns a Promise of the results.
+  /**
+   * Trains any given set to a network, using a WebWorker (only for the browser).
+   * @return a Promise of the results.
+   */
   trainAsync: function(set, options) {
     var train = this.workerTrain.bind(this);
     return new Promise(function(resolve, reject) {
@@ -2782,7 +2829,10 @@ Trainer.prototype = {
     })
   },
 
-  // preforms one training epoch and returns the error (private function used in this.train)
+  /**
+   * preforms one training epoch and returns the error
+   * private function used in this.train
+   */
   _trainSet: function(set, currentRate, costFunction) {
     var errorSum = 0;
     for (var train in set) {
@@ -2797,7 +2847,9 @@ Trainer.prototype = {
     return errorSum;
   },
 
-  // tests a set and returns the error and elapsed time
+  /**
+   * Tests a set and returns the error and elapsed time
+   */
   test: function(set, options) {
 
     var error = 0;
@@ -2823,7 +2875,10 @@ Trainer.prototype = {
     return results;
   },
 
-  // trains any given set to a network using a WebWorker [deprecated: use trainAsync instead]
+  /**
+   * Trains any given set to a network using a WebWorker
+   * [deprecated: use trainAsync instead]
+   */
   workerTrain: function(set, callback, options, suppressWarning) {
 
     if (!suppressWarning) {
@@ -2874,7 +2929,9 @@ Trainer.prototype = {
     worker.postMessage({action: 'startTraining'});
   },
 
-  // trains an XOR to the network
+  /**
+   * Trains an XOR to the network [will be removed soon]
+   */
   XOR: function(options) {
 
     if (this.network.inputs() != 2 || this.network.outputs() != 1)
@@ -2906,7 +2963,9 @@ Trainer.prototype = {
     }], defaults);
   },
 
-  // trains the network to pass a Distracted Sequence Recall test
+  /**
+   * Trains the network to pass a Distracted Sequence Recall test [will be removed soon]
+   */
   DSR: function(options) {
     options = options || {};
 
@@ -3034,7 +3093,9 @@ Trainer.prototype = {
     }
   },
 
-  // train the network to learn an Embeded Reber Grammar
+  /**
+   * Train the network to learn an Embeded Reber Grammar [will be removed soon]
+   */
   ERG: function(options) {
 
     options = options || {};
@@ -3220,6 +3281,9 @@ Trainer.prototype = {
     }
   },
 
+  /**
+   * ??
+   */
   timingTask: function(options){
 
     if (this.network.inputs() != 2 || this.network.outputs() != 1)
@@ -3299,7 +3363,7 @@ Trainer.prototype = {
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// import
+/* WEBPACK VAR INJECTION */(function(module) {/* Import */
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
@@ -3308,7 +3372,9 @@ var Layer   = __webpack_require__(2)
                                         ARCHITECT
 *******************************************************************************************/
 
-// Collection of useful built-in architectures
+/**
+ * Collection of built-in architectures
+ */
 var Architect = {
 
   // Multilayer Perceptron
@@ -3349,7 +3415,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
-  // Multilayer Long Short-Term Memory
+  /**
+   * Multilayer Long Short-Term Memory
+   */
   LSTM: function LSTM() {
 
     var args = Array.prototype.slice.call(arguments); // convert arguments to array
@@ -3474,7 +3542,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
-  // Liquid State Machine
+  /**
+   * Liquid state machine
+   */
   Liquid: function Liquid(inputs, hidden, outputs, connections, gates) {
 
     // create layers
@@ -3518,6 +3588,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
+  /**
+   * Hopfield network
+   */
   Hopfield: function Hopfield(size) {
 
     var inputLayer = new Layer(size);
@@ -3570,7 +3643,7 @@ for (var architecture in Architect) {
   Architect[architecture].prototype.constructor = Architect[architecture];
 }
 
-// export
+/* Export */
 if (module) module.exports = Architect;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -3579,14 +3652,15 @@ if (module) module.exports = Architect;
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {// export
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Evolution;
 
-// import
+/* Import */
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   methods = __webpack_require__(1)
 
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -3594,10 +3668,14 @@ var Mutate     = methods.Mutate
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
 ,   Cost       = methods.Cost;
+
 /*******************************************************************************************
                                         EVOLUTION
 *******************************************************************************************/
 
+/**
+ * Creates the genetic algorithm based on options
+ */
 function Evolution(options){
   options = options || {};
   this.size = options.size || 50;

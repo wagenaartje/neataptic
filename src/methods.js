@@ -1,10 +1,12 @@
 /*******************************************************************************************
-                                        SETTINGS
+                                        METHODS
 *******************************************************************************************/
-
 
 var methods = {};
 
+/**
+ * Cost functions https://en.wikipedia.org/wiki/Loss_function
+ */
 methods.Cost = {
   CROSS_ENTROPY: function(target, output)
   {
@@ -28,6 +30,9 @@ methods.Cost = {
   }
 }
 
+/**
+ * Squash function https://en.wikipedia.org/wiki/Activation_function
+ */
 methods.Squash = {
   LOGISTIC : function(x, derivate) {
     if (!derivate)
@@ -70,9 +75,9 @@ methods.Squash = {
   }
 }
 
-/*
-  Mutation methods
-*/
+/**
+ * Mutation methods https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
+ */
 methods.Mutate = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
@@ -117,10 +122,10 @@ methods.Mutate = {
   }
 },
 
-/*
-  Crossover methods
-  For now, parents for crossover should be the same size!
-*/
+/**
+ * Crossover methods https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
+ * parents should be the same size!
+ */
 methods.Crossover =  {
   SINGLE_POINT: {
     name: "SINGLE_POINT",
@@ -139,7 +144,7 @@ methods.Crossover =  {
 },
 
 /*
-  Selection methods
+  Selection methods https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
 */
 methods.Selection = {
   FITNESS_PROPORTIONATE: {
@@ -149,7 +154,7 @@ methods.Selection = {
 },
 
 /*
-  Generation methods
+  Generation methods https://en.wikipedia.org/wiki/Genetic_algorithm#Initialization
 */
 methods.Generation = {
   POINTS: {
@@ -183,5 +188,5 @@ methods.Pooling = {
   }
 }
 
-// export
+/* Export */
 if (module) module.exports = methods;

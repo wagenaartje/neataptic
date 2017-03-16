@@ -1,4 +1,4 @@
-// import
+/* Import */
 var Layer   = require('./layer')
 ,   Network = require('./network')
 ,   Trainer = require('./trainer')
@@ -7,7 +7,9 @@ var Layer   = require('./layer')
                                         ARCHITECT
 *******************************************************************************************/
 
-// Collection of useful built-in architectures
+/**
+ * Collection of built-in architectures
+ */
 var Architect = {
 
   // Multilayer Perceptron
@@ -48,7 +50,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
-  // Multilayer Long Short-Term Memory
+  /**
+   * Multilayer Long Short-Term Memory
+   */
   LSTM: function LSTM() {
 
     var args = Array.prototype.slice.call(arguments); // convert arguments to array
@@ -173,7 +177,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
-  // Liquid State Machine
+  /**
+   * Liquid state machine
+   */
   Liquid: function Liquid(inputs, hidden, outputs, connections, gates) {
 
     // create layers
@@ -217,6 +223,9 @@ var Architect = {
     this.trainer = new Trainer(this);
   },
 
+  /**
+   * Hopfield network
+   */
   Hopfield: function Hopfield(size) {
 
     var inputLayer = new Layer(size);
@@ -269,5 +278,5 @@ for (var architecture in Architect) {
   Architect[architecture].prototype.constructor = Architect[architecture];
 }
 
-// export
+/* Export */
 if (module) module.exports = Architect;

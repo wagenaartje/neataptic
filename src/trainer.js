@@ -1,7 +1,10 @@
-// export
+/* Export */
 if (module) module.exports = Trainer;
 
+/* Import */
 var methods = require('./methods');
+
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -14,6 +17,9 @@ var Mutate     = methods.Mutate
                                         TRAINER
 *******************************************************************************************/
 
+/**
+ * Creates a trainer
+ */
 function Trainer(network, options) {
   options = options || {};
   this.network = network;
@@ -26,7 +32,9 @@ function Trainer(network, options) {
 
 Trainer.prototype = {
 
-  // trains any given set to a network
+  /**
+   * Train a trainingset to a network
+   */
   train: function(set, options) {
 
     var error = 1;
@@ -136,7 +144,10 @@ Trainer.prototype = {
     return results;
   },
 
-  // trains any given set to a network, using a WebWorker (only for the browser). Returns a Promise of the results.
+  /**
+   * Trains any given set to a network, using a WebWorker (only for the browser).
+   * @return a Promise of the results.
+   */
   trainAsync: function(set, options) {
     var train = this.workerTrain.bind(this);
     return new Promise(function(resolve, reject) {
@@ -148,7 +159,10 @@ Trainer.prototype = {
     })
   },
 
-  // preforms one training epoch and returns the error (private function used in this.train)
+  /**
+   * preforms one training epoch and returns the error
+   * private function used in this.train
+   */
   _trainSet: function(set, currentRate, costFunction) {
     var errorSum = 0;
     for (var train in set) {
@@ -163,7 +177,9 @@ Trainer.prototype = {
     return errorSum;
   },
 
-  // tests a set and returns the error and elapsed time
+  /**
+   * Tests a set and returns the error and elapsed time
+   */
   test: function(set, options) {
 
     var error = 0;
@@ -189,7 +205,10 @@ Trainer.prototype = {
     return results;
   },
 
-  // trains any given set to a network using a WebWorker [deprecated: use trainAsync instead]
+  /**
+   * Trains any given set to a network using a WebWorker
+   * [deprecated: use trainAsync instead]
+   */
   workerTrain: function(set, callback, options, suppressWarning) {
 
     if (!suppressWarning) {
@@ -240,7 +259,9 @@ Trainer.prototype = {
     worker.postMessage({action: 'startTraining'});
   },
 
-  // trains an XOR to the network
+  /**
+   * Trains an XOR to the network [will be removed soon]
+   */
   XOR: function(options) {
 
     if (this.network.inputs() != 2 || this.network.outputs() != 1)
@@ -272,7 +293,9 @@ Trainer.prototype = {
     }], defaults);
   },
 
-  // trains the network to pass a Distracted Sequence Recall test
+  /**
+   * Trains the network to pass a Distracted Sequence Recall test [will be removed soon]
+   */
   DSR: function(options) {
     options = options || {};
 
@@ -400,7 +423,9 @@ Trainer.prototype = {
     }
   },
 
-  // train the network to learn an Embeded Reber Grammar
+  /**
+   * Train the network to learn an Embeded Reber Grammar [will be removed soon]
+   */
   ERG: function(options) {
 
     options = options || {};
@@ -586,6 +611,9 @@ Trainer.prototype = {
     }
   },
 
+  /**
+   * ??
+   */
   timingTask: function(options){
 
     if (this.network.inputs() != 2 || this.network.outputs() != 1)

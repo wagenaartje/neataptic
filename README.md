@@ -10,13 +10,14 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - 1 selection method
 - 2 generation methods
 - to/fromJSON for layers and neurons
-- 3 squashing functions 
+- 3 squashing functions
+- various code improvements
 
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)
 
 # Usage
-Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation. 
+Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.
 
 For the browser, embedding this code makes life easier:
 ```javascript
@@ -76,8 +77,9 @@ Installing with node is also possible.
 - Create pool generation methods :white_check_mark:
 - Add SHIFT mutation method, which replaces a random connection somewhere else in the network :white_check_mark:
 - Add ADD/REMOVE mutation method, which adds or removes a random neuron in a network :white_check_mark:
-- Export/Import layers, neurons, evolutions to/from JSON
+- Export/Import layers, neurons, evolutions to/from JSON :white_check_mark:
 - Convolutional neural network, not sure if it will work out with synaptic yet :clock5:
 - Add MODIFY_SQUASH mutation method, which changes the squash of a neuron randomly :white_check_mark:
+- Refine code (updating code and removing unnecessary/unused code) IN PROGRESS
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

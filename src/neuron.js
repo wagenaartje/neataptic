@@ -1,7 +1,10 @@
-// export
+/* Export */
 if (module) module.exports = Neuron;
 
+/* Import */
 var methods = require('./methods');
+
+/* Shorten var names */
 var Mutate     = methods.Mutate
 ,   Squash     = methods.Squash
 ,   Crossover  = methods.Crossover
@@ -16,7 +19,6 @@ var Mutate     = methods.Mutate
 
 function Neuron() {
   this.ID = Neuron.uid();
-  this.label = null;
   this.connections = {
     inputs: {},
     projected: {},
@@ -43,7 +45,9 @@ function Neuron() {
 
 Neuron.prototype = {
 
-  // activate the neuron
+  /**
+   * Activates the neuron
+   */
   activate: function(input) {
     // activation from enviroment (for input neurons)
     if (typeof input != 'undefined') {
@@ -117,7 +121,9 @@ Neuron.prototype = {
     return this.activation;
   },
 
-  // back-propagate the error
+  /**
+   * Back-propagate the error
+   */
   propagate: function(rate, target) {
     // error accumulator
     var error = 0;
@@ -185,6 +191,9 @@ Neuron.prototype = {
     this.bias += rate * this.error.responsibility;
   },
 
+  /**
+   * Project a connection between this neuron and another neuron
+   */
   project: function(neuron, weight) {
     // self-connection
     if (neuron == this) {
@@ -219,6 +228,9 @@ Neuron.prototype = {
     return connection;
   },
 
+  /**
+   * Gates a connection
+   */
   gate: function(connection) {
     // add connection to gated list
     this.connections.gated[connection.ID] = connection;
@@ -244,12 +256,16 @@ Neuron.prototype = {
     connection.gater = this;
   },
 
-  // returns true or false whether the neuron is self-connected or not
+  /**
+   * Checks if the neuron is self-connected
+   */
   selfconnected: function() {
     return this.selfconnection.weight !== 0;
   },
 
-  // returns true or false whether the neuron is connected to another neuron (parameter)
+  /**
+   * Checks if a neuron is connected to another neuron
+   */
   connected: function(neuron) {
     var result = {
       type: null,
@@ -283,9 +299,11 @@ Neuron.prototype = {
     return false;
   },
 
-  // clears all the traces (the neuron forgets it's context, but the connections remain intact)
+  /**
+   * Clears all the traces
+   * (the neuron forgets it's context, but the connections remain intact)
+   */
   clear: function() {
-
     for (var trace in this.trace.elegibility)
       this.trace.elegibility[trace] = 0;
 
@@ -296,7 +314,10 @@ Neuron.prototype = {
     this.error.responsibility = this.error.projected = this.error.gated = 0;
   },
 
-  // all the connections are randomized and the traces are cleared
+
+  /**
+   * Randomizes all the connections and clears traces
+   */
   reset: function() {
     this.clear();
 
@@ -308,27 +329,27 @@ Neuron.prototype = {
     this.old = this.state = this.activation = 0;
   },
 
+  /**
+   * Mutates the neuron
+   */
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
-        var connectionType1 = ['gated', 'inputs', 'projected'];
-        var connectionType2 = ['gated', 'inputs', 'projected'];
+        var connectionTypes = Object.keys(this.connections);
 
-        for(var i = 2;i >= 0; i--){
-          if(Object.keys(this.connections[connectionType1[i]]).length == 0){
-            connectionType1.splice(i, 1);
-          }
-          if(Object.keys(this.connections[connectionType2[i]]).length == 0){
-            connectionType2.splice(i, 1);
+        // Checks what kind of connections exist
+        for(var i = 2; i >= 0; i--){
+          if(Object.keys(this.connections[connectionTypes[i]]).length == 0){
+            connectionTypes.splice(i, 1);
           }
         }
 
-        connectionType1 = connectionType1[Math.floor(Math.random()*connectionType1.length)];
+        var connectionType1 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
         var connectionKeys1 = Object.keys(this.connections[connectionType1]);
         var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
 
-        connectionType2 = connectionType2[Math.floor(Math.random()*connectionType2.length)];
+        var connectionType2 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
         var connectionKeys2 = Object.keys(this.connections[connectionType2]);
         var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
 
@@ -342,7 +363,7 @@ Neuron.prototype = {
         this.bias += modification;
         break;
       case Mutate.MODIFY_RANDOM_WEIGHT:
-        var connectionType = ['gated', 'inputs', 'projected'];
+        var connectionType = Object.keys(this.connections);
 
         for(var i = 2; i >= 0; i--){
           if(Object.keys(this.connections[connectionType[i]]).length == 0){
@@ -363,9 +384,11 @@ Neuron.prototype = {
     }
   },
 
-  // hardcodes the behaviour of the neuron into an optimized function
-  optimize: function(optimized, layer) {
 
+  /**
+   * Hardcodes the behaviour of the neuron into an optimized function
+   */
+  optimize: function(optimized, layer) {
     optimized = optimized || {};
     var store_activation = [];
     var store_trace = [];
@@ -807,6 +830,9 @@ Neuron.prototype = {
     }
   },
 
+  /**
+   * Converts the neuron to a json
+   */
   toJSON: function(){
     var copy = {
       trace: {
@@ -833,6 +859,9 @@ Neuron.prototype = {
   }
 }
 
+/**
+ * Loads a neuron from json
+ */
 Neuron.fromJSON = function(json){
   var neuron = new Neuron();
   neuron.trace.elegibility = {};
@@ -841,85 +870,52 @@ Neuron.fromJSON = function(json){
   neuron.old = json.old;
   neuron.activation = json.activation;
   neuron.bias = json.bias;
-  Squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
+  neuron.squash = json.squash in Squash ? Squash[json.squash] : Squash.LOGISTIC;
 
   return neuron;
 }
 
-// represents a connection between two neurons
+/**
+ * Represents a connection between two neurons
+ */
 Neuron.connection = function Connection(from, to, weight) {
-
   if (!from || !to)
     throw new Error("Connection Error: Invalid neurons");
 
   this.ID = Neuron.connection.uid();
   this.from = from;
   this.to = to;
-  this.weight = typeof weight == 'undefined' ? Math.random() * .2 - .1 :
-    weight;
+  this.weight = typeof weight == 'undefined' ? Math.random() * .2 - .1 : weight;
   this.gain = 1;
   this.gater = null;
 }
 
+/**
+ * Creates a new neuron from two parent neurons
+ */
 Neuron.crossOver = function(neuron1, neuron2, method){
   method = method || Crossover.UNIFORM;
   var offspring = new Neuron();
 
   switch(method){
     case Crossover.UNIFORM:
-      if(Math.random() >= 0.5){
-        offspring.bias = neuron1.bias;
-        offspring.squash = neuron1.squash;
-      } else {
-        offspring.bias = neuron2.bias;
-        offspring.squash = neuron2.squash;
-      }
+      offspring.bias = Math.random() >= 0.5 ? neuron1.bias : neuron2.bias;
+      offspring.squash = Math.random() >= 0.5 ? neuron1.squash : neuron2.squash;
       break;
     case Crossover.AVERAGE:
       offspring.bias = (neuron1.bias + neuron2.bias) / 2;
 
       // Can't average squash...
-      if(Math.random() >= 0.5){
-        offspring.squash = neuron1.squash;
-      } else {
-        offspring.squash = neuron2.squash;
-      }
+      offspring.squash = Math.random() >= 0.5 ? neuron1.squash : neuron2.squash;
       break;
   }
 
   return offspring;
-}
-
-// squashing functions
-Neuron.squash = {};
-
-// eq. 5 & 5'
-Neuron.squash.LOGISTIC = function(x, derivate) {
-  if (!derivate)
-    return 1 / (1 + Math.exp(-x));
-  var fx = Neuron.squash.LOGISTIC(x);
-  return fx * (1 - fx);
-};
-Neuron.squash.TANH = function(x, derivate) {
-  if (derivate)
-    return 1 - Math.pow(Neuron.squash.TANH(x), 2);
-  var eP = Math.exp(x);
-  var eN = 1 / eP;
-  return (eP - eN) / (eP + eN);
-};
-Neuron.squash.IDENTITY = function(x, derivate) {
-  return derivate ? 1 : x;
-};
-Neuron.squash.HLIM = function(x, derivate) {
-  return derivate ? 1 : x > 0 ? 1 : 0;
-};
-Neuron.squash.RELU = function(x, derivate) {
-  if (derivate)
-    return x > 0 ? 1 : 0;
-  return x > 0 ? x : 0;
 };
 
-// unique ID's
+/**
+ * Returns a unique ID
+ */
 (function() {
   var neurons = 0;
   var connections = 0;

@@ -2084,25 +2084,6 @@ Neuron.prototype = {
   },
 
   /**
-   * Returns incoming and outgoing connections
-   */
-  connections: function(){
-    var connections = {
-      inputs : {},
-      gated : {},
-      projected: {}
-    };
-
-    for(var connType in this.connections){
-      for(var conn in this.connections[connType]){
-        connections[connType][conn] = this.connections[connType][conn];
-      }
-    }
-
-    return connections;
-  },
-
-  /**
    * Clears all the traces
    * (the neuron forgets it's context, but the connections remain intact)
    */

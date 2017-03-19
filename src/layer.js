@@ -13,7 +13,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                             LAYER
@@ -167,7 +168,7 @@ Layer.prototype = {
       }
     }
     if (connections == this.size * layer.size)
-      return Layer.connectionType.ALL_TO_ALL;
+      return Connection.ALL_TO_ALL;
 
     // Check if ONE to ONE connection
     connections = 0;
@@ -179,7 +180,7 @@ Layer.prototype = {
         connections++;
     }
     if (connections == this.size)
-      return Layer.connectionType.ONE_TO_ONE;
+      return Connection.ONE_TO_ONE;
   },
 
   /**
@@ -408,18 +409,17 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
   if (typeof this.type == 'undefined')
   {
     if (fromLayer == toLayer)
-      this.type = Layer.connectionType.ONE_TO_ONE;
+      this.type = Connection.ONE_TO_ONE;
     else
-      this.type = Layer.connectionType.ALL_TO_ALL;
+      this.type = Connection.ALL_TO_ALL;
   }
 
-  if (this.type == Layer.connectionType.ALL_TO_ALL ||
-      this.type == Layer.connectionType.ALL_TO_ELSE) {
+  if (this.type == Connection.ALL_TO_ALL || this.type == Connection.ALL_TO_ELSE) {
     for (var here in this.from.list) {
       for (var there in this.to.list) {
         var from = this.from.list[here];
         var to = this.to.list[there];
-        if(this.type == Layer.connectionType.ALL_TO_ELSE && from == to)
+        if(this.type == Connection.ALL_TO_ELSE && from == to)
           continue;
         var connection = from.project(to, weights);
 
@@ -427,8 +427,7 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
         this.size = this.list.push(connection);
       }
     }
-  } else if (this.type == Layer.connectionType.ONE_TO_ONE) {
-
+  } else if (this.type == Connection.ONE_TO_ONE) {
     for (var neuron in this.from.list) {
       var from = this.from.list[neuron];
       var to = this.to.list[neuron];
@@ -441,12 +440,6 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
 
   fromLayer.connectedTo.push(this);
 }
-
-// types of connections (will be moved to methods.js soon)
-Layer.connectionType = {};
-Layer.connectionType.ALL_TO_ALL = "ALL TO ALL";
-Layer.connectionType.ONE_TO_ONE = "ONE TO ONE";
-Layer.connectionType.ALL_TO_ELSE = "ALL TO ELSE";
 
 // types of gates (will  be moved to methods.js soon)
 Layer.gateType = {};

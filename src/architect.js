@@ -2,6 +2,17 @@
 var Layer   = require('./layer')
 ,   Network = require('./network')
 ,   Trainer = require('./trainer')
+,   methods = require('./methods');
+
+/* Shorten var names */
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Generation = methods.Generation
+,   Pooling    = methods.Pooling
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -61,7 +72,7 @@ var Architect = {
 
     var last = args.pop();
     var option = {
-      peepholes: Layer.connectionType.ALL_TO_ALL,
+      peepholes: Connection.ALL_TO_ALL,
       hiddenToHidden: false,
       outputToHidden: false,
       outputToGates: false,
@@ -134,7 +145,7 @@ var Architect = {
 
       // hidden to hidden recurrent connection
       if (option.hiddenToHidden)
-        memoryCell.project(memoryCell, Layer.connectionType.ALL_TO_ELSE);
+        memoryCell.project(memoryCell, Connection.ALL_TO_ELSE);
 
       // out to hidden recurrent connection
       if (option.outputToHidden)
@@ -231,7 +242,7 @@ var Architect = {
     var inputLayer = new Layer(size);
     var outputLayer = new Layer(size);
 
-    inputLayer.project(outputLayer, Layer.connectionType.ALL_TO_ALL);
+    inputLayer.project(outputLayer, Connection.ALL_TO_ALL);
 
     this.set({
       input: inputLayer,

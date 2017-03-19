@@ -11,7 +11,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                         TRAINER

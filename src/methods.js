@@ -5,6 +5,15 @@
 var methods = {};
 
 /**
+ * Connection types
+ */
+ methods.Connection = {
+   ALL_TO_ALL : "ALL TO ALL",
+   ONE_TO_ONE : "ONE TO ONE",
+   ALL_TO_ELSE : "ALL TO ELSE"
+ }
+
+/**
  * Cost functions https://en.wikipedia.org/wiki/Loss_function
  */
 methods.Cost = {
@@ -12,7 +21,7 @@ methods.Cost = {
   {
     var crossentropy = 0;
     for (var i in output)
-      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
+      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
     return crossentropy;
   },
   MSE: function(target, output)
@@ -31,7 +40,7 @@ methods.Cost = {
 }
 
 /**
- * Squash function https://en.wikipedia.org/wiki/Activation_function
+ * Squash functions https://en.wikipedia.org/wiki/Activation_function
  */
 methods.Squash = {
   LOGISTIC : function(x, derivate) {

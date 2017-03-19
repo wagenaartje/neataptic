@@ -94,34 +94,6 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -131,6 +103,15 @@ module.exports = function(module) {
 var methods = {};
 
 /**
+ * Connection types
+ */
+ methods.Connection = {
+   ALL_TO_ALL : "ALL TO ALL",
+   ONE_TO_ONE : "ONE TO ONE",
+   ALL_TO_ELSE : "ALL TO ELSE"
+ }
+
+/**
  * Cost functions https://en.wikipedia.org/wiki/Loss_function
  */
 methods.Cost = {
@@ -138,7 +119,7 @@ methods.Cost = {
   {
     var crossentropy = 0;
     for (var i in output)
-      crossentropy -= (target[i] * Math.log(output[i]+1e-15)) + ((1-target[i]) * Math.log((1+1e-15)-output[i])); // +1e-15 is a tiny push away to avoid Math.log(0)
+      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
     return crossentropy;
   },
   MSE: function(target, output)
@@ -157,7 +138,7 @@ methods.Cost = {
 }
 
 /**
- * Squash function https://en.wikipedia.org/wiki/Activation_function
+ * Squash functions https://en.wikipedia.org/wiki/Activation_function
  */
 methods.Squash = {
   LOGISTIC : function(x, derivate) {
@@ -317,7 +298,35 @@ methods.Pooling = {
 /* Export */
 if (module) module.exports = methods;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
 
 /***/ }),
 /* 2 */
@@ -329,7 +338,7 @@ if (module) module.exports = Layer;
 /* Import */
 var Neuron  = __webpack_require__(4)
 ,   Network = __webpack_require__(3)
-,   methods = __webpack_require__(1)
+,   methods = __webpack_require__(0)
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -338,7 +347,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                             LAYER
@@ -492,7 +502,7 @@ Layer.prototype = {
       }
     }
     if (connections == this.size * layer.size)
-      return Layer.connectionType.ALL_TO_ALL;
+      return Connection.ALL_TO_ALL;
 
     // Check if ONE to ONE connection
     connections = 0;
@@ -504,7 +514,7 @@ Layer.prototype = {
         connections++;
     }
     if (connections == this.size)
-      return Layer.connectionType.ONE_TO_ONE;
+      return Connection.ONE_TO_ONE;
   },
 
   /**
@@ -733,18 +743,17 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
   if (typeof this.type == 'undefined')
   {
     if (fromLayer == toLayer)
-      this.type = Layer.connectionType.ONE_TO_ONE;
+      this.type = Connection.ONE_TO_ONE;
     else
-      this.type = Layer.connectionType.ALL_TO_ALL;
+      this.type = Connection.ALL_TO_ALL;
   }
 
-  if (this.type == Layer.connectionType.ALL_TO_ALL ||
-      this.type == Layer.connectionType.ALL_TO_ELSE) {
+  if (this.type == Connection.ALL_TO_ALL || this.type == Connection.ALL_TO_ELSE) {
     for (var here in this.from.list) {
       for (var there in this.to.list) {
         var from = this.from.list[here];
         var to = this.to.list[there];
-        if(this.type == Layer.connectionType.ALL_TO_ELSE && from == to)
+        if(this.type == Connection.ALL_TO_ELSE && from == to)
           continue;
         var connection = from.project(to, weights);
 
@@ -752,8 +761,7 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
         this.size = this.list.push(connection);
       }
     }
-  } else if (this.type == Layer.connectionType.ONE_TO_ONE) {
-
+  } else if (this.type == Connection.ONE_TO_ONE) {
     for (var neuron in this.from.list) {
       var from = this.from.list[neuron];
       var to = this.to.list[neuron];
@@ -766,12 +774,6 @@ Layer.connection = function LayerConnection(fromLayer, toLayer, type, weights) {
 
   fromLayer.connectedTo.push(this);
 }
-
-// types of connections (will be moved to methods.js soon)
-Layer.connectionType = {};
-Layer.connectionType.ALL_TO_ALL = "ALL TO ALL";
-Layer.connectionType.ONE_TO_ONE = "ONE TO ONE";
-Layer.connectionType.ALL_TO_ELSE = "ALL TO ELSE";
 
 // types of gates (will  be moved to methods.js soon)
 Layer.gateType = {};
@@ -786,7 +788,7 @@ Layer.gateType.ONE_TO_ONE = "ONE TO ONE";
   }
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 3 */
@@ -799,7 +801,7 @@ if (module) module.exports = Network;
 var Neuron  = __webpack_require__(4)
 ,   Layer   = __webpack_require__(2)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(1)
+,   methods = __webpack_require__(0)
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -808,7 +810,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -1721,7 +1724,7 @@ Network.crossOver = function(network1, network2, method){
   return Network.fromJSON(offspring);
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 4 */
@@ -1731,7 +1734,7 @@ Network.crossOver = function(network1, network2, method){
 if (module) module.exports = Neuron;
 
 /* Import */
-var methods = __webpack_require__(1);
+var methods = __webpack_require__(0);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -1740,7 +1743,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /******************************************************************************************
                                          NEURON
@@ -2662,7 +2666,7 @@ Neuron.crossOver = function(neuron1, neuron2, method){
   }
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 5 */
@@ -2672,7 +2676,7 @@ Neuron.crossOver = function(neuron1, neuron2, method){
 if (module) module.exports = Trainer;
 
 /* Import */
-var methods = __webpack_require__(1);
+var methods = __webpack_require__(0);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -2681,7 +2685,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                         TRAINER
@@ -3357,7 +3362,7 @@ Trainer.prototype = {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 6 */
@@ -3367,6 +3372,17 @@ Trainer.prototype = {
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
+,   methods = __webpack_require__(0);
+
+/* Shorten var names */
+var Mutate     = methods.Mutate
+,   Squash     = methods.Squash
+,   Crossover  = methods.Crossover
+,   Selection  = methods.Selection
+,   Generation = methods.Generation
+,   Pooling    = methods.Pooling
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -3426,7 +3442,7 @@ var Architect = {
 
     var last = args.pop();
     var option = {
-      peepholes: Layer.connectionType.ALL_TO_ALL,
+      peepholes: Connection.ALL_TO_ALL,
       hiddenToHidden: false,
       outputToHidden: false,
       outputToGates: false,
@@ -3499,7 +3515,7 @@ var Architect = {
 
       // hidden to hidden recurrent connection
       if (option.hiddenToHidden)
-        memoryCell.project(memoryCell, Layer.connectionType.ALL_TO_ELSE);
+        memoryCell.project(memoryCell, Connection.ALL_TO_ELSE);
 
       // out to hidden recurrent connection
       if (option.outputToHidden)
@@ -3596,7 +3612,7 @@ var Architect = {
     var inputLayer = new Layer(size);
     var outputLayer = new Layer(size);
 
-    inputLayer.project(outputLayer, Layer.connectionType.ALL_TO_ALL);
+    inputLayer.project(outputLayer, Connection.ALL_TO_ALL);
 
     this.set({
       input: inputLayer,
@@ -3646,7 +3662,7 @@ for (var architecture in Architect) {
 /* Export */
 if (module) module.exports = Architect;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 7 */
@@ -3658,7 +3674,7 @@ if (module) module.exports = Evolution;
 /* Import */
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
-,   methods = __webpack_require__(1)
+,   methods = __webpack_require__(0)
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -3667,7 +3683,8 @@ var Mutate     = methods.Mutate
 ,   Selection  = methods.Selection
 ,   Generation = methods.Generation
 ,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost;
+,   Cost       = methods.Cost
+,   Connection = methods.Connection;
 
 /*******************************************************************************************
                                         EVOLUTION
@@ -3904,7 +3921,7 @@ Evolution.prototype = {
      }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),
 /* 8 */
@@ -3914,7 +3931,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
   Neuron: __webpack_require__(4),
   Evolution: __webpack_require__(7),
   Trainer: __webpack_require__(5),
-  Methods: __webpack_require__(1),
+  Methods: __webpack_require__(0),
   Layer: __webpack_require__(2),
   Network: __webpack_require__(3),
   Architect: __webpack_require__(6)

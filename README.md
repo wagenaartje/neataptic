@@ -12,6 +12,7 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - to/fromJSON for layers and neurons
 - 3 (extra) squashing functions
 - various code improvements
+- overall extra functionality
 
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)

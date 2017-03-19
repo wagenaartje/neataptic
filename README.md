@@ -72,7 +72,9 @@ Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 <script src="https://cdn.rawgit.com/wagenaartje/gynaptic/55b6d0d1/dist/gynaptic.js"></script>
 ```
 
-Installing with node is also possible.
+Installing with node is also possible:
+
+`npm install gynaptic`
 
 # Plans
 - Create pool generation methods :white_check_mark:

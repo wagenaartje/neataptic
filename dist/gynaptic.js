@@ -545,6 +545,27 @@ Layer.prototype = {
   },
 
   /**
+   * Returns incoming and outgoing connections
+   */
+  connections: function(){
+    var connections = {
+      inputs : {},
+      gated : {},
+      projected: {}
+    };
+
+    for(var neuron in this.list){
+      for(var connType in this.list[neuron].connections){
+        for(var conn in this.list[neuron].connections[connType]){
+          connections[connType][conn] = this.list[neuron].connections[connType][conn];
+        }
+      }
+    }
+
+    return connections;
+  },
+
+  /**
    * Adds a neuron to the layer
    */
   add: function(neuron) {
@@ -1121,6 +1142,36 @@ Network.prototype = {
       });
 
     return neurons;
+  },
+
+  /**
+   * Returns incoming and outgoing connections
+   */
+  connections: function(){
+    // Input layer
+    var connections = this.layers.input.connections();
+
+    // Hidden layers
+    for(var layer in this.layers.hidden){
+      for(var neuron in this.layers.hidden[layer].list){
+        for(var connType in this.layers.hidden[layer].list[neuron].connections){
+          for(var conn in this.layers.hidden[layer].list[neuron].connections[connType]){
+            connections[connType][conn] = this.layers.hidden[layer].list[neuron].connections[connType][conn];
+          }
+        }
+      }
+    }
+
+    // Output layer
+    for(var neuron in this.layers.output.list){
+      for(var connType in this.layers.output.list[neuron].connections){
+        for(var conn in this.layers.output.list[neuron].connections[connType]){
+          connections[connType][conn] = this.layers.output.list[neuron].connections[connType][conn];
+        }
+      }
+    }
+
+    return connections;
   },
 
   /**
@@ -2030,6 +2081,25 @@ Neuron.prototype = {
     }
 
     return false;
+  },
+
+  /**
+   * Returns incoming and outgoing connections
+   */
+  connections: function(){
+    var connections = {
+      inputs : {},
+      gated : {},
+      projected: {}
+    };
+
+    for(var connType in this.connections){
+      for(var conn in this.connections[connType]){
+        connections[connType][conn] = this.connections[connType][conn];
+      }
+    }
+
+    return connections;
   },
 
   /**

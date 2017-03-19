@@ -211,6 +211,27 @@ Layer.prototype = {
   },
 
   /**
+   * Returns incoming and outgoing connections
+   */
+  connections: function(){
+    var connections = {
+      inputs : {},
+      gated : {},
+      projected: {}
+    };
+
+    for(var neuron in this.list){
+      for(var connType in this.list[neuron].connections){
+        for(var conn in this.list[neuron].connections[connType]){
+          connections[connType][conn] = this.list[neuron].connections[connType][conn];
+        }
+      }
+    }
+
+    return connections;
+  },
+
+  /**
    * Adds a neuron to the layer
    */
   add: function(neuron) {

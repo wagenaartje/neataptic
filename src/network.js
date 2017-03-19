@@ -328,6 +328,36 @@ Network.prototype = {
   },
 
   /**
+   * Returns incoming and outgoing connections
+   */
+  connections: function(){
+    // Input layer
+    var connections = this.layers.input.connections();
+
+    // Hidden layers
+    for(var layer in this.layers.hidden){
+      for(var neuron in this.layers.hidden[layer].list){
+        for(var connType in this.layers.hidden[layer].list[neuron].connections){
+          for(var conn in this.layers.hidden[layer].list[neuron].connections[connType]){
+            connections[connType][conn] = this.layers.hidden[layer].list[neuron].connections[connType][conn];
+          }
+        }
+      }
+    }
+
+    // Output layer
+    for(var neuron in this.layers.output.list){
+      for(var connType in this.layers.output.list[neuron].connections){
+        for(var conn in this.layers.output.list[neuron].connections[connType]){
+          connections[connType][conn] = this.layers.output.list[neuron].connections[connType][conn];
+        }
+      }
+    }
+
+    return connections;
+  },
+
+  /**
    * Gives the input size of the network
    */
   inputs: function() {

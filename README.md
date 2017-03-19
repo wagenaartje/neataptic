@@ -81,5 +81,6 @@ Installing with node is also possible.
 - Convolutional neural network, not sure if it will work out with synaptic yet :clock5:
 - Add MODIFY_SQUASH mutation method, which changes the squash of a neuron randomly :white_check_mark:
 - Refine code (updating code and removing unnecessary/unused code) IN PROGRESS
+- Create LOSS functions
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

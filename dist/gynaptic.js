@@ -1775,6 +1775,9 @@ Network.crossOver = function(network1, network2, method){
   return Network.fromJSON(offspring);
 }
 
+/**
+ * Creates a new network by merging to networks into one
+ */
 Network.merge = function(network1, network2){
   // copy the networks for unique id's
   network1 = Network.fromJSON(network1.toJSON());

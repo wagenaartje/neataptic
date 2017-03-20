@@ -88,6 +88,6 @@ npm install gynaptic
 - Refine code (updating code and removing unnecessary/unused code) IN PROGRESS
 - Create extra LOSS functions
 - Use `connections()` in the mutate functions
-- Add a merge() method for networks
+- Add a merge() method for networks :white_check_mark:
 
 If you have any suggestions, please post them at the 'Issues' button at the top of the page.

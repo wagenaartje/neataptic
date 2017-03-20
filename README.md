@@ -10,9 +10,9 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - 1 selection method
 - 2 generation methods
 - to/fromJSON for layers and neurons
-- 3 (extra) squashing functions
+- 3 squashing functions
 - various code improvements
-- overall extra functionality
+- `merge()` networks
 
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)

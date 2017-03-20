@@ -4,7 +4,8 @@ if (module) module.exports = Evolution;
 /* Import */
 var Layer   = require('./layer')
 ,   Network = require('./network')
-,   methods = require('./methods')
+,   Trainer = require('./trainer')
+,   methods = require('./methods');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate

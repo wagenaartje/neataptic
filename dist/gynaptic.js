@@ -1775,6 +1775,48 @@ Network.crossOver = function(network1, network2, method){
   return Network.fromJSON(offspring);
 }
 
+Network.merge = function(network1, network2){
+  // copy the networks for unique id's
+  network1 = Network.fromJSON(network1.toJSON());
+  network2 = Network.fromJSON(network2.toJSON());
+
+  var inputLayer = network1.layers.input;
+  var hiddenLayers = [];
+
+  for(var i in network1.layers.hidden){
+    hiddenLayers.push(network1.layers.hidden[i]);
+  }
+
+  // used to convert ID's to indexes
+  var ids = [];
+  for(var i in network2.layers.input.list){
+    ids.push(network2.layers.input.list[i].ID);
+  }
+
+  // move connections (input and outputlayers are merged)
+  for(var neuron in network2.layers.hidden[0].list){
+    for(var conn in network2.layers.hidden[0].list[neuron].connections.inputs){
+      var index = ids.indexOf(network2.layers.hidden[0].list[neuron].connections.inputs[conn].from.ID);
+      network2.layers.hidden[0].list[neuron].connections.inputs[conn].from = network1.layers.output.list[index];
+      network1.layers.output.list[index].connections.projected[network2.layers.hidden[0].list[neuron].connections.inputs[conn].ID] = network2.layers.hidden[0].list[neuron].connections.inputs[conn];
+    }
+  }
+
+  hiddenLayers.push(network1.layers.output);
+
+  for(var i in network2.layers.hidden){
+    hiddenLayers.push(network2.layers.hidden[i]);
+  }
+
+  var outputLayer = network2.layers.output;
+
+  return new Network({
+    input: inputLayer,
+    hidden: hiddenLayers,
+    output: outputLayer
+  });
+}
+
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
 
 /***/ }),

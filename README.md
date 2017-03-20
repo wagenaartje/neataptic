@@ -5,7 +5,7 @@ Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/
 
 What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - an easy-to-use genetic algorithm function
-- 6 mutation methods
+- 7 mutation methods
 - 4 crossover methods
 - 1 selection method
 - 2 generation methods

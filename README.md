@@ -14,6 +14,8 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - various code improvements
 - `merge()` networks
 
+:fire: Currently overhauling networks, they will become more flexible!
+
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)
 

@@ -2,6 +2,7 @@
 if (module) module.exports = Neuron;
 
 /* Import */
+var Layer   = require('./layer');
 var methods = require('./methods');
 
 /* Shorten var names */
@@ -133,11 +134,9 @@ Neuron.prototype = {
     var isOutput = typeof target != 'undefined';
 
     // output neurons get their error from the enviroment
-    if (isOutput)
+    if (isOutput){
       this.error.responsibility = this.error.projected = target - this.activation; // Eq. 10
-
-    else // the rest of the neuron compute their error responsibilities by backpropagation
-    {
+    } else { // the rest of the neuron compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this neuron
       for (var id in this.connections.projected) {
         var connection = this.connections.projected[id];
@@ -195,38 +194,47 @@ Neuron.prototype = {
   /**
    * Project a connection between this neuron and another neuron
    */
-  project: function(neuron, weight) {
-    // self-connection
-    if (neuron == this) {
-      this.selfconnection.weight = 1;
-      return this.selfconnection;
+  project: function(node, weight) {
+    if(node instanceof Neuron){
+      // self-connection
+      if (node == this) {
+        this.selfconnection.weight = 1;
+        return this.selfconnection;
+      }
+
+      // check if connection already exists
+      var connected = this.connected(node);
+      if (connected && connected.type == "projected") {
+        // update connection
+        if (typeof weight != 'undefined')
+          connected.connection.weight = weight;
+        // return existing connection
+        return connected.connection;
+      } else {
+        // create a new connection
+        var connection = new Neuron.connection(this, node, weight);
+      }
+
+      // reference all the connections and traces
+      this.connections.projected[connection.ID] = connection;
+      this.neighboors[node.ID] = node;
+      node.connections.inputs[connection.ID] = connection;
+      node.trace.elegibility[connection.ID] = 0;
+
+      for (var id in node.trace.extended) {
+        var trace = node.trace.extended[id];
+        trace[connection.ID] = 0;
+      }
+
+      return connection;
+    } else if(node instanceof Layer){
+      var connections = []
+      for(var neuron in node.list){
+        var conn = this.project(node.list[neuron]);
+        connections.push(conn);
+      }
+      return connections
     }
-
-    // check if connection already exists
-    var connected = this.connected(neuron);
-    if (connected && connected.type == "projected") {
-      // update connection
-      if (typeof weight != 'undefined')
-        connected.connection.weight = weight;
-      // return existing connection
-      return connected.connection;
-    } else {
-      // create a new connection
-      var connection = new Neuron.connection(this, neuron, weight);
-    }
-
-    // reference all the connections and traces
-    this.connections.projected[connection.ID] = connection;
-    this.neighboors[neuron.ID] = neuron;
-    neuron.connections.inputs[connection.ID] = connection;
-    neuron.trace.elegibility[connection.ID] = 0;
-
-    for (var id in neuron.trace.extended) {
-      var trace = neuron.trace.extended[id];
-      trace[connection.ID] = 0;
-    }
-
-    return connection;
   },
 
   /**

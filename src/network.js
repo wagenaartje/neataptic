@@ -82,16 +82,22 @@ Network.prototype = {
   /**
    * Projects a connection a network or a layer
    */
-  project: function(unit, type, weights) {
+  project: function(node, type, weights) {
 
     if (this.optimized)
       this.optimized.reset();
 
-    if (unit instanceof Network)
-      return this.layers.output.project(unit.layers.input, type, weights);
+    if (node instanceof Network){
+      return this.layers.output.project(node.layers.input, type, weights);
+    }
 
-    if (unit instanceof Layer)
-      return this.layers.output.project(unit, type, weights);
+    if (node instanceof Layer){
+      return this.layers.output.project(node, type, weights);
+    }
+
+    if(node instanceof Neuron){
+      return this.layers.output.project(node, type, weights);
+    }
 
     throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
   },

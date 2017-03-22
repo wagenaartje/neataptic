@@ -84,17 +84,20 @@ Layer.prototype = {
   /**
    * Projects a connection from this layer to another layer
    */
-  project: function(layer, type, weights) {
-    if (layer instanceof Network)
-      layer = layer.layers.input;
+  project: function(node, type, weights) {
+    if (node instanceof Network){
+      node = node.layers.input;
+    }
 
-    if (layer instanceof Layer) {
-      if (!this.connected(layer))
-        return new Layer.connection(this, layer, type, weights);
-    } else
-      throw new Error("Invalid argument, you can only project connections to LAYERS and NETWORKS!");
-
-
+    if (node instanceof Layer) {
+      if (!this.connected(node)){
+        return new Layer.connection(this, node, type, weights);
+      }
+    } else if(node instanceof Neuron){
+      for(var neuron in this.list){
+        this.list[neuron].project(node);
+      }
+    }
   },
 
   /**

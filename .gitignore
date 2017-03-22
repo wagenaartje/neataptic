@@ -1,9 +1,10 @@
 # Debug
-debug.js
-debug.html
-debug.css
+debug.*
 
 # Work in progress
-src/convolutional.js
+convolutional.js
+brain.js
+
+# Development files
 node_modules
 backup.zip

@@ -5,7 +5,8 @@ var Gynaptic = {
   Methods: require('./methods'),
   Layer: require('./layer'),
   Network: require('./network'),
-  Architect: require('./architect')
+  Architect: require('./architect'),
+  Brain: require('./brain')
 };
 
 // CommonJS & AMD

@@ -155,6 +155,15 @@ Layer.prototype = {
     return true;
   },
 
+  /*
+   * Breaks all connections so they can be reconnected again
+   */
+  disconnect: function(){
+    for(var neuron in this.list){
+      this.list[neuron].disconnect();
+    }
+  },
+
   /**
    * Checks if this layer is connected to the given layer
    */
@@ -266,8 +275,16 @@ Layer.prototype = {
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case Mutate.SWAP_WEIGHT:
-        var neuron1 = this.list[Math.floor(Math.random()*this.list.length)];
-        var neuron2 = this.list[Math.floor(Math.random()*this.list.length)];
+        var neuron1Index = Math.floor(Math.random()*this.list.length);
+        var neuron2Index = Math.floor(Math.random()*this.list.length);
+
+        // can't be same neuron
+        while(neuron2Index == neuron1Index){
+          neuron2Index = Math.floor(Math.random()*this.list.length);
+        }
+
+        var neuron1 = this.list[neuron1Index];
+        var neuron2 = this.list[neuron2Index];
 
         var connectionType1 = Object.keys(neuron1.connections);
         var connectionType2 = Object.keys(neuron2.connections);
@@ -294,12 +311,17 @@ Layer.prototype = {
         neuron2.connections[connectionType2][connection2].weight = temp;
         break;
       case Mutate.SWAP_BIAS:
-        var neuron1 = Math.floor(Math.random()*this.list.length);
-        var neuron2 = Math.floor(Math.random()*this.list.length);
+        var neuron1Index = Math.floor(Math.random()*this.list.length);
+        var neuron2Index = Math.floor(Math.random()*this.list.length);
 
-        var temp = this.list[neuron1].bias;
-        this.list[neuron1].bias = this.list[neuron2].bias;
-        this.list[neuron2].bias = temp;
+        // can't be same neuron
+        while(neuron2Index == neuron1Index){
+          neuron2Index = Math.floor(Math.random()*this.list.length);
+        }
+
+        var temp = this.list[neuron1Index].bias;
+        this.list[neuron1Index].bias = this.list[neuron2Index].bias;
+        this.list[neuron2Index].bias = temp;
         break;
       case Mutate.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.list.length);
@@ -326,6 +348,12 @@ Layer.prototype = {
       case Mutate.MODIFY_SQUASH:
         var neuron = Math.floor(Math.random()*this.list.length);
         var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+
+        // Should really be a NEW squash
+        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.list[neuron].squash){
+          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        }
+
         this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },

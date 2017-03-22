@@ -234,6 +234,9 @@ Neuron.prototype = {
         connections.push(conn);
       }
       return connections
+    } else if(node instanceof Network){
+      var connection = this.project(node.layers.input);
+      return connection;
     }
   },
 
@@ -323,6 +326,16 @@ Neuron.prototype = {
     this.error.responsibility = this.error.projected = this.error.gated = 0;
   },
 
+  /*
+   * Breaks all connections so they can be reconnected again
+   */
+  disconnect: function(){
+    this.connections = {
+      inputs: {},
+      projected: {},
+      gated: {}
+    };
+  },
 
   /**
    * Randomizes all the connections and clears traces
@@ -358,10 +371,14 @@ Neuron.prototype = {
         var connectionKeys1 = Object.keys(this.connections[connectionType1]);
         var connection1 = connectionKeys1[Math.floor(Math.random()*connectionKeys1.length)];
 
-        var connectionType2 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
-        var connectionKeys2 = Object.keys(this.connections[connectionType2]);
-        var connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
-
+        // Connections can't be the same
+        var connection2 = connection1;
+        while(connection2 == connection1){
+          var connectionType2 = connectionTypes[Math.floor(Math.random()*connectionTypes.length)];
+          var connectionKeys2 = Object.keys(this.connections[connectionType2]);
+          connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
+        }
+        
         var temp = this.connections[connectionType1][connection1].weight;
         this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
         this.connections[connectionType2][connection2].weight = temp;
@@ -389,6 +406,12 @@ Neuron.prototype = {
         break;
       case Mutate.MODIFY_SQUASH:
         var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+
+        // Should really be a NEW squash
+        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.squash){
+          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        }
+
         this.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
     }
   },

@@ -3,7 +3,6 @@ debug.*
 
 # Work in progress
 convolutional.js
-brain.js
 
 # Development files
 node_modules

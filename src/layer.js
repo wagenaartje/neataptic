@@ -159,6 +159,7 @@ Layer.prototype = {
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
+    this.connectedTo = [];
     for(var neuron in this.list){
       this.list[neuron].disconnect();
     }
@@ -355,6 +356,7 @@ Layer.prototype = {
         }
 
         this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        break;
     }
   },
 

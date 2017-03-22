@@ -106,6 +106,7 @@ Network.prototype = {
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
+    this.optimized.reset();
     this.layers.input.disconnect();
 
     for(var layer in this.layers.hidden){
@@ -114,6 +115,20 @@ Network.prototype = {
 
     this.layers.output.disconnect();
   },
+
+  /*
+   * Connects all the layers in an ALL to ALL fashion
+   */
+   connect: function(){
+     this.optimized.reset();
+     this.layers.input.project(this.layers.hidden[0]);
+
+     for(var i = 0; i < this.layers.hidden.length - 1; i++){
+       this.layers.hidden[i].project(this.layers.hidden[i+1])
+     }
+
+     this.layers.hidden[this.layers.hidden.length - 1].project(this.layers.output);
+   },
 
   /**
    * Lets this network gate a connection

@@ -40,7 +40,7 @@ function testMutateMethod(method, type){
     }
   }
 
-  assert.notDeepEqual(originalOutput, mutatedOutput);
+  assert.notDeepEqual(originalOutput, mutatedOutput, type + "s shouldn't be equal!");
 }
 
 describe('Mutate', function () {

@@ -3,17 +3,21 @@ Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/
 
 <img src="https://assets-cdn.github.com/images/modules/site/home-ill-work.png?sn" width="340px" align="right">
 
-What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
+What Gynaptic adds to Synaptic:
 - an easy-to-use genetic algorithm function
 - 7 mutation methods
 - 4 crossover methods
 - 1 selection method
 - 2 generation methods
-- to/fromJSON for layers and neurons
 - 3 squashing functions
-- various code improvements
+- **brain**, which can contain networks, layers & neurons
+
+Improvements:
+- `to/fromJSON()` for layers & neurons
 - `merge()` networks
+- `disconnect()` networks, layers & neurons
 - project neurons to networks, layers & vice versa
+- overall bugfixes & time improvement
 
 :fire: Currently overhauling networks, they will become more flexible!
 

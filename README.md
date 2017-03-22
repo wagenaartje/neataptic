@@ -13,6 +13,7 @@ What Gynaptic adds to [Synaptic](https://github.com/cazala/synaptic):
 - 3 squashing functions
 - various code improvements
 - `merge()` networks
+- project neurons to networks, layers & vice versa
 
 :fire: Currently overhauling networks, they will become more flexible!
 

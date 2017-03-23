@@ -4,7 +4,7 @@ if (module) module.exports = Brain;
 /* Import */
 var Neuron  = require('./neuron')
 ,   Layer   = require('./layer')
-,   methods = require('./methods')
+,   methods = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -151,6 +151,79 @@ Brain.prototype = {
       this.nodes[node].disconnect();
     }
   },
+
+  /**
+   * Mutates the brain
+   */
+
+  mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    switch(method){
+      case(Mutate.SWAP_WEIGHT):
+        break;
+      case(Mutate.MODIFY_RANDOM_WEIGHT):
+        break;
+      case(Mutate.MODIFY_CONNECTIONS):
+        break;
+      case(Mutate.MODIFY_NODES):
+        if(Math.random() >= 0.5){
+          // remove a node
+        } else {
+          // add a node
+          var random = Math.floor(Math.random() * 3);
+          switch(random){
+            case(0): // network
+              console.log('here');
+              // create a randomly sized network
+              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
+              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
+
+              var layers = '';
+
+              // x amount of size must be left for remaining layers and output
+              var inputLayerSize = Math.floor(Math.random() * (size-(hiddenSize)-1) + 1);
+              size -= inputLayerSize;
+              layers += inputLayerSize + ', ';
+
+              var hiddenLayerSizes = [];
+              for(var i = 0; i < hiddenSize; i++){
+                var hiddenLayerSize = Math.floor(Math.random() * (size-(hiddenSize - (i + 1) + 1)-1) + 1);
+                hiddenLayerSizes.push(hiddenLayerSize);
+                size -= hiddenLayerSize;
+                layers += hiddenLayerSize + ', ';
+              }
+
+              var outputLayerSize = size;
+              layers += outputLayerSize;
+
+              var node = eval('new Architect.Perceptron(' + layers + ')');
+
+              // must be inserted after input and before output
+              var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
+              this.nodes.splice(insert, 0, node);
+              this.size[1]++;
+
+              // now project it to another neurons ( should also be done with ratio, will be implemented later)
+              var minBound = Math.max(insert+1, this.size[0]);
+              var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
+              this.nodes[insert].project(this.nodes[input]);
+
+              // now let it have an input connection
+              var output = Math.floor(Math.random() * insert);
+              this.nodes[output].project(this.nodes[insert]);
+              break;
+            case(1): // layer
+              break;
+            case(2): // neuron
+              break;
+          }
+        }
+        break;
+      case(Mutate.MUTATE_NODES):
+        break;
+    }
+
+  }
 
 
 };

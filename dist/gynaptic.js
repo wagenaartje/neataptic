@@ -89,219 +89,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                        METHODS
-*******************************************************************************************/
-
-var methods = {};
-
-/**
- * Connection types
- */
- methods.Connection = {
-   ALL_TO_ALL : "ALL TO ALL",
-   ONE_TO_ONE : "ONE TO ONE",
-   ALL_TO_ELSE : "ALL TO ELSE"
- }
-
-/**
- * Cost functions https://en.wikipedia.org/wiki/Loss_function
- */
-methods.Cost = {
-  CROSS_ENTROPY: function(target, output)
-  {
-    var crossentropy = 0;
-    for (var i in output)
-      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
-    return crossentropy;
-  },
-  MSE: function(target, output)
-  {
-    var mse = 0;
-    for (var i in output)
-      mse += Math.pow(target[i] - output[i], 2);
-    return mse / output.length;
-  },
-  BINARY: function(target, output){
-    var misses = 0;
-    for (var i in output)
-      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
-    return misses;
-  }
-}
-
-/**
- * Squash functions https://en.wikipedia.org/wiki/Activation_function
- */
-methods.Squash = {
-  LOGISTIC : function(x, derivate) {
-    if (!derivate)
-      return 1 / (1 + Math.exp(-x));
-    var fx = methods.Squash.LOGISTIC(x);
-    return fx * (1 - fx);
-  },
-  TANH : function(x, derivate) {
-    if (derivate)
-      return 1 - Math.pow(methods.Squash.TANH(x), 2);
-    return Math.tanh(x);
-  },
-  IDENTITY : function(x, derivate) { // not normalized
-    return derivate ? 1 : x;
-  },
-  HLIM : function(x, derivate) {
-    return derivate ? 1 : x > 0 ? 1 : 0;
-  },
-  RELU : function(x, derivate) { // not normalized
-    if (derivate)
-      return x > 0 ? 1 : 0;
-    return x > 0 ? x : 0;
-  },
-  SOFTSIGN : function(x, derivate){
-    var d = 1 + Math.abs(x);
-    if(derivate)
-      return x / Math.pow(d, 2);
-    return x / d;
-  },
-  SINUSOID : function(x, derivate){
-    if(derivate)
-      return Math.cos(x);
-    return Math.sin(x);
-  },
-  GAUSSIAN : function(x, derivate){
-    var d = Math.exp(-Math.pow(x, 2));
-    if(derivate)
-      return -2 * x * d;
-    return d;
-  }
-}
-
-/**
- * Mutation methods https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
- */
-methods.Mutate = {
-  SWAP_WEIGHT: {
-    name: "SWAP_WEIGHT"
-  },
-  SWAP_BIAS: {
-    name: "SWAP_BIAS"
-  },
-  MODIFY_RANDOM_WEIGHT: {
-    name: "MODIFY_RANDOM_WEIGHT",
-    config: {
-      min: -1,
-      max: 1
-    }
-  },
-  MODIFY_RANDOM_BIAS: {
-    name: "MODIFY_RANDOM_BIAS",
-    config: {
-      min: -1,
-      max: 1
-    }
-  },
-  MODIFY_CONNECTIONS: {
-    name: "MODIFY_CONNECTIONS"
-  },
-  MODIFY_NEURONS: {
-    name: "MODIFY_NEURONS"
-  },
-  MODIFY_SQUASH: {
-    name: "MODIFY_SQUASH",
-    config: {
-      allowed: [
-        methods.Squash.LOGISTIC,
-        methods.Squash.TANH,
-        methods.Squash.RELU,
-        methods.Squash.IDENTITY,
-        methods.Squash.HLIM,
-        methods.Squash.SOFTSIGN,
-        methods.Squash.SINUSOID,
-        methods.Squash.GAUSSIAN
-      ]
-    }
-  }
-},
-
-/**
- * Crossover methods https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
- * parents should be the same size!
- */
-methods.Crossover =  {
-  SINGLE_POINT: {
-    name: "SINGLE_POINT",
-    config: [0.4]
-  },
-  TWO_POINT: {
-    name: "TWO_POINT",
-    config: [0.4, 0.9]
-  },
-  UNIFORM: {
-    name: "UNIFORM"
-  },
-  AVERAGE: {
-    name: "AVERAGE"
-  }
-},
-
-/*
-  Selection methods https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
-*/
-methods.Selection = {
-  FITNESS_PROPORTIONATE: {
-    name: "FITNESS_PROPORTIONATE",
-    config: function(r){ return Math.pow(r,2); }
-  }
-},
-
-/*
-  Generation methods https://en.wikipedia.org/wiki/Genetic_algorithm#Initialization
-*/
-methods.Generation = {
-  POINTS: {
-    name: "POINTS",
-    config: {
-      points: 2,
-      learningRate : 0.3,
-      iterations: 50,
-      shuffle: true,
-      error: 0.0001,
-      cost: methods.Cost.MSE
-    }
-  },
-  DEFAULT: {
-    name: "DEFAULT"
-  }
-},
-
-/*
-  Pooling methods
-*/
-methods.Pooling = {
-  config: {
-    size: [2,2]
-  },
-  MAX: {
-    name: "MAX",
-  },
-  NONE: {
-    name: "NONE"
-  }
-}
-
-/* Export */
-if (module) module.exports = methods;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -329,6 +121,48 @@ module.exports = function(module) {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
+  Connection : __webpack_require__(11),
+  Cost       : __webpack_require__(6),
+  Crossover  : __webpack_require__(12),
+  Generation : __webpack_require__(13),
+  Mutate   : __webpack_require__(14),
+  Selection  : __webpack_require__(15),
+  Squash     : __webpack_require__(7)
+};
+
+// CommonJS & AMD
+if (true)
+{
+  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function(){ return Methods }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+}
+
+// Node.js
+if (typeof module !== 'undefined' && module.exports)
+{
+  module.exports = Methods;
+}
+
+// Browser
+if (typeof window == 'object')
+{
+  (function(){
+    var oldMethods = window['methods'];
+    Methods.ninja = function(){
+      window['methods'] = oldMethods;
+      return Methods;
+    };
+  })();
+
+  window['methods'] = Methods;
+}
+
+
+/***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -338,7 +172,7 @@ if (module) module.exports = Layer;
 /* Import */
 var Neuron  = __webpack_require__(4)
 ,   Network = __webpack_require__(3)
-,   methods = __webpack_require__(0)
+,   methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -842,7 +676,7 @@ Layer.gateType.ONE_TO_ONE = "ONE TO ONE";
   }
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
 /* 3 */
@@ -855,7 +689,7 @@ if (module) module.exports = Network;
 var Neuron  = __webpack_require__(4)
 ,   Layer   = __webpack_require__(2)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(0)
+,   methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -1919,7 +1753,7 @@ Network.merge = function(network1, network2){
   });
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
 /* 4 */
@@ -1930,7 +1764,7 @@ if (module) module.exports = Neuron;
 
 /* Import */
 var Layer   = __webpack_require__(2);
-var methods = __webpack_require__(0);
+var methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -2305,7 +2139,7 @@ Neuron.prototype = {
           var connectionKeys2 = Object.keys(this.connections[connectionType2]);
           connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
         }
-        
+
         var temp = this.connections[connectionType1][connection1].weight;
         this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
         this.connections[connectionType2][connection2].weight = temp;
@@ -2892,7 +2726,7 @@ Neuron.crossOver = function(neuron1, neuron2, method){
   }
 })();
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
 /* 5 */
@@ -2902,7 +2736,7 @@ Neuron.crossOver = function(neuron1, neuron2, method){
 if (module) module.exports = Trainer;
 
 /* Import */
-var methods = __webpack_require__(0);
+var methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -3588,17 +3422,110 @@ Trainer.prototype = {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                    COST FUNCTIONS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Loss_function
+var Cost = {
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+};
+
+/* Export */
+if (module) module.exports = Cost;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                    SQUASH FUNCTIONS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Activation_function
+var Squash = {
+  LOGISTIC : function(x, derivate) {
+    if (!derivate)
+      return 1 / (1 + Math.exp(-x));
+    var fx = Squash.LOGISTIC(x);
+    return fx * (1 - fx);
+  },
+  TANH : function(x, derivate) {
+    if (derivate)
+      return 1 - Math.pow(Squash.TANH(x), 2);
+    return Math.tanh(x);
+  },
+  IDENTITY : function(x, derivate) { // not normalized
+    return derivate ? 1 : x;
+  },
+  HLIM : function(x, derivate) {
+    return derivate ? 1 : x > 0 ? 1 : 0;
+  },
+  RELU : function(x, derivate) { // not normalized
+    if (derivate)
+      return x > 0 ? 1 : 0;
+    return x > 0 ? x : 0;
+  },
+  SOFTSIGN : function(x, derivate){
+    var d = 1 + Math.abs(x);
+    if(derivate)
+      return x / Math.pow(d, 2);
+    return x / d;
+  },
+  SINUSOID : function(x, derivate){
+    if(derivate)
+      return Math.cos(x);
+    return Math.sin(x);
+  },
+  GAUSSIAN : function(x, derivate){
+    var d = Math.exp(-Math.pow(x, 2));
+    if(derivate)
+      return -2 * x * d;
+    return d;
+  }
+};
+
+/* Export */
+if (module) module.exports = Squash;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(0);
+,   methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -3888,10 +3815,10 @@ for (var architecture in Architect) {
 /* Export */
 if (module) module.exports = Architect;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -3900,7 +3827,7 @@ if (module) module.exports = Brain;
 /* Import */
 var Neuron  = __webpack_require__(4)
 ,   Layer   = __webpack_require__(2)
-,   methods = __webpack_require__(0)
+,   methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -4048,13 +3975,86 @@ Brain.prototype = {
     }
   },
 
+  /**
+   * Mutates the brain
+   */
+
+  mutate: function(method){
+    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    switch(method){
+      case(Mutate.SWAP_WEIGHT):
+        break;
+      case(Mutate.MODIFY_RANDOM_WEIGHT):
+        break;
+      case(Mutate.MODIFY_CONNECTIONS):
+        break;
+      case(Mutate.MODIFY_NODES):
+        if(Math.random() >= 0.5){
+          // remove a node
+        } else {
+          // add a node
+          var random = Math.floor(Math.random() * 3);
+          switch(random){
+            case(0): // network
+              console.log('here');
+              // create a randomly sized network
+              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
+              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
+
+              var layers = '';
+
+              // x amount of size must be left for remaining layers and output
+              var inputLayerSize = Math.floor(Math.random() * (size-(hiddenSize)-1) + 1);
+              size -= inputLayerSize;
+              layers += inputLayerSize + ', ';
+
+              var hiddenLayerSizes = [];
+              for(var i = 0; i < hiddenSize; i++){
+                var hiddenLayerSize = Math.floor(Math.random() * (size-(hiddenSize - (i + 1) + 1)-1) + 1);
+                hiddenLayerSizes.push(hiddenLayerSize);
+                size -= hiddenLayerSize;
+                layers += hiddenLayerSize + ', ';
+              }
+
+              var outputLayerSize = size;
+              layers += outputLayerSize;
+
+              var node = eval('new Architect.Perceptron(' + layers + ')');
+
+              // must be inserted after input and before output
+              var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
+              this.nodes.splice(insert, 0, node);
+              this.size[1]++;
+
+              // now project it to another neurons ( should also be done with ratio, will be implemented later)
+              var minBound = Math.max(insert+1, this.size[0]);
+              var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
+              this.nodes[insert].project(this.nodes[input]);
+
+              // now let it have an input connection
+              var output = Math.floor(Math.random() * insert);
+              this.nodes[output].project(this.nodes[insert]);
+              break;
+            case(1): // layer
+              break;
+            case(2): // neuron
+              break;
+          }
+        }
+        break;
+      case(Mutate.MUTATE_NODES):
+        break;
+    }
+
+  }
+
 
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -4064,7 +4064,7 @@ if (module) module.exports = Evolution;
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(0);
+,   methods = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -4311,21 +4311,218 @@ Evolution.prototype = {
      }
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                      CONNECTIONS
+*******************************************************************************************/
+
+var Connection = {
+   ALL_TO_ALL : "ALL TO ALL",
+   ONE_TO_ONE : "ONE TO ONE",
+   ALL_TO_ELSE : "ALL TO ELSE"
+ };
+
+ /* Export */
+ if (module) module.exports = Connection;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                      CROSSOVER
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
+var Crossover =  {
+  SINGLE_POINT: {
+    name: "SINGLE_POINT",
+    config: [0.4]
+  },
+  TWO_POINT: {
+    name: "TWO_POINT",
+    config: [0.4, 0.9]
+  },
+  UNIFORM: {
+    name: "UNIFORM"
+  },
+  AVERAGE: {
+    name: "AVERAGE"
+  }
+};
+
+/* Export */
+if (module) module.exports = Crossover;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/* Import */
+var Cost   = __webpack_require__(6)
+
+/*******************************************************************************************
+                                        METHODS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Genetic_algorithm#Initialization
+var Generation = {
+  POINTS: {
+    name: "POINTS",
+    config: {
+      points: 2,
+      learningRate : 0.3,
+      iterations: 50,
+      shuffle: true,
+      error: 0.0001,
+      cost: Cost.MSE
+    }
+  },
+  DEFAULT: {
+    name: "DEFAULT"
+  }
+};
+
+/* Export */
+if (module) module.exports = Generation;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/* Import */
+var Squash   = __webpack_require__(7)
+
+/*******************************************************************************************
+                                      MUTATION
+*******************************************************************************************/
+
+//https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
+var Mutate = {
+  SWAP_WEIGHT: {
+    name: "SWAP_WEIGHT"
+  },
+  SWAP_BIAS: {
+    name: "SWAP_BIAS"
+  },
+  MODIFY_RANDOM_WEIGHT: {
+    name: "MODIFY_RANDOM_WEIGHT",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_RANDOM_BIAS: {
+    name: "MODIFY_RANDOM_BIAS",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MODIFY_CONNECTIONS: {
+    name: "MODIFY_CONNECTIONS",
+    config: {
+      memory: false // should it add memory connections?
+    }
+  },
+  MODIFY_NEURONS: {
+    name: "MODIFY_NEURONS"
+  },
+  MODIFY_SQUASH: {
+    name: "MODIFY_SQUASH",
+    config: {
+      allowed: [ // which squash methods are allowed (due to normalization)
+        Squash.LOGISTIC,
+        Squash.TANH,
+        Squash.RELU,
+        Squash.IDENTITY,
+        Squash.HLIM,
+        Squash.SOFTSIGN,
+        Squash.SINUSOID,
+        Squash.GAUSSIAN
+      ]
+    }
+  },
+  MODIFY_NODES: {
+    name: "MODIFY_NODES",
+    config : {
+      network : {
+        size: [3,10],
+        hidden: [1,3]
+      },
+      layer: {
+        size: [2,5]
+      }
+    }
+  }
+};
+
+Mutate.MUTATE_NODES = {
+  name: "MODIFY_NODES",
+  config: {
+    allowed: [
+      Mutate.SWAP_WEIGHT,
+      Mutate.SWAP_BIAS,
+      Mutate.MODIFY_RANDOM_SQUASH,
+      Mutate.MODIFY_RANDOM_BIAS,
+      Mutate.MODIFY_CONNECTIONS,
+      Mutate.MODIFY_NEURONS,
+      Mutate.MODIFY_SQUASH
+    ]
+  }
+}
+
+/* Export */
+if (module) module.exports = Mutate;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                      SELECTION
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
+
+var Selection = {
+  FITNESS_PROPORTIONATE: {
+    name: "FITNESS_PROPORTIONATE",
+    config: function(r){ return Math.pow(r,2); }
+  }
+};
+
+/* Export */
+if (module) module.exports = Selection;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
-  Neuron: __webpack_require__(4),
-  Evolution: __webpack_require__(8),
-  Trainer: __webpack_require__(5),
-  Methods: __webpack_require__(0),
-  Layer: __webpack_require__(2),
-  Network: __webpack_require__(3),
-  Architect: __webpack_require__(6),
-  Brain: __webpack_require__(7)
+  Neuron    : __webpack_require__(4),
+  Evolution : __webpack_require__(10),
+  Trainer   : __webpack_require__(5),
+  Methods   : __webpack_require__(1),
+  Layer     : __webpack_require__(2),
+  Network   : __webpack_require__(3),
+  Architect : __webpack_require__(8),
+  Brain     : __webpack_require__(9)
 };
 
 // CommonJS & AMD

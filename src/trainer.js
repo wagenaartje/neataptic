@@ -2,7 +2,7 @@
 if (module) module.exports = Trainer;
 
 /* Import */
-var methods = require('./methods');
+var methods = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate

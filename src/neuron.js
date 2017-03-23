@@ -3,7 +3,7 @@ if (module) module.exports = Neuron;
 
 /* Import */
 var Layer   = require('./layer');
-var methods = require('./methods');
+var methods = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -378,7 +378,7 @@ Neuron.prototype = {
           var connectionKeys2 = Object.keys(this.connections[connectionType2]);
           connection2 = connectionKeys2[Math.floor(Math.random()*connectionKeys2.length)];
         }
-        
+
         var temp = this.connections[connectionType1][connection1].weight;
         this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
         this.connections[connectionType2][connection2].weight = temp;

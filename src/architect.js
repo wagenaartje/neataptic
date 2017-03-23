@@ -2,7 +2,7 @@
 var Layer   = require('./layer')
 ,   Network = require('./network')
 ,   Trainer = require('./trainer')
-,   methods = require('./methods');
+,   methods = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate

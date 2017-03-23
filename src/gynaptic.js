@@ -1,12 +1,12 @@
 var Gynaptic = {
-  Neuron: require('./neuron'),
-  Evolution: require('./evolution'),
-  Trainer: require('./trainer'),
-  Methods: require('./methods'),
-  Layer: require('./layer'),
-  Network: require('./network'),
-  Architect: require('./architect'),
-  Brain: require('./brain')
+  Neuron    : require('./neuron'),
+  Evolution : require('./evolution'),
+  Trainer   : require('./trainer'),
+  Methods   : require('./methods/methods.js'),
+  Layer     : require('./layer'),
+  Network   : require('./network'),
+  Architect : require('./architect'),
+  Brain     : require('./brain')
 };
 
 // CommonJS & AMD

@@ -5,7 +5,7 @@ if (module) module.exports = Network;
 var Neuron  = require('./neuron')
 ,   Layer   = require('./layer')
 ,   Trainer = require('./trainer')
-,   methods = require('./methods')
+,   methods = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate

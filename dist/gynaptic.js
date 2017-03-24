@@ -172,17 +172,17 @@ if (module) module.exports = Layer;
 /* Import */
 var Neuron  = __webpack_require__(4)
 ,   Network = __webpack_require__(3)
-,   methods = __webpack_require__(1);
+,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /*******************************************************************************************
                                             LAYER
@@ -703,17 +703,17 @@ if (module) module.exports = Network;
 var Neuron  = __webpack_require__(4)
 ,   Layer   = __webpack_require__(2)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(1);
+,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -1774,19 +1774,19 @@ Network.merge = function(network1, network2){
 if (module) module.exports = Neuron;
 
 /* Import */
-var Layer   = __webpack_require__(2);
-var Network = __webpack_require__(3);
-var methods = __webpack_require__(1);
+var Layer   = __webpack_require__(2)
+,   Network = __webpack_require__(3)
+,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /******************************************************************************************
                                          NEURON
@@ -2773,17 +2773,17 @@ Neuron.crossOver = function(neuron1, neuron2, method){
 if (module) module.exports = Trainer;
 
 /* Import */
-var methods = __webpack_require__(1);
+var Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /*******************************************************************************************
                                         TRAINER
@@ -3469,17 +3469,17 @@ Trainer.prototype = {
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(1);
+,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -3864,18 +3864,19 @@ if (module) module.exports = Brain;
 /* Import */
 var Neuron    = __webpack_require__(4)
 ,   Layer     = __webpack_require__(2)
+,   Network   = __webpack_require__(3)
 ,   Architect = __webpack_require__(6)
-,   methods   = __webpack_require__(1);
+,   Methods   = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /*******************************************************************************************
                                          BRAIN
@@ -3887,6 +3888,7 @@ var Mutate     = methods.Mutate
 function Brain(options) {
   this.size = [options.input, options.hidden.length, options.output];
   this.nodes = [];
+  this.ratio = options.ratio || 3;
 
   for(var i = 0; i < options.input; i++){
     var node = new Neuron();
@@ -3913,11 +3915,10 @@ Brain.prototype = {
    * Connects all the nodes
    * all nodes are connected forwardly using http://stackoverflow.com/a/7228322/4576519
    */
-  connect: function(memory, ratio){
+  connect: function(memory){
     memory = memory || 0;
-    ratio  = ratio  || 3;
     // Give every node at least one output connection
-    for(var j = 0; j < ratio; j++){
+    for(var j = 0; j < this.ratio; j++){
       for(var i = 0; i < this.size[0] + this.size[1]; i++){
         var output = i;
         var minBound = Math.max(i+1, this.size[0]);
@@ -4020,7 +4021,43 @@ Brain.prototype = {
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case(Mutate.SWAP_WEIGHT):
-        // to be developed
+        // Select two random nodes, only look at connections.projected
+        var node1 = Math.floor(Math.random() * this.size[1] + this.size[0]);
+        var node2 = node1;
+        while(node1 == node2){
+          node2 = Math.floor(Math.random() * this.size[1] + this.size[0]);
+        }
+
+        node1 = this.nodes[node1];
+        node2 = this.nodes[node2];
+
+        if(node1 instanceof Network){
+          console.log('network');
+          node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
+        } else if(node1 instanceof Layer){
+          console.log('layer');
+          node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
+        }
+
+        if(node2 instanceof Network){
+          console.log('network');
+          node2 = node2.layers.output.list[Math.floor(Math.random() * node2.layers.output.list.length)];
+        } else if(node1 instanceof Layer){
+          console.log('layer');
+          node2 = node2.list[Math.floor(Math.random() * node2.list.length)];
+        }
+
+        console.log(node1.connections.projected, node2.connections.projected);
+
+        var connections1 = Object.keys(node1.connections.projected);
+        var connection1 = node1.connections.projected[connections1[Math.floor(Math.random() * connections1.length)]];
+
+        var connections2 = Object.keys(node2.connections.projected);
+        var connection2 = node2.connections.projected[connections2[Math.floor(Math.random() * connections2.length)]];
+
+        var temp = connection1.weight;
+        connection1.weight = connection2.weight;
+        connection2.weight = temp;
         break;
       case(Mutate.MODIFY_RANDOM_WEIGHT):
         // to be developed
@@ -4046,26 +4083,23 @@ Brain.prototype = {
             case(0): // network
               var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
               var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
-
-              var layers = '';
+              var layers = [];
 
               // x amount of size must be left for remaining layers and output
               var inputLayerSize = Math.floor(Math.random() * (size-(hiddenSize)-1) + 1);
               size -= inputLayerSize;
-              layers += inputLayerSize + ', ';
+              layers.push(inputLayerSize);
 
-              var hiddenLayerSizes = [];
               for(var i = 0; i < hiddenSize; i++){
                 var hiddenLayerSize = Math.floor(Math.random() * (size-(hiddenSize - (i + 1) + 1)-1) + 1);
-                hiddenLayerSizes.push(hiddenLayerSize);
                 size -= hiddenLayerSize;
-                layers += hiddenLayerSize + ', ';
+                layers.push(hiddenLayerSize);
               }
 
               var outputLayerSize = size;
-              layers += outputLayerSize;
+              layers.push(outputLayerSize);
 
-              var node = eval('new Architect.Perceptron(' + layers + ')');
+              var node = Reflect.construct(Architect.Perceptron, layers);
               node.setOptimize(false);
               break;
             case(1): // layer
@@ -4082,10 +4116,12 @@ Brain.prototype = {
           this.nodes.splice(insert, 0, node);
           this.size[1]++;
 
-          // now project it to another neurons ( should also be done with ratio, will be implemented later)
+          // now project it to another neurons
           var minBound = Math.max(insert+1, this.size[0]);
-          var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
-          this.nodes[insert].project(this.nodes[input]);
+          for(var i = 0; i < this.ratio; i++){
+            var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound);
+            this.nodes[insert].project(this.nodes[input]);
+          }
 
           // now let it have an input connection
           var output = Math.floor(Math.random() * insert);
@@ -4112,17 +4148,17 @@ if (module) module.exports = Evolution;
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
 ,   Trainer = __webpack_require__(5)
-,   methods = __webpack_require__(1);
+,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /*******************************************************************************************
                                         EVOLUTION

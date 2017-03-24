@@ -2,19 +2,19 @@
 if (module) module.exports = Neuron;
 
 /* Import */
-var Layer   = require('./layer');
-var Network = require('./network');
-var methods = require('./methods/methods.js');
+var Layer   = require('./layer')
+,   Network = require('./network')
+,   Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 
 /******************************************************************************************
                                          NEURON

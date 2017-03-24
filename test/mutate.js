@@ -80,6 +80,9 @@ describe('Mutate', function () {
     });
   });
   describe("Mutate.SWAP_WEIGHT", function () {
+    it("Brain", function(){
+      testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Brain");
+    });
     it("Network", function(){
       testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Network");
     });

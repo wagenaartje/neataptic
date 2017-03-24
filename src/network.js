@@ -5,17 +5,17 @@ if (module) module.exports = Network;
 var Neuron  = require('./neuron')
 ,   Layer   = require('./layer')
 ,   Trainer = require('./trainer')
-,   methods = require('./methods/methods.js');
+,   Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = methods.Mutate
-,   Squash     = methods.Squash
-,   Crossover  = methods.Crossover
-,   Selection  = methods.Selection
-,   Generation = methods.Generation
-,   Pooling    = methods.Pooling
-,   Cost       = methods.Cost
-,   Connection = methods.Connection;
+var Mutate     = Methods.Mutate
+,   Squash     = Methods.Squash
+,   Crossover  = Methods.Crossover
+,   Selection  = Methods.Selection
+,   Generation = Methods.Generation
+,   Pooling    = Methods.Pooling
+,   Cost       = Methods.Cost
+,   Connection = Methods.Connection;
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/

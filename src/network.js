@@ -50,8 +50,9 @@ Network.prototype = {
     }
     else
     {
-      if (this.optimized == null)
+      if (this.optimized == null){
         this.optimize();
+      }
       return this.optimized.activate(input);
     }
   },
@@ -102,21 +103,35 @@ Network.prototype = {
     throw new Error("Node must be a Neuron, Layer or Network");
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
+   * @param {node} optional node, will disconnect only this node
    */
-  disconnect: function(){
-    this.optimized.reset();
-    this.layers.input.disconnect();
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if (this.optimized){
+        this.optimized.reset();
+      }
 
-    for(var layer in this.layers.hidden){
-      this.layers.hidden[layer].disconnect();
+      this.layers.input.disconnect(node);
+
+      for(var layer in this.layers.hidden){
+        this.layers.hidden[layer].disconnect(node);
+      }
+
+      this.layers.output.disconnect(node);
     }
-
-    this.layers.output.disconnect();
   },
 
-  /*
+  /**
    * Connects all the layers in an ALL to ALL fashion
    */
    connect: function(){
@@ -525,25 +540,7 @@ Network.prototype = {
           var neuron = layer.list[index];
 
           // remove all connections to and from this neuron in the network
-          neuron.connections = {};
-
-          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.projected){
-              if(list[n].connections.projected[conn].to == neuron){
-                delete list[n].connections.projected[conn];
-              }
-            }
-          }
-
-          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.inputs){
-              if(list[n].connections.inputs[conn].from == neuron){
-                delete list[n].connections.inputs[conn];
-              }
-            }
-          }
+          this.disconnect(neuron);
 
           layer.list.splice(index, 1);
           layer.size--;
@@ -559,8 +556,8 @@ Network.prototype = {
 
           // project TO
           list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in this.layers.output.list){
-            neuron.project(this.layers.output.list[n]);
+          for(var n in list){
+            neuron.project(list[n]);
           }
 
           layer.add(neuron);

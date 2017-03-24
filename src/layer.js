@@ -155,13 +155,27 @@ Layer.prototype = {
     return true;
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
+   * @param {node} optional node, will disconnect only this node
    */
-  disconnect: function(){
-    this.connectedTo = [];
-    for(var neuron in this.list){
-      this.list[neuron].disconnect();
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if(typeof node == "undefined"){
+        this.connectedTo = [];
+      }
+
+      for(var neuron in this.list){
+        this.list[neuron].disconnect(node);
+      }
     }
   },
 

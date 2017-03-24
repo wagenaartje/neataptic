@@ -2,9 +2,10 @@
 if (module) module.exports = Brain;
 
 /* Import */
-var Neuron  = require('./neuron')
-,   Layer   = require('./layer')
-,   methods = require('./methods/methods.js');
+var Neuron    = require('./neuron')
+,   Layer     = require('./layer')
+,   Architect = require('./architect')
+,   methods   = require('./methods/methods.js');
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -143,7 +144,7 @@ Brain.prototype = {
     }
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
@@ -155,26 +156,34 @@ Brain.prototype = {
   /**
    * Mutates the brain
    */
-
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case(Mutate.SWAP_WEIGHT):
+        // to be developed
         break;
       case(Mutate.MODIFY_RANDOM_WEIGHT):
+        // to be developed
         break;
       case(Mutate.MODIFY_CONNECTIONS):
+        // to be developed
         break;
       case(Mutate.MODIFY_NODES):
-        if(Math.random() >= 0.5){
-          // remove a node
-        } else {
-          // add a node
+        if(Math.random() >= 0.5){ // remove a node
+          // can't be output or input
+          var index = Math.floor(Math.random() * this.size[1] + this.size[0]);
+          var node = this.nodes[index];
+          this.nodes.splice(index, 1);
+
+          for(var otherNode in this.nodes){
+            node.disconnect(this.nodes[otherNode]);
+          }
+
+          this.size[1]--;
+        } else { // add a node
           var random = Math.floor(Math.random() * 3);
           switch(random){
             case(0): // network
-              console.log('here');
-              // create a randomly sized network
               var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
               var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
 
@@ -197,33 +206,35 @@ Brain.prototype = {
               layers += outputLayerSize;
 
               var node = eval('new Architect.Perceptron(' + layers + ')');
-
-              // must be inserted after input and before output
-              var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
-              this.nodes.splice(insert, 0, node);
-              this.size[1]++;
-
-              // now project it to another neurons ( should also be done with ratio, will be implemented later)
-              var minBound = Math.max(insert+1, this.size[0]);
-              var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
-              this.nodes[insert].project(this.nodes[input]);
-
-              // now let it have an input connection
-              var output = Math.floor(Math.random() * insert);
-              this.nodes[output].project(this.nodes[insert]);
+              node.setOptimize(false);
               break;
             case(1): // layer
+              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.layer.size[1] - Mutate.MODIFY_NODES.config.layer.size[0]) + Mutate.MODIFY_NODES.config.layer.size[0]);
+              var node = new Layer(size);
               break;
             case(2): // neuron
+              var node = new Neuron();
               break;
           }
+
+          // must be inserted after input and before output
+          var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
+          this.nodes.splice(insert, 0, node);
+          this.size[1]++;
+
+          // now project it to another neurons ( should also be done with ratio, will be implemented later)
+          var minBound = Math.max(insert+1, this.size[0]);
+          var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
+          this.nodes[insert].project(this.nodes[input]);
+
+          // now let it have an input connection
+          var output = Math.floor(Math.random() * insert);
+          this.nodes[output].project(this.nodes[insert]);
         }
         break;
       case(Mutate.MUTATE_NODES):
+        // to be developed
         break;
     }
-
   }
-
-
 };

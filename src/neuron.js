@@ -3,6 +3,7 @@ if (module) module.exports = Neuron;
 
 /* Import */
 var Layer   = require('./layer');
+var Network = require('./network');
 var methods = require('./methods/methods.js');
 
 /* Shorten var names */
@@ -329,12 +330,37 @@ Neuron.prototype = {
   /*
    * Breaks all connections so they can be reconnected again
    */
-  disconnect: function(){
-    this.connections = {
-      inputs: {},
-      projected: {},
-      gated: {}
-    };
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if(typeof node == "undefined"){ // disconnect everything
+        this.connections = {
+          inputs: {},
+          projected: {},
+          gated: {}
+        };
+      } else { // only delete connections to/from node
+        var types = Object.keys(this.connections);
+        for(type in types){
+          for(connection in this.connections[types[type]]){
+            if(this.connections[types[type]][connection].to == node){
+              delete node.connections.inputs[connection];
+              delete this.connections[types[type]][connection];
+            } else if(this.connections[types[type]][connection].from == node){
+              delete node.connections.projected[connection];
+              delete this.connections[types[type]][connection];
+            }
+          }
+        }
+      }
+    }
   },
 
   /**

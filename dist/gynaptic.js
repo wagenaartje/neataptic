@@ -126,12 +126,12 @@ module.exports = function(module) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
   Connection : __webpack_require__(11),
-  Cost       : __webpack_require__(6),
+  Cost       : __webpack_require__(7),
   Crossover  : __webpack_require__(12),
   Generation : __webpack_require__(13),
   Mutate   : __webpack_require__(14),
   Selection  : __webpack_require__(15),
-  Squash     : __webpack_require__(7)
+  Squash     : __webpack_require__(8)
 };
 
 // CommonJS & AMD
@@ -323,13 +323,27 @@ Layer.prototype = {
     return true;
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
+   * @param {node} optional node, will disconnect only this node
    */
-  disconnect: function(){
-    this.connectedTo = [];
-    for(var neuron in this.list){
-      this.list[neuron].disconnect();
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if(typeof node == "undefined"){
+        this.connectedTo = [];
+      }
+
+      for(var neuron in this.list){
+        this.list[neuron].disconnect(node);
+      }
     }
   },
 
@@ -734,8 +748,9 @@ Network.prototype = {
     }
     else
     {
-      if (this.optimized == null)
+      if (this.optimized == null){
         this.optimize();
+      }
       return this.optimized.activate(input);
     }
   },
@@ -786,21 +801,35 @@ Network.prototype = {
     throw new Error("Node must be a Neuron, Layer or Network");
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
+   * @param {node} optional node, will disconnect only this node
    */
-  disconnect: function(){
-    this.optimized.reset();
-    this.layers.input.disconnect();
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if (this.optimized){
+        this.optimized.reset();
+      }
 
-    for(var layer in this.layers.hidden){
-      this.layers.hidden[layer].disconnect();
+      this.layers.input.disconnect(node);
+
+      for(var layer in this.layers.hidden){
+        this.layers.hidden[layer].disconnect(node);
+      }
+
+      this.layers.output.disconnect(node);
     }
-
-    this.layers.output.disconnect();
   },
 
-  /*
+  /**
    * Connects all the layers in an ALL to ALL fashion
    */
    connect: function(){
@@ -1209,25 +1238,7 @@ Network.prototype = {
           var neuron = layer.list[index];
 
           // remove all connections to and from this neuron in the network
-          neuron.connections = {};
-
-          list = (layerIndex == 0) ? this.layers.input.list : this.layers.hidden[layerIndex-1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.projected){
-              if(list[n].connections.projected[conn].to == neuron){
-                delete list[n].connections.projected[conn];
-              }
-            }
-          }
-
-          list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in list){
-            for(var conn in list[n].connections.inputs){
-              if(list[n].connections.inputs[conn].from == neuron){
-                delete list[n].connections.inputs[conn];
-              }
-            }
-          }
+          this.disconnect(neuron);
 
           layer.list.splice(index, 1);
           layer.size--;
@@ -1243,8 +1254,8 @@ Network.prototype = {
 
           // project TO
           list = (layerIndex == this.layers.hidden.length - 1) ? this.layers.output.list : this.layers.hidden[layerIndex+1].list;
-          for(var n in this.layers.output.list){
-            neuron.project(this.layers.output.list[n]);
+          for(var n in list){
+            neuron.project(list[n]);
           }
 
           layer.add(neuron);
@@ -1764,6 +1775,7 @@ if (module) module.exports = Neuron;
 
 /* Import */
 var Layer   = __webpack_require__(2);
+var Network = __webpack_require__(3);
 var methods = __webpack_require__(1);
 
 /* Shorten var names */
@@ -2090,12 +2102,37 @@ Neuron.prototype = {
   /*
    * Breaks all connections so they can be reconnected again
    */
-  disconnect: function(){
-    this.connections = {
-      inputs: {},
-      projected: {},
-      gated: {}
-    };
+  disconnect: function(node){
+    if(node instanceof Network){
+      for(var input in node.layers.input.list){
+        this.disconnect(node.layers.input.list[input]);
+      }
+    } else if(node instanceof Layer){
+      for(var neuron in node.list){
+        this.disconnect(node.list[neuron]);
+      }
+    } else {
+      if(typeof node == "undefined"){ // disconnect everything
+        this.connections = {
+          inputs: {},
+          projected: {},
+          gated: {}
+        };
+      } else { // only delete connections to/from node
+        var types = Object.keys(this.connections);
+        for(type in types){
+          for(connection in this.connections[types[type]]){
+            if(this.connections[types[type]][connection].to == node){
+              delete node.connections.inputs[connection];
+              delete this.connections[types[type]][connection];
+            } else if(this.connections[types[type]][connection].from == node){
+              delete node.connections.projected[connection];
+              delete this.connections[types[type]][connection];
+            }
+          }
+        }
+      }
+    }
   },
 
   /**
@@ -3428,99 +3465,6 @@ Trainer.prototype = {
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                    COST FUNCTIONS
-*******************************************************************************************/
-
-// https://en.wikipedia.org/wiki/Loss_function
-var Cost = {
-  CROSS_ENTROPY: function(target, output)
-  {
-    var crossentropy = 0;
-    for (var i in output)
-      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
-    return crossentropy;
-  },
-  MSE: function(target, output)
-  {
-    var mse = 0;
-    for (var i in output)
-      mse += Math.pow(target[i] - output[i], 2);
-    return mse / output.length;
-  },
-  BINARY: function(target, output){
-    var misses = 0;
-    for (var i in output)
-      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
-    return misses;
-  }
-};
-
-/* Export */
-if (module) module.exports = Cost;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                    SQUASH FUNCTIONS
-*******************************************************************************************/
-
-// https://en.wikipedia.org/wiki/Activation_function
-var Squash = {
-  LOGISTIC : function(x, derivate) {
-    if (!derivate)
-      return 1 / (1 + Math.exp(-x));
-    var fx = Squash.LOGISTIC(x);
-    return fx * (1 - fx);
-  },
-  TANH : function(x, derivate) {
-    if (derivate)
-      return 1 - Math.pow(Squash.TANH(x), 2);
-    return Math.tanh(x);
-  },
-  IDENTITY : function(x, derivate) { // not normalized
-    return derivate ? 1 : x;
-  },
-  HLIM : function(x, derivate) {
-    return derivate ? 1 : x > 0 ? 1 : 0;
-  },
-  RELU : function(x, derivate) { // not normalized
-    if (derivate)
-      return x > 0 ? 1 : 0;
-    return x > 0 ? x : 0;
-  },
-  SOFTSIGN : function(x, derivate){
-    var d = 1 + Math.abs(x);
-    if(derivate)
-      return x / Math.pow(d, 2);
-    return x / d;
-  },
-  SINUSOID : function(x, derivate){
-    if(derivate)
-      return Math.cos(x);
-    return Math.sin(x);
-  },
-  GAUSSIAN : function(x, derivate){
-    var d = Math.exp(-Math.pow(x, 2));
-    if(derivate)
-      return -2 * x * d;
-    return d;
-  }
-};
-
-/* Export */
-if (module) module.exports = Squash;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
 var Layer   = __webpack_require__(2)
 ,   Network = __webpack_require__(3)
@@ -3818,6 +3762,99 @@ if (module) module.exports = Architect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                    COST FUNCTIONS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Loss_function
+var Cost = {
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+};
+
+/* Export */
+if (module) module.exports = Cost;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                    SQUASH FUNCTIONS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Activation_function
+var Squash = {
+  LOGISTIC : function(x, derivate) {
+    if (!derivate)
+      return 1 / (1 + Math.exp(-x));
+    var fx = Squash.LOGISTIC(x);
+    return fx * (1 - fx);
+  },
+  TANH : function(x, derivate) {
+    if (derivate)
+      return 1 - Math.pow(Squash.TANH(x), 2);
+    return Math.tanh(x);
+  },
+  IDENTITY : function(x, derivate) { // not normalized
+    return derivate ? 1 : x;
+  },
+  HLIM : function(x, derivate) {
+    return derivate ? 1 : x > 0 ? 1 : 0;
+  },
+  RELU : function(x, derivate) { // not normalized
+    if (derivate)
+      return x > 0 ? 1 : 0;
+    return x > 0 ? x : 0;
+  },
+  SOFTSIGN : function(x, derivate){
+    var d = 1 + Math.abs(x);
+    if(derivate)
+      return x / Math.pow(d, 2);
+    return x / d;
+  },
+  SINUSOID : function(x, derivate){
+    if(derivate)
+      return Math.cos(x);
+    return Math.sin(x);
+  },
+  GAUSSIAN : function(x, derivate){
+    var d = Math.exp(-Math.pow(x, 2));
+    if(derivate)
+      return -2 * x * d;
+    return d;
+  }
+};
+
+/* Export */
+if (module) module.exports = Squash;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3825,9 +3862,10 @@ if (module) module.exports = Architect;
 if (module) module.exports = Brain;
 
 /* Import */
-var Neuron  = __webpack_require__(4)
-,   Layer   = __webpack_require__(2)
-,   methods = __webpack_require__(1);
+var Neuron    = __webpack_require__(4)
+,   Layer     = __webpack_require__(2)
+,   Architect = __webpack_require__(6)
+,   methods   = __webpack_require__(1);
 
 /* Shorten var names */
 var Mutate     = methods.Mutate
@@ -3966,7 +4004,7 @@ Brain.prototype = {
     }
   },
 
-  /*
+  /**
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
@@ -3978,26 +4016,34 @@ Brain.prototype = {
   /**
    * Mutates the brain
    */
-
   mutate: function(method){
     method = method || Mutate.MODIFY_RANDOM_WEIGHT;
     switch(method){
       case(Mutate.SWAP_WEIGHT):
+        // to be developed
         break;
       case(Mutate.MODIFY_RANDOM_WEIGHT):
+        // to be developed
         break;
       case(Mutate.MODIFY_CONNECTIONS):
+        // to be developed
         break;
       case(Mutate.MODIFY_NODES):
-        if(Math.random() >= 0.5){
-          // remove a node
-        } else {
-          // add a node
+        if(Math.random() >= 0.5){ // remove a node
+          // can't be output or input
+          var index = Math.floor(Math.random() * this.size[1] + this.size[0]);
+          var node = this.nodes[index];
+          this.nodes.splice(index, 1);
+
+          for(var otherNode in this.nodes){
+            node.disconnect(this.nodes[otherNode]);
+          }
+
+          this.size[1]--;
+        } else { // add a node
           var random = Math.floor(Math.random() * 3);
           switch(random){
             case(0): // network
-              console.log('here');
-              // create a randomly sized network
               var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
               var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
 
@@ -4020,35 +4066,37 @@ Brain.prototype = {
               layers += outputLayerSize;
 
               var node = eval('new Architect.Perceptron(' + layers + ')');
-
-              // must be inserted after input and before output
-              var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
-              this.nodes.splice(insert, 0, node);
-              this.size[1]++;
-
-              // now project it to another neurons ( should also be done with ratio, will be implemented later)
-              var minBound = Math.max(insert+1, this.size[0]);
-              var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
-              this.nodes[insert].project(this.nodes[input]);
-
-              // now let it have an input connection
-              var output = Math.floor(Math.random() * insert);
-              this.nodes[output].project(this.nodes[insert]);
+              node.setOptimize(false);
               break;
             case(1): // layer
+              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.layer.size[1] - Mutate.MODIFY_NODES.config.layer.size[0]) + Mutate.MODIFY_NODES.config.layer.size[0]);
+              var node = new Layer(size);
               break;
             case(2): // neuron
+              var node = new Neuron();
               break;
           }
+
+          // must be inserted after input and before output
+          var insert = Math.floor(Math.random() * this.size[1] + this.size[0]);
+          this.nodes.splice(insert, 0, node);
+          this.size[1]++;
+
+          // now project it to another neurons ( should also be done with ratio, will be implemented later)
+          var minBound = Math.max(insert+1, this.size[0]);
+          var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
+          this.nodes[insert].project(this.nodes[input]);
+
+          // now let it have an input connection
+          var output = Math.floor(Math.random() * insert);
+          this.nodes[output].project(this.nodes[insert]);
         }
         break;
       case(Mutate.MUTATE_NODES):
+        // to be developed
         break;
     }
-
   }
-
-
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -4368,7 +4416,7 @@ if (module) module.exports = Crossover;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Cost   = __webpack_require__(6)
+var Cost   = __webpack_require__(7)
 
 /*******************************************************************************************
                                         METHODS
@@ -4402,7 +4450,7 @@ if (module) module.exports = Generation;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Squash   = __webpack_require__(7)
+var Squash   = __webpack_require__(8)
 
 /*******************************************************************************************
                                       MUTATION
@@ -4521,7 +4569,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
   Methods   : __webpack_require__(1),
   Layer     : __webpack_require__(2),
   Network   : __webpack_require__(3),
-  Architect : __webpack_require__(8),
+  Architect : __webpack_require__(6),
   Brain     : __webpack_require__(9)
 };
 

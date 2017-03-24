@@ -4022,32 +4022,27 @@ Brain.prototype = {
     switch(method){
       case(Mutate.SWAP_WEIGHT):
         // Select two random nodes, only look at connections.projected
-        var node1 = Math.floor(Math.random() * this.size[1] + this.size[0]);
+        var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         var node2 = node1;
         while(node1 == node2){
-          node2 = Math.floor(Math.random() * this.size[1] + this.size[0]);
+          node2 = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         }
 
         node1 = this.nodes[node1];
         node2 = this.nodes[node2];
 
         if(node1 instanceof Network){
-          console.log('network');
           node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
         } else if(node1 instanceof Layer){
-          console.log('layer');
           node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
+        } else if (node1 instanceof Neuron){
         }
 
         if(node2 instanceof Network){
-          console.log('network');
           node2 = node2.layers.output.list[Math.floor(Math.random() * node2.layers.output.list.length)];
-        } else if(node1 instanceof Layer){
-          console.log('layer');
+        } else if(node2 instanceof Layer){
           node2 = node2.list[Math.floor(Math.random() * node2.list.length)];
         }
-
-        console.log(node1.connections.projected, node2.connections.projected);
 
         var connections1 = Object.keys(node1.connections.projected);
         var connection1 = node1.connections.projected[connections1[Math.floor(Math.random() * connections1.length)]];

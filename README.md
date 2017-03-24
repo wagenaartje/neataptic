@@ -1,9 +1,7 @@
-<table>
-  <tr>
-    <td>
-
 # Gynaptic [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
 Gynaptic is an architecture-free [neural network](https://en.wikipedia.org/wiki/Artificial_neural_network) library with implementations to create [genetic neural networks](https://en.wikipedia.org/wiki/Neuroevolution). It gives the user the ability to create train neurol networks with evolutionary algorithms with just a few lines of code. The library is constantly updated with new mutation, crossover and selection methods. Gynaptics' main neural network code comes from the library [Synaptic](https://github.com/cazala/synaptic) by [Juan Cazala](https://github.com/cazala). Gynaptic will stay up to date with Synaptic's improvements as much as possible.
+
+<img src="https://assets-cdn.github.com/images/modules/site/home-ill-work.png?sn" width="440px" align="right">
 
 What Gynaptic adds to Synaptic:
 - an easy-to-use genetic algorithm function
@@ -23,54 +21,6 @@ Improvements:
 
 Examples
 - [Solve an XOR](https://wagenaartje.github.io/gynaptic/examples/xor/)
-    </td>
-    <td>
-<sub>
-Genetics
-
-* [Home](https://github.com/wagenaartje/gynaptic/wiki)
-
-* [Generation](https://github.com/wagenaartje/gynaptic/wiki/Generation)
-
-* [Mutation](https://github.com/wagenaartje/gynaptic/wiki/Mutation)
-
-* [Selection](https://github.com/wagenaartje/gynaptic/wiki/Selection)
-
-* [Breeding](https://github.com/wagenaartje/gynaptic/wiki/Breeding)
-
-* [Evolution](https://github.com/wagenaartje/gynaptic/wiki/Evolution)
-</sub>
-
-<hr>
-
-<sub>
-
-Additionals
-* [Squashing](https://github.com/wagenaartje/gynaptic/wiki/Squashing)
-</sub>
-
-<hr>
-
-<sub>
-
-Neural architecture
-* [Architect](https://github.com/wagenaartje/gynaptic/wiki/Architect)
-
-* [Neurons](https://github.com/wagenaartje/gynaptic/wiki/Neurons)
-
-* [Layers](https://github.com/wagenaartje/gynaptic/wiki/Layers)
-
-* [Networks](https://github.com/wagenaartje/gynaptic/wiki/Networks)
-
-* [Brains](https://github.com/wagenaartje/gynaptic/wiki/Brain)
-
-* [Trainer](https://github.com/wagenaartje/gynaptic/wiki/Trainer)
-
-</sub>
-<img src="https://assets-cdn.github.com/images/modules/site/home-ill-projects.png?sn" width="800px"/>
-    </td>
-  </tr>
-</table>
 
 # Usage
 Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for documentation.

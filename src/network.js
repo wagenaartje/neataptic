@@ -529,7 +529,7 @@ Network.prototype = {
         var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
         neuron.connections[connectionType][connection].weight += modification;
         break;
-      case Mutate.MODIFY_NEURONS:
+      case Mutate.MODIFY_NODES:
         // Select random hidden layer to add/remove a neuron
         var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
         var layer = this.layers.hidden[layerIndex];

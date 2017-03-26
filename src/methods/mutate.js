@@ -30,7 +30,7 @@ var Mutate = {
   MODIFY_CONNECTIONS: {
     name: "MODIFY_CONNECTIONS",
     config: {
-      memory: false // should it add memory connections?
+      memory: false // should it add memory connections? for BRAIN only now
     }
   },
   MODIFY_NEURONS: {

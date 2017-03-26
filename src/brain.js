@@ -62,7 +62,7 @@ Brain.prototype = {
       for(var i = 0; i < this.size[0] + this.size[1]; i++){
         var output = i;
         var minBound = Math.max(i+1, this.size[0]);
-        var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound); // an input node can't connected to an output node, this creates BIAS (?)
+        var input = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound);
 
         this.nodes[output].project(this.nodes[input]);
         this.nodes[input].input = true;
@@ -175,7 +175,6 @@ Brain.prototype = {
           node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
         } else if(node1 instanceof Layer){
           node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
-        } else if (node1 instanceof Neuron){
         }
 
         if(node2 instanceof Network){
@@ -195,10 +194,109 @@ Brain.prototype = {
         connection2.weight = temp;
         break;
       case(Mutate.MODIFY_RANDOM_WEIGHT):
-        // to be developed
+        // Select a random node, only look at connections.projected
+        var node = Math.floor(Math.random() * (this.size[1] + this.size[0]));
+        node = this.nodes[node];
+
+        if(node instanceof Network){
+          node = node.layers.output.list[Math.floor(Math.random() * node.layers.output.list.length)];
+        } else if(node instanceof Layer){
+          node = node.list[Math.floor(Math.random() * node.list.length)];
+        }
+
+        var connections = Object.keys(node.connections.projected);
+        var connection = node.connections.projected[connections[Math.floor(Math.random() * connections.length)]];
+
+        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        connection.weight += modification;
         break;
       case(Mutate.MODIFY_CONNECTIONS):
-        // to be developed
+        if(Math.random() >= 0.5){ // remove a connection
+          // select two random nodes, check if they are connected, then break the connection
+          var node1Index;
+          var node2Index;
+          var connected = false;
+
+          while(connected == false){
+            var node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
+            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+              var node2Index = node1Index;
+              while(node1 == node2){
+                node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
+              }
+            } else {
+              var minBound = Math.max(node1Index+1, this.size[0]);
+              var node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound);
+            }
+
+            var node1 = this.nodes[node1Index];
+            var node2 = this.nodes[node2Index];
+
+            // now we just check if they are connected
+            if(node1 instanceof Network){
+              node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
+            } else if(node1 instanceof Layer){
+              node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
+            }
+
+            if(node2 instanceof Network){
+              node2 = node2.layers.output.list[Math.floor(Math.random() * node2.layers.output.list.length)];
+            } else if(node2 instanceof Layer){
+              node2 = node2.list[Math.floor(Math.random() * node2.list.length)];
+            }
+
+            for(var connection in node1.connections.projected){
+              if(node1.connections.projected[connection].to == node2){
+                connected = true;
+              }
+            }
+          }
+
+          // Disconnect them completely
+          node1.disconnect(node2);
+        } else { // add a connection
+          var node1;
+          var node2;
+
+          while(node2 == null){
+            var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
+            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+              var node2 = node1;
+              while(node1 == node2){
+                node2 = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
+              }
+            } else {
+              var minBound = Math.max(node1+1, this.size[0]);
+              var node2 = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound);
+            }
+
+            node1 = this.nodes[node1];
+            node2 = this.nodes[node2];
+
+            // now we just check if they are connected
+            if(node1 instanceof Network){
+              node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
+            } else if(node1 instanceof Layer){
+              node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
+            }
+
+            if(node2 instanceof Network){
+              node2 = node2.layers.output.list[Math.floor(Math.random() * node2.layers.output.list.length)];
+            } else if(node2 instanceof Layer){
+              node2 = node2.list[Math.floor(Math.random() * node2.list.length)];
+            }
+
+            for(var connection in node1.connections.projected){
+              if(node1.connections.projected[connection].to == node2){
+                node2 = null; // these neurons are already connected
+              }
+            }
+          }
+
+          // Create a new connection
+          node1.project(node2);
+        }
+
         break;
       case(Mutate.MODIFY_NODES):
         if(Math.random() >= 0.5){ // remove a node
@@ -264,7 +362,45 @@ Brain.prototype = {
         }
         break;
       case(Mutate.MUTATE_NODES):
-        // to be developed
+        // select a random node (only hidden and output)
+        var node = Math.floor(Math.random() * (this.size[1] + this.size[2]) + this.size[0]);
+        node = this.nodes[node];
+
+        // Not all node types have same mutate methods
+        if(node instanceof Network){
+          var methods = [
+            Mutate.SWAP_WEIGHT,
+            Mutate.SWAP_BIAS,
+            Mutate.MODIFY_RANDOM_WEIGHT,
+            Mutate.MODIFY_RANDOM_BIAS,
+            Mutate.MODIFY_CONNECTIONS,
+            Mutate.MODIFY_NEURONS,
+            Mutate.MODIFY_SQUASH
+          ];
+        } else if(node instanceof Layer){
+          var methods = [
+            Mutate.SWAP_WEIGHT,
+            Mutate.SWAP_BIAS,
+            Mutate.MODIFY_RANDOM_WEIGHT,
+            Mutate.MODIFY_RANDOM_BIAS,
+            Mutate.MODIFY_SQUASH
+          ];
+        } else {
+          var methods = [
+            Mutate.SWAP_WEIGHT,
+            Mutate.MODIFY_RANDOM_WEIGHT,
+            Mutate.MODIFY_RANDOM_BIAS,
+            Mutate.MODIFY_SQUASH
+          ];
+        }
+
+        // Checks which ones are allowed and which ones are possible
+        methods = methods.filter(function(n){
+          return Mutate.MUTATE_NODES.config.allowed.indexOf(n) !== -1;
+        });
+
+        var method = methods[Math.floor(Math.random() * methods.length)];
+        node.mutate(method);
         break;
     }
   }

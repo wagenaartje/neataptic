@@ -69,6 +69,9 @@ describe('Mutate', function () {
     });
   });
   describe("Mutate.MODIFY_RANDOM_WEIGHT", function () {
+    it("Brain", function(){
+      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Brain");
+    });
     it("Network", function(){
       testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Network");
     });
@@ -101,12 +104,18 @@ describe('Mutate', function () {
       testMutateMethod(Methods.Mutate.SWAP_BIAS, "Layer");
     });
   });
-  describe("Mutate.MODIFY_NEURONS", function () {
+  describe("Mutate.MODIFY_NODES", function () {
+    it("Brain", function(){
+      testMutateMethod(Methods.Mutate.MODIFY_NODES, "Brain");
+    });
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_NEURONS, "Network");
+      testMutateMethod(Methods.Mutate.MODIFY_NODES, "Network");
     });
   });
   describe("Mutate.MODIFY_CONNECTIONS", function () {
+    it("Brain", function(){
+      testMutateMethod(Methods.Mutate.MODIFY_CONNECTIONS, "Brain");
+    });
     it("Network", function(){
       testMutateMethod(Methods.Mutate.MODIFY_CONNECTIONS, "Network");
     });
@@ -122,9 +131,9 @@ describe('Mutate', function () {
       testMutateMethod(Methods.Mutate.MODIFY_SQUASH, "Neuron");
     });
   });
-  describe("Mutate.MODIFY_NODES", function(){
+  describe("Mutate.MUTATE_NODES", function(){
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_NODES, "Brain");
+      testMutateMethod(Methods.Mutate.MUTATE_NODES, "Brain");
     });
   });
 });

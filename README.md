@@ -33,6 +33,7 @@ Trainer = gynaptic.Trainer;
 Methods = gynaptic.Methods;
 Layer = gynaptic.Layer;
 Network = gynaptic.Network;
+Brain = gynaptic.Brain;
 Architect = gynaptic.Architect;
 ```
 
@@ -46,7 +47,7 @@ var GNN = new Evolution({
   elitism: 5,
   mutationRate: 0.05,
   networkSize = [1,4,1],
-  mutationMethod: [Methods.Mutate.MODIFY_RANDOM_BIAS, Methods.Mutate.MODIFY_RANDOM_WEIGHT],
+  mutationMethod: [Methods.Mutation.MODIFY_RANDOM_BIAS, Methods.Mutation.MODIFY_RANDOM_WEIGHT],
   crossOverMethod: [Methods.Crossover.UNIFORM, Crossover.AVERAGE],
   selectionMethod: [Methods.Selection.FITNESS_PROPORTIONATE],
   fitnessFunction: function(network){

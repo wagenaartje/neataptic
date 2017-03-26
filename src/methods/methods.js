@@ -3,7 +3,7 @@ var Methods = {
   Cost       : require('./cost'),
   Crossover  : require('./crossover'),
   Generation : require('./generation'),
-  Mutate   : require('./mutate'),
+  Mutation   : require('./mutation'),
   Selection  : require('./selection'),
   Squash     : require('./squash')
 };

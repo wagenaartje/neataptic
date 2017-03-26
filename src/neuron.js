@@ -7,7 +7,7 @@ var Layer   = require('./layer')
 ,   Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -381,9 +381,9 @@ Neuron.prototype = {
    * Mutates the neuron
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case Mutate.SWAP_WEIGHT:
+      case Mutation.SWAP_WEIGHT:
         var connectionTypes = Object.keys(this.connections);
 
         // Checks what kind of connections exist
@@ -409,12 +409,12 @@ Neuron.prototype = {
         this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
         this.connections[connectionType2][connection2].weight = temp;
         break;
-      case Mutate.MODIFY_RANDOM_BIAS:
+      case Mutation.MODIFY_RANDOM_BIAS:
         // just modifies the bias of the neuron
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_BIAS.config.max - Mutation.MODIFY_RANDOM_BIAS.config.min) + Mutation.MODIFY_RANDOM_BIAS.config.min;
         this.bias += modification;
         break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
+      case Mutation.MODIFY_RANDOM_WEIGHT:
         var connectionType = Object.keys(this.connections);
 
         for(var i = 2; i >= 0; i--){
@@ -427,18 +427,18 @@ Neuron.prototype = {
         var connectionKeys = Object.keys(this.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         this.connections[connectionType][connection].weight += modification;
         break;
-      case Mutate.MODIFY_SQUASH:
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+      case Mutation.MODIFY_SQUASH:
+        var squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
 
         // Should really be a NEW squash
-        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.squash){
-          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        while(Mutation.MODIFY_SQUASH.config.allowed[squash] == this.squash){
+          squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
         }
 
-        this.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.squash = Mutation.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 

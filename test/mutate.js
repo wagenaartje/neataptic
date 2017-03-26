@@ -57,83 +57,83 @@ function testMutateMethod(method, type){
 }
 
 describe('Mutate', function () {
-  describe("Mutate.MODIFY_RANDOM_BIAS", function () {
+  describe("Mutation.MODIFY_RANDOM_BIAS", function () {
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_BIAS, "Network");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_BIAS, "Network");
     });
     it("Layer", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_BIAS, "Layer");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_BIAS, "Layer");
     });
     it("Neuron", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_BIAS, "Neuron");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_BIAS, "Neuron");
     });
   });
-  describe("Mutate.MODIFY_RANDOM_WEIGHT", function () {
+  describe("Mutation.MODIFY_RANDOM_WEIGHT", function () {
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Brain");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_WEIGHT, "Brain");
     });
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Network");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_WEIGHT, "Network");
     });
     it("Layer", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Layer");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_WEIGHT, "Layer");
     });
     it("Neuron", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_RANDOM_WEIGHT, "Neuron");
+      testMutateMethod(Methods.Mutation.MODIFY_RANDOM_WEIGHT, "Neuron");
     });
   });
-  describe("Mutate.SWAP_WEIGHT", function () {
+  describe("Mutation.SWAP_WEIGHT", function () {
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Brain");
+      testMutateMethod(Methods.Mutation.SWAP_WEIGHT, "Brain");
     });
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Network");
+      testMutateMethod(Methods.Mutation.SWAP_WEIGHT, "Network");
     });
     it("Layer", function(){
-      testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Layer");
+      testMutateMethod(Methods.Mutation.SWAP_WEIGHT, "Layer");
     });
     it("Neuron", function(){
-      testMutateMethod(Methods.Mutate.SWAP_WEIGHT, "Neuron");
+      testMutateMethod(Methods.Mutation.SWAP_WEIGHT, "Neuron");
     });
   });
-  describe("Mutate.SWAP_BIAS", function () {
+  describe("Mutation.SWAP_BIAS", function () {
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.SWAP_BIAS, "Network");
+      testMutateMethod(Methods.Mutation.SWAP_BIAS, "Network");
     });
     it("Layer", function(){
-      testMutateMethod(Methods.Mutate.SWAP_BIAS, "Layer");
+      testMutateMethod(Methods.Mutation.SWAP_BIAS, "Layer");
     });
   });
-  describe("Mutate.MODIFY_NODES", function () {
+  describe("Mutation.MODIFY_NODES", function () {
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_NODES, "Brain");
+      testMutateMethod(Methods.Mutation.MODIFY_NODES, "Brain");
     });
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_NODES, "Network");
+      testMutateMethod(Methods.Mutation.MODIFY_NODES, "Network");
     });
   });
-  describe("Mutate.MODIFY_CONNECTIONS", function () {
+  describe("Mutation.MODIFY_CONNECTIONS", function () {
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_CONNECTIONS, "Brain");
+      testMutateMethod(Methods.Mutation.MODIFY_CONNECTIONS, "Brain");
     });
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_CONNECTIONS, "Network");
+      testMutateMethod(Methods.Mutation.MODIFY_CONNECTIONS, "Network");
     });
   });
-  describe("Mutate.MODIFY_SQUASH", function () {
+  describe("Mutation.MODIFY_SQUASH", function () {
     it("Network", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_SQUASH, "Network");
+      testMutateMethod(Methods.Mutation.MODIFY_SQUASH, "Network");
     });
     it("Layer", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_SQUASH, "Layer");
+      testMutateMethod(Methods.Mutation.MODIFY_SQUASH, "Layer");
     });
     it("Neuron", function(){
-      testMutateMethod(Methods.Mutate.MODIFY_SQUASH, "Neuron");
+      testMutateMethod(Methods.Mutation.MODIFY_SQUASH, "Neuron");
     });
   });
-  describe("Mutate.MUTATE_NODES", function(){
+  describe("Mutation.MUTATE_NODES", function(){
     it("Brain", function(){
-      testMutateMethod(Methods.Mutate.MUTATE_NODES, "Brain");
+      testMutateMethod(Methods.Mutation.MUTATE_NODES, "Brain");
     });
   });
 });

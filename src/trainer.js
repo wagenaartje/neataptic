@@ -5,7 +5,7 @@ if (module) module.exports = Trainer;
 var Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection

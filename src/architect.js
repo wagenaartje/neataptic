@@ -5,7 +5,7 @@ var Layer   = require('./layer')
 ,   Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection

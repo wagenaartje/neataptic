@@ -9,7 +9,7 @@ var Neuron    = require('./neuron')
 ,   Methods   = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -158,9 +158,9 @@ Brain.prototype = {
    * Mutates the brain
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case(Mutate.SWAP_WEIGHT):
+      case(Mutation.SWAP_WEIGHT):
         // Select two random nodes, only look at connections.projected
         var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         var node2 = node1;
@@ -193,7 +193,7 @@ Brain.prototype = {
         connection1.weight = connection2.weight;
         connection2.weight = temp;
         break;
-      case(Mutate.MODIFY_RANDOM_WEIGHT):
+      case(Mutation.MODIFY_RANDOM_WEIGHT):
         // Select a random node, only look at connections.projected
         var node = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         node = this.nodes[node];
@@ -207,10 +207,10 @@ Brain.prototype = {
         var connections = Object.keys(node.connections.projected);
         var connection = node.connections.projected[connections[Math.floor(Math.random() * connections.length)]];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         connection.weight += modification;
         break;
-      case(Mutate.MODIFY_CONNECTIONS):
+      case(Mutation.MODIFY_CONNECTIONS):
         if(Math.random() >= 0.5){ // remove a connection
           // select two random nodes, check if they are connected, then break the connection
           var node1Index;
@@ -219,7 +219,7 @@ Brain.prototype = {
 
           while(connected == false){
             var node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
-            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+            if(Mutation.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
               var node2Index = node1Index;
               while(node1 == node2){
                 node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
@@ -260,7 +260,7 @@ Brain.prototype = {
 
           while(node2 == null){
             var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
-            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+            if(Mutation.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
               var node2 = node1;
               while(node1 == node2){
                 node2 = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
@@ -298,7 +298,7 @@ Brain.prototype = {
         }
 
         break;
-      case(Mutate.MODIFY_NODES):
+      case(Mutation.MODIFY_NODES):
         if(Math.random() >= 0.5){ // remove a node
           // can't be output or input
           var index = Math.floor(Math.random() * this.size[1] + this.size[0]);
@@ -314,8 +314,8 @@ Brain.prototype = {
           var random = Math.floor(Math.random() * 3);
           switch(random){
             case(0): // network
-              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
-              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
+              var size = Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.network.size[1] - Mutation.MODIFY_NODES.config.network.size[0]) + Mutation.MODIFY_NODES.config.network.size[0]);
+              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.network.hidden[1] - Mutation.MODIFY_NODES.config.network.hidden[0]) + Mutation.MODIFY_NODES.config.network.hidden[0]));
               var layers = [];
 
               // x amount of size must be left for remaining layers and output
@@ -336,7 +336,7 @@ Brain.prototype = {
               node.setOptimize(false);
               break;
             case(1): // layer
-              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.layer.size[1] - Mutate.MODIFY_NODES.config.layer.size[0]) + Mutate.MODIFY_NODES.config.layer.size[0]);
+              var size = Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.layer.size[1] - Mutation.MODIFY_NODES.config.layer.size[0]) + Mutation.MODIFY_NODES.config.layer.size[0]);
               var node = new Layer(size);
               break;
             case(2): // neuron
@@ -361,7 +361,7 @@ Brain.prototype = {
           this.nodes[output].project(this.nodes[insert]);
         }
         break;
-      case(Mutate.MUTATE_NODES):
+      case(Mutation.MUTATE_NODES):
         // select a random node (only hidden and output)
         var node = Math.floor(Math.random() * (this.size[1] + this.size[2]) + this.size[0]);
         node = this.nodes[node];
@@ -369,34 +369,34 @@ Brain.prototype = {
         // Not all node types have same mutate methods
         if(node instanceof Network){
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.SWAP_BIAS,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_CONNECTIONS,
-            Mutate.MODIFY_NEURONS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.SWAP_BIAS,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_CONNECTIONS,
+            Mutation.MODIFY_NEURONS,
+            Mutation.MODIFY_SQUASH
           ];
         } else if(node instanceof Layer){
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.SWAP_BIAS,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.SWAP_BIAS,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_SQUASH
           ];
         } else {
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_SQUASH
           ];
         }
 
         // Checks which ones are allowed and which ones are possible
         methods = methods.filter(function(n){
-          return Mutate.MUTATE_NODES.config.allowed.indexOf(n) !== -1;
+          return Mutation.MUTATE_NODES.config.allowed.indexOf(n) !== -1;
         });
 
         var method = methods[Math.floor(Math.random() * methods.length)];

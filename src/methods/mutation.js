@@ -6,7 +6,7 @@ var Squash   = require('./squash')
 *******************************************************************************************/
 
 //https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
-var Mutate = {
+var Mutation = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
   },
@@ -65,20 +65,20 @@ var Mutate = {
   }
 };
 
-Mutate.MUTATE_NODES = {
+Mutation.MUTATE_NODES = {
   name: "MODIFY_NODES",
   config: {
     allowed: [
-      Mutate.SWAP_WEIGHT,
-      Mutate.SWAP_BIAS,
-      Mutate.MODIFY_RANDOM_SQUASH,
-      Mutate.MODIFY_RANDOM_BIAS,
-      Mutate.MODIFY_CONNECTIONS,
-      Mutate.MODIFY_NEURONS,
-      Mutate.MODIFY_SQUASH
+      Mutation.SWAP_WEIGHT,
+      Mutation.SWAP_BIAS,
+      Mutation.MODIFY_RANDOM_SQUASH,
+      Mutation.MODIFY_RANDOM_BIAS,
+      Mutation.MODIFY_CONNECTIONS,
+      Mutation.MODIFY_NEURONS,
+      Mutation.MODIFY_SQUASH
     ]
   }
 }
 
 /* Export */
-if (module) module.exports = Mutate;
+if (module) module.exports = Mutation;

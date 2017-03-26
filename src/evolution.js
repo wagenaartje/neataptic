@@ -8,7 +8,7 @@ var Layer   = require('./layer')
 ,   Methods = require('./methods/methods.js');
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -29,7 +29,7 @@ function Evolution(options){
   this.size = options.size || 50;
   this.mutationRate = options.mutationRate || 0.05;
   this.generationMethod = options.generationMethod || [Generation.POINTS];
-  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT, Mutate.MODIFY_RANDOM_BIAS];
+  this.mutationMethod = options.mutationMethod || [Mutation.MODIFY_RANDOM_WEIGHT, Mutation.MODIFY_RANDOM_BIAS];
   this.crossOverMethod = options.crossOverMethod || [Crossover.UNIFORM];
   this.selectionMethod = options.selectionMethod || [Selection.FITNESS_PROPORTIONATE];
   this.fitnessFunction = options.fitnessFunction;

@@ -129,7 +129,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
   Cost       : __webpack_require__(7),
   Crossover  : __webpack_require__(12),
   Generation : __webpack_require__(13),
-  Mutate   : __webpack_require__(14),
+  Mutation   : __webpack_require__(14),
   Selection  : __webpack_require__(15),
   Squash     : __webpack_require__(8)
 };
@@ -175,7 +175,7 @@ var Neuron  = __webpack_require__(4)
 ,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -455,9 +455,9 @@ Layer.prototype = {
    * Mutates the layer
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case Mutate.SWAP_WEIGHT:
+      case Mutation.SWAP_WEIGHT:
         var neuron1Index = Math.floor(Math.random()*this.list.length);
         var neuron2Index = Math.floor(Math.random()*this.list.length);
 
@@ -493,7 +493,7 @@ Layer.prototype = {
         neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
         neuron2.connections[connectionType2][connection2].weight = temp;
         break;
-      case Mutate.SWAP_BIAS:
+      case Mutation.SWAP_BIAS:
         var neuron1Index = Math.floor(Math.random()*this.list.length);
         var neuron2Index = Math.floor(Math.random()*this.list.length);
 
@@ -506,12 +506,12 @@ Layer.prototype = {
         this.list[neuron1Index].bias = this.list[neuron2Index].bias;
         this.list[neuron2Index].bias = temp;
         break;
-      case Mutate.MODIFY_RANDOM_BIAS:
+      case Mutation.MODIFY_RANDOM_BIAS:
         var neuron = Math.floor(Math.random()*this.list.length);
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_BIAS.config.max - Mutation.MODIFY_RANDOM_BIAS.config.min) + Mutation.MODIFY_RANDOM_BIAS.config.min;
         this.list[neuron].bias += modification;
         break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
+      case Mutation.MODIFY_RANDOM_WEIGHT:
         var neuron = this.list[Math.floor(Math.random()*this.list.length)];
         var connectionType = Object.keys(neuron.connections);
 
@@ -525,19 +525,19 @@ Layer.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         neuron.connections[connectionType][connection].weight += modification;
         break;
-      case Mutate.MODIFY_SQUASH:
+      case Mutation.MODIFY_SQUASH:
         var neuron = Math.floor(Math.random()*this.list.length);
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        var squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
 
         // Should really be a NEW squash
-        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.list[neuron].squash){
-          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        while(Mutation.MODIFY_SQUASH.config.allowed[squash] == this.list[neuron].squash){
+          squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
         }
 
-        this.list[neuron].squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.list[neuron].squash = Mutation.MODIFY_SQUASH.config.allowed[squash];
         break;
     }
   },
@@ -706,7 +706,7 @@ var Neuron  = __webpack_require__(4)
 ,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -1140,9 +1140,9 @@ Network.prototype = {
    * Mutates the network
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case Mutate.SWAP_WEIGHT:
+      case Mutation.SWAP_WEIGHT:
         // will be updated soon, connectionType is irrelevant because all
         // connections can be found in either .projected or .input (they are represented twice)
         var neuron1Index = Math.floor(Math.random()*this.neurons().length);
@@ -1184,7 +1184,7 @@ Network.prototype = {
         neuron1.connections[connectionType1][connection1].weight = neuron2.connections[connectionType2][connection2].weight;
         neuron2.connections[connectionType2][connection2].weight = temp;
         break;
-      case Mutate.SWAP_BIAS:
+      case Mutation.SWAP_BIAS:
         // neuron can't be input; this bias is not used
         var neuron1Index = Math.floor(Math.random() * (this.neurons().length - this.inputs()) + this.inputs());
         var neuron2Index = Math.floor(Math.random() * (this.neurons().length - this.inputs()) + this.inputs());
@@ -1201,13 +1201,13 @@ Network.prototype = {
         neuron1.bias = neuron2.bias;
         neuron2.bias = temp;
         break;
-      case Mutate.MODIFY_RANDOM_BIAS:
+      case Mutation.MODIFY_RANDOM_BIAS:
         // neuron can't be input; this bias is not used
         var neuron = Math.floor(Math.random() * (this.neurons().length - this.inputs()) + this.inputs());
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_BIAS.config.max - Mutation.MODIFY_RANDOM_BIAS.config.min) + Mutation.MODIFY_RANDOM_BIAS.config.min;
         this.neurons()[neuron].neuron.bias += modification;
         break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
+      case Mutation.MODIFY_RANDOM_WEIGHT:
         // will be updated soon, connectionType is irrelevant because all
         // connections can be found in either .projected or .input (they are represented twice)
         var neuron = Math.floor(Math.random()*this.neurons().length);
@@ -1224,10 +1224,10 @@ Network.prototype = {
         var connectionKeys = Object.keys(neuron.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         neuron.connections[connectionType][connection].weight += modification;
         break;
-      case Mutate.MODIFY_NODES:
+      case Mutation.MODIFY_NODES:
         // Select random hidden layer to add/remove a neuron
         var layerIndex = Math.floor(this.layers.hidden.length * Math.random());
         var layer = this.layers.hidden[layerIndex];
@@ -1261,7 +1261,7 @@ Network.prototype = {
           layer.add(neuron);
         }
         break;
-      case Mutate.MODIFY_CONNECTIONS:
+      case Mutation.MODIFY_CONNECTIONS:
         // decide to make or break a connection
         if(Math.random() >= 0.5){
           // remove a connection to a certain neuron
@@ -1319,17 +1319,17 @@ Network.prototype = {
           neuron1.project(neuron2);
         }
         break;
-      case Mutate.MODIFY_SQUASH:
+      case Mutation.MODIFY_SQUASH:
         // neuron can't be input; this activation is not squashed
         var neuron = Math.floor(Math.random() * (this.neurons().length - this.inputs()) + this.inputs());
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        var squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
 
         // Should really be a NEW squash
-        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.neurons()[neuron].neuron.squash){
-          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        while(Mutation.MODIFY_SQUASH.config.allowed[squash] == this.neurons()[neuron].neuron.squash){
+          squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
         }
 
-        this.neurons()[neuron].neuron.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.neurons()[neuron].neuron.squash = Mutation.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -1779,7 +1779,7 @@ var Layer   = __webpack_require__(2)
 ,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -2153,9 +2153,9 @@ Neuron.prototype = {
    * Mutates the neuron
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case Mutate.SWAP_WEIGHT:
+      case Mutation.SWAP_WEIGHT:
         var connectionTypes = Object.keys(this.connections);
 
         // Checks what kind of connections exist
@@ -2181,12 +2181,12 @@ Neuron.prototype = {
         this.connections[connectionType1][connection1].weight = this.connections[connectionType2][connection2].weight;
         this.connections[connectionType2][connection2].weight = temp;
         break;
-      case Mutate.MODIFY_RANDOM_BIAS:
+      case Mutation.MODIFY_RANDOM_BIAS:
         // just modifies the bias of the neuron
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_BIAS.config.max - Mutate.MODIFY_RANDOM_BIAS.config.min) + Mutate.MODIFY_RANDOM_BIAS.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_BIAS.config.max - Mutation.MODIFY_RANDOM_BIAS.config.min) + Mutation.MODIFY_RANDOM_BIAS.config.min;
         this.bias += modification;
         break;
-      case Mutate.MODIFY_RANDOM_WEIGHT:
+      case Mutation.MODIFY_RANDOM_WEIGHT:
         var connectionType = Object.keys(this.connections);
 
         for(var i = 2; i >= 0; i--){
@@ -2199,18 +2199,18 @@ Neuron.prototype = {
         var connectionKeys = Object.keys(this.connections[connectionType]);
         var connection = connectionKeys[Math.floor(Math.random()*connectionKeys.length)];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         this.connections[connectionType][connection].weight += modification;
         break;
-      case Mutate.MODIFY_SQUASH:
-        var squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+      case Mutation.MODIFY_SQUASH:
+        var squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
 
         // Should really be a NEW squash
-        while(Mutate.MODIFY_SQUASH.config.allowed[squash] == this.squash){
-          squash = Math.floor(Math.random()*Mutate.MODIFY_SQUASH.config.allowed.length);
+        while(Mutation.MODIFY_SQUASH.config.allowed[squash] == this.squash){
+          squash = Math.floor(Math.random()*Mutation.MODIFY_SQUASH.config.allowed.length);
         }
 
-        this.squash = Mutate.MODIFY_SQUASH.config.allowed[squash];
+        this.squash = Mutation.MODIFY_SQUASH.config.allowed[squash];
     }
   },
 
@@ -2776,7 +2776,7 @@ if (module) module.exports = Trainer;
 var Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -3472,7 +3472,7 @@ var Layer   = __webpack_require__(2)
 ,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -3869,7 +3869,7 @@ var Neuron    = __webpack_require__(4)
 ,   Methods   = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -4018,9 +4018,9 @@ Brain.prototype = {
    * Mutates the brain
    */
   mutate: function(method){
-    method = method || Mutate.MODIFY_RANDOM_WEIGHT;
+    method = method || Mutation.MODIFY_RANDOM_WEIGHT;
     switch(method){
-      case(Mutate.SWAP_WEIGHT):
+      case(Mutation.SWAP_WEIGHT):
         // Select two random nodes, only look at connections.projected
         var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         var node2 = node1;
@@ -4053,7 +4053,7 @@ Brain.prototype = {
         connection1.weight = connection2.weight;
         connection2.weight = temp;
         break;
-      case(Mutate.MODIFY_RANDOM_WEIGHT):
+      case(Mutation.MODIFY_RANDOM_WEIGHT):
         // Select a random node, only look at connections.projected
         var node = Math.floor(Math.random() * (this.size[1] + this.size[0]));
         node = this.nodes[node];
@@ -4067,10 +4067,10 @@ Brain.prototype = {
         var connections = Object.keys(node.connections.projected);
         var connection = node.connections.projected[connections[Math.floor(Math.random() * connections.length)]];
 
-        var modification = Math.random() * (Mutate.MODIFY_RANDOM_WEIGHT.config.max - Mutate.MODIFY_RANDOM_WEIGHT.config.min) + Mutate.MODIFY_RANDOM_WEIGHT.config.min;
+        var modification = Math.random() * (Mutation.MODIFY_RANDOM_WEIGHT.config.max - Mutation.MODIFY_RANDOM_WEIGHT.config.min) + Mutation.MODIFY_RANDOM_WEIGHT.config.min;
         connection.weight += modification;
         break;
-      case(Mutate.MODIFY_CONNECTIONS):
+      case(Mutation.MODIFY_CONNECTIONS):
         if(Math.random() >= 0.5){ // remove a connection
           // select two random nodes, check if they are connected, then break the connection
           var node1Index;
@@ -4079,7 +4079,7 @@ Brain.prototype = {
 
           while(connected == false){
             var node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
-            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+            if(Mutation.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
               var node2Index = node1Index;
               while(node1 == node2){
                 node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
@@ -4120,7 +4120,7 @@ Brain.prototype = {
 
           while(node2 == null){
             var node1 = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
-            if(Mutate.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
+            if(Mutation.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
               var node2 = node1;
               while(node1 == node2){
                 node2 = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
@@ -4158,7 +4158,7 @@ Brain.prototype = {
         }
 
         break;
-      case(Mutate.MODIFY_NODES):
+      case(Mutation.MODIFY_NODES):
         if(Math.random() >= 0.5){ // remove a node
           // can't be output or input
           var index = Math.floor(Math.random() * this.size[1] + this.size[0]);
@@ -4174,8 +4174,8 @@ Brain.prototype = {
           var random = Math.floor(Math.random() * 3);
           switch(random){
             case(0): // network
-              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.size[1] - Mutate.MODIFY_NODES.config.network.size[0]) + Mutate.MODIFY_NODES.config.network.size[0]);
-              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.network.hidden[1] - Mutate.MODIFY_NODES.config.network.hidden[0]) + Mutate.MODIFY_NODES.config.network.hidden[0]));
+              var size = Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.network.size[1] - Mutation.MODIFY_NODES.config.network.size[0]) + Mutation.MODIFY_NODES.config.network.size[0]);
+              var hiddenSize =  Math.min(size-2, Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.network.hidden[1] - Mutation.MODIFY_NODES.config.network.hidden[0]) + Mutation.MODIFY_NODES.config.network.hidden[0]));
               var layers = [];
 
               // x amount of size must be left for remaining layers and output
@@ -4196,7 +4196,7 @@ Brain.prototype = {
               node.setOptimize(false);
               break;
             case(1): // layer
-              var size = Math.floor(Math.random() * (Mutate.MODIFY_NODES.config.layer.size[1] - Mutate.MODIFY_NODES.config.layer.size[0]) + Mutate.MODIFY_NODES.config.layer.size[0]);
+              var size = Math.floor(Math.random() * (Mutation.MODIFY_NODES.config.layer.size[1] - Mutation.MODIFY_NODES.config.layer.size[0]) + Mutation.MODIFY_NODES.config.layer.size[0]);
               var node = new Layer(size);
               break;
             case(2): // neuron
@@ -4221,7 +4221,7 @@ Brain.prototype = {
           this.nodes[output].project(this.nodes[insert]);
         }
         break;
-      case(Mutate.MUTATE_NODES):
+      case(Mutation.MUTATE_NODES):
         // select a random node (only hidden and output)
         var node = Math.floor(Math.random() * (this.size[1] + this.size[2]) + this.size[0]);
         node = this.nodes[node];
@@ -4229,34 +4229,34 @@ Brain.prototype = {
         // Not all node types have same mutate methods
         if(node instanceof Network){
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.SWAP_BIAS,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_CONNECTIONS,
-            Mutate.MODIFY_NEURONS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.SWAP_BIAS,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_CONNECTIONS,
+            Mutation.MODIFY_NEURONS,
+            Mutation.MODIFY_SQUASH
           ];
         } else if(node instanceof Layer){
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.SWAP_BIAS,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.SWAP_BIAS,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_SQUASH
           ];
         } else {
           var methods = [
-            Mutate.SWAP_WEIGHT,
-            Mutate.MODIFY_RANDOM_WEIGHT,
-            Mutate.MODIFY_RANDOM_BIAS,
-            Mutate.MODIFY_SQUASH
+            Mutation.SWAP_WEIGHT,
+            Mutation.MODIFY_RANDOM_WEIGHT,
+            Mutation.MODIFY_RANDOM_BIAS,
+            Mutation.MODIFY_SQUASH
           ];
         }
 
         // Checks which ones are allowed and which ones are possible
         methods = methods.filter(function(n){
-          return Mutate.MUTATE_NODES.config.allowed.indexOf(n) !== -1;
+          return Mutation.MUTATE_NODES.config.allowed.indexOf(n) !== -1;
         });
 
         var method = methods[Math.floor(Math.random() * methods.length)];
@@ -4282,7 +4282,7 @@ var Layer   = __webpack_require__(2)
 ,   Methods = __webpack_require__(1);
 
 /* Shorten var names */
-var Mutate     = Methods.Mutate
+var Mutation   = Methods.Mutation
 ,   Squash     = Methods.Squash
 ,   Crossover  = Methods.Crossover
 ,   Selection  = Methods.Selection
@@ -4303,7 +4303,7 @@ function Evolution(options){
   this.size = options.size || 50;
   this.mutationRate = options.mutationRate || 0.05;
   this.generationMethod = options.generationMethod || [Generation.POINTS];
-  this.mutationMethod = options.mutationMethod || [Mutate.MODIFY_RANDOM_WEIGHT, Mutate.MODIFY_RANDOM_BIAS];
+  this.mutationMethod = options.mutationMethod || [Mutation.MODIFY_RANDOM_WEIGHT, Mutation.MODIFY_RANDOM_BIAS];
   this.crossOverMethod = options.crossOverMethod || [Crossover.UNIFORM];
   this.selectionMethod = options.selectionMethod || [Selection.FITNESS_PROPORTIONATE];
   this.fitnessFunction = options.fitnessFunction;
@@ -4624,7 +4624,7 @@ var Squash   = __webpack_require__(8)
 *******************************************************************************************/
 
 //https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
-var Mutate = {
+var Mutation = {
   SWAP_WEIGHT: {
     name: "SWAP_WEIGHT"
   },
@@ -4650,9 +4650,6 @@ var Mutate = {
     config: {
       memory: false // should it add memory connections? for BRAIN only now
     }
-  },
-  MODIFY_NEURONS: {
-    name: "MODIFY_NEURONS"
   },
   MODIFY_SQUASH: {
     name: "MODIFY_SQUASH",
@@ -4683,23 +4680,23 @@ var Mutate = {
   }
 };
 
-Mutate.MUTATE_NODES = {
+Mutation.MUTATE_NODES = {
   name: "MODIFY_NODES",
   config: {
     allowed: [
-      Mutate.SWAP_WEIGHT,
-      Mutate.SWAP_BIAS,
-      Mutate.MODIFY_RANDOM_SQUASH,
-      Mutate.MODIFY_RANDOM_BIAS,
-      Mutate.MODIFY_CONNECTIONS,
-      Mutate.MODIFY_NEURONS,
-      Mutate.MODIFY_SQUASH
+      Mutation.SWAP_WEIGHT,
+      Mutation.SWAP_BIAS,
+      Mutation.MODIFY_RANDOM_SQUASH,
+      Mutation.MODIFY_RANDOM_BIAS,
+      Mutation.MODIFY_CONNECTIONS,
+      Mutation.MODIFY_NEURONS,
+      Mutation.MODIFY_SQUASH
     ]
   }
 }
 
 /* Export */
-if (module) module.exports = Mutate;
+if (module) module.exports = Mutation;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 

@@ -33,9 +33,6 @@ var Mutation = {
       memory: false // should it add memory connections? for BRAIN only now
     }
   },
-  MODIFY_NEURONS: {
-    name: "MODIFY_NEURONS"
-  },
   MODIFY_SQUASH: {
     name: "MODIFY_SQUASH",
     config: {

@@ -4026,20 +4026,16 @@ Brain.prototype = {
       case(Mutation.MODIFY_CONNECTIONS):
         if(Math.random() >= 0.5){ // remove a connection
           // select two random nodes, check if they are connected, then break the connection
+          // this can be improved by just liking at the projected conns of the selected node and removing that connection...
           var node1Index;
           var node2Index;
           var connected = false;
 
           while(connected == false){
-            var node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
-            if(Mutation.MODIFY_CONNECTIONS.config.memory){ // memory connections are allowed
-              var node2Index = node1Index;
-              while(node1 == node2){
-                node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
-              }
-            } else {
-              var minBound = Math.max(node1Index+1, this.size[0]);
-              var node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2] - minBound) + minBound);
+            node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
+            node2Index = node1Index;
+            while(node1 == node2){
+              node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
             }
 
             var node1 = this.nodes[node1Index];

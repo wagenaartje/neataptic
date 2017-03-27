@@ -1,9 +1,6 @@
 # Debug
 debug.*
 
-# Work in progress
-convolutional.js
-
 # Development files
 node_modules
 backup.zip

@@ -8,8 +8,8 @@ var Methods = gynaptic.Methods;
 var Trainer = gynaptic.Trainer;
 
 Methods.Selection.FITNESS_PROPORTIONATE.config = function(r){ return Math.pow(r,1.5); };
-Methods.Mutate.MODIFY_RANDOM_BIAS.config = {min: -2, max: 2};
-Methods.Mutate.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
+Methods.Mutation.MODIFY_RANDOM_BIAS.config = {min: -2, max: 2};
+Methods.Mutation.MODIFY_RANDOM_WEIGHT.config = {min: -2, max: 2};
 
 function CreateEvol(){
   GNN = new Evolution({
@@ -18,11 +18,11 @@ function CreateEvol(){
     mutationRate: 0.3,
     networkSize : [2,3,1],
     mutationMethod: [
-      Methods.Mutate.MODIFY_RANDOM_BIAS,
-      Methods.Mutate.MODIFY_RANDOM_WEIGHT,
-      Methods.Mutate.SWAP_BIAS,
-      Methods.Mutate.SWAP_WEIGHT,
-      Methods.Mutate.MODIFY_SQUASH
+      Methods.Mutation.MODIFY_RANDOM_BIAS,
+      Methods.Mutation.MODIFY_RANDOM_WEIGHT,
+      Methods.Mutation.SWAP_BIAS,
+      Methods.Mutation.SWAP_WEIGHT,
+      Methods.Mutation.MODIFY_SQUASH
     ],
     crossOverMethod: [
       Methods.Crossover.UNIFORM,

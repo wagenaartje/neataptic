@@ -3,6 +3,7 @@ debug.*
 
 # Work in progress
 convolutional.js
+todo.txt
 
 # Development files
 node_modules

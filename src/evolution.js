@@ -2,10 +2,10 @@
 if (module) module.exports = Evolution;
 
 /* Import */
-var Layer   = require('./layer')
-,   Network = require('./network')
+var Layer   = require('./nodes/layer')
+,   Network = require('./nodes/network')
 ,   Trainer = require('./trainer')
-,   Methods = require('./methods/methods.js');
+,   Methods = require('./methods/methods');
 
 /* Shorten var names */
 var Mutation   = Methods.Mutation

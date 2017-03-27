@@ -2,11 +2,11 @@
 if (module) module.exports = Brain;
 
 /* Import */
-var Neuron    = require('./neuron')
-,   Layer     = require('./layer')
-,   Network   = require('./network')
+var Neuron    = require('./nodes/neuron')
+,   Layer     = require('./nodes/layer')
+,   Network   = require('./nodes/network')
 ,   Architect = require('./architect')
-,   Methods   = require('./methods/methods.js');
+,   Methods   = require('./methods/methods');
 
 /* Shorten var names */
 var Mutation   = Methods.Mutation
@@ -149,6 +149,7 @@ Brain.prototype = {
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
+    // This will dissect everything, using connect() won't fix this. Working on something!
     for(var node in this.nodes){
       this.nodes[node].disconnect();
     }
@@ -401,3 +402,32 @@ Brain.prototype = {
     }
   }
 };
+
+/**
+ * Creates a new brain from two parent brains
+ */
+Brain.crossOver = function(brain1, brain2, method){
+  // brains must be the same size and have the same node types to work
+  method = method || Crossover.UNIFORM;
+
+  for(node in this.nodes){
+    node = this.nodes[node];
+
+    // crossover nodes
+    switch(method){
+      case Crossover.UNIFORM:
+        break;
+      case Crossover.AVERAGE:
+        break;
+      case Crossover.SINGLE_POINT:
+        break;
+      case Crossover.TWO_POINT:
+        break;
+    }
+  }
+
+
+
+  return Network.fromJSON(offspring);
+
+}

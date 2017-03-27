@@ -4,8 +4,8 @@ if (module) module.exports = Network;
 /* Import */
 var Neuron  = require('./neuron')
 ,   Layer   = require('./layer')
-,   Trainer = require('./trainer')
-,   Methods = require('./methods/methods.js');
+,   Trainer = require('../trainer')
+,   Methods = require('../methods/methods');
 
 /* Shorten var names */
 var Mutation   = Methods.Mutation
@@ -16,6 +16,7 @@ var Mutation   = Methods.Mutation
 ,   Pooling    = Methods.Pooling
 ,   Cost       = Methods.Cost
 ,   Connection = Methods.Connection;
+
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/

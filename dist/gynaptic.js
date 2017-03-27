@@ -714,6 +714,7 @@ var Mutation   = Methods.Mutation
 ,   Pooling    = Methods.Pooling
 ,   Cost       = Methods.Cost
 ,   Connection = Methods.Connection;
+
 /*******************************************************************************************
                                          NETWORK
 *******************************************************************************************/
@@ -3962,6 +3963,7 @@ Brain.prototype = {
    * Breaks all connections so they can be reconnected again
    */
   disconnect: function(){
+    // This will dissect everything, using connect() won't fix this. Working on something!
     for(var node in this.nodes){
       this.nodes[node].disconnect();
     }
@@ -4214,6 +4216,35 @@ Brain.prototype = {
     }
   }
 };
+
+/**
+ * Creates a new brain from two parent brains
+ */
+Brain.crossOver = function(brain1, brain2, method){
+  // brains must be the same size and have the same node types to work
+  method = method || Crossover.UNIFORM;
+
+  for(node in this.nodes){
+    node = this.nodes[node];
+
+    // crossover nodes
+    switch(method){
+      case Crossover.UNIFORM:
+        break;
+      case Crossover.AVERAGE:
+        break;
+      case Crossover.SINGLE_POINT:
+        break;
+      case Crossover.TWO_POINT:
+        break;
+    }
+  }
+
+
+
+  return Network.fromJSON(offspring);
+
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
@@ -4677,11 +4708,11 @@ if (module) module.exports = Selection;
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
   Neuron    : __webpack_require__(4),
+  Layer     : __webpack_require__(2),
+  Network   : __webpack_require__(3),
   Evolution : __webpack_require__(10),
   Trainer   : __webpack_require__(5),
   Methods   : __webpack_require__(1),
-  Layer     : __webpack_require__(2),
-  Network   : __webpack_require__(3),
   Architect : __webpack_require__(6),
   Brain     : __webpack_require__(9)
 };

@@ -4,7 +4,7 @@ if (module) module.exports = Layer;
 /* Import */
 var Neuron  = require('./neuron')
 ,   Network = require('./network')
-,   Methods = require('./methods/methods.js');
+,   Methods = require('../methods/methods');
 
 /* Shorten var names */
 var Mutation   = Methods.Mutation

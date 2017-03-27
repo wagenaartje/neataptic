@@ -1,10 +1,10 @@
 var Gynaptic = {
-  Neuron    : require('./neuron'),
+  Neuron    : require('./nodes/neuron'),
+  Layer     : require('./nodes/layer'),
+  Network   : require('./nodes/network'),
   Evolution : require('./evolution'),
   Trainer   : require('./trainer'),
-  Methods   : require('./methods/methods.js'),
-  Layer     : require('./layer'),
-  Network   : require('./network'),
+  Methods   : require('./methods/methods'),
   Architect : require('./architect'),
   Brain     : require('./brain')
 };

@@ -4032,9 +4032,9 @@ Brain.prototype = {
           var connected = false;
 
           while(connected == false){
-            node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0])); // can't be an output neuron
+            node1Index = Math.floor(Math.random() * (this.size[1] + this.size[0] + this.size[2]));
             node2Index = node1Index;
-            while(node1 == node2){
+            while(node1Index == node2Index){
               node2Index = Math.floor(Math.random() * (this.size[0] + this.size[1] + this.size[2]));
             }
 
@@ -4043,15 +4043,15 @@ Brain.prototype = {
 
             // now we just check if they are connected
             if(node1 instanceof Network){
-              node1 = node1.layers.output.list[Math.floor(Math.random() * node1.layers.output.list.length)];
+              node1 = node1.layers.output.list[0];
             } else if(node1 instanceof Layer){
-              node1 = node1.list[Math.floor(Math.random() * node1.list.length)];
+              node1 = node1.list[0];
             }
 
             if(node2 instanceof Network){
-              node2 = node2.layers.output.list[Math.floor(Math.random() * node2.layers.output.list.length)];
+              node2 = node2.layers.output.list[0];
             } else if(node2 instanceof Layer){
-              node2 = node2.list[Math.floor(Math.random() * node2.list.length)];
+              node2 = node2.list[0];
             }
 
             for(var connection in node1.connections.projected){

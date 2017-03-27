@@ -38,6 +38,8 @@ Architect = gynaptic.Architect;
 ```
 
 # Example
+**At this moment, i'm busy developing the Evolution() object. I want to rebuild the way connections work so breeding nodes can be easier. Stay tuned**
+
 This is an example of the creation and loop of a genetic neural network. The goal of this genetic algorithm is too create a population that will output a value that is as high as possible (=`1`) when inputted `0`. Please note that this is just an example, and this problem is much easier to 'solve' by backpropagating.
 
 ```javascript

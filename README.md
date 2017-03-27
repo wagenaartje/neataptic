@@ -79,7 +79,7 @@ If you want to know how to set up one of these algorithms yourself, feel free to
 # Installation
 Gynaptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/385f1991/dist/gynaptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/90472a44/dist/gynaptic.js"></script>
 ```
 
 Installing with node is also possible:

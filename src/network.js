@@ -159,6 +159,46 @@ Network.prototype = {
         this.connect(connection.from, node);
         this.connect(node, connection.to);
         break;
+      case Mutation.REMOVE_NODE:
+        // Check if there are nodes left to remove
+        if(this.nodes.length == this.input + this.output){
+          throw new Error('No more nodes left to remove!');
+        }
+
+        // Select a node which isn't an input or output node
+        var index = Math.floor(Math.random() * (this.nodes.length - this.output - this.input) + this.input);
+        var node = this.nodes[index];
+
+        // Get all its inputting nodes
+        var inputs = [];
+        for(var conn = node.connections.in.length - 1; conn >= 0; conn--){
+          var input = node.connections.in[conn].from;
+          inputs.push(input);
+          this.disconnect(input, node);
+        }
+
+        // Get all its outputingg nodes
+        var outputs = [];
+        for(var conn = node.connections.out.length - 1; conn >= 0; conn--){
+          var output = node.connections.out[conn].to;
+          outputs.push(output);
+          this.disconnect(node, output);
+        }
+
+        // Connect the input nodes to the output nodes (if not already connected)
+        for(var input in inputs){
+          input = inputs[input];
+          for(var output in outputs){
+            output = outputs[output];
+            if(!input.isProjectingTo(output)){
+              this.connect(input, output);
+            }
+          }
+        }
+
+        // Remove the node from this.nodes
+        this.nodes.splice(index, 1);
+        break;
       case Mutation.ADD_CONN:
         // Calculate the maximum amount of connections
         var maxConn = 0;

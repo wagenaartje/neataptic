@@ -129,5 +129,31 @@ Node.prototype = {
         this.squash = Mutation.MOD_ACTIVATION.config.allowed[squash];
         break;
     }
-  }
+  },
+
+  /**
+   * Checks if this node is projecting to the given node
+   */
+   isProjectingTo: function(node){
+     for(conn in this.connections.out){
+       conn = this.connections.out[conn];
+       if(conn.to == node){
+         return true;
+       }
+     }
+     return false;
+   },
+
+   /**
+    * Checks if the given node is projecting to this node
+    */
+    isProjectedBy: function(node){
+      for(conn in this.connections.in){
+        conn = this.connections.in[conn];
+        if(conn.from == node){
+          return true;
+        }
+      }
+      return false;
+    }
 };

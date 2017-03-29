@@ -1,6 +1,6 @@
 # Debug
-debug.*
+debug
 
 # Development files
 node_modules
-backup.zip
+references.txt

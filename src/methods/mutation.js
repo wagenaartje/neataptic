@@ -1,0 +1,48 @@
+/* Import */
+var Activation = require('./activation');
+
+/*******************************************************************************************
+                                      MUTATION
+*******************************************************************************************/
+
+//https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
+var Mutation = {
+  ADD_NODE : {
+    name : "ADD_NODE"
+  },
+  ADD_CONN : {
+    name : "ADD_CONNECTION"
+  },
+  MOD_WEIGHT : {
+    name: "MOD_WEIGHT",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MOD_BIAS : {
+    name: "MOD_BIAS",
+    config: {
+      min: -1,
+      max: 1
+    }
+  },
+  MOD_ACTIVATION : {
+    name : "MOD_ACTIVATION",
+    config : {
+      allowed : [
+        Activation.LOGISTIC,
+        Activation.TANH,
+        Activation.RELU,
+        Activation.IDENTITY,
+        Activation.HLIM,
+        Activation.SOFTSIGN,
+        Activation.SINUSOID,
+        Activation.GAUSSIAN
+      ]
+    }
+  }
+};
+
+/* Export */
+if (module) module.exports = Mutation;

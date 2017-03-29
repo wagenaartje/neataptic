@@ -1,6 +1,5 @@
 /* Import */
 var chai = require('chai');
-chai.use(require('chai-stats'));
 var assert = chai.assert;
 var gynaptic = require('../src/gynaptic.js');
 

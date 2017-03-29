@@ -12,8 +12,7 @@
   "devDependencies": {
     "webpack": "2.2.1",
     "mocha": "^2.2.4",
-    "chai": "^3.5.0",
-    "chai-stats": "^0.3.0"
+    "chai": "^3.5.0"
   },
   "repository": {
     "type": "git",

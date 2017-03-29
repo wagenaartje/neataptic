@@ -10,8 +10,14 @@ var Mutation = {
   ADD_NODE : {
     name : "ADD_NODE"
   },
+  REMOVE_NODE : {
+    name : "REMOVE_NODE"
+  },
   ADD_CONN : {
     name : "ADD_CONNECTION"
+  },
+  REMOVE_CONN : {
+    name : "REMOVE_CONN"
   },
   MOD_WEIGHT : {
     name: "MOD_WEIGHT",

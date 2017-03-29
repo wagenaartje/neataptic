@@ -432,64 +432,6 @@ Network.prototype = {
   },
 
   /**
-   * Creates a json that can be used to create a graph with d3 and webcola
-   * assuming graph size 600x600
-   */
-   graph: function(){
-     var input = 0;
-     var output = 0;
-     var json = {
-       nodes : [],
-       links : [],
-       constraints : [
-         { type:"alignment", axis:"x", offsets:[] },
-         { type:"alignment", axis:"y", offsets:[] }
-       ]
-     };
-
-     for(index in this.nodes){
-       var node = this.nodes[index];
-       var type = node.type == 'input' ? 0 :
-         node.type == 'output' ? 1 :
-         node.squash == Activation.LOGISTIC ? 2 :
-         node.squash == Activation.TANH ? 3 :
-         node.squash == Activation.IDENTITY ? 4 :
-         node.squash == Activation.HLIM ? 5 :
-         node.squash == Activation.RELU ? 6 :
-         node.squash == Activation.SOFTSIGN ? 7 :
-         node.squash == Activation.SINUSOID ? 8 :
-         node.squash == Activation.GAUSSIAN ? 9 :
-         null;
-
-       if(type == 0){
-         json.constraints[0].offsets.push({node:index, offset : 600 / this.input * input});
-         json.constraints[1].offsets.push({node:index, offset : 0});
-         input++;
-       } else if (type == 1){
-         json.constraints[0].offsets.push({node:index, offset : 600 / this.output * output});
-         json.constraints[1].offsets.push({node:index, offset : -200});
-         output++;
-       }
-
-       json.nodes.push({
-         id: index,
-         type : type
-       });
-     }
-
-     for(connection in this.connections){
-       connection = this.connections[connection];
-       json.links.push({
-         source : this.nodes.indexOf(connection.from),
-         target : this.nodes.indexOf(connection.to),
-         weight  : connection.weight
-       });
-     }
-
-     return json;
-   },
-
-  /**
    * Mutates the network with the given method
    */
   mutate: function(method){
@@ -565,7 +507,65 @@ Network.prototype = {
         node.bias += modification;
         break;
     }
-  }
+  },
+
+  /**
+   * Creates a json that can be used to create a graph with d3 and webcola
+   * assuming graph size 600x600
+   */
+   graph: function(){
+     var input = 0;
+     var output = 0;
+     var json = {
+       nodes : [],
+       links : [],
+       constraints : [
+         { type:"alignment", axis:"x", offsets:[] },
+         { type:"alignment", axis:"y", offsets:[] }
+       ]
+     };
+
+     for(index in this.nodes){
+       var node = this.nodes[index];
+       var type = node.type == 'input' ? 0 :
+         node.type == 'output' ? 1 :
+         node.squash == Activation.LOGISTIC ? 2 :
+         node.squash == Activation.TANH ? 3 :
+         node.squash == Activation.IDENTITY ? 4 :
+         node.squash == Activation.HLIM ? 5 :
+         node.squash == Activation.RELU ? 6 :
+         node.squash == Activation.SOFTSIGN ? 7 :
+         node.squash == Activation.SINUSOID ? 8 :
+         node.squash == Activation.GAUSSIAN ? 9 :
+         null;
+
+       if(type == 0){
+         json.constraints[0].offsets.push({node:index, offset : 600 / this.input * input});
+         json.constraints[1].offsets.push({node:index, offset : 0});
+         input++;
+       } else if (type == 1){
+         json.constraints[0].offsets.push({node:index, offset : 600 / this.output * output});
+         json.constraints[1].offsets.push({node:index, offset : -200});
+         output++;
+       }
+
+       json.nodes.push({
+         id: index,
+         type : type
+       });
+     }
+
+     for(connection in this.connections){
+       connection = this.connections[connection];
+       json.links.push({
+         source : this.nodes.indexOf(connection.from),
+         target : this.nodes.indexOf(connection.to),
+         weight  : connection.weight
+       });
+     }
+
+     return json;
+   }
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -641,7 +641,12 @@ var Network = __webpack_require__(3);
                                          NEAT
 *******************************************************************************************/
 
-function Neat(){
+function Neat(input, output, options){
+  this.input = input;
+  this.output = output;
+
+  this.popsize = options.popsize || 50;
+  
   // A network should be created and COPIED
 }
 
@@ -699,8 +704,14 @@ var Mutation = {
   ADD_NODE : {
     name : "ADD_NODE"
   },
+  REMOVE_NODE : {
+    name : "REMOVE_NODE"
+  },
   ADD_CONN : {
     name : "ADD_CONNECTION"
+  },
+  REMOVE_CONN : {
+    name : "REMOVE_CONN"
   },
   MOD_WEIGHT : {
     name: "MOD_WEIGHT",

@@ -13,7 +13,19 @@ function Connection(from, to) {
 }
 
 Connection.prototype = {
+  /**
+   * Converts the node to a json
+   */
+  toJSON : function(){
+    var json = {
+      weight : this.weight,
+      id : this.ID
+    };
+
+    return json;
+  }
 };
+
 
 /**
  * Returns a unique innovation ID

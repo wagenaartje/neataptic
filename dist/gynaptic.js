@@ -238,7 +238,7 @@ Node.prototype = {
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
-      this.error.responsibility = this.error.projected = target - this.activation; // Eq. 10
+      this.error.responsibility = this.error.projected = target - this.activation;
     } else { // the rest of the nodes compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this node
       for (var connection in this.connections.out) {
@@ -316,8 +316,39 @@ Node.prototype = {
         }
       }
       return false;
+    },
+
+    /**
+     * Converts the node to a json
+     */
+    toJSON: function(){
+      var json = {
+        bias   : this.bias,
+        type   : this.type,
+        squash : this.squash.name
+      };
+
+      return json;
     }
 };
+
+/**
+ * Convert a json to a node
+ */
+Node.fromJSON = function(json){
+  var node = new Node();
+  node.bias = json.bias;
+  node.type = json.type;
+
+  for(squash in Activation){
+    if(Activation[squash].name == json.squash){
+      node.squash = Activation[squash];
+      break;
+    }
+  }
+
+  return node;
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
@@ -631,8 +662,58 @@ Network.prototype = {
      }
 
      return json;
-   }
+   },
+
+   /**
+    * Convert the network to a json
+    */
+    toJSON: function(){
+      var json = {
+        nodes : [],
+        connections : [],
+        input : this.input,
+        output : this.output
+      };
+
+      for(index in this.nodes){
+        var node = this.nodes[index].toJSON();
+        node.index = index;
+        json.nodes.push(node);
+      }
+
+      for(conn in this.connections){
+        var conn = this.connections[conn];
+        var tojson = conn.toJSON();
+        tojson.from = this.nodes.indexOf(conn.from);
+        tojson.to = this.nodes.indexOf(conn.to);
+        json.connections.push(tojson);
+      }
+      return json;
+    }
 };
+
+/**
+ * Convert a json to a network
+ */
+ Network.fromJSON = function(json){
+   var network = new Network(json.input, json.output);
+   network.nodes = [];
+   network.connections = [];
+
+   for(node in json.nodes){
+     network.nodes.push(Node.fromJSON(json.nodes[node]));
+   }
+
+   for(conn in json.connections){
+     var conn = json.connections[conn];
+
+     var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to]);
+     connection.weight = conn.weight;
+     connection.ID = conn.id;
+   }
+
+   return network;
+ }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
@@ -702,6 +783,11 @@ if (module) module.exports = Neat;
 /* Import */
 var Node = __webpack_require__(2);
 var Network = __webpack_require__(3);
+var Methods = __webpack_require__(1);
+
+/* Easier variable naming */
+var Activation = Methods.Activation;
+var Mutation   = Methods.Mutation;
 
 /*******************************************************************************************
                                          NEAT
@@ -712,11 +798,16 @@ function Neat(input, output, options){
   this.output = output;
 
   this.popsize = options.popsize || 50;
-  
+  this.mutation = options.mutation || [Mutation.ADD_NODE, Mutation.ADD_CONN];
+
   // A network should be created and COPIED
+  this.createPool();
 }
 
 Neat.prototype = {
+  createPool: function(){
+    var network = new Network(this.input, this.output);
+  }
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
@@ -740,7 +831,19 @@ function Connection(from, to) {
 }
 
 Connection.prototype = {
+  /**
+   * Converts the node to a json
+   */
+  toJSON : function(){
+    var json = {
+      weight : this.weight,
+      id : this.ID
+    };
+
+    return json;
+  }
 };
+
 
 /**
  * Returns a unique innovation ID

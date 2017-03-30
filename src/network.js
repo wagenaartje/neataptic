@@ -304,5 +304,55 @@ Network.prototype = {
      }
 
      return json;
-   }
+   },
+
+   /**
+    * Convert the network to a json
+    */
+    toJSON: function(){
+      var json = {
+        nodes : [],
+        connections : [],
+        input : this.input,
+        output : this.output
+      };
+
+      for(index in this.nodes){
+        var node = this.nodes[index].toJSON();
+        node.index = index;
+        json.nodes.push(node);
+      }
+
+      for(conn in this.connections){
+        var conn = this.connections[conn];
+        var tojson = conn.toJSON();
+        tojson.from = this.nodes.indexOf(conn.from);
+        tojson.to = this.nodes.indexOf(conn.to);
+        json.connections.push(tojson);
+      }
+      return json;
+    }
 };
+
+/**
+ * Convert a json to a network
+ */
+ Network.fromJSON = function(json){
+   var network = new Network(json.input, json.output);
+   network.nodes = [];
+   network.connections = [];
+
+   for(node in json.nodes){
+     network.nodes.push(Node.fromJSON(json.nodes[node]));
+   }
+
+   for(conn in json.connections){
+     var conn = json.connections[conn];
+
+     var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to]);
+     connection.weight = conn.weight;
+     connection.ID = conn.id;
+   }
+
+   return network;
+ }

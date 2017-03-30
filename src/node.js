@@ -77,7 +77,7 @@ Node.prototype = {
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
-      this.error.responsibility = this.error.projected = target - this.activation; // Eq. 10
+      this.error.responsibility = this.error.projected = target - this.activation;
     } else { // the rest of the nodes compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this node
       for (var connection in this.connections.out) {
@@ -155,5 +155,36 @@ Node.prototype = {
         }
       }
       return false;
+    },
+
+    /**
+     * Converts the node to a json
+     */
+    toJSON: function(){
+      var json = {
+        bias   : this.bias,
+        type   : this.type,
+        squash : this.squash.name
+      };
+
+      return json;
     }
 };
+
+/**
+ * Convert a json to a node
+ */
+Node.fromJSON = function(json){
+  var node = new Node();
+  node.bias = json.bias;
+  node.type = json.type;
+
+  for(squash in Activation){
+    if(Activation[squash].name == json.squash){
+      node.squash = Activation[squash];
+      break;
+    }
+  }
+
+  return node;
+}

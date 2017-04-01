@@ -1,6 +1,8 @@
 var Methods = {
   Activation : require('./activation'),
-  Mutation   : require('./mutation')
+  Mutation   : require('./mutation'),
+  Selection  : require('./selection'),
+  Crossover  : require('./crossover')
 };
 
 // CommonJS & AMD

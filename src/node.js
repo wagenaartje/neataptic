@@ -12,28 +12,22 @@ var Mutation   = Methods.Mutation;
                                          node
 *******************************************************************************************/
 
-function Node(type) {
+function Node(type, id) {
   this.bias = (type == 'input') ? 0 : Math.random() * .2 - .1;
   this.squash = Activation.LOGISTIC;
   this.type = type || 'hidden'; // hidden if not specified
 
+  // For networks
+  if(typeof id != 'undefined'){
+    this.ID = id;
+  }
+
   this.activation = 0;
+  this.connections = { in  : [], out : [] };
 
-  this.connections = {
-    in  : [],
-    out : []
-  };
-
-  this.error = {
-    responsibility: 0,
-    projected: 0,
-    gated: 0
-  };
-  this.trace = {
-    elegibility: {},
-    extended: {},
-    influences: {}
-  };
+  // Data for backpropagation
+  this.error = { responsibility: 0, projected: 0 };
+  this.trace = { elegibility: {} };
 }
 
 Node.prototype = {
@@ -162,6 +156,7 @@ Node.prototype = {
      */
     toJSON: function(){
       var json = {
+        ID     : this.ID,
         bias   : this.bias,
         type   : this.type,
         squash : this.squash.name
@@ -176,6 +171,7 @@ Node.prototype = {
  */
 Node.fromJSON = function(json){
   var node = new Node();
+  node.ID   = json.ID;
   node.bias = json.bias;
   node.type = json.type;
 

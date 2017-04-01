@@ -29,7 +29,7 @@ function Network(input, output){
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
     var type = (i < this.input) ? 'input' : 'output';
-    this.nodes.push(new Node(type));
+    this.nodes.push(new Node(type, this.nodes.length));
   }
 
   // Connect input nodes with output nodes directly
@@ -140,13 +140,14 @@ Network.prototype = {
 
     switch(method){
       case Mutation.ADD_NODE:
+        console.log('node added');
         // Look for an existing connection and place a node in between
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         this.disconnect(connection.from, connection.to);
 
         // Insert the new node right before the old connection.to
         var toIndex = this.nodes.indexOf(connection.to);
-        var node = new Node();
+        var node = new Node('hidden', this.nodes.length);
 
         // Random squash function
         node.mutate(Mutation.MOD_ACTIVATION);
@@ -162,7 +163,8 @@ Network.prototype = {
       case Mutation.REMOVE_NODE:
         // Check if there are nodes left to remove
         if(this.nodes.length == this.input + this.output){
-          throw new Error('No more nodes left to remove!');
+          console.warn('No more nodes left to remove!');
+          break;
         }
 
         // Select a node which isn't an input or output node
@@ -210,7 +212,10 @@ Network.prototype = {
           }
         }
 
-        if(maxConn == this.connections.length) throw new Error('Maximum amount of connections reached!');
+        if(maxConn == this.connections.length){
+          console.warn('Maximum amount of connections reached!');
+          break;
+        }
 
         var alreadyConnected = true;
         while(alreadyConnected){
@@ -355,4 +360,100 @@ Network.prototype = {
    }
 
    return network;
+ }
+
+/**
+ * Create an offspring from two parent networks
+ */
+ Network.crossOver = function(network1, network2, method){
+   if(typeof method == 'undefined'){
+     throw new Error('No crossover method given');
+   }
+
+   // Initialise offspring
+   var offspring = new Network(network1.input, network1.output);
+   offspring.connections = [];
+   offspring.nodes = [];
+
+   // Select the fittest and weakest parent and copy the networks
+   if(network1.score > network2.score){
+     var fittest = Network.fromJSON(network1.toJSON());
+     var weakest = Network.fromJSON(network2.toJSON());
+   } else {
+     var fittest = Network.fromJSON(network2.toJSON());
+     var weakest = Network.fromJSON(network1.toJSON());
+   }
+
+   // Create arrays of connection genes
+   var fitgenes = {};
+   var weakgenes = {};
+
+   for(conn in fittest.connections){
+     conn = fittest.connections[conn];
+     fitgenes[conn.ID] = conn;
+   }
+   for(conn in weakest.connections){
+     conn = weakest.connections[conn];
+     weakgenes[conn.ID] = conn;
+   }
+
+   // Gather offspring connection genes
+   for(conn in fitgenes){
+     // Check for common genes and excess genes
+     if(Object.keys(weakgenes).includes(conn)){
+       // select randomly from parents
+       if(Math.random() >= 0.5){
+         offspring.connections.push(fitgenes[conn]);
+       } else {
+         offspring.connections.push(weakgenes[conn]);
+       }
+     } else {
+       // all excess and disjoint genes come from the fittest parent
+       offspring.connections.push(fitgenes[conn]);
+     }
+   }
+
+   // Create arrays of node genes
+   var weakestIds = [];
+
+   for(node in weakest.nodes) weakestIds.push(weakest.nodes[node].ID);
+
+   // Gather offspring node genes
+   for(node in fittest.nodes){
+     node = fittest.nodes[node];
+     if(weakestIds.includes(node.ID)){
+       if(Math.random() >= 0.5){
+         offspring.nodes.push(node);
+       } else {
+         var index = weakestIds.indexOf(node.ID);
+         offspring.nodes.push(weakest.nodes[index]);
+       }
+     } else {
+       offspring.nodes.push(node);
+     }
+   }
+
+   // Reset all the connections of the nodes, create an array of ids
+   var nodeIds = [];
+   for(node in offspring.nodes){
+     node = offspring.nodes[node];
+     node.connections = { in  : [], out : [] };
+     nodeIds.push(node.ID);
+   }
+
+   // Now set up all the connections correctly
+   for(conn in offspring.connections){
+     conn = offspring.connections[conn];
+
+     var from = offspring.nodes[nodeIds.indexOf(conn.from.ID)];
+     var to   = offspring.nodes[nodeIds.indexOf(conn.to.ID)];
+
+     conn.from = from;
+     conn.to = to;
+
+     from.connections.out.push(conn);
+     to.connections.in.push(conn);
+   }
+
+   return offspring;
  }

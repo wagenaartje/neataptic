@@ -12,18 +12,13 @@ var Mutation   = Methods.Mutation;
                                          node
 *******************************************************************************************/
 
-function Node(type, id) {
+function Node(type) {
   this.bias = (type == 'input') ? 0 : Math.random() * .2 - .1;
   this.squash = Activation.LOGISTIC;
   this.type = type || 'hidden'; // hidden if not specified
 
-  // For networks
-  if(typeof id != 'undefined'){
-    this.ID = id;
-  }
-
   this.activation = 0;
-  this.connections = { in  : [], out : [] };
+  this.connections = { in : [], out : [] };
 
   // Data for backpropagation
   this.error = { responsibility: 0, projected: 0 };

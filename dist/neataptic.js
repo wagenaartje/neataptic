@@ -87,7 +87,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -124,9 +124,10 @@ module.exports = function(module) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
   Activation : __webpack_require__(4),
-  Mutation   : __webpack_require__(8),
-  Selection  : __webpack_require__(9),
-  Crossover  : __webpack_require__(7)
+  Mutation   : __webpack_require__(11),
+  Selection  : __webpack_require__(12),
+  Crossover  : __webpack_require__(10),
+  Cost       : __webpack_require__(9)
 };
 
 // CommonJS & AMD
@@ -175,18 +176,13 @@ var Mutation   = Methods.Mutation;
                                          node
 *******************************************************************************************/
 
-function Node(type, id) {
+function Node(type) {
   this.bias = (type == 'input') ? 0 : Math.random() * .2 - .1;
   this.squash = Activation.LOGISTIC;
   this.type = type || 'hidden'; // hidden if not specified
 
-  // For networks
-  if(typeof id != 'undefined'){
-    this.ID = id;
-  }
-
   this.activation = 0;
-  this.connections = { in  : [], out : [] };
+  this.connections = { in : [], out : [] };
 
   // Data for backpropagation
   this.error = { responsibility: 0, projected: 0 };
@@ -359,7 +355,7 @@ if (module) module.exports = Network;
 
 /* Import */
 var Node       = __webpack_require__(2);
-var Connection = __webpack_require__(6);
+var Connection = __webpack_require__(8);
 var Methods    = __webpack_require__(1);
 
 /* Easier variable naming */
@@ -496,7 +492,6 @@ Network.prototype = {
 
     switch(method){
       case Mutation.ADD_NODE:
-        console.log('node added');
         // Look for an existing connection and place a node in between
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         this.disconnect(connection.from, connection.to);
@@ -611,11 +606,12 @@ Network.prototype = {
 
   /**
    * Creates a json that can be used to create a graph with d3 and webcola
-   * assuming graph size 600x600
    */
-   graph: function(){
-     var input = 0;
-     var output = 0;
+   graph: function(width, height, margin){
+     var margin = margin || 100;
+     var input = 1;
+     var output = 1;
+
      var json = {
        nodes : [],
        links : [],
@@ -627,25 +623,25 @@ Network.prototype = {
 
      for(index in this.nodes){
        var node = this.nodes[index];
-       var type = node.type == 'input' ? 0 :
-         node.type == 'output' ? 1 :
+       var type = node.type == 'input'      ? 0 :
+         node.type   == 'output'            ? 1 :
          node.squash == Activation.LOGISTIC ? 2 :
-         node.squash == Activation.TANH ? 3 :
+         node.squash == Activation.TANH     ? 3 :
          node.squash == Activation.IDENTITY ? 4 :
-         node.squash == Activation.HLIM ? 5 :
-         node.squash == Activation.RELU ? 6 :
+         node.squash == Activation.HLIM     ? 5 :
+         node.squash == Activation.RELU     ? 6 :
          node.squash == Activation.SOFTSIGN ? 7 :
          node.squash == Activation.SINUSOID ? 8 :
          node.squash == Activation.GAUSSIAN ? 9 :
          null;
 
        if(type == 0){
-         json.constraints[0].offsets.push({node:index, offset : 600 / this.input * input});
+         json.constraints[0].offsets.push({node:index, offset : (width-margin) / (this.input) * input});
          json.constraints[1].offsets.push({node:index, offset : 0});
          input++;
        } else if (type == 1){
-         json.constraints[0].offsets.push({node:index, offset : 600 / this.output * output});
-         json.constraints[1].offsets.push({node:index, offset : -200});
+         json.constraints[0].offsets.push({node:index, offset : (width-margin) / (this.output+1) * output});
+         json.constraints[1].offsets.push({node:index, offset : -(height-margin)/2});
          output++;
        }
 
@@ -660,7 +656,7 @@ Network.prototype = {
        json.links.push({
          source : this.nodes.indexOf(connection.from),
          target : this.nodes.indexOf(connection.to),
-         weight  : connection.weight
+         weight : connection.weight
        });
      }
 
@@ -697,6 +693,7 @@ Network.prototype = {
 
 /**
  * Convert a json to a network
+ * See reference #4 for future changes
  */
  Network.fromJSON = function(json){
    var network = new Network(json.input, json.output);
@@ -721,9 +718,11 @@ Network.prototype = {
 /**
  * Create an offspring from two parent networks
  */
- Network.crossOver = function(network1, network2, method){
-   if(typeof method == 'undefined'){
+ Network.crossOver = function(network1, network2){
+   /*if(typeof method == 'undefined'){
      throw new Error('No crossover method given');
+   } else*/ if(network1.input != network2.input || network1.output != network2.output){
+     throw new Error("Networks don't have the same input/output size!");
    }
 
    // Initialise offspring
@@ -731,87 +730,147 @@ Network.prototype = {
    offspring.connections = [];
    offspring.nodes = [];
 
-   // Select the fittest and weakest parent and copy the networks
-   if(network1.score > network2.score){
-     var fittest = Network.fromJSON(network1.toJSON());
-     var weakest = Network.fromJSON(network2.toJSON());
+   // Save scores and create a copy
+   var score1 = network1.score || 0;
+   var score2 = network2.score || 0;
+   network1 = Network.fromJSON(network1.toJSON());
+   network2 = Network.fromJSON(network2.toJSON());
+
+   // Determine offspring node size
+   if(score1 == score2){
+     var max = Math.max(network1.nodes.length, network2.nodes.length);
+     var min = Math.min(network1.nodes.length, network2.nodes.length);
+     var size = Math.floor(Math.random() * (max-min+1) + min);
+   } else if(score1 > score2){
+     var size = network1.nodes.length;
    } else {
-     var fittest = Network.fromJSON(network2.toJSON());
-     var weakest = Network.fromJSON(network1.toJSON());
+     var size = network2.nodes.length;
+   }
+
+
+   // Assign nodes from parents to offspring
+   for(var i = 0; i < size; i++){
+     if(i < network1.nodes.length && i < network2.nodes.length){
+       var node = null;
+       if(i >= size-network1.output){
+         while(node == null || node.type != 'output'){
+           if(Math.random() >= 0.5){
+             node = network1.nodes[i];
+           } else {
+             node = network2.nodes[i];
+           }
+         }
+       } else {
+         while(node == null || (i < size-network1.output && node.type == 'output')){
+           if(Math.random() >= 0.5){
+             node = network1.nodes[i];
+           } else {
+             node = network2.nodes[i];
+           }
+         }
+       }
+
+       offspring.nodes.push(node);
+     } else if(i < network1.nodes.length){
+       if(i >= size-network1.output){
+         offspring.nodes.push(network1.nodes[network1.nodes.length - (i - (size-network1.output - 1))]);
+       } else {
+         offspring.nodes.push(network1.nodes[i]);
+       }
+     } else if(i < network2.nodes.length){
+       if(i >= size-network1.output){
+         offspring.nodes.push(network2.nodes[network2.nodes.length - (i - (size-network1.output - 1))]);
+       } else {
+         offspring.nodes.push(network2.nodes[i]);
+       }
+     }
+   }
+
+   // Clear the node connections
+   for(node in offspring.nodes){
+     offspring.nodes[node].connections = { in : [], out : [] };
    }
 
    // Create arrays of connection genes
-   var fitgenes = {};
-   var weakgenes = {};
+   var n1conns = {};
+   var n2conns = {};
 
-   for(conn in fittest.connections){
-     conn = fittest.connections[conn];
-     fitgenes[conn.ID] = conn;
-   }
-   for(conn in weakest.connections){
-     conn = weakest.connections[conn];
-     weakgenes[conn.ID] = conn;
-   }
-
-   // Gather offspring connection genes
-   for(conn in fitgenes){
-     // Check for common genes and excess genes
-     if(Object.keys(weakgenes).includes(conn)){
-       // select randomly from parents
-       if(Math.random() >= 0.5){
-         offspring.connections.push(fitgenes[conn]);
+   for(conn in network1.connections){
+     var conn = network1.connections[conn];
+     var data = {
+       weight: conn.weight,
+       from  : network1.nodes.indexOf(conn.from),
+       to    : network1.nodes.indexOf(conn.to)
+     };
+     if(data.to == network1.nodes.length - 1){
+       if(data.from < size - 1){
+         data.to = size - 1;
        } else {
-         offspring.connections.push(weakgenes[conn]);
+         continue;
        }
-     } else {
-       // all excess and disjoint genes come from the fittest parent
-       offspring.connections.push(fitgenes[conn]);
+     }
+     var id = Connection.innovationID(data.from, data.to);
+     n1conns[id] = data;
+   }
+
+   for(conn in network2.connections){
+     var conn = network2.connections[conn];
+     var data = {
+       weight: conn.weight,
+       from  : network2.nodes.indexOf(conn.from),
+       to    : network2.nodes.indexOf(conn.to)
+     };
+     if(data.to == network2.nodes.length - 1){
+       if(data.from < size - 1){
+         data.to = size - 1;
+       } else {
+         continue;
+       }
+     }
+     var id = Connection.innovationID(data.from, data.to);
+     n2conns[id] = data;
+   }
+
+
+   // Split common conn genes from disjoint or excess conn genes
+   var commongenes = {};
+   for(var id in n1conns) {
+     if(id in n2conns) {
+       commongenes[id] = [n1conns[id], n2conns[id]];
+       delete n1conns[id];
+       delete n2conns[id];
      }
    }
 
-   // Create arrays of node genes
-   var weakestIds = [];
+   // Create a list of conn genes for the offspring
+   var connections = [];
+   for(conn in commongenes){
+     var conn = Math.random() >= 0.5 ? commongenes[conn][0] : commongenes[conn][1];
+     connections.push(conn);
+   }
 
-   for(node in weakest.nodes) weakestIds.push(weakest.nodes[node].ID);
+   // Now add conn genes from the fittest parent (or both)
+   if(score1 == score2){
+     for(conn in n1conns) connections.push(n1conns[conn]);
+     for(conn in n2conns) connections.push(n2conns[conn]);
+   } else if(score1 > score2){
+     for(conn in n1conns) connections.push(n1conns[conn]);
+   } else {
+     for(conn in n2conns) connections.push(n2conns[conn]);
+   }
 
-   // Gather offspring node genes
-   for(node in fittest.nodes){
-     node = fittest.nodes[node];
-     if(weakestIds.includes(node.ID)){
-       if(Math.random() >= 0.5){
-         offspring.nodes.push(node);
-       } else {
-         var index = weakestIds.indexOf(node.ID);
-         offspring.nodes.push(weakest.nodes[index]);
-       }
-     } else {
-       offspring.nodes.push(node);
+   // Add common conn genes uniformly
+   for(conn in connections){
+     var connData = connections[conn];
+     if(connData.to < size){
+       var from = offspring.nodes[connData.from];
+       var to   = offspring.nodes[connData.to];
+       var conn = offspring.connect(from, to);
+
+       conn.weight = connData.weight;
      }
    }
 
-   // Reset all the connections of the nodes, create an array of ids
-   var nodeIds = [];
-   for(node in offspring.nodes){
-     node = offspring.nodes[node];
-     node.connections = { in  : [], out : [] };
-     nodeIds.push(node.ID);
-   }
-
-   // Now set up all the connections correctly
-   for(conn in offspring.connections){
-     conn = offspring.connections[conn];
-
-     var from = offspring.nodes[nodeIds.indexOf(conn.from.ID)];
-     var to   = offspring.nodes[nodeIds.indexOf(conn.to.ID)];
-
-     conn.from = from;
-     conn.to = to;
-
-     from.connections.out.push(conn);
-     to.connections.in.push(conn);
-   }
-
-   console.log(offspring);
    return offspring;
  }
 
@@ -877,6 +936,83 @@ if (module) module.exports = Activation;
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(module) {/* Import */
+var Network = __webpack_require__(3);
+var Methods = __webpack_require__(1);
+var Node    = __webpack_require__(2)
+
+/*******************************************************************************************
+                                        ARCHITECT
+*******************************************************************************************/
+
+/**
+ * Collection of built-in architectures
+ */
+var Architect = {
+
+  /**
+   * Returns a multilayer perceptron (MLP)
+   */
+  Perceptron: function() {
+    // Convert arguments to Array
+    var args = Array.prototype.slice.call(arguments);
+    if (args.length < 3){
+      throw new Error("not enough layers (minimum 3) !!");
+    }
+
+    var inputs = args.shift(); // first argument
+    var outputs = args.pop(); // last argument
+    var layers = args; // all the arguments in the middle
+
+    // Create the network
+    var network = new Network(inputs, outputs);
+
+    // Reset network connections
+    network.connections = [];
+    for(var node in network.nodes){
+      network.nodes[node].connections = { in : [], out : [] };
+    }
+
+
+    // Add in hidden nodes
+    for (var level in layers) {
+      for(var i = 0; i < layers[level]; i++){
+        var node = new Node();
+        network.nodes.splice(inputs, 0, node);
+      }
+    }
+
+
+    // Connect all the layers
+    var total = 0;
+    var previous = inputs;
+    layers.push(outputs);
+
+    for(var level in layers){
+      for(var i = total; i < total + previous; i++){
+        for(var j = total + previous; j < total + previous + layers[level]; j++){
+          network.connect(network.nodes[i], network.nodes[j]);
+        }
+      }
+
+      total += previous;
+      previous = layers[level];
+    }
+
+    // Return the network
+    return network;
+  }
+}
+
+/* Export */
+if (module) module.exports = Architect;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Neat;
 
@@ -934,15 +1070,8 @@ Neat.prototype = {
    */
   evolve: function(){
     // Evaluate the population
-    for(genome in this.population){
-      var score = this.fitness(this.population[genome]);
-      this.population[genome].score = score;
-    }
-
-    // Sort the population by score
-    this.population.sort(function(a,b){
-      return a.score - b. score;
-    });
+    this.evaluate();
+    this.sort();
 
     var newPopulation = [];
 
@@ -975,6 +1104,35 @@ Neat.prototype = {
   },
 
   /**
+   * Evaluates the current population
+   */
+  evaluate: function(){
+    for(genome in this.population){
+      var score = this.fitness(this.population[genome]);
+      this.population[genome].score = score;
+    }
+  },
+
+  /**
+   * Sorts the population by score
+   */
+  sort: function(){
+    this.population.sort(function(a,b){
+      return b.score - a.score;
+    });
+  },
+
+  getFittest: function(){
+    // Check if evaluated
+    if(typeof this.population[this.population.length-1].score == 'undefined'){
+      this.evaluate();
+    }
+
+    this.sort();
+    return this.population[0];
+  },
+
+  /**
    * Gets a genome based on the selection function
    * @return {Network} genome
    */
@@ -992,7 +1150,258 @@ Neat.prototype = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 6 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
+if (module) module.exports = Trainer;
+
+/* Import */
+var Methods = __webpack_require__(1);
+
+/* Shorten var names */
+var Cost = Methods.Cost;
+
+/*******************************************************************************************
+                                        TRAINER
+*******************************************************************************************/
+
+/**
+ * Creates a trainer
+ */
+function Trainer(network, options) {
+  options = options || {};
+  this.network = network;
+  this.rate = options.rate || .2;
+  this.iterations = options.iterations || 100000;
+  this.error = options.error || .005;
+  this.cost = options.cost || null;
+  this.crossValidate = options.crossValidate || null;
+}
+
+Trainer.prototype = {
+  /**
+   * Train a trainingset to a network
+   */
+  train: function(set, options) {
+    var error = 1;
+    var iterations = bucketSize = 0;
+    var abort = false;
+    var currentRate;
+    var cost = options && options.cost || this.cost || Cost.MSE;
+    var crossValidate = false, testSet, trainSet;
+
+    var start = Date.now();
+
+    // Configure given optoins
+    if (options) {
+      if (options.shuffle) {
+        //+ Jonas Raoni Soares Silva
+        //@ http://jsfromhell.com/array/shuffle [v1.0]
+        function shuffle(o) { //v1.0
+          for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+          return o;
+        };
+      }
+      if (options.iterations) this.iterations = options.iterations;
+      if (options.error) this.error = options.error;
+      if (options.rate) this.rate = options.rate;
+      if (options.cost) this.cost = options.cost;
+      if (options.schedule) this.schedule = options.schedule;
+
+      if (this.crossValidate || options.crossValidate) {
+        if(!this.crossValidate) this.crossValidate = {};
+        crossValidate = true;
+        if (options.crossValidate.testSize)
+          this.crossValidate.testSize = options.crossValidate.testSize;
+        if (options.crossValidate.testError)
+          this.crossValidate.testError = options.crossValidate.testError;
+      }
+    }
+
+    // Splits the given rates, assigns it to chunks of iteration
+    currentRate = this.rate;
+    if(Array.isArray(this.rate)){
+      var bucketSize = Math.floor(this.iterations / this.rate.length);
+    }
+
+    // Splits the given set into a training set and testing set if crossvalidation is enabled
+    if(crossValidate){
+      var numTrain = Math.ceil((1 - this.crossValidate.testSize) * set.length);
+      trainSet = set.slice(0, numTrain);
+      testSet = set.slice(numTrain);
+    }
+
+    while ((!abort && iterations < this.iterations && error > this.error)) {
+      if (crossValidate && error <= this.crossValidate.testError) {
+        break;
+      }
+      iterations++;
+
+      // If the rate is a function, calculate the new rate
+      if(typeof this.rate === 'function'){
+        currentRate = this.rate(iterations, error);
+      }
+
+      error = 0;
+
+      // Changes the rate depending on the iteration (if enabled)
+      if(bucketSize > 0) {
+        var currentBucket = Math.floor(iterations / bucketSize);
+        currentRate = this.rate[currentBucket] || currentRate;
+      }
+
+      // Checks if cross validation is enabled
+      if (crossValidate) {
+        this._trainSet(trainSet, currentRate, cost);
+        error += this.test(testSet).error;
+      } else {
+        error += this._trainSet(set, currentRate, cost);
+        error /= set.length;
+      }
+
+
+      // Checks for options such as scheduled logs and shuffling
+      if (options) {
+        if (this.schedule && this.schedule.every && iterations % this.schedule.every == 0){
+          abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate });
+        } else if (options.log && iterations % options.log == 0){
+          console.log('iterations', iterations, 'error', error, 'rate', currentRate);
+        };
+
+        if (options.shuffle) shuffle(set);
+      }
+    }
+
+    // Creates an object of the reuslts
+    var results = {
+      error: error,
+      iterations: iterations,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  /**
+   * Trains any given set to a network, using a WebWorker (only for the browser).
+   * @return a Promise of the results.
+   */
+  trainAsync: function(set, options) {
+    var train = this.workerTrain.bind(this);
+    return new Promise(function(resolve, reject) {
+      try {
+        train(set, resolve, options, true)
+      } catch(e) {
+        reject(e)
+      }
+    })
+  },
+
+  /**
+   * Performs one training epoch and returns the error
+   * private function used in this.train
+   */
+  _trainSet: function(set, currentRate, costFunction) {
+    var errorSum = 0;
+    for (var train in set) {
+      var input = set[train].input;
+      var target = set[train].output;
+
+      var output = this.network.activate(input);
+      this.network.propagate(currentRate, target);
+
+      errorSum += costFunction(target, output);
+    }
+    return errorSum;
+  },
+
+  /**
+   * Tests a set and returns the error and elapsed time
+   */
+  test: function(set, options) {
+    var error = 0;
+    var input, output, target;
+    var cost = options && options.cost || this.cost || Cost.MSE;
+
+    var start = Date.now();
+
+    for (var test in set) {
+      input = set[test].input;
+      target = set[test].output;
+      output = this.network.activate(input);
+      error += cost(target, output);
+    }
+
+    error /= set.length;
+
+    var results = {
+      error: error,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  /**
+   * Trains any given set to a network using a WebWorker
+   * [deprecated: use trainAsync instead]
+   */
+  workerTrain: function(set, callback, options, suppressWarning) {
+
+    if (!suppressWarning) {
+      console.warn('Deprecated: do not use `workerTrain`, use `trainAsync` instead.')
+    }
+    var that = this;
+
+    if (!this.network.optimized)
+      this.network.optimize();
+
+    // Create a new worker
+    var worker = this.network.worker(this.network.optimized.memory, set, options);
+
+    // train the worker
+    worker.onmessage = function(e) {
+      switch(e.data.action) {
+          case 'done':
+            var iterations = e.data.message.iterations;
+            var error = e.data.message.error;
+            var time = e.data.message.time;
+
+            that.network.optimized.ownership(e.data.memoryBuffer);
+
+            // Done callback
+            callback({
+              error: error,
+              iterations: iterations,
+              time: time
+            });
+
+            // Delete the worker and all its associated memory
+            worker.terminate();
+          break;
+
+          case 'log':
+            console.log(e.data.message);
+
+          case 'schedule':
+            if (options && options.schedule && typeof options.schedule.do === 'function') {
+              var scheduled = options.schedule.do
+              scheduled(e.data.message)
+            }
+          break;
+      }
+    };
+
+    // Start the worker
+    worker.postMessage({action: 'startTraining'});
+  },
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -1006,7 +1415,6 @@ function Connection(from, to) {
   this.weight = Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
-  this.ID = Connection.innovationUID();
 }
 
 Connection.prototype = {
@@ -1025,19 +1433,54 @@ Connection.prototype = {
 
 
 /**
- * Returns a unique innovation ID
+ * Returns an innovation ID
+ * https://en.wikipedia.org/wiki/Pairing_function (Cantor pairing function)
  */
-(function() {
-  var counter = 0;
-  Connection.innovationUID = function() {
-    return counter++;
-  }
-})();
+Connection.innovationID = function(a, b) {
+  return 1/2 * (a + b) * (a + b + 1) + b;
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                    COST FUNCTIONS
+*******************************************************************************************/
+
+// https://en.wikipedia.org/wiki/Loss_function
+var Cost = {
+  CROSS_ENTROPY: function(target, output)
+  {
+    var crossentropy = 0;
+    for (var i in output)
+      crossentropy -= target[i] * Math.log(output[i]+1e-15) + (1-target[i]) * Math.log((1+1e-15) - output[i]); // +1e-15 is a tiny push away to avoid Math.log(0)
+    return crossentropy;
+  },
+  MSE: function(target, output)
+  {
+    var mse = 0;
+    for (var i in output)
+      mse += Math.pow(target[i] - output[i], 2);
+    return mse / output.length;
+  },
+  BINARY: function(target, output){
+    var misses = 0;
+    for (var i in output)
+      misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
+    return misses;
+  }
+};
+
+/* Export */
+if (module) module.exports = Cost;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1068,7 +1511,7 @@ if (module) module.exports = Crossover;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
@@ -1129,7 +1572,7 @@ if (module) module.exports = Mutation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1151,41 +1594,43 @@ if (module) module.exports = Selection;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Gynaptic = {
-  Node    : __webpack_require__(2),
-  Neat    : __webpack_require__(5),
-  Network : __webpack_require__(3),
-  Methods : __webpack_require__(1)
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
+  Node      : __webpack_require__(2),
+  Neat      : __webpack_require__(6),
+  Network   : __webpack_require__(3),
+  Methods   : __webpack_require__(1),
+  Architect : __webpack_require__(5),
+  Trainer   : __webpack_require__(7)
 };
 
 // CommonJS & AMD
 if (true)
 {
-  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function(){ return Gynaptic }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function(){ return Neataptic }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 }
 
 // Node.js
 if (typeof module !== 'undefined' && module.exports)
 {
-  module.exports = Gynaptic;
+  module.exports = Neataptic;
 }
 
 // Browser
 if (typeof window == 'object')
 {
   (function(){
-    var oldGynaptic = window['gynaptic'];
-    Gynaptic.ninja = function(){
-      window['gynaptic'] = oldGynaptic;
-      return Gynaptic;
+    var old = window['neataptic'];
+    Neataptic.ninja = function(){
+      window['neataptic'] = old;
+      return Neataptic;
     };
   })();
 
-  window['gynaptic'] = Gynaptic;
+  window['neataptic'] = Neataptic;
 }
 
 

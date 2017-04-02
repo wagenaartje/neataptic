@@ -1,14 +1,14 @@
 /* Import */
 var chai = require('chai');
 var assert = chai.assert;
-var gynaptic = require('../src/gynaptic.js');
+var neataptic = require('../src/neataptic.js');
 
 /* Shorten var names */
-var Connection = gynaptic.Connection;
-var Neat       = gynaptic.Neat;
-var Node       = gynaptic.Node;
-var Network    = gynaptic.Network;
-var Methods    = gynaptic.Methods;
+var Connection = neataptic.Connection;
+var Neat       = neataptic.Neat;
+var Node       = neataptic.Node;
+var Network    = neataptic.Network;
+var Methods    = neataptic.Methods;
 
 /* Functions used in the testing process */
 function checkMutation(method){
@@ -57,22 +57,28 @@ describe('Networks', function () {
   });
   describe("Structure", function(){
     it("Feed-forward", function(){
-      var network = new Network(2,2);
+      var network1 = new Network(2,2);
+      var network2 = new Network(2,2);
 
       // mutate it a couple of times
       for(var i = 0; i < 100; i++){
-        network.mutate(Methods.Mutation.ADD_NODE);
+        network1.mutate(Methods.Mutation.ADD_NODE);
+        network2.mutate(Methods.Mutation.ADD_NODE);
       }
       for(var i = 0; i < 400; i++){
-        network.mutate(Methods.Mutation.ADD_CONN);
+        network1.mutate(Methods.Mutation.ADD_CONN);
+        network2.mutate(Methods.Mutation.ADD_NODE);
       }
 
-      // check if the network is feed-forward correctly
+      // Crossover
+      var network = Network.crossOver(network1, network2);
+
+      // Check if the network is feed-forward correctly
       for(conn in network.connections){
         var from = network.nodes.indexOf(network.connections[conn].from);
         var to = network.nodes.indexOf(network.connections[conn].to);
 
-        // exception will be made for memory connections soon
+        // Exception will be made for memory connections soon
         assert.isBelow(from, to, "network is not feeding forward correctly");
       }
     });

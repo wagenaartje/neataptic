@@ -9,7 +9,6 @@ function Connection(from, to) {
   this.weight = Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
-  this.ID = Connection.innovationUID();
 }
 
 Connection.prototype = {
@@ -28,11 +27,9 @@ Connection.prototype = {
 
 
 /**
- * Returns a unique innovation ID
+ * Returns an innovation ID
+ * https://en.wikipedia.org/wiki/Pairing_function (Cantor pairing function)
  */
-(function() {
-  var counter = 0;
-  Connection.innovationUID = function() {
-    return counter++;
-  }
-})();
+Connection.innovationID = function(a, b) {
+  return 1/2 * (a + b) * (a + b + 1) + b;
+}

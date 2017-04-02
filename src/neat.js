@@ -55,15 +55,8 @@ Neat.prototype = {
    */
   evolve: function(){
     // Evaluate the population
-    for(genome in this.population){
-      var score = this.fitness(this.population[genome]);
-      this.population[genome].score = score;
-    }
-
-    // Sort the population by score
-    this.population.sort(function(a,b){
-      return a.score - b. score;
-    });
+    this.evaluate();
+    this.sort();
 
     var newPopulation = [];
 
@@ -93,6 +86,35 @@ Neat.prototype = {
     // Replace the old population with the new population
     this.population = newPopulation;
     this.generation++;
+  },
+
+  /**
+   * Evaluates the current population
+   */
+  evaluate: function(){
+    for(genome in this.population){
+      var score = this.fitness(this.population[genome]);
+      this.population[genome].score = score;
+    }
+  },
+
+  /**
+   * Sorts the population by score
+   */
+  sort: function(){
+    this.population.sort(function(a,b){
+      return b.score - a.score;
+    });
+  },
+
+  getFittest: function(){
+    // Check if evaluated
+    if(typeof this.population[this.population.length-1].score == 'undefined'){
+      this.evaluate();
+    }
+
+    this.sort();
+    return this.population[0];
   },
 
   /**

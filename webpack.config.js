@@ -3,8 +3,8 @@ var license = require('./prebuild.js')
 module.exports = {
   context: __dirname,
   entry: {
-    gynaptic: './src/gynaptic.js',
-    'gynaptic.min': './src/gynaptic.js'
+    neataptic: './src/neataptic.js',
+    'neataptic.min': './src/neataptic.js'
   },
   output: {
     path: 'dist',

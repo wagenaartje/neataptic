@@ -1,8 +1,8 @@
 {
-  "name": "gynaptic",
-  "version": "1.0.5",
+  "name": "neataptic",
+  "version": "1.0.0",
   "description": "architecture-free neural network library with genetic algorithm implementations",
-  "main": "./src/gynaptic",
+  "main": "./src/neataptic",
   "scripts": {
     "test:travis": "mocha test && npm run build",
     "build": "webpack"
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wagenaartje/gynaptic.git"
+    "url": "https://github.com/wagenaartje/neataptic.git"
   },
   "keywords": [
     "neural network",
@@ -26,12 +26,12 @@
   "author": "Thomas Wagenaar <wagenaartje@protonmail.com>",
   "license": {
     "type": "MIT",
-    "url": "https://github.com/wagenaartje/gynaptic/blob/master/LICENSE"
+    "url": "https://github.com/wagenaartje/neataptic/blob/master/LICENSE"
   },
   "bugs": {
-    "url": "https://github.com/wagenaartje/gynaptic/issues"
+    "url": "https://github.com/wagenaartje/neataptic/issues"
   },
-  "homepage": "http://wagenaartje.github.io/gynaptic/",
+  "homepage": "http://wagenaartje.github.io/neataptic/",
   "engines": {
     "node": ">=6"
   }

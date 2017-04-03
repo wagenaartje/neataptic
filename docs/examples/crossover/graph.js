@@ -140,9 +140,9 @@ $( document ).ready(function() {
   });
   $( ".subnode" ).click(function() {
     if($(this).data('parent') == '1'){
-      parent1.mutate(Methods.Mutation.REMOVE_NODE);
+      parent1.mutate(Methods.Mutation.SUB_NODE);
     } else {
-      parent2.mutate(Methods.Mutation.REMOVE_NODE);
+      parent2.mutate(Methods.Mutation.SUB_NODE);
     }
 
     refresh($(this).data('parent'));
@@ -157,7 +157,15 @@ $( document ).ready(function() {
 
     refresh($(this).data('parent'));
   });
+  $( ".subconn" ).click(function() {
+    if($(this).data('parent') == '1'){
+      parent1.mutate(Methods.Mutation.SUB_CONN);
+    } else {
+      parent2.mutate(Methods.Mutation.SUB_CONN);
+    }
 
+    refresh($(this).data('parent'));
+  });
 
   $( ".crossover" ).click(function() {
     parent1.score = 1;

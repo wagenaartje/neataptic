@@ -11,7 +11,7 @@ function newNeat(){
       Methods.Mutation.ADD_CONN,
       Methods.Mutation.MOD_WEIGHT,
       Methods.Mutation.MOD_BIAS,
-      Methods.Mutation.REMOVE_NODE,
+      Methods.Mutation.SUB_NODE,
     ],
     mutationRate: 0.3,
     equal: true

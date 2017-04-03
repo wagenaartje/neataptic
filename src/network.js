@@ -92,11 +92,8 @@ Network.prototype = {
    * Connects the from node to the to node
    */
   connect: function(from, to){
-    var connection = new Connection(from, to);
-
+    var connection = from.connect(to);
     this.connections.push(connection);
-    connection.to.connections.in.push(connection);
-    connection.from.connections.out.push(connection);
 
     return connection;
   },
@@ -113,21 +110,8 @@ Network.prototype = {
       }
     }
 
-    // Delete the connection at the input neuron
-    for(conn in to.connections.in){
-      if(to.connections.in[conn].from == from){
-        to.connections.in.splice(conn, 1);
-        break;
-      }
-    }
-
-    // Delete the connection at output neuron
-    for(conn in from.connections.out){
-      if(from.connections.out[conn].to == to){
-        from.connections.out.splice(conn, 1);
-        break;
-      }
-    }
+    // Delete the connection at the sending and receiving neuron
+    from.disconnect(to);
   },
 
   /**
@@ -159,7 +143,7 @@ Network.prototype = {
         this.connect(connection.from, node);
         this.connect(node, connection.to);
         break;
-      case Mutation.REMOVE_NODE:
+      case Mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if(this.nodes.length == this.input + this.output){
           console.warn('No more nodes left to remove!');
@@ -235,6 +219,25 @@ Network.prototype = {
         }
 
         this.connect(node1, node2);
+        break;
+      case Mutation.SUB_CONN:
+        // List of possible connections that can be removed
+        var possible = [];
+
+        for(conn in this.connections){
+          conn = this.connections[conn];
+          // Check if it is not disabling a node
+          if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1){
+            possible.push(conn);
+          }
+        }
+
+        if(possible.length == 0){
+          console.warn('No connections to remove!');
+        }
+
+        var randomConn = possible[Math.floor(Math.random() * possible.length)];
+        this.disconnect(randomConn.from, randomConn.to);
         break;
       case Mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
@@ -363,13 +366,48 @@ Network.prototype = {
    return network;
  }
 
+ /**
+  * Merge two networks into one
+  */
+ Network.merge = function(network1, network2){
+   // Create a copy of the networks
+   network1 = Network.fromJSON(network1.toJSON());
+   network2 = Network.fromJSON(network2.toJSON());
+
+   // Check if output and input size are the same
+   if(network1.output != network2.input){
+     throw new Error('Output size of network1 should be the same as the input size of network2!');
+   }
+
+   // Redirect all connections from network2 input to network1 output
+   for(conn in network2.connections){
+     conn = network2.connections[conn];
+     if(conn.from.type == 'input'){
+       var index = network2.nodes.indexOf(conn.from);
+       var node = network2.nodes[index];
+
+       // redirect
+       conn.from = network1.nodes[network1.nodes.length - 1 - index];
+     }
+   }
+
+   // Change the node type of network1's output nodes (now hidden)
+   for(var i = network1.nodes.length - 1 - network1.output; i < network1.nodes.length; i++){
+     network1.nodes[i].type = 'hidden';
+   }
+
+   // Create one network of both networks
+   network1.connections = network1.connections.concat(network2.connections);
+   network1.nodes = network1.nodes.concat(network2.nodes);
+
+   return network1;
+ }
+
 /**
  * Create an offspring from two parent networks
  */
  Network.crossOver = function(network1, network2){
-   /*if(typeof method == 'undefined'){
-     throw new Error('No crossover method given');
-   } else*/ if(network1.input != network2.input || network1.output != network2.output){
+   if(network1.input != network2.input || network1.output != network2.output){
      throw new Error("Networks don't have the same input/output size!");
    }
 

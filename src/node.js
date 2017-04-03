@@ -2,7 +2,8 @@
 if (module) module.exports = Node;
 
 /* Import */
-var Methods = require('./methods/methods');
+var Methods    = require('./methods/methods');
+var Connection = require('./connection');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -30,9 +31,11 @@ Node.prototype = {
    * Activates the node
    */
   activate: function(input){
-    // Check if it's an input node
-    if(this.type == 'input'){
+    // Check if an input is given
+    if (typeof input != 'undefined') {
       this.activation = input;
+      this.derivative = 0;
+      this.bias = 0;
       return this.activation;
     }
 
@@ -57,6 +60,7 @@ Node.prototype = {
 
     return this.activation;
   },
+
   /**
    * Back-propagate the error
    */
@@ -97,6 +101,39 @@ Node.prototype = {
     // Adjust bias
     this.bias += rate * this.error.responsibility;
   },
+
+  /**
+   * Creates a connection from this node to the given node
+   */
+  connect: function(node){
+    var connection = new Connection(this, node);
+
+    this.connections.out.push(connection);
+    node.connections.in.push(connection);
+
+    return connection;
+  },
+
+  /**
+   * Disconnects this node from the other node
+   */
+   disconnect: function(node, twosided){
+     twosided = twosided || false;
+
+     for(var i in this.connections.out){
+       var conn = this.connections.out[i];
+       if(conn.to == node){
+         this.connections.out.splice(i, 1);
+         var j = conn.to.connections.in.indexOf(conn);
+         conn.to.connections.in.splice(j, 1);
+         break;
+       }
+     }
+
+     if(twosided){
+       node.disconnect(this);
+     }
+   },
 
   /**
    * Mutates the node with the given method

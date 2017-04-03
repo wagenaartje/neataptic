@@ -10,7 +10,7 @@ competitors is neuro-evolution. You can evolve neural networks through a process
 
 ## Usage
 Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
-over to the graph folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:
+over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:
 
 ```javascript
 var network = new Architect.Perceptron(2,4,1);

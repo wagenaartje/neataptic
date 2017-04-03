@@ -1037,6 +1037,7 @@ function Neat(input, output, fitness, options){
   this.fitness = fitness; // The fitness function to evaluate the networks
 
   // Configure options
+  this.equal        = options.equal        || false;
   this.popsize      = options.popsize      || 50;
   this.elitism      = options.elitism      || 0;
   this.mutation     = options.mutation     || [Mutation.ADD_NODE, Mutation.ADD_CONN];
@@ -1084,6 +1085,11 @@ Neat.prototype = {
     for(var i = 0; i < this.popsize - this.elitism; i++){
       var parent1 = this.getParent();
       var parent2 = this.getParent();
+
+      if(this.equal == true){
+        parent1.score = 0;
+        parent2.score = 0;
+      }
 
       var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
       var offspring = Network.crossOver(parent1, parent2, crossoverMethod);

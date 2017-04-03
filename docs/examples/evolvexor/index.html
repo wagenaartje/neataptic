@@ -1,0 +1,164 @@
+
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Example of evolving the XOR gate">
+      <meta name="author" content="Thomas Wagenaar">
+
+      <title>Neataptic.js - Evolve XOR</title>
+
+      <!-- JQuery -->
+      <script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA=" crossorigin="anonymous"></script>
+
+      <!-- Bootstrap -->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- Custom CSS -->
+      <link href="../../custom.css" rel="stylesheet">
+
+      <!-- Social buttons -->
+      <link rel="stylesheet" href="../../libs/social.css">
+
+      <!-- Fonts -->
+      <script src="https://use.fontawesome.com/c33ca51140.js"></script>
+
+      <!-- Neataptic -->
+      <script src="../../../dist/neataptic.js"></script>
+
+      <!-- Google Analytics -->
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-51480408-2', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+
+      <!-- Navigation -->
+      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+          <div class="container">
+              <!-- Brand and toggle get grouped for better mobile display -->
+              <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="../../"><i class="fa fa-lg fa-grav"></i> Neataptic.js</a>
+              </div>
+              <!-- Collect the nav links, forms, and other content for toggling -->
+              <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                  <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+    										<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Examples <span class="caret"></span></a>
+    										<ul class="dropdown-menu" role="menu">
+    											<li><a href="../crossover">Crossover</a></li>
+                          <li><a href="#">Evolve XOR</a></li>
+    										</ul>
+    									</li>
+                      <li>
+                          <a href="https://github.com/wagenaartje/gynaptic/wiki" target="_blank">Documentation</a>
+                      </li>
+                      <li>
+                        <a class="navbar-brand" href="https://github.com/wagenaartje/gynaptic" target="_blank"><i class="fa fa-lg fa-github"></i> Github</a>
+                      </li>
+                  </ul>
+              </div>
+          </div>
+      </nav>
+
+      <div class="container">
+        <div class="row">
+          <h1>Evolve XOR</h1>
+          <p>The XOR gate is a non-linear gate. Thus it requires hidden layers. The following example will start from scratch; a network with just 2 input neurons and 1 output neuron.
+          the neural network will evolve to a network that resembles the XOR gate. No backpropagation is involved! <i>The simulation should reach the goal within 500 gens, otherwise press 'again'!</i></p>
+          <button class="btn btn-danger start">Start evolution</button>
+        </div>
+        <hr>
+        <div class="row" style="margin-top: 15px;">
+          <div class="col-md-4" style="padding-left: 0;">
+            <div class="panel panel-default" >
+              <div class="panel-heading">Visualisation fittest genome</div>
+              <div class="panel-body">
+                <svg class="xor">
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="btn-group-vertical">
+              <button class="btn btn-warning">Fittest genome output</button>
+              <button class="btn btn-default"><span class="label label-default">[ 0,0 ]</span> : <span class="00">0</span></button>
+              <button class="btn btn-default"><span class="label label-default">[ 0,1 ]</span> : <span class="01">0</span></button>
+              <button class="btn btn-default"><span class="label label-default">[ 1,0 ]</span> : <span class="10">0</span></button>
+              <button class="btn btn-default"><span class="label label-default">[ 1,1 ]</span> : <span class="11">0</span></button>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="btn-group-vertical">
+              <button class="btn btn-danger">Fittest genome stats</button>
+              <button class="btn btn-default">Fitness: <span class="score">0</span></button>
+              <button class="btn btn-default">Nodes: <span class="nodes">0</span></button>
+              <button class="btn btn-default">Conns: <span class="conns">0</span></button>
+            </div>
+          </div>
+          <div class="col-md-2" style="padding-right: 0;">
+            <div class="btn-group-vertical">
+              <button class="btn btn-danger">GA stats</button>
+              <button class="btn btn-default">Generation: <span class="gen">0</span></button>
+            </div>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-md-6" style="padding-left: 0">
+            <h4>Fitness function is key</h4>
+            <p class="small">If you want to evolve neural networks through evolution, you have to ensure that the fitness function stimulates improvement. The fitness function on the right
+            is used in the above example.</p>
+            <p class="small">
+            The first part of the function just calculates the distance towards the goal. However, using the built-in MSE cost function. If you'd just use the absolute distance, the neural network would not surpass a local optima.</p>
+
+            <p class="small">The second part is more crucial; without this part, the evolution will fail to pass the fitness of <i>-5000</i> in 8/10 cases. The second part basically states: if the genome's
+              score is below 3/4 of the maximal score, then networks 6 nodes are desired. This stimulates larger networks. On the other side, it states that it doesn't want all the nodes
+             to be interconnected (5 is far below max connection amount); this stimulates different topologies.</p>
+            <p class="small"><i>Please do note that the above neural network is not optimized; it has far to many nodes. If you'd want to reduce the amount of nodes, you should add node and connection amount
+            penalty for above the -5000 barrier. I did not include that in the example above, as the simulation would take too long.</i></p>
+          </div>
+          <div class="col-md-6">
+            <pre>
+function fitnessFunction(genome){
+  var score = 0;
+
+  // XOR distance
+  score -= Methods.Cost.MSE([0], genome.activate([0, 0])) * 5000;
+  score -= Methods.Cost.MSE([1], genome.activate([0, 1])) * 5000;
+  score -= Methods.Cost.MSE([1], genome.activate([1, 0])) * 5000;
+  score -= Methods.Cost.MSE([0], genome.activate([1, 1])) * 5000;
+
+  // Size reduction
+  if(score <= -5000){
+    score -= Math.abs(6 - genome.nodes.length) * 1;
+    score -= Math.abs(5 - genome.connections.length) * 1;
+  }
+
+  return Math.round(score);
+}</pre>
+          </div>
+
+        </div>
+      </div>
+
+
+      <script src="../../libs/d3v3.js"></script>
+      <script src="../../libs/webcola.js"></script>
+      <script src="events.js"></script>
+      <script src="graph.js"></script>
+      <script src="neural.js"></script>
+
+  </body>
+</html>

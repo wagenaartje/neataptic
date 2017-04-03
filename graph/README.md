@@ -61,3 +61,16 @@ var WIDTH = 1000;        // width of your graph
 var HEIGHT = 500;        // height of your graph
 [...]
 ```
+
+## Disable constraints
+Normally graphs look like the network on the left. If you want a more fluid design, disable constraints, and you'll get a graph like on the right:
+
+<img src="https://camo.githubusercontent.com/4a9aa3c7ad75705ce1d3eaf5e0321a95f89882ac/68747470733a2f2f692e6779617a6f2e636f6d2f35663035323435656463303264346332383039376434303932383536386565312e706e67" width="50%"/><img src="https://i.gyazo.com/3a49943c195b454cf711e77b3bfbfd62.png" width="50%"/>
+
+In `graph.js`, remove line 60:
+
+```js
+.constraints(graph.constraints) // remove this line
+```
+
+This basically makes the input and output nodes less distinguishable.

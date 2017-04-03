@@ -1,4 +1,4 @@
-# Neataptic [![Build Status](https://travis-ci.org/wagenaartje/gynaptic.svg?branch=master)](https://travis-ci.org/wagenaartje/gynaptic)
+# Neataptic [![Build Status](https://travis-ci.org/wagenaartje/neataptic.svg?branch=master)](https://travis-ci.org/wagenaartje/neataptic)
 
 Neataptic is thé Javascript neural network solution. Not only does it allow you to create neural networks on-the-go, it also allows you
 to visualise your networks to understand what's really going on. An important aspect that neataptic introduces in comparison with its
@@ -9,7 +9,7 @@ competitors is neuro-evolution. You can evolve neural networks through a process
 [Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/examples/crossover)
 
 ## Usage
-Head over to the [wiki](https://github.com/wagenaartje/gynaptic/wiki) for detailed usage. If you want to visualise your graphs, head
+Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
 over to the graph folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:
 
 ```javascript
@@ -40,7 +40,7 @@ of Neataptic, feel free to create a pull request!
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/gynaptic/90472a44/dist/gynaptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/neataptic/0fe30083/dist/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

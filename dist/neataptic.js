@@ -622,7 +622,7 @@ Network.prototype = {
         }
 
         if(possible.length == 0){
-          throw new Error('No connections to remove!');
+          console.warn('No connections to remove!');
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];

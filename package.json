@@ -4,7 +4,7 @@
   "description": "architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
-    "test:travis": "mocha test && npm run build",
+    "test:travis": "npm run build",
     "build": "webpack"
   },
   "devDependencies": {

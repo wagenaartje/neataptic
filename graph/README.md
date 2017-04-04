@@ -11,8 +11,10 @@ The html file should include [d3v3](http://d3js.org/d3.v3.min.js) and [webcola](
 
     <script src="/libs/neataptic.js"></script>
     <script src="/libs/graph.js"></script>
-
+ 
     <script src="script.js"></script>
+    
+    <link rel="stylesheet" type="text/css" href="/libs/graph.css">
   </head>
   <body>
     <div class="container">
@@ -49,7 +51,7 @@ var data = myNetwork.graph(width, height);
 ```
 
 #### Graph.js
-Finally, in the graph.js file, make sure to set the `WIDTH` and `HEIGHT` to the desired amount.
+In the graph.js file, make sure to set the `WIDTH` and `HEIGHT` to the desired amount.
 
 ```javascript
 [...]
@@ -61,6 +63,9 @@ var WIDTH = 1000;        // width of your graph
 var HEIGHT = 500;        // height of your graph
 [...]
 ```
+
+#### Graph.css
+Make sure to include graph.css in your html file. This makes sure your connections are visible and makes the nodes more eye-appealing.
 
 ## Disable constraints
 Normally graphs look like the network on the left. If you want a more fluid design, disable constraints, and you'll get a graph like on the right:

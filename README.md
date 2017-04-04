@@ -29,6 +29,8 @@ trainer.train([
 );
 ```
 
+If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
+
 ## Examples
 Neural networks can be used for nearly anything; driving a car, playing a game and even to predict words! At this moment, 
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users

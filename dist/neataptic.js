@@ -658,7 +658,11 @@ Network.prototype = {
        constraints : [
          { type:"alignment", axis:"x", offsets:[] },
          { type:"alignment", axis:"y", offsets:[] }
-       ]
+       ],
+       main : {
+         maxActivation : 0,
+         maxWeight: 0
+       }
      };
 
      for(index in this.nodes){
@@ -685,9 +689,14 @@ Network.prototype = {
          output++;
        }
 
+       if(node.activation > json.main.maxActivation){
+         json.main.maxActivation = node.activation;
+       }
+
        json.nodes.push({
          id: index,
-         type : type
+         type : type,
+         activation : node.activation
        });
      }
 
@@ -698,6 +707,10 @@ Network.prototype = {
          target : this.nodes.indexOf(connection.to),
          weight : connection.weight
        });
+
+       if(connection.weight > json.main.maxWeight){
+         json.main.maxWeight = connection.weight;
+       }
      }
 
      return json;

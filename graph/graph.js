@@ -24,6 +24,23 @@ var colorTable = [
   '#257580',  // gaussian
 ];
 
+var activationColor = function(value, max){
+  var power = Math.min(value/max, 1);
+  if(0 <= power < 0.5){
+    var g = 1.0
+    var r = 2 * power
+  } else {
+    var r = 1.0
+    var g = 1.0 - 2 * (power - 0.5)
+  }
+
+  r = Math.round(255 * r);
+  g = Math.round(255 * g);
+  var b = 0;
+
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+
 var NODE_RADIUS = 7;
 var REPEL_FORCE = 10;
 var LINK_DISTANCE = 100;
@@ -35,7 +52,7 @@ var d3cola = cola.d3adaptor()
       .avoidOverlaps(true)
       .size([WIDTH, HEIGHT]);
 
-var drawGraph = function(graph, panel) {
+var drawGraph = function(graph, panel, activation) {
     var svg = d3.select(panel);
 
     d3.selectAll(panel + "> *").remove();
@@ -66,7 +83,18 @@ var drawGraph = function(graph, panel) {
         .data(graph.links)
         .enter().append('svg:path')
         .attr('class', 'link')
-        .style("stroke-width", function (d) { return 1.5 + Math.sqrt(d.weight * 5); });
+        .style("stroke-width", function (d) {
+          if(activation){
+            return 1.5;
+          } else {
+            return 1.5 + Math.sqrt(d.weight * 5);
+          }
+          })
+        .style("stroke", function (d) {
+              if(activation){
+                return activationColor(d.source.activation * d.weight, graph.main.maxActivation * graph.main.maxWeight);
+              }
+          });
 
     var node = svg.selectAll(".node")
         .data(graph.nodes)
@@ -74,7 +102,12 @@ var drawGraph = function(graph, panel) {
         .attr("class", "node")
         .attr("r", function(d) { return NODE_RADIUS; })
         .style("fill", function (d) {
-              return colorTable[d.type];
+              if(activation){
+                return activationColor(d.activation, graph.main.maxActivation);
+              } else {
+                return colorTable[d.type];
+              }
+
           })
         .call(d3cola.drag);
 

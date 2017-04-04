@@ -79,3 +79,14 @@ In `graph.js`, remove line 60:
 ```
 
 This basically makes the input and output nodes less distinguishable.
+
+## Show activation
+You can also draw graphs that display which nodes have a higher state linked to a certain input. Make sure to activate the network before visualising it. Something like this:
+
+<img src="https://i.gyazo.com/84e731eab3b1fabf410ee0d14c18bacb.png"/>
+
+All you have to is add an extra parameter to `drawGraph()`:
+
+```javascript
+drawGraph(network.graph(1000, 800), '.svg', true); // set it to true
+```

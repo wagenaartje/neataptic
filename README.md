@@ -3,7 +3,7 @@
 Neataptic is thé Javascript neural network solution. Not only does it allow you to create neural networks on-the-go, it also allows you
 to visualise your networks to understand what's really going on. An important aspect that neataptic introduces in comparison with its
 competitors is neuro-evolution. You can evolve neural networks through a process described in the 
-[NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. Scroll down for some examples!
+[NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. Scroll down for some examples! Appreciate the repo? Show it by starring it! :star:
 
 <img src="https://i.gyazo.com/5f05245edc02d4c28097d40928568ee1.png" width="33%"/><img src="https://i.gyazo.com/0c2009a073053af5d3729bd361f8b8a6.png" width="33%"/><img src="https://i.gyazo.com/9934cb575d0c24a6faa23dbc3a055ffd.png" width="33%"/>
 [Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/examples/crossover)

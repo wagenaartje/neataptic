@@ -13,7 +13,7 @@ function newNeat(){
       Methods.Mutation.MOD_BIAS,
       Methods.Mutation.SUB_NODE,
     ],
-    mutationRate: 0.3,
+    mutationRate: 0.4,
     equal: true
   });
 }
@@ -33,11 +33,13 @@ function fitnessFunction(genome){
     score -= Math.abs(5 - genome.connections.length) * 1;
   }
 
+  score -= genome.nodes.length + genome.connections.length * (-5000/score);
+
   return Math.round(score);
 }
 
 function loop(){
-  for(var i = 0; i < 20; i++){
+  for(var i = 0; i < 50; i++){
     neat.evolve();
   }
 
@@ -60,8 +62,7 @@ function loop(){
 
   $(".gen").text(neat.generation);
 
-
-  if(fittest.score < -250 && neat.generation < 500){
+  if(fittest.score < -500 && neat.generation < 500){
     setTimeout(loop, 100);
   } else {
     $( ".start" ).text('Again');

@@ -126,8 +126,7 @@
             <p class="small">The second part is more crucial; without this part, the evolution will fail to pass the fitness of <i>-5000</i> in 8/10 cases. The second part basically states: if the genome's
               score is below 3/4 of the maximal score, then networks 6 nodes are desired. This stimulates larger networks. On the other side, it states that it doesn't want all the nodes
              to be interconnected (5 is far below max connection amount); this stimulates different topologies.</p>
-            <p class="small"><i>Please do note that the above neural network is not optimized; it has far to many nodes. If you'd want to reduce the amount of nodes, you should add node and connection amount
-            penalty for above the -5000 barrier. I did not include that in the example above, as the simulation would take too long.</i></p>
+            <p class="small">The last part is an overall penalty for large networks. This makes sure you won't have a network with hundreds of (unnecessary!) nodes.</p>
           </div>
           <div class="col-md-6">
             <pre>
@@ -145,6 +144,8 @@ function fitnessFunction(genome){
     score -= Math.abs(6 - genome.nodes.length) * 1;
     score -= Math.abs(5 - genome.connections.length) * 1;
   }
+
+  score -= genome.nodes.length + genome.connections.length * (-5000/score);
 
   return Math.round(score);
 }</pre>

@@ -106,7 +106,7 @@ describe('Neat', function () {
     }
   });
   it("XNOR", function(){
-    this.timeout(40000);
+    this.timeout(60000);
 
     // Construct the neat instance
     var neat = new Neat(2, 1, fitnessFunction, {
@@ -128,7 +128,7 @@ describe('Neat', function () {
 
     // Get average and check if it's enough
     var average = neat.getAverage();
-    assert.isAbove(average, -1500);
+    assert.isAbove(average, -2500);
 
     // Fitness function
     function fitnessFunction(genome){

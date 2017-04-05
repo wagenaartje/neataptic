@@ -146,7 +146,7 @@ Network.prototype = {
       case Mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if(this.nodes.length == this.input + this.output){
-          console.warn('No more nodes left to remove!');
+          if(Mutation.config.warnings) console.warn('No more nodes left to remove!');
           break;
         }
 
@@ -196,7 +196,7 @@ Network.prototype = {
         }
 
         if(maxConn == this.connections.length){
-          console.warn('Maximum amount of connections reached!');
+          if(Mutation.config.warnings) console.warn('Maximum amount of connections reached!');
           break;
         }
 
@@ -233,7 +233,8 @@ Network.prototype = {
         }
 
         if(possible.length == 0){
-          console.warn('No connections to remove!');
+          if(Mutation.config.warnings) console.warn('No connections to remove!');
+          break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];

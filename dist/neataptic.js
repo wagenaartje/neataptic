@@ -535,7 +535,7 @@ Network.prototype = {
       case Mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if(this.nodes.length == this.input + this.output){
-          console.warn('No more nodes left to remove!');
+          if(Mutation.config.warnings) console.warn('No more nodes left to remove!');
           break;
         }
 
@@ -585,7 +585,7 @@ Network.prototype = {
         }
 
         if(maxConn == this.connections.length){
-          console.warn('Maximum amount of connections reached!');
+          if(Mutation.config.warnings) console.warn('Maximum amount of connections reached!');
           break;
         }
 
@@ -622,7 +622,8 @@ Network.prototype = {
         }
 
         if(possible.length == 0){
-          console.warn('No connections to remove!');
+          if(Mutation.config.warnings) console.warn('No connections to remove!');
+          break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
@@ -1558,7 +1559,6 @@ Neat.prototype = {
         parent1.score = 0;
         parent2.score = 0;
       }
-
       var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
       var offspring = Network.crossOver(parent1, parent2, crossoverMethod);
       newPopulation.push(offspring);
@@ -1596,6 +1596,9 @@ Neat.prototype = {
     });
   },
 
+  /**
+   * Returns the fittest genome of the current population
+   */
   getFittest: function(){
     // Check if evaluated
     if(typeof this.population[this.population.length-1].score == 'undefined'){
@@ -1605,6 +1608,18 @@ Neat.prototype = {
     this.sort();
     return this.population[0];
   },
+
+  /**
+   * Returns the average fitness of the current population
+   */
+   getAverage: function(){
+     var score = 0;
+     for(genome in this.population){
+       score += this.fitness(this.population[genome]);
+     }
+
+     return score / this.popsize;
+   },
 
   /**
    * Gets a genome based on the selection function
@@ -1744,6 +1759,9 @@ var Mutation = {
         Activation.GAUSSIAN
       ]
     }
+  },
+  config : {
+    warnings: false,
   }
 };
 

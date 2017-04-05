@@ -75,7 +75,6 @@ Neat.prototype = {
         parent1.score = 0;
         parent2.score = 0;
       }
-
       var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
       var offspring = Network.crossOver(parent1, parent2, crossoverMethod);
       newPopulation.push(offspring);
@@ -113,6 +112,9 @@ Neat.prototype = {
     });
   },
 
+  /**
+   * Returns the fittest genome of the current population
+   */
   getFittest: function(){
     // Check if evaluated
     if(typeof this.population[this.population.length-1].score == 'undefined'){
@@ -122,6 +124,18 @@ Neat.prototype = {
     this.sort();
     return this.population[0];
   },
+
+  /**
+   * Returns the average fitness of the current population
+   */
+   getAverage: function(){
+     var score = 0;
+     for(genome in this.population){
+       score += this.fitness(this.population[genome]);
+     }
+
+     return score / this.popsize;
+   },
 
   /**
    * Gets a genome based on the selection function

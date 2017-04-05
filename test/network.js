@@ -5,6 +5,8 @@ var neataptic = require('../src/neataptic.js');
 
 /* Shorten var names */
 var Connection = neataptic.Connection;
+var Architect  = neataptic.Architect;
+var Trainer    = neataptic.Trainer;
 var Neat       = neataptic.Neat;
 var Node       = neataptic.Node;
 var Network    = neataptic.Network;
@@ -12,12 +14,7 @@ var Methods    = neataptic.Methods;
 
 /* Functions used in the testing process */
 function checkMutation(method){
-  var network = new Network(2,2);
-
-  // it should have a few extra nodes to begin with
-  for(var i = 0; i < 3; i++){
-    network.mutate(Methods.Mutation.ADD_NODE);
-  }
+  var network = new Architect.Perceptron(2, 4, 4, 4, 2);
 
   var originalOutput = [];
   for(var i = 0; i <= 10; i++){
@@ -36,10 +33,28 @@ function checkMutation(method){
     }
   }
 
-  assert.notDeepEqual(originalOutput, mutatedOutput, method.name + " failed!");
+  assert.notDeepEqual(originalOutput, mutatedOutput, "Output of original network should be different from the mutated network!");
 }
 
-/* Start tesing */
+function learnSet(set, iterations, error){
+  var network = new Architect.Perceptron(set[0].input.length, 5, set[0].output.length);
+  var trainer = new Trainer(network);
+
+  var options = {
+    iterations: iterations,
+    error: .001,
+    shuffle: true
+  };
+
+  var results = trainer.train(set, options);
+
+  assert.isBelow(results.error, error);
+}
+
+/*******************************************************************************************
+                          Test the performance of networks
+*******************************************************************************************/
+
 describe('Networks', function () {
   describe("Mutation", function(){
     it("ADD_NODE", function(){
@@ -53,6 +68,12 @@ describe('Networks', function () {
     });
     it("MOD_WEIGHT", function(){
       checkMutation(Methods.Mutation.MOD_WEIGHT);
+    });
+    it("SUB_CONN", function(){
+      checkMutation(Methods.Mutation.SUB_CONN);
+    });
+    it("SUB_NODE", function(){
+      checkMutation(Methods.Mutation.SUB_NODE);
     });
   });
   describe("Structure", function(){
@@ -83,5 +104,107 @@ describe('Networks', function () {
       }
     });
   });
+  describe('Learning capability', function () {
+    it("AND gate", function(){
+      learnSet([{
+        input: [0, 0],
+        output: [0]
+      }, {
+        input: [0, 1],
+        output: [0]
+      }, {
+        input: [1, 0],
+        output: [0]
+      }, {
+        input: [1, 1],
+        output: [1]
+      }], 1000, 0.002);
+    });
+    it("XOR gate", function(){
+      learnSet([{
+        input: [0, 0],
+        output: [0]
+      }, {
+        input: [0, 1],
+        output: [1]
+      }, {
+        input: [1, 0],
+        output: [1]
+      }, {
+        input: [1, 1],
+        output: [0]
+      }], 2000, 0.002);
+    });
+    it("NOT gate", function(){
+      learnSet([{
+        input: [0],
+        output: [1]
+      }, {
+        input: [1],
+        output: [0]
+      }], 1000, 0.002);
+    });
+    it("XNOR gate", function(){
+      learnSet([{
+        input: [0, 0],
+        output: [1]
+      }, {
+        input: [0, 1],
+        output: [0]
+      }, {
+        input: [1, 0],
+        output: [0]
+      }, {
+        input: [1, 1],
+        output: [1]
+      }], 2000, 0.002);
+    });
+    it("OR gate", function(){
+      learnSet([{
+        input: [0, 0],
+        output: [0]
+      }, {
+        input: [0, 1],
+        output: [1]
+      }, {
+        input: [1, 0],
+        output: [1]
+      }, {
+        input: [1, 1],
+        output: [1]
+      }], 1000, 0.002);
+    });
+    it("SIN function", function(){
+      this.timeout(30000);
+      var mySin = function (x) {
+        return (Math.sin(x) + 1) / 2;
+      };
 
+      var set = [];
+
+      while (set.length < 100) {
+        var inputValue = Math.random() * Math.PI * 2;
+        set.push({
+          input: [inputValue],
+          output: [mySin(inputValue)]
+        });
+      }
+
+      learnSet(set, 1000, 0.05);
+    });
+    it("Bigger than", function(){
+      this.timeout(30000);
+      var set = [];
+
+      for(var i = 0; i < 100; i++){
+        var x = Math.random();
+        var y = Math.random();
+        var z = x > y ? 1 : 0;
+
+        set.push({ input: [x,y], output: [z] });
+      }
+
+      learnSet(set, 500, 0.05);
+    });
+  });
 });

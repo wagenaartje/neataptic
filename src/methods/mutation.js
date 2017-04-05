@@ -47,6 +47,9 @@ var Mutation = {
         Activation.GAUSSIAN
       ]
     }
+  },
+  config : {
+    warnings: false,
   }
 };
 

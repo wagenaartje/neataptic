@@ -127,46 +127,17 @@ var drawGraph = function(graph, panel) {
     });
 };
 
+function mutate(method, parent){
+  console.log('here');
+  if(parent == 1){
+    parent1.mutate(method);
+  } else {
+    parent2.mutate(method);
+  }
+  refresh(parent);
+}
 
 $( document ).ready(function() {
-  $( ".addnode" ).click(function() {
-    if($(this).data('parent') == '1'){
-      parent1.mutate(Methods.Mutation.ADD_NODE);
-    } else {
-      parent2.mutate(Methods.Mutation.ADD_NODE);
-    }
-
-    refresh($(this).data('parent'));
-  });
-  $( ".subnode" ).click(function() {
-    if($(this).data('parent') == '1'){
-      parent1.mutate(Methods.Mutation.SUB_NODE);
-    } else {
-      parent2.mutate(Methods.Mutation.SUB_NODE);
-    }
-
-    refresh($(this).data('parent'));
-  });
-
-  $( ".addconn" ).click(function() {
-    if($(this).data('parent') == '1'){
-      parent1.mutate(Methods.Mutation.ADD_CONN);
-    } else {
-      parent2.mutate(Methods.Mutation.ADD_CONN);
-    }
-
-    refresh($(this).data('parent'));
-  });
-  $( ".subconn" ).click(function() {
-    if($(this).data('parent') == '1'){
-      parent1.mutate(Methods.Mutation.SUB_CONN);
-    } else {
-      parent2.mutate(Methods.Mutation.SUB_CONN);
-    }
-
-    refresh($(this).data('parent'));
-  });
-
   $( ".crossover" ).click(function() {
     parent1.score = 1;
     if($("#p1").is(":checked")){
@@ -185,8 +156,8 @@ $( document ).ready(function() {
   });
 });
 
-function refresh(panel){
-  if(panel == '1'){
+function refresh(parent){
+  if(parent == 1){
     drawGraph(
       parent1.graph($('.parent1').width(), $('.parent1').height()),
       ".parent1"

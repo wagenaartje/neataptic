@@ -12,6 +12,7 @@ function newNeat(){
       Methods.Mutation.MOD_WEIGHT,
       Methods.Mutation.MOD_BIAS,
       Methods.Mutation.SUB_NODE,
+      Methods.Mutation.MOD_ACTIVATION
     ],
     mutationRate: 0.4,
     equal: true
@@ -34,6 +35,8 @@ function fitnessFunction(genome){
   }
 
   score -= genome.nodes.length + genome.connections.length * (-5000/score);
+
+  if(!isFinite(score)) score = 0;
 
   return Math.round(score);
 }

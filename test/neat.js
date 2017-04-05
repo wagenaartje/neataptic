@@ -27,7 +27,7 @@ describe('Neat', function () {
         Methods.Mutation.ADD_CONN,
         Methods.Mutation.MOD_WEIGHT,
         Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE,
+        Methods.Mutation.SUB_NODE
       ],
       mutationRate: 0.3,
       equal: true
@@ -71,7 +71,7 @@ describe('Neat', function () {
         Methods.Mutation.ADD_CONN,
         Methods.Mutation.MOD_WEIGHT,
         Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE,
+        Methods.Mutation.SUB_NODE
       ],
       mutationRate: 0.3,
       equal: true
@@ -86,7 +86,7 @@ describe('Neat', function () {
     var average = neat.getAverage();
     assert.isAbove(average, -1500);
 
-    // Fitness function
+    // Fitness functionmocah
     function fitnessFunction(genome){
       var score = 0;
 
@@ -102,7 +102,7 @@ describe('Neat', function () {
         score -= Math.abs(5 - genome.connections.length) * 1;
       }
 
-      return Math.round(score);
+      return score;
     }
   });
   it("XNOR", function(){
@@ -115,7 +115,7 @@ describe('Neat', function () {
         Methods.Mutation.ADD_CONN,
         Methods.Mutation.MOD_WEIGHT,
         Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE,
+        Methods.Mutation.SUB_NODE
       ],
       mutationRate: 0.3,
       equal: true

@@ -318,6 +318,10 @@ Node.prototype = {
 
         this.squash = Mutation.MOD_ACTIVATION.config.allowed[squash];
         break;
+      case Mutation.MOD_BIAS:
+        var modification = Math.random() * (Mutation.MOD_BIAS.config.max - Mutation.MOD_BIAS.config.min) + Mutation.MOD_BIAS.config.min;
+        this.bias += modification;
+        break;
     }
   },
 
@@ -639,8 +643,14 @@ Network.prototype = {
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
 
-        var modification = Math.random() * (Mutation.MOD_BIAS.config.max - Mutation.MOD_BIAS.config.min) + Mutation.MOD_BIAS.config.min;
-        node.bias += modification;
+        node.mutate(Mutation.MOD_BIAS);
+        break;
+      case Mutation.MOD_ACTIVATION:
+        // Has no effect on input node, so they are excluded
+        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var node = this.nodes[index];
+        
+        node.mutate(Mutation.MOD_ACTIVATION);
         break;
     }
   },
@@ -1613,9 +1623,13 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
+     if(typeof this.population[this.population.length-1].score == 'undefined'){
+       this.evaluate();
+     }
+
      var score = 0;
      for(genome in this.population){
-       score += this.fitness(this.population[genome]);
+       score += this.population[genome].score;
      }
 
      return score / this.popsize;

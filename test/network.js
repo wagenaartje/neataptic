@@ -75,6 +75,9 @@ describe('Networks', function () {
     it("SUB_NODE", function(){
       checkMutation(Methods.Mutation.SUB_NODE);
     });
+    it("MOD_ACTIVATION", function(){
+      checkMutation(Methods.Mutation.MOD_ACTIVATION);
+    });
   });
   describe("Structure", function(){
     it("Feed-forward", function(){

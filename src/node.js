@@ -154,6 +154,10 @@ Node.prototype = {
 
         this.squash = Mutation.MOD_ACTIVATION.config.allowed[squash];
         break;
+      case Mutation.MOD_BIAS:
+        var modification = Math.random() * (Mutation.MOD_BIAS.config.max - Mutation.MOD_BIAS.config.min) + Mutation.MOD_BIAS.config.min;
+        this.bias += modification;
+        break;
     }
   },
 

@@ -129,9 +129,13 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
+     if(typeof this.population[this.population.length-1].score == 'undefined'){
+       this.evaluate();
+     }
+
      var score = 0;
      for(genome in this.population){
-       score += this.fitness(this.population[genome]);
+       score += this.population[genome].score;
      }
 
      return score / this.popsize;

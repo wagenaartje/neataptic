@@ -250,8 +250,14 @@ Network.prototype = {
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
 
-        var modification = Math.random() * (Mutation.MOD_BIAS.config.max - Mutation.MOD_BIAS.config.min) + Mutation.MOD_BIAS.config.min;
-        node.bias += modification;
+        node.mutate(Mutation.MOD_BIAS);
+        break;
+      case Mutation.MOD_ACTIVATION:
+        // Has no effect on input node, so they are excluded
+        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var node = this.nodes[index];
+        
+        node.mutate(Mutation.MOD_ACTIVATION);
         break;
     }
   },

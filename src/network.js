@@ -256,7 +256,7 @@ Network.prototype = {
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
-        
+
         node.mutate(Mutation.MOD_ACTIVATION);
         break;
     }
@@ -295,6 +295,8 @@ Network.prototype = {
          node.squash == Activation.SOFTSIGN ? 7 :
          node.squash == Activation.SINUSOID ? 8 :
          node.squash == Activation.GAUSSIAN ? 9 :
+         node.squash == Activation.SOFTPLUS ? 10 :
+         node.squash == Activation.BENT_IDENTITY ? 11 :
          null;
 
        if(type == 0){

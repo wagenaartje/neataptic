@@ -118,7 +118,7 @@ Trainer.prototype = {
       }
     }
 
-    // Creates an object of the reuslts
+    // Creates an object of the results
     var results = {
       error: error,
       iterations: iterations,

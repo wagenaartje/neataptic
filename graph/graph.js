@@ -8,7 +8,9 @@ var names = [
   "relu",
   "softsign",
   "sinusoid",
-  "gaussian"
+  "gaussian",
+  "softplus",
+  "bent identity"
 ];
 
 var colorTable = [
@@ -20,8 +22,10 @@ var colorTable = [
   '#B1B0AA', // hlim
   '#2CB11F', // relu
   '#C5B12C', // softsign
-  '#E685E7',  // sinusoid
-  '#257580',  // gaussian
+  '#E685E7', // sinusoid
+  '#257580', // gaussian
+  '#B0484B', // softplus
+  '#4CB148'  // bent_identity
 ];
 
 var activationColor = function(value, max){

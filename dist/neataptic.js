@@ -649,7 +649,7 @@ Network.prototype = {
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
-        
+
         node.mutate(Mutation.MOD_ACTIVATION);
         break;
     }
@@ -688,6 +688,8 @@ Network.prototype = {
          node.squash == Activation.SOFTSIGN ? 7 :
          node.squash == Activation.SINUSOID ? 8 :
          node.squash == Activation.GAUSSIAN ? 9 :
+         node.squash == Activation.SOFTPLUS ? 10 :
+         node.squash == Activation.BENT_IDENTITY ? 11 :
          null;
 
        if(type == 0){
@@ -1099,7 +1101,7 @@ Trainer.prototype = {
       }
     }
 
-    // Creates an object of the reuslts
+    // Creates an object of the results
     var results = {
       error: error,
       iterations: iterations,
@@ -1316,6 +1318,17 @@ var Activation = {
     if(derivate)
       return -2 * x * d;
     return d;
+  },
+  SOFTPLUS : function(x, derivate){
+    if(derivate)
+      return Activation.LOGISTIC(x);
+    return Math.log(1 + Math.exp(x));
+  },
+  BENT_IDENTITY: function(x, derivate){
+    var d = Math.sqrt(Math.pow(x, 2) + 1);
+    if(derivate)
+      return x / (2 * d) + 1;
+    return (d - 1) / 2 + x;
   }
 };
 
@@ -1770,7 +1783,9 @@ var Mutation = {
         Activation.HLIM,
         Activation.SOFTSIGN,
         Activation.SINUSOID,
-        Activation.GAUSSIAN
+        Activation.GAUSSIAN,
+        Activation.SOFTPLUS,
+        Activation.BENT_IDENTITY
       ]
     }
   },

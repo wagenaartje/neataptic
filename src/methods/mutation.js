@@ -44,7 +44,9 @@ var Mutation = {
         Activation.HLIM,
         Activation.SOFTSIGN,
         Activation.SINUSOID,
-        Activation.GAUSSIAN
+        Activation.GAUSSIAN,
+        Activation.SOFTPLUS,
+        Activation.BENT_IDENTITY
       ]
     }
   },

@@ -42,6 +42,17 @@ var Activation = {
     if(derivate)
       return -2 * x * d;
     return d;
+  },
+  SOFTPLUS : function(x, derivate){
+    if(derivate)
+      return Activation.LOGISTIC(x);
+    return Math.log(1 + Math.exp(x));
+  },
+  BENT_IDENTITY: function(x, derivate){
+    var d = Math.sqrt(Math.pow(x, 2) + 1);
+    if(derivate)
+      return x / (2 * d) + 1;
+    return (d - 1) / 2 + x;
   }
 };
 

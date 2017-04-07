@@ -1543,16 +1543,15 @@ function Neat(input, output, fitness, options){
   this.generation = 0;
 
   // Initialise the genomes
-  this.createPool();
+  this.createPool(options.network || new Network(this.input, this.output));
 }
 
 Neat.prototype = {
   /**
    * Create the initial pool of genomes
    */
-  createPool: function(){
+  createPool: function(network){
     this.population = [];
-    var network = new Network(this.input, this.output);
 
     for(var i = 0; i < this.popsize; i++){
       var copy = Network.fromJSON(network.toJSON());

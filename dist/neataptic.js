@@ -588,7 +588,7 @@ Network.prototype = {
           }
         }
 
-        if(maxConn == this.connections.length){
+        if(maxConn <= this.connections.length){
           if(Mutation.config.warnings) console.warn('Maximum amount of connections reached!');
           break;
         }
@@ -965,10 +965,12 @@ Network.prototype = {
      var connData = connections[conn];
      if(connData.to < size){
        var from = offspring.nodes[connData.from];
-       var to   = offspring.nodes[connData.to];
-       var conn = offspring.connect(from, to);
+       if(from.type != 'output'){
+         var to   = offspring.nodes[connData.to];
+         var conn = offspring.connect(from, to);
 
-       conn.weight = connData.weight;
+         conn.weight = connData.weight;
+       }
      }
    }
 

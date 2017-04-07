@@ -35,7 +35,6 @@ function fitnessFunction(genome){
   }
 
   score -= genome.nodes.length + genome.connections.length * (-5000/score);
-
   if(!isFinite(score)) score = 0;
 
   return Math.round(score);

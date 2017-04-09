@@ -1538,6 +1538,7 @@ function Neat(input, output, fitness, options){
   this.selection    = options.selection    || [Selection.FITNESS_PROPORTIONATE];
   this.crossover    = options.crossover    || [Crossover.UNIFORM];
   this.mutationRate = options.mutationRate || 0.3;
+  this.mutationAmount = options.mutationAmount || 1;
 
   // Generation counter
   this.generation = 0;
@@ -1591,8 +1592,10 @@ Neat.prototype = {
     // Mutate the new population
     for(genome in newPopulation){
       if(Math.random() <= this.mutationRate){
-        var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-        newPopulation[genome].mutate(mutationMethod);
+        for(var i = 0; i < this.mutationAmount; i++){
+          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          newPopulation[genome].mutate(mutationMethod);
+        }
       }
     }
 

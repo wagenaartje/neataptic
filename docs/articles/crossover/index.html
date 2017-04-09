@@ -1,0 +1,213 @@
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Introducton to neataptic">
+      <meta name="author" content="Thomas Wagenaar">
+
+      <title>Neataptic.js - Crossover Sandbox</title>
+
+      <link rel="icon" type="image/png" href="../../assets/favicon.png"/>
+
+      <!-- JQuery -->
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+      <!-- Bootstrap -->
+      <link async rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- Custom CSS -->
+      <link async href="../../assets/css/custom.css" rel="stylesheet">
+      <link async href="../../assets/css/articles.css" rel="stylesheet">
+      <link async href="graph.css" rel="stylesheet">
+
+      <!-- Social buttons -->
+      <link async rel="stylesheet" href="../../libs/social.css">
+
+      <!-- Fonts -->
+      <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
+      <link async href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700,700i" rel="stylesheet">
+
+      <!-- Neataptic -->
+      <script src="https://cdn.rawgit.com/wagenaartje/neataptic/9784406f/dist/neataptic.min.js"></script>
+
+      <!-- Google Analytics -->
+      <script async>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-51480408-2', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+      <div class="container maxwidth">
+        <div class="row">
+          <div class="col-md-12 header crossover">
+            <!-- Page Content -->
+            <div class="row">
+              <ul class="nav navbar-nav">
+                  <li>
+                    <a href="../../" style="color: white;"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> BACK TO HOME</a>
+                  </li>
+              </ul>
+            </div>
+            <div class="article-head">
+              <p class="article-icon"><i class="fa fa-venus-mars fa-5x"></i></p>
+              <p class="article-title">Crossover sandbox</p>
+              <p class="article-author">THOMAS WAGENAAR</p>
+              <p class="article-date">APRIL 4, 2017</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+          </div>
+          <div class="col-md-6 article-content">
+            <p class="article-text">To understand how crossover works in neataptic,
+               please do tinker around in the sandbox below. It gives an idea on
+               what genes are preferred and what settings change the genes passed on.
+               If you want more details on how it works, please scroll down!
+             </p>
+            <div class="row" style="margin-top: 15px; margin-bottom: -25px;">
+              <div class="col-md-6">
+                <div class="panel panel-default" >
+                  <div class="panel-heading">Parent 1</div>
+                  <div class="panel-body panel-nopad">
+                    <svg class="parent1 crossoversvg" width="100%">
+                  </div>
+                  <div class="panel-heading">
+                    <center>
+                      <div class="btn-group">
+                        <button class="btn btn-blue subnode" onclick="mutate(Methods.Mutation.SUB_CONN, 1)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+                        <button class="btn btn-default">Node</button>
+                        <button class="btn btn-blue addnode" onclick="mutate(Methods.Mutation.ADD_NODE, 1)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+                      </div>
+                      <div class="btn-group">
+                        <button class="btn btn-blue subconn" onclick="mutate(Methods.Mutation.SUB_CONN, 1)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+                        <button class="btn btn-default">Conn</button>
+                        <button class="btn btn-blue addconn" onclick="mutate(Methods.Mutation.ADD_CONN, 1)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+                      </div>
+                    </center>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="panel panel-default">
+                  <div class="panel-heading">Parent 2</div>
+                  <div class="panel-body panel-nopad">
+                    <svg class="parent2 crossoversvg" width="100%">
+                  </div>
+                  <div class="panel-heading">
+                    <center>
+                      <div class="btn-group">
+                        <button class="btn btn-blue btn-number subnode" onclick="mutate(Methods.Mutation.SUB_NODE, 2)">&zwnj;<span class="glyphicon glyphicon-minus"></span></button>
+                        <button class="btn btn-default">Node</button>
+                        <button class="btn btn-blue btn-number addnode" onclick="mutate(Methods.Mutation.ADD_NODE, 2)">&zwnj;<span class="glyphicon glyphicon-plus"></span></button>
+                      </div>
+                      <div class="btn-group">
+                        <button class="btn btn-blue subconn" onclick="mutate(Methods.Mutation.SUB_CONN, 2)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+                        <button class="btn btn-default">Conn</button>
+                        <button class="btn btn-blue addconn" onclick="mutate(Methods.Mutation.ADD_CONN, 2)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+                      </div>
+                    </center>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 15px; margin-bottom: -25px; padding-right: 15px;">
+              <div class="col-md-12" style="padding-right: 0;">
+                <div class="panel panel-default" >
+                  <div class="panel-heading">Offspring</div>
+                  <div class="panel-body panel-nopad">
+                    <svg class="offspring crossoversvg" width="100%" height="300px">
+                  </div>
+                  <div class="panel-heading">
+                    <center>
+                      <div class="btn-group" data-toggle="buttons">
+                        <button class="btn btn-default">Fittest:</button>
+                        <label class="btn btn-default">
+                          <input type="radio" name="options" id="p1" autocomplete="off"> P1
+                        </label>
+                        <label class="btn btn-default active">
+                          <input type="radio" name="options" id="eq" autocomplete="off" checked> Equal
+                        </label>
+                        <label class="btn btn-default">
+                          <input type="radio" name="options" id="p2" autocomplete="off"> P2
+                        </label>
+                          <button class="btn btn-blue breed">Crossover</button>
+                      </div>
+
+                    </center>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h1 class="blocktext">How it works</h1>
+            <p class="article-text">
+              The basic concept of the breeding of networks comes from the <a href="http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf">NEAT</a>
+              paper. A network consists of neuron genes and of connection genes:
+            </p>
+            <center><img src="https://i.gyazo.com/99880539bfb9fc70e207d491a3f8348a.png"/></center>
+            <p class="article-text">
+              The crossover algorithm then looks for <i>common, distjoint and excess</i>
+              connection genes. All common genes get randomly selected from one of the parents.
+              All disjoint and excess genes get added from the fittest parent, and if equally fit,
+              from both parents. The following example has two equally fit parents:
+            </p>
+            <center><img src="https://i.gyazo.com/0ca191db6867250d2b568cd6d00ab6ca.png"/></center>
+            <p class="article-text">Until this point the crossover algorithm is the same as in the NEAT
+              paper, whoever there are some subtle differences:
+
+              <ul>
+                <li>
+                  When parents are equally fit but have a different size, a random size between those
+                  sizes will be chosen.
+                </li>
+                <li>
+                  The algorithm does not make use of <i>innovation id's</i>, it just checks if two indeces
+                  in the networks nodes array are connected. These nodes are stored in activation order.
+                </li>
+              </ul>
+            </p>
+            <p class="article-text">
+              When all connection genes are transferred to the offspring, it retrieves all the required
+              nodes from the parents, selecting them the same way as connection genes.
+            </p>
+            <p class="article-text">
+              Furthermore the algorithm uses some techniques to avoid memory connections, but also to avoid
+              outputs being linked with each other.
+            </p>
+            <div class="article-footer article-text">
+              <hr>
+              Thanks for reading this article! If you found any mistakes, or want to make any
+              remarks, please mail me at <a href="#"> wagenaartje@protonmail.com</a>! Want to
+              post your own article here? Send me your article! (must be about neataptic)!
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div class="row articles">
+          <a class="card crossover" href="../crossover">
+            <p class="card-title">Crossover sandbox</p>
+            <p class="card-icon"><i class="fa fa-venus-mars fa-5x"></i><p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+          <a class="card xorevolution" href="../evolvexor">
+            <p class="card-title">XOR evolution</p>
+            <p class="card-icon"><i class="fa fa-object-group fa-5x"></i></p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+        </div>
+      </div>
+      <script src="../../libs/d3v3.js"></script>
+      <script src="../../libs/webcola.js"></script>
+      <script src="graph.js"></script>
+      <script src="neural.js"></script>
+  </body>
+</html>

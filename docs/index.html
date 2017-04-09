@@ -1,4 +1,3 @@
-
 <html lang="en">
   <head>
       <meta charset="utf-8">
@@ -17,13 +16,16 @@
       <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
       <!-- Custom CSS -->
-      <link async href="custom.css" rel="stylesheet">
+      <link async href="assets/css/custom.css" rel="stylesheet">
+      <link async href="assets/css/articles.css" rel="stylesheet">
+      <link async href="graph.css" rel="stylesheet">
 
       <!-- Social buttons -->
       <link async rel="stylesheet" href="libs/social.css">
 
       <!-- Fonts -->
       <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
+      <link href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
 
       <!-- Neataptic -->
       <script src="https://cdn.rawgit.com/wagenaartje/neataptic/9784406f/dist/neataptic.min.js"></script>
@@ -40,52 +42,42 @@
       </script>
   </head>
   <body>
-
-      <!-- Navigation -->
-      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-          <div class="container">
-              <!-- Brand and toggle get grouped for better mobile display -->
-              <div class="navbar-header">
-                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                      <span class="sr-only">Toggle navigation</span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                      <span class="icon-bar"></span>
-                  </button>
-                  <a class="navbar-brand" href="#"><i class="fa fa-lg fa-grav"></i> Neataptic.js</a>
+      <div class="container maxwidth">
+        <div class="row welcome">
+          <div class="col-md-5 maxheight">
+            <!-- Page Content -->
+            <div class="parent">
+              <div class="child">
+                <div class="text-center centered">
+                  <h1 class="title">NEATAPTIC</h1>
+                  <p class="subtitle">Evolving complex neural networks in the browser. </p>
+                  <hr>
+                  <a href="https://github.com/wagenaartje/neataptic" class="subsubtitle"><i class="fa fa-lg fa-github"></i> VIEW IT ON GITHUB</a>
+                  |
+                  <a href="https://github.com/wagenaartje/neataptic/wiki" class="subsubtitle" style="color: grey; opacity: 0.4;">DOCUMENTATION</a>
+                </div>
               </div>
-              <!-- Collect the nav links, forms, and other content for toggling -->
-              <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-    										<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Examples <span class="caret"></span></a>
-    										<ul class="dropdown-menu" role="menu">
-    											<li><a href="examples/crossover">Crossover</a></li>
-                          <li><a href="examples/evolvexor">Evolve XOR</a></li>
-    										</ul>
-    									</li>
-                      <li>
-                          <a href="https://github.com/wagenaartje/neataptic/wiki" target="_blank">Documentation</a>
-                      </li>
-                      <li>
-                        <a class="navbar-brand" href="https://github.com/wagenaartje/neataptic" target="_blank"><i class="fa fa-lg fa-github"></i> Github</a>
-                      </li>
-                  </ul>
-              </div>
+            </div>
           </div>
-      </nav>
-
-      <!-- Page Content -->
-      <div class="container">
-        <svg class="mainsvg"/>
-        <div class="jumbotron vertical-center">
-          <div class="container text-center ontop">
-            <h1>Neataptic<span style="font-size: 45px; padding: 5px; margin-left: 5px;" class="label label-danger">.js</span></h1>
-            <p>Evolving complex neural networks in the browser. </p>
+          <div class="col-md-7 maxheight" style="background-color: black;">
+            <svg class="mainsvg maxwidth maxheight"/>
           </div>
         </div>
+        <div class="row articles">
+          <a class="card crossover" href="./articles/crossover">
+            <p class="card-title">Crossover sandbox</p>
+            <p class="card-icon"><i class="fa fa-venus-mars fa-5x"></i><p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+          <a class="card xorevolution" href="./articles/evolvexor">
+            <p class="card-title">XOR evolution</p>
+            <p class="card-icon"><i class="fa fa-object-group fa-5x"></i></p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+        </div>
       </div>
-
       <script src="libs/d3v3.js"></script>
       <script src="libs/webcola.js"></script>
       <script src="graph.js"></script>

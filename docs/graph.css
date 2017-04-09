@@ -1,0 +1,27 @@
+.mainsvg {
+  position: absolute;
+  left: 0;
+  background-image: linear-gradient(rgb(255, 165, 0), rgb(255, 0, 0));
+  box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 2px rgba(0, 0, 0, 0.19);
+}
+.node {
+  stroke: #fff;
+  stroke-width: 1px;
+    cursor: move;
+  fill: transparent;
+}
+.link {
+  fill: none;
+  stroke: white;
+  stroke-width: 1px;
+  marker-end: url(#end-arrow);
+  opacity: 0.7;
+}
+.label {
+  fill: white;
+  font-size: 10px;
+  font-weight: 200;
+  text-anchor: middle;
+  cursor: move;
+  opacity: 0.5;
+}

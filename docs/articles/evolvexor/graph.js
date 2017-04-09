@@ -48,7 +48,7 @@ var drawGraph = function(graph, panel) {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
+        .attr('fill', '#337ab7');
 
     graph.nodes.forEach(function (v) { v.height = v.width = 2 * nodeRadius; });
 
@@ -57,7 +57,7 @@ var drawGraph = function(graph, panel) {
         .links(graph.links)
         .constraints(graph.constraints)
         .symmetricDiffLinkLengths(repelForce)
-        .linkDistance(50)
+        .linkDistance(80)
         .start(10, 15, 20);
 
     var path = svg.selectAll(".link")
@@ -71,9 +71,7 @@ var drawGraph = function(graph, panel) {
         .enter().append("circle")
         .attr("class", "node")
         .attr("r", function(d) { return nodeRadius; })
-        .style("fill", function (d) {
-              return colorTable[d.type];
-          })
+        .style("fill", '#337ab7')
         .call(d3cola.drag);
 
     node.append("title")

@@ -11,19 +11,6 @@ var names = [
   "gaussian"
 ];
 
-var colorTable = [
-  '#C83B44', // input
-  '#FF6245', // output
-  '#FFAE45', // logistic sigmoid
-  '#A02446', // tanh
-  '#C83B44', // identity
-  '#FF6245', // hlim
-  '#FFAE45', // relu
-  '#A02446', // softsign
-  '#C83B44',  // sinusoid
-  '#FF6245',  // gaussian
-];
-
 var width = $('.mainsvg').width();
 var height = $('.mainsvg').height();
 var nodeRadius = 7;
@@ -48,7 +35,7 @@ var drawGraph = function(graph, panel) {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
+        .attr('fill', 'white');
 
     graph.nodes.forEach(function (v) { v.height = v.width = 2 * nodeRadius; });
 
@@ -56,23 +43,19 @@ var drawGraph = function(graph, panel) {
         .nodes(graph.nodes)
         .links(graph.links)
         .symmetricDiffLinkLengths(repelForce)
-        .linkDistance(300)
+        .linkDistance(100)
         .start(10, 15, 20);
 
     var path = svg.selectAll(".link")
         .data(graph.links)
         .enter().append('svg:path')
         .attr('class', 'link')
-        .style("stroke-width", function (d) { return 1.5 + Math.sqrt(d.weight * 5); });
 
     var node = svg.selectAll(".node")
         .data(graph.nodes)
         .enter().append("circle")
         .attr("class", "node")
         .attr("r", function(d) { return nodeRadius; })
-        .style("fill", function (d) {
-              return colorTable[d.type];
-          })
         .call(d3cola.drag);
 
     node.append("title")

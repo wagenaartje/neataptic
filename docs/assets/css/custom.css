@@ -1,0 +1,151 @@
+body{
+  font-family: 'Montserrat', sans-serif;
+}
+.maxheight{
+  height: 100%;
+}
+.maxwidth{
+  width: 100%;
+}
+.parent {
+  width: 100%;
+  height: 100%;
+  display: table;
+  text-align: center;
+}
+.child {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+.title{
+  font-weight: 500;
+  font-size: 40px;
+}
+.subtitle{
+  font-weight: 200;
+  font-size: 30px;
+  transform: scaleY(1.05);
+}
+.subsubtitle{
+  opacity: 0.7;
+}
+.welcome{
+  height: 63%;
+}
+.nav>li>a{
+  position: relative;
+  display: block;
+  padding: 20px 20px;
+  font-size: 13px;
+  color: #5f656d;
+  opacity: 0.4;
+  font-weight: 500;
+}
+.nav>li>a:hover, .nav .open>a, .nav .open>a:focus, .nav .open>a:hover, .nav>li>a:active {
+  background-color: white;
+  opacity: 0.5;
+}
+.dropdown-menu>li>a {
+  color: #5f656d;
+  opacity: 0.4;
+  font-size: 12px;
+  font-weight: 400;
+}
+.articles{
+  background-color: #eff7f8;
+}
+.card{
+  height: 300px;
+  width: 215;
+  box-shadow: 0 4px 8px 0px rgba(0, 0, 0, 0.2), 0 6px 20px 0px rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
+  margin-left: 100px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  padding: 20px;
+  color: white;
+  display: inline-block;
+}
+.card:hover{
+  transform: scale(1.05);
+  text-decoration: none;
+  color: white;
+}
+.card-title{
+  font-size: 18px;
+}
+.card-date{
+  font-weight: 300;
+  opacity: 0.7;
+  font-size: 12px;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+.card-author{
+  font-size: 11px;
+  opacity: 0.3;
+  font-weight: 200;
+}
+.card-icon{
+  font-size: 28px;
+  margin-top: 35px;
+  opacity: 0.4;
+  text-align: center;
+}
+.header{
+  height: 400px;
+}
+.article-head{
+  text-align: center;
+}
+.article-title{
+  font-size: 50px;
+  margin-bottom: 0;
+}
+.article-author{
+  color: white;
+  opacity: 0.4;
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.article-icon{
+  font-size: 26px;
+  opacity: 0.4;
+  text-align: center;
+  color: white;
+}
+.article-date{
+  font-size: 11px;
+}
+.article-content{
+  font-size: 20px;
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+}
+.blocktext{
+  font-family: 'Montserrat', sans-serif;
+  margin-top: 40px;
+}
+.article-text{
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+.article-footer{
+  opacity: 0.5;
+  color: grey;
+}
+.left{
+  width: 400px;
+}
+.middle{
+  width: 20%;
+}
+.right{
+  width: 40%;
+}
+.btn-blue{
+  background-color: #337ab7;
+  color: white;
+}

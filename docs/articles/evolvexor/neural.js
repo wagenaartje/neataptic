@@ -41,32 +41,22 @@ function fitnessFunction(genome){
 }
 
 function loop(){
-  for(var i = 0; i < 50; i++){
+  for(var i = 0; i < 10; i++){
     neat.evolve();
   }
 
   var fittest = neat.getFittest();
 
-  drawGraph(
-    fittest.graph($(".xor").width(), $(".xor").height()),
-    '.xor'
-  );
+  drawGraph(fittest.graph($(".xor").width(), $(".xor").height()), '.xor');
 
   $('.00').text(Math.round(fittest.activate([0,0]) * 100) / 100);
   $('.01').text(Math.round(fittest.activate([0,1]) * 100) / 100);
   $('.10').text(Math.round(fittest.activate([1,0]) * 100) / 100);
   $('.11').text(Math.round(fittest.activate([1,1]) * 100) / 100);
 
-
-  $(".score").text(fittest.score);
-  $(".nodes").text(fittest.nodes.length);
-  $(".conns").text(fittest.connections.length);
-
-  $(".gen").text(neat.generation);
-
   if(fittest.score < -500 && neat.generation < 500){
     setTimeout(loop, 100);
   } else {
-    $( ".start" ).text('Again');
+    $( ".start" ).html('<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span> Again');
   }
 }

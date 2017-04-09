@@ -63,7 +63,7 @@ var drawGraph = function(graph, panel) {
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
+        .attr('fill', '#337ab7');
 
     graph.nodes.forEach(function (v) { v.height = v.width = 2 * nodeRadius; });
 
@@ -128,7 +128,6 @@ var drawGraph = function(graph, panel) {
 };
 
 function mutate(method, parent){
-  console.log('here');
   if(parent == 1){
     parent1.mutate(method);
   } else {
@@ -138,7 +137,7 @@ function mutate(method, parent){
 }
 
 $( document ).ready(function() {
-  $( ".crossover" ).click(function() {
+  $( ".breed" ).click(function() {
     parent1.score = 1;
     if($("#p1").is(":checked")){
       parent2.score = 0;

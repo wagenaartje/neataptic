@@ -25,6 +25,8 @@ trainer.train([
 ],
 {
   iterations: 5000,
+  error: 0.001,
+  log: 1
 }
 );
 ```

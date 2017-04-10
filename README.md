@@ -6,7 +6,7 @@ competitors is neuro-evolution. You can evolve neural networks through a process
 [NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. Scroll down for some examples! Appreciate the repo? Show it by starring it! :star:
 
 <img src="https://i.gyazo.com/5f05245edc02d4c28097d40928568ee1.png" width="33%"/><img src="https://i.gyazo.com/0c2009a073053af5d3729bd361f8b8a6.png" width="33%"/><img src="https://i.gyazo.com/9934cb575d0c24a6faa23dbc3a055ffd.png" width="33%"/>
-[Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/examples/crossover)
+[Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/articles/crossover/)
 
 ## Usage
 Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
@@ -36,13 +36,13 @@ Neural networks can be used for nearly anything; driving a car, playing a game a
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
-- [Evolve XOR](https://wagenaartje.github.io/neataptic/examples/evolvexor)
-- [Crossover](https://wagenaartje.github.io/neataptic/examples/crossover)
+- [Evolve XOR]https://wagenaartje.github.io/neataptic/articles/evolvexor/)
+- [Crossover](https://wagenaartje.github.io/neataptic/articles/crossover/)
 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/neataptic/0fe30083/dist/neataptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/neataptic/f7833fc7/dist/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

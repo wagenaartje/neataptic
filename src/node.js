@@ -140,7 +140,9 @@ Node.prototype = {
    */
   mutate: function(method){
     if(typeof method == 'undefined'){
-      throw new Error('No mutate method given');
+      throw new Error('No mutate method given!');
+    } else if(!method.name in Methods.Mutation){
+      throw new Error('This method does not exist!');
     }
 
     switch(method){

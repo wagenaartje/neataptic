@@ -11,10 +11,10 @@ var Mutation = {
     name : "ADD_NODE"
   },
   SUB_NODE : {
-    name : "REMOVE_NODE"
+    name : "SUB_NODE"
   },
   ADD_CONN : {
-    name : "ADD_CONNECTION"
+    name : "ADD_CONN"
   },
   SUB_CONN : {
     name : "REMOVE_CONN"

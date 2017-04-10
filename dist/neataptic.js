@@ -304,7 +304,9 @@ Node.prototype = {
    */
   mutate: function(method){
     if(typeof method == 'undefined'){
-      throw new Error('No mutate method given');
+      throw new Error('No mutate method given!');
+    } else if(!method.name in Methods.Mutation){
+      throw new Error('This method does not exist!');
     }
 
     switch(method){
@@ -512,7 +514,9 @@ Network.prototype = {
    */
   mutate: function(method){
     if(typeof method == 'undefined'){
-      throw new Error('No mutate method given');
+      throw new Error('No mutate method given!');
+    } else if(!method.name in Methods.Mutation){
+      throw new Error('This method does not exist!');
     }
 
     switch(method){
@@ -821,8 +825,12 @@ Network.prototype = {
 /**
  * Create an offspring from two parent networks
  */
- Network.crossOver = function(network1, network2){
-   if(network1.input != network2.input || network1.output != network2.output){
+ Network.crossOver = function(network1, network2, method){
+   if(typeof method == 'undefined'){
+     throw new Error('No mutate method given!');
+   } else if(!method.name in Methods.Crossover){
+     throw new Error('This method does not exist!');
+   } else if(network1.input != network2.input || network1.output != network2.output){
      throw new Error("Networks don't have the same input/output size!");
    }
 
@@ -976,6 +984,83 @@ Network.prototype = {
 
    return offspring;
  }
+
+/**
+ * Calculates the difference between two networks (for speciation)
+ */
+Network.distance = function(network1, network2, coefficients){
+  var distance = 0;
+
+  // Create arrays of connection genes
+  var n1conns = {};
+  var n2conns = {};
+
+  for(conn in network1.connections){
+    var conn = network1.connections[conn];
+    var data = {
+      weight: conn.weight,
+      from  : network1.nodes.indexOf(conn.from),
+      to    : network1.nodes.indexOf(conn.to)
+    };
+    var id = Connection.innovationID(data.from, data.to);
+    n1conns[id] = data;
+  }
+
+  for(conn in network2.connections){
+    var conn = network2.connections[conn];
+    var data = {
+      weight: conn.weight,
+      from  : network2.nodes.indexOf(conn.from),
+      to    : network2.nodes.indexOf(conn.to)
+    };
+    var id = Connection.innovationID(data.from, data.to);
+    n2conns[id] = data;
+  }
+
+
+  // Split common conn genes from disjoint or excess conn genes
+  var commongenes = {};
+  for(var id in n1conns) {
+    if(id in n2conns) {
+      commongenes[id] = [n1conns[id], n2conns[id]];
+      delete n1conns[id];
+      delete n2conns[id];
+    }
+  }
+
+  // Add unique genes to distance
+  distance += (Object.keys(n1conns).length + Object.keys(n2conns).length) / ((network1.connections.length + network2.connections.length) / 2) * coefficients[0];
+
+  // Calculate average weight difference
+  var total1 = 0;
+  for(conn in network1.connections){
+    total1 += network1.connections[conn].weight;
+  }
+  total1 /= network1.connections.length;
+
+  var total2 = 0;
+  for(conn in network2.connections){
+    total2 += network2.connections[conn].weight;
+  }
+  total2 /= network2.connections.length;
+
+  // Add difference between average weight to distance
+  distance += Math.abs(total1 - total2) * coefficients[1];
+
+  // Get amount of nodes with different activation functions
+  var total = 0;
+  for(node in network1.nodes){
+    if(node >= network2.nodes.length){
+      break;
+    }
+    if(network1.nodes[node].squash != network2.nodes[node].squash){
+      total += 1;
+    }
+  }
+
+  distance += total / ((network1.nodes.length + network2.nodes.length) / 2) * coefficients[2];
+  return distance;
+}
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
@@ -1531,13 +1616,13 @@ function Neat(input, output, fitness, options){
   this.fitness = fitness; // The fitness function to evaluate the networks
 
   // Configure options
-  this.equal        = options.equal        || false;
-  this.popsize      = options.popsize      || 50;
-  this.elitism      = options.elitism      || 0;
-  this.mutation     = options.mutation     || [Mutation.ADD_NODE, Mutation.ADD_CONN];
-  this.selection    = options.selection    || [Selection.FITNESS_PROPORTIONATE];
-  this.crossover    = options.crossover    || [Crossover.UNIFORM];
-  this.mutationRate = options.mutationRate || 0.3;
+  this.equal          = options.equal          || false;
+  this.popsize        = options.popsize        || 50;
+  this.elitism        = options.elitism        || 0;
+  this.mutation       = options.mutation       || Object.keys(Methods.Mutation).map(function(val) { return Methods.Mutation[val] });
+  this.selection      = options.selection      || Object.keys(Methods.Selection).map(function(val) { return Methods.Selection[val] });
+  this.crossover      = options.crossover      || Object.keys(Methods.Crossover).map(function(val) { return Methods.Crossover[val] });
+  this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
 
   // Generation counter
@@ -1564,7 +1649,7 @@ Neat.prototype = {
    * Evaluates, selects, breeds and mutates population
    */
   evolve: function(){
-    // Evaluate the population
+    // Evaluate and sort the population
     this.evaluate();
     this.sort();
 
@@ -1577,31 +1662,44 @@ Neat.prototype = {
 
     // Breed the next individuals
     for(var i = 0; i < this.popsize - this.elitism; i++){
-      var parent1 = this.getParent();
-      var parent2 = this.getParent();
-
-      if(this.equal == true){
-        parent1.score = 0;
-        parent2.score = 0;
-      }
-      var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-      var offspring = Network.crossOver(parent1, parent2, crossoverMethod);
-      newPopulation.push(offspring);
-    }
-
-    // Mutate the new population
-    for(genome in newPopulation){
-      if(Math.random() <= this.mutationRate){
-        for(var i = 0; i < this.mutationAmount; i++){
-          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-          newPopulation[genome].mutate(mutationMethod);
-        }
-      }
+      newPopulation.push(this.getOffspring());
     }
 
     // Replace the old population with the new population
     this.population = newPopulation;
+    this.mutate();
+
     this.generation++;
+  },
+
+  /**
+   * Breeds two parents into an offspring, population MUST be surted
+   */
+   getOffspring: function(){
+     parent1 = this.getParent();
+     parent2 = this.getParent();
+
+     if(this.equal == true){
+       parent1.score = 0;
+       parent2.score = 0;
+     }
+
+     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
+     return Network.crossOver(parent1, parent2, crossoverMethod);
+   },
+
+  /**
+   * Mutates the given (or current) population
+   */
+  mutate: function(){
+    for(genome in this.population){
+      if(Math.random() <= this.mutationRate){
+        for(var i = 0; i < this.mutationAmount; i++){
+          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          this.population[genome].mutate(mutationMethod);
+        }
+      }
+    }
   },
 
   /**
@@ -1754,10 +1852,10 @@ var Mutation = {
     name : "ADD_NODE"
   },
   SUB_NODE : {
-    name : "REMOVE_NODE"
+    name : "SUB_NODE"
   },
   ADD_CONN : {
-    name : "ADD_CONNECTION"
+    name : "ADD_CONN"
   },
   SUB_CONN : {
     name : "REMOVE_CONN"

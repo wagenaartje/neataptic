@@ -22,13 +22,13 @@ function Neat(input, output, fitness, options){
   this.fitness = fitness; // The fitness function to evaluate the networks
 
   // Configure options
-  this.equal        = options.equal        || false;
-  this.popsize      = options.popsize      || 50;
-  this.elitism      = options.elitism      || 0;
-  this.mutation     = options.mutation     || [Mutation.ADD_NODE, Mutation.ADD_CONN];
-  this.selection    = options.selection    || [Selection.FITNESS_PROPORTIONATE];
-  this.crossover    = options.crossover    || [Crossover.UNIFORM];
-  this.mutationRate = options.mutationRate || 0.3;
+  this.equal          = options.equal          || false;
+  this.popsize        = options.popsize        || 50;
+  this.elitism        = options.elitism        || 0;
+  this.mutation       = options.mutation       || Object.keys(Methods.Mutation).map(function(val) { return Methods.Mutation[val] });
+  this.selection      = options.selection      || Object.keys(Methods.Selection).map(function(val) { return Methods.Selection[val] });
+  this.crossover      = options.crossover      || Object.keys(Methods.Crossover).map(function(val) { return Methods.Crossover[val] });
+  this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
 
   // Generation counter
@@ -55,7 +55,7 @@ Neat.prototype = {
    * Evaluates, selects, breeds and mutates population
    */
   evolve: function(){
-    // Evaluate the population
+    // Evaluate and sort the population
     this.evaluate();
     this.sort();
 
@@ -68,31 +68,44 @@ Neat.prototype = {
 
     // Breed the next individuals
     for(var i = 0; i < this.popsize - this.elitism; i++){
-      var parent1 = this.getParent();
-      var parent2 = this.getParent();
-
-      if(this.equal == true){
-        parent1.score = 0;
-        parent2.score = 0;
-      }
-      var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-      var offspring = Network.crossOver(parent1, parent2, crossoverMethod);
-      newPopulation.push(offspring);
-    }
-
-    // Mutate the new population
-    for(genome in newPopulation){
-      if(Math.random() <= this.mutationRate){
-        for(var i = 0; i < this.mutationAmount; i++){
-          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-          newPopulation[genome].mutate(mutationMethod);
-        }
-      }
+      newPopulation.push(this.getOffspring());
     }
 
     // Replace the old population with the new population
     this.population = newPopulation;
+    this.mutate();
+
     this.generation++;
+  },
+
+  /**
+   * Breeds two parents into an offspring, population MUST be surted
+   */
+   getOffspring: function(){
+     parent1 = this.getParent();
+     parent2 = this.getParent();
+
+     if(this.equal == true){
+       parent1.score = 0;
+       parent2.score = 0;
+     }
+
+     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
+     return Network.crossOver(parent1, parent2, crossoverMethod);
+   },
+
+  /**
+   * Mutates the given (or current) population
+   */
+  mutate: function(){
+    for(genome in this.population){
+      if(Math.random() <= this.mutationRate){
+        for(var i = 0; i < this.mutationAmount; i++){
+          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          this.population[genome].mutate(mutationMethod);
+        }
+      }
+    }
   },
 
   /**

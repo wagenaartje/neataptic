@@ -38,8 +38,9 @@ Neural networks can be used for nearly anything; driving a car, playing a game a
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
-- [Evolve XOR]https://wagenaartje.github.io/neataptic/articles/evolvexor/)
+- [Evolve XOR](https://wagenaartje.github.io/neataptic/articles/evolvexor/)
 - [Crossover](https://wagenaartje.github.io/neataptic/articles/crossover/)
+- [Color classification](https://wagenaartje.github.io/neataptic/articles/classifycolors/)
 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:

@@ -826,11 +826,11 @@ Network.prototype = {
  * Create an offspring from two parent networks
  */
  Network.crossOver = function(network1, network2, method){
-   if(typeof method == 'undefined'){
-     throw new Error('No mutate method given!');
+   /*if(typeof method == 'undefined'){
+     throw new Error('No crossover method given!');
    } else if(!method.name in Methods.Crossover){
      throw new Error('This method does not exist!');
-   } else if(network1.input != network2.input || network1.output != network2.output){
+   } else */if(network1.input != network2.input || network1.output != network2.output){
      throw new Error("Networks don't have the same input/output size!");
    }
 

@@ -183,16 +183,16 @@ function Node(type) {
   this.type = type || 'hidden'; // hidden if not specified
 
   this.activation = 0;
-  this.connections = { in : [], out : [] };
+  this.connections = { in : [], gate: [], out : [] };
 
   // Data for backpropagation
-  this.error = { responsibility: 0, projected: 0 };
-  this.trace = { elegibility: {} };
+  this.error = { responsibility: 0, gated: 0, projected: 0 };
+  this.trace = { elegibility: [] , extended: [], influences: [] };
 }
 
 Node.prototype = {
   /**
-   * Activates the node
+   * Activates the node (rewritten from https://github.com/cazala/synaptic)
    */
   activate: function(input){
     // Check if an input is given
@@ -208,25 +208,50 @@ Node.prototype = {
 
     // Activation sources coming from connections
     for(connection in this.connections.in){
-      this.state += this.connections.in[connection].from.activation * this.connections.in[connection].weight;
+      var connection = this.connections.in[connection];
+      this.state += connection.from.activation * connection.weight * connection.gain;
     }
 
     // Squash the values received
     this.activation = this.squash(this.state);
     this.derivative = this.squash(this.state, true);
 
-    for (var connection in this.connections.in) {
-      var input = this.connections.in[connection];
+    // Update traces
+    var influences = {};
+    for(var node in this.trace.extended){
+      var influence = 0;
+      for(var incoming in this.trace.influences[node].connections){
+        incoming = this.trace.influences[node].connections[incoming];
+        influence = incoming.weight * incoming.from.activation;
+      }
+
+      influences[node] = influence;
+    }
+
+    for (var index in this.connections.in) {
+      var input = this.connections.in[index];
 
       // Elegibility trace
-      this.trace.elegibility[connection] = input.from.activation;
+      this.trace.elegibility[index] = input.from.activation * input.gain;
+
+      for(var node in this.trace.extended){
+
+        var xtrace = this.trace.extended[node];
+        var influence = influences[node];
+        xtrace.connections[index] = this.derivative * this.trace.elegibility[index] * influence;
+      }
+    }
+
+
+    for(var index in this.connections.gate){
+      this.connections.gate[index].gain = this.activation;
     }
 
     return this.activation;
   },
 
   /**
-   * Back-propagate the error
+   * Back-propagate the error (rewritten from https://github.com/cazala/synaptic)
    */
   propagate: function(rate, target) {
     // Error accumulator
@@ -237,28 +262,51 @@ Node.prototype = {
       this.error.responsibility = this.error.projected = target - this.activation;
     } else { // the rest of the nodes compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this node
-      for (var connection in this.connections.out) {
-        var connection = this.connections.out[connection];
+      for (var index in this.connections.out) {
+        var connection = this.connections.out[index];
         var node = connection.to;
         // Eq. 21
-        error += node.error.responsibility * connection.weight;
+        error += node.error.responsibility * connection.weight * connection.gain;
       }
 
       // Projected error responsibility
       this.error.projected = this.derivative * error;
 
+      error = 0;
+
+      // Error responsibilities from gated connections
+      for(var node in this.trace.extended){
+        var influence = 0;
+
+        for(var input in this.trace.influences[node].connections){
+          influence += this.trace.influences[node].connections[input].weight * this.trace.influences[
+            node].connections[input].from.activation;
+        }
+
+        error += this.trace.influences[node].node.error.responsibility * influence;
+      }
+
+      // Gated error responsibility
+      this.error.gated = this.derivative * error;
+
       // Error responsibility
-      this.error.responsibility = this.error.projected;
+      this.error.responsibility = this.error.projected + this.error.gated;
     }
 
     // Learning rate
     rate = rate || .1;
 
     // Adjust all the node's incoming connections
-    for (var connection in this.connections.in) {
-      var input = this.connections.in[connection];
+    for (var index in this.connections.in) {
+      var input = this.connections.in[index];
 
-      var gradient = this.error.projected * this.trace.elegibility[connection];
+      var gradient = this.error.projected * this.trace.elegibility[index];
+
+      for(var node in this.trace.extended){
+        gradient += this.trace.extended[node].node.error.responsibility * this.trace.extended[node].connections[index];
+      }
+
+
       input.weight += rate * gradient; // Adjust weights
     }
 
@@ -297,6 +345,39 @@ Node.prototype = {
      if(twosided){
        node.disconnect(this);
      }
+   },
+
+   /**
+    * Make this neuron gate a connection (rewritten from https://github.com/cazala/synaptic)
+    */
+   gate: function(connection){
+     this.connections.gate.push(connection);
+
+     var node = connection.to;
+
+     if(!(node in this.trace.extended)){
+       var xtrace = { node: node, connections : [] }
+
+       for(var index in this.connections.in){
+         xtrace.connections.push(0);
+       }
+
+       this.trace.extended.push(xtrace);
+     }
+
+     found = false;
+     for(influence in this.trace.influences){
+       influence = this.trace.influences[influence];
+       if(influence.node == node){
+         influence.connections.push(connection);
+         found = true;
+         break;
+       }
+     }
+
+     if(!found) this.trace.influences.push({node : node, connections:[connection]});
+
+     connection.gater = this;
    },
 
   /**
@@ -1140,6 +1221,9 @@ function Connection(from, to) {
   this.weight = Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
+  this.gater = null;
+  
+  this.gain = 1; // used for gating
 }
 
 Connection.prototype = {

@@ -14,21 +14,14 @@ over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) 
 
 ```javascript
 var network = new Architect.Perceptron(2,4,1);
-var trainer = new Trainer(network); 
 
 // Train the XOR gate
-trainer.train([
-  { input: [0,0], output: [0] },
-  { input: [0,1], output: [1] },
-  { input: [1,0], output: [1] },
-  { input: [1,1], output: [0] },
-],
-{
-  iterations: 5000,
-  error: 0.001,
-  log: 1
-}
-);
+network.train([{ input: [0,0], output: [0] },
+               { input: [0,1], output: [1] },
+               { input: [1,0], output: [1] },
+               { input: [1,1], output: [0] }]);
+
+network.activate([0,1]); // 0.9824...
 ```
 
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
@@ -45,7 +38,7 @@ of Neataptic, feel free to create a pull request!
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/neataptic/36f51134/dist/neataptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/neataptic/0cfa0d71/dist/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

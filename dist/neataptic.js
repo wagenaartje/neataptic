@@ -87,7 +87,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -123,11 +123,11 @@ module.exports = function(module) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation : __webpack_require__(6),
-  Mutation   : __webpack_require__(11),
-  Selection  : __webpack_require__(12),
-  Crossover  : __webpack_require__(10),
-  Cost       : __webpack_require__(9)
+  Activation : __webpack_require__(5),
+  Mutation   : __webpack_require__(10),
+  Selection  : __webpack_require__(11),
+  Crossover  : __webpack_require__(9),
+  Cost       : __webpack_require__(8)
 };
 
 // CommonJS & AMD
@@ -167,7 +167,7 @@ if (module) module.exports = Node;
 
 /* Import */
 var Methods    = __webpack_require__(1);
-var Connection = __webpack_require__(5);
+var Connection = __webpack_require__(4);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -398,7 +398,7 @@ if (module) module.exports = Network;
 
 /* Import */
 var Node       = __webpack_require__(2);
-var Connection = __webpack_require__(5);
+var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
 
 /* Easier variable naming */
@@ -657,6 +657,144 @@ Network.prototype = {
         node.mutate(Mutation.MOD_ACTIVATION);
         break;
     }
+  },
+
+  /**
+   * Train a trainingset to a network
+   */
+  train: function(set, options) {
+    options = options || {};
+
+    // Warning messages
+    if(typeof options.rate == 'undefined'){
+      console.warn('Using default learning rate, please define a rate!')
+    }
+
+    if(typeof options.iterations == "undefined"){
+      console.warn('No target iterations given, running until error is reached!')
+    }
+
+    var start = Date.now();
+
+    // Configure given options
+    var log           = options.log           || false;
+    var targetError   = options.error         || 0.005;
+    var cost          = options.cost          || Methods.Cost.MSE;
+    var rate          = options.rate          || 0.3;
+    var shuffle       = options.shuffle       || false;
+    var iterations    = options.iterations    || 0;
+    var crossValidate = options.crossValidate || false;
+
+    if(crossValidate){
+      var testSize = options.crossValidate.testSize;
+      var testError = options.crossValidate.testError;
+      var numTrain = Math.ceil((1 - testSize) * set.length);
+      var trainSet = set.slice(0, numTrain);
+      var testSet = set.slice(numTrain);
+    }
+
+    var currentRate = rate;
+
+    // Splits the given rates, assigns it to chunks of iteration
+    var bucketSize = 0;
+    if(Array.isArray(rate)){
+      bucketSize = Math.floor(iterations / rate.length);
+    }
+
+    // Loops the training process
+    var iteration = 0;
+    var error = 1;
+
+    while (error > targetError && ( iterations == 0 || iteration < iterations)) {
+      if (crossValidate && error <= testError) break;
+
+      iteration++;
+
+      // If the rate is a function, calculate the new rate
+      if(typeof rate === 'function'){
+        currentRate = rate(iterations, error);
+      }
+
+      error = 0;
+
+      // Changes the rate depending on the iteration (if enabled)
+      if(bucketSize > 0) {
+        var currentBucket = Math.floor(iterations / bucketSize);
+        currentRate = rate[currentBucket] || currentRate;
+      }
+
+      // Checks if cross validation is enabled
+      if (crossValidate) {
+        this._trainSet(trainSet, currentRate, cost);
+        error += this.test(testSet, cost).error;
+      } else {
+        error += this._trainSet(set, currentRate, cost);
+        error /= set.length;
+      }
+
+
+      // Checks for options such as scheduled logs and shuffling
+      if(shuffle){
+        for (var j, x, i = set.length; i; j = Math.floor(Math.random() * i), x = set[--i], set[i] = set[j], set[j] = x);
+      }
+
+      if(log && iteration % log == 0){
+        console.log('iterations', iteration, 'error', error, 'rate', currentRate);
+      }
+    }
+
+    // Creates an object of the results
+    var results = {
+      error: error,
+      iterations: iteration,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  /**
+   * Performs one training epoch and returns the error
+   * private function used in this.train
+   */
+  _trainSet: function(set, currentRate, costFunction) {
+    var errorSum = 0;
+    for (var train in set) {
+      var input = set[train].input;
+      var target = set[train].output;
+
+      var output = this.activate(input);
+      this.propagate(currentRate, target);
+
+      errorSum += costFunction(target, output);
+    }
+    return errorSum;
+  },
+
+  /**
+   * Tests a set and returns the error and elapsed time
+   */
+  test: function(set, cost) {
+    var error = 0;
+    var input, output, target;
+
+    var start = Date.now();
+
+    for (var test in set) {
+      input = set[test].input;
+      target = set[test].output;
+      output = this.activate(input);
+      error += cost(target, output);
+    }
+
+    error /= set.length;
+
+    var results = {
+      error: error,
+      time: Date.now() - start
+    };
+
+    return results;
   },
 
   /**
@@ -992,257 +1130,6 @@ Network.prototype = {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Trainer;
-
-/* Import */
-var Methods = __webpack_require__(1);
-
-/* Shorten var names */
-var Cost = Methods.Cost;
-
-/*******************************************************************************************
-                                        TRAINER
-*******************************************************************************************/
-
-/**
- * Creates a trainer
- */
-function Trainer(network, options) {
-  options = options || {};
-  this.network = network;
-  this.rate = options.rate || .2;
-  this.iterations = options.iterations || 100000;
-  this.error = options.error || .005;
-  this.cost = options.cost || null;
-  this.crossValidate = options.crossValidate || null;
-}
-
-Trainer.prototype = {
-  /**
-   * Train a trainingset to a network
-   */
-  train: function(set, options) {
-    var error = 1;
-    var iterations = bucketSize = 0;
-    var abort = false;
-    var currentRate;
-    var cost = options && options.cost || this.cost || Cost.MSE;
-    var crossValidate = false, testSet, trainSet;
-
-    var start = Date.now();
-
-    // Configure given optoins
-    if (options) {
-      if (options.shuffle) {
-        //+ Jonas Raoni Soares Silva
-        //@ http://jsfromhell.com/array/shuffle [v1.0]
-        function shuffle(o) { //v1.0
-          for (var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-          return o;
-        };
-      }
-      if (options.iterations) this.iterations = options.iterations;
-      if (options.error) this.error = options.error;
-      if (options.rate) this.rate = options.rate;
-      if (options.cost) this.cost = options.cost;
-      if (options.schedule) this.schedule = options.schedule;
-
-      if (this.crossValidate || options.crossValidate) {
-        if(!this.crossValidate) this.crossValidate = {};
-        crossValidate = true;
-        if (options.crossValidate.testSize)
-          this.crossValidate.testSize = options.crossValidate.testSize;
-        if (options.crossValidate.testError)
-          this.crossValidate.testError = options.crossValidate.testError;
-      }
-    }
-
-    // Splits the given rates, assigns it to chunks of iteration
-    currentRate = this.rate;
-    if(Array.isArray(this.rate)){
-      var bucketSize = Math.floor(this.iterations / this.rate.length);
-    }
-
-    // Splits the given set into a training set and testing set if crossvalidation is enabled
-    if(crossValidate){
-      var numTrain = Math.ceil((1 - this.crossValidate.testSize) * set.length);
-      trainSet = set.slice(0, numTrain);
-      testSet = set.slice(numTrain);
-    }
-
-    while ((!abort && iterations < this.iterations && error > this.error)) {
-      if (crossValidate && error <= this.crossValidate.testError) {
-        break;
-      }
-      iterations++;
-
-      // If the rate is a function, calculate the new rate
-      if(typeof this.rate === 'function'){
-        currentRate = this.rate(iterations, error);
-      }
-
-      error = 0;
-
-      // Changes the rate depending on the iteration (if enabled)
-      if(bucketSize > 0) {
-        var currentBucket = Math.floor(iterations / bucketSize);
-        currentRate = this.rate[currentBucket] || currentRate;
-      }
-
-      // Checks if cross validation is enabled
-      if (crossValidate) {
-        this._trainSet(trainSet, currentRate, cost);
-        error += this.test(testSet).error;
-      } else {
-        error += this._trainSet(set, currentRate, cost);
-        error /= set.length;
-      }
-
-
-      // Checks for options such as scheduled logs and shuffling
-      if (options) {
-        if (this.schedule && this.schedule.every && iterations % this.schedule.every == 0){
-          abort = this.schedule.do({ error: error, iterations: iterations, rate: currentRate });
-        } else if (options.log && iterations % options.log == 0){
-          console.log('iterations', iterations, 'error', error, 'rate', currentRate);
-        };
-
-        if (options.shuffle) shuffle(set);
-      }
-    }
-
-    // Creates an object of the results
-    var results = {
-      error: error,
-      iterations: iterations,
-      time: Date.now() - start
-    };
-
-    return results;
-  },
-
-  /**
-   * Trains any given set to a network, using a WebWorker (only for the browser).
-   * @return a Promise of the results.
-   */
-  trainAsync: function(set, options) {
-    var train = this.workerTrain.bind(this);
-    return new Promise(function(resolve, reject) {
-      try {
-        train(set, resolve, options, true)
-      } catch(e) {
-        reject(e)
-      }
-    })
-  },
-
-  /**
-   * Performs one training epoch and returns the error
-   * private function used in this.train
-   */
-  _trainSet: function(set, currentRate, costFunction) {
-    var errorSum = 0;
-    for (var train in set) {
-      var input = set[train].input;
-      var target = set[train].output;
-
-      var output = this.network.activate(input);
-      this.network.propagate(currentRate, target);
-
-      errorSum += costFunction(target, output);
-    }
-    return errorSum;
-  },
-
-  /**
-   * Tests a set and returns the error and elapsed time
-   */
-  test: function(set, options) {
-    var error = 0;
-    var input, output, target;
-    var cost = options && options.cost || this.cost || Cost.MSE;
-
-    var start = Date.now();
-
-    for (var test in set) {
-      input = set[test].input;
-      target = set[test].output;
-      output = this.network.activate(input);
-      error += cost(target, output);
-    }
-
-    error /= set.length;
-
-    var results = {
-      error: error,
-      time: Date.now() - start
-    };
-
-    return results;
-  },
-
-  /**
-   * Trains any given set to a network using a WebWorker
-   * [deprecated: use trainAsync instead]
-   */
-  workerTrain: function(set, callback, options, suppressWarning) {
-
-    if (!suppressWarning) {
-      console.warn('Deprecated: do not use `workerTrain`, use `trainAsync` instead.')
-    }
-    var that = this;
-
-    if (!this.network.optimized)
-      this.network.optimize();
-
-    // Create a new worker
-    var worker = this.network.worker(this.network.optimized.memory, set, options);
-
-    // train the worker
-    worker.onmessage = function(e) {
-      switch(e.data.action) {
-          case 'done':
-            var iterations = e.data.message.iterations;
-            var error = e.data.message.error;
-            var time = e.data.message.time;
-
-            that.network.optimized.ownership(e.data.memoryBuffer);
-
-            // Done callback
-            callback({
-              error: error,
-              iterations: iterations,
-              time: time
-            });
-
-            // Delete the worker and all its associated memory
-            worker.terminate();
-          break;
-
-          case 'log':
-            console.log(e.data.message);
-
-          case 'schedule':
-            if (options && options.schedule && typeof options.schedule.do === 'function') {
-              var scheduled = options.schedule.do
-              scheduled(e.data.message)
-            }
-          break;
-      }
-    };
-
-    // Start the worker
-    worker.postMessage({action: 'startTraining'});
-  },
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Connection;
 
 /******************************************************************************************
@@ -1281,7 +1168,7 @@ Connection.innovationID = function(a, b) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1348,14 +1235,13 @@ if (module) module.exports = Activation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
 var Network = __webpack_require__(3);
 var Methods = __webpack_require__(1);
 var Node    = __webpack_require__(2);
-var Trainer = __webpack_require__(4);
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -1474,7 +1360,6 @@ var Architect = {
    */
   Hopfield: function(size){
     var network = new Network(size, size);
-    var trainer = new Trainer(network);
 
     network.learn = function(patterns){
       var set = [];
@@ -1484,7 +1369,7 @@ var Architect = {
           output: patterns[p]
         });
 
-      return trainer.train(set, {
+      return network.train(set, {
         iterations: 500000,
         error: .00005,
         rate: 1
@@ -1512,7 +1397,7 @@ if (module) module.exports = Architect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -1691,7 +1576,7 @@ Neat.prototype = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1728,7 +1613,7 @@ if (module) module.exports = Cost;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1759,11 +1644,11 @@ if (module) module.exports = Crossover;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Activation = __webpack_require__(6);
+var Activation = __webpack_require__(5);
 
 /*******************************************************************************************
                                       MUTATION
@@ -1825,7 +1710,7 @@ if (module) module.exports = Mutation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1847,16 +1732,15 @@ if (module) module.exports = Selection;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   Node      : __webpack_require__(2),
-  Neat      : __webpack_require__(8),
+  Neat      : __webpack_require__(7),
   Network   : __webpack_require__(3),
   Methods   : __webpack_require__(1),
-  Architect : __webpack_require__(7),
-  Trainer   : __webpack_require__(4)
+  Architect : __webpack_require__(6)
 };
 
 // CommonJS & AMD

@@ -2,7 +2,6 @@
 var Network = require('./network');
 var Methods = require('./methods/methods');
 var Node    = require('./node');
-var Trainer = require('./trainer');
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -121,7 +120,6 @@ var Architect = {
    */
   Hopfield: function(size){
     var network = new Network(size, size);
-    var trainer = new Trainer(network);
 
     network.learn = function(patterns){
       var set = [];
@@ -131,7 +129,7 @@ var Architect = {
           output: patterns[p]
         });
 
-      return trainer.train(set, {
+      return network.train(set, {
         iterations: 500000,
         error: .00005,
         rate: 1

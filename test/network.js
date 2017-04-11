@@ -6,7 +6,6 @@ var neataptic = require('../src/neataptic.js');
 /* Shorten var names */
 var Connection = neataptic.Connection;
 var Architect  = neataptic.Architect;
-var Trainer    = neataptic.Trainer;
 var Neat       = neataptic.Neat;
 var Node       = neataptic.Node;
 var Network    = neataptic.Network;
@@ -38,7 +37,6 @@ function checkMutation(method){
 
 function learnSet(set, iterations, error){
   var network = new Architect.Perceptron(set[0].input.length, 5, set[0].output.length);
-  var trainer = new Trainer(network);
 
   var options = {
     iterations: iterations,
@@ -46,7 +44,7 @@ function learnSet(set, iterations, error){
     shuffle: true
   };
 
-  var results = trainer.train(set, options);
+  var results = network.train(set, options);
 
   assert.isBelow(results.error, error);
 }

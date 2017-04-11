@@ -265,6 +265,144 @@ Network.prototype = {
   },
 
   /**
+   * Train a trainingset to a network
+   */
+  train: function(set, options) {
+    options = options || {};
+
+    // Warning messages
+    if(typeof options.rate == 'undefined'){
+      console.warn('Using default learning rate, please define a rate!')
+    }
+
+    if(typeof options.iterations == "undefined"){
+      console.warn('No target iterations given, running until error is reached!')
+    }
+
+    var start = Date.now();
+
+    // Configure given options
+    var log           = options.log           || false;
+    var targetError   = options.error         || 0.005;
+    var cost          = options.cost          || Methods.Cost.MSE;
+    var rate          = options.rate          || 0.3;
+    var shuffle       = options.shuffle       || false;
+    var iterations    = options.iterations    || 0;
+    var crossValidate = options.crossValidate || false;
+
+    if(crossValidate){
+      var testSize = options.crossValidate.testSize;
+      var testError = options.crossValidate.testError;
+      var numTrain = Math.ceil((1 - testSize) * set.length);
+      var trainSet = set.slice(0, numTrain);
+      var testSet = set.slice(numTrain);
+    }
+
+    var currentRate = rate;
+
+    // Splits the given rates, assigns it to chunks of iteration
+    var bucketSize = 0;
+    if(Array.isArray(rate)){
+      bucketSize = Math.floor(iterations / rate.length);
+    }
+
+    // Loops the training process
+    var iteration = 0;
+    var error = 1;
+
+    while (error > targetError && ( iterations == 0 || iteration < iterations)) {
+      if (crossValidate && error <= testError) break;
+
+      iteration++;
+
+      // If the rate is a function, calculate the new rate
+      if(typeof rate === 'function'){
+        currentRate = rate(iterations, error);
+      }
+
+      error = 0;
+
+      // Changes the rate depending on the iteration (if enabled)
+      if(bucketSize > 0) {
+        var currentBucket = Math.floor(iterations / bucketSize);
+        currentRate = rate[currentBucket] || currentRate;
+      }
+
+      // Checks if cross validation is enabled
+      if (crossValidate) {
+        this._trainSet(trainSet, currentRate, cost);
+        error += this.test(testSet, cost).error;
+      } else {
+        error += this._trainSet(set, currentRate, cost);
+        error /= set.length;
+      }
+
+
+      // Checks for options such as scheduled logs and shuffling
+      if(shuffle){
+        for (var j, x, i = set.length; i; j = Math.floor(Math.random() * i), x = set[--i], set[i] = set[j], set[j] = x);
+      }
+
+      if(log && iteration % log == 0){
+        console.log('iterations', iteration, 'error', error, 'rate', currentRate);
+      }
+    }
+
+    // Creates an object of the results
+    var results = {
+      error: error,
+      iterations: iteration,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  /**
+   * Performs one training epoch and returns the error
+   * private function used in this.train
+   */
+  _trainSet: function(set, currentRate, costFunction) {
+    var errorSum = 0;
+    for (var train in set) {
+      var input = set[train].input;
+      var target = set[train].output;
+
+      var output = this.activate(input);
+      this.propagate(currentRate, target);
+
+      errorSum += costFunction(target, output);
+    }
+    return errorSum;
+  },
+
+  /**
+   * Tests a set and returns the error and elapsed time
+   */
+  test: function(set, cost) {
+    var error = 0;
+    var input, output, target;
+
+    var start = Date.now();
+
+    for (var test in set) {
+      input = set[test].input;
+      target = set[test].output;
+      output = this.activate(input);
+      error += cost(target, output);
+    }
+
+    error /= set.length;
+
+    var results = {
+      error: error,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  /**
    * Creates a json that can be used to create a graph with d3 and webcola
    */
    graph: function(width, height, margin){

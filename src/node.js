@@ -4,14 +4,13 @@ if (module) module.exports = Node;
 /* Import */
 var Methods    = require('./methods/methods');
 var Connection = require('./connection');
-var Group      = require('./group');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
 
 /******************************************************************************************
-                                         Node
+                                         node
 *******************************************************************************************/
 
 function Node(type) {
@@ -20,15 +19,7 @@ function Node(type) {
   this.type = type || 'hidden'; // hidden if not specified
 
   this.activation = 0;
-
-  this.connections = {
-    in : [],
-    gate: [],
-    out : [] ,
-    self : new Connection(this, this, 0)
-  };
-
-  this.state = 0;
+  this.connections = { in : [], gate: [], out : [] };
 
   // Data for backpropagation
   this.error = { responsibility: 0, gated: 0, projected: 0 };
@@ -49,8 +40,7 @@ Node.prototype = {
     }
 
     // All activation sources coming from the node itself (self-connections coming in the future)
-    this.state = this.connections.self.gain * this.connections.self.weight *
-    this.state + this.bias;
+    this.state = this.bias;
 
     // Activation sources coming from connections
     for(connection in this.connections.in){
@@ -62,12 +52,35 @@ Node.prototype = {
     this.activation = this.squash(this.state);
     this.derivative = this.squash(this.state, true);
 
+    // Update traces
+    var influences = {};
+    for(var node in this.trace.extended){
+      var influence = 0;
+      for(var incoming in this.trace.influences[node].connections){
+        incoming = this.trace.influences[node].connections[incoming];
+        influence = incoming.weight * incoming.from.activation;
+      }
+
+      influences[node] = influence;
+    }
+
     for (var index in this.connections.in) {
       var input = this.connections.in[index];
 
       // Elegibility trace
-      //this.trace.elegibility[index] = this.connections.self.gain * this.connections.self.weight *
       this.trace.elegibility[index] = input.from.activation * input.gain;
+
+      for(var node in this.trace.extended){
+
+        var xtrace = this.trace.extended[node];
+        var influence = influences[node];
+        xtrace.connections[index] = this.derivative * this.trace.elegibility[index] * influence;
+      }
+    }
+
+
+    for(var index in this.connections.gate){
+      this.connections.gate[index].gain = this.activation;
     }
 
     return this.activation;
@@ -95,8 +108,25 @@ Node.prototype = {
       // Projected error responsibility
       this.error.projected = this.derivative * error;
 
+      error = 0;
+
+      // Error responsibilities from gated connections
+      for(var node in this.trace.extended){
+        var influence = 0;
+
+        for(var input in this.trace.influences[node].connections){
+          influence += this.trace.influences[node].connections[input].weight * this.trace.influences[
+            node].connections[input].from.activation;
+        }
+
+        error += this.trace.influences[node].node.error.responsibility * influence;
+      }
+
+      // Gated error responsibility
+      this.error.gated = this.derivative * error;
+
       // Error responsibility
-      this.error.responsibility = this.error.projected;
+      this.error.responsibility = this.error.projected + this.error.gated;
     }
 
     // Learning rate
@@ -105,7 +135,13 @@ Node.prototype = {
     // Adjust all the node's incoming connections
     for (var index in this.connections.in) {
       var input = this.connections.in[index];
+
       var gradient = this.error.projected * this.trace.elegibility[index];
+
+      for(var node in this.trace.extended){
+        gradient += this.trace.extended[node].node.error.responsibility * this.trace.extended[node].connections[index];
+      }
+
 
       input.weight += rate * gradient; // Adjust weights
     }
@@ -117,32 +153,13 @@ Node.prototype = {
   /**
    * Creates a connection from this node to the given node
    */
-  connect: function(target){
-    var connections = [];
-    if(target instanceof Group){
-      for(var i = 0; i < target.nodes.length; i++){
-        var connection = new Connection(this, target.nodes[i]);
-        target.nodes[i].connections.in.push(connection);
-        this.connections.out.push(connection);
-        target.connections.in.push(connection);
+  connect: function(node){
+    var connection = new Connection(this, node);
 
-        connections.push(connection);
-      }
-    } else if(target instanceof Node){
-      if(target == this){
-        // Turn on the self connection by setting the weight !0
-        this.connections.self.weight = Math.random() * .2 - .1;
-        connections.push(this.connections.self);
-      } else {
-        var connection = new Connection(this, target);
-        target.connections.in.push(connection);
-        this.connections.out.push(connection);
+    this.connections.out.push(connection);
+    node.connections.in.push(connection);
 
-        connections.push(connection);
-      }
-    }
-
-    return connections;
+    return connection;
   },
 
   /**
@@ -169,41 +186,35 @@ Node.prototype = {
    /**
     * Make this neuron gate a connection (rewritten from https://github.com/cazala/synaptic)
     */
-   /*gate: function(connections){
-     if(connections instanceof Connection){
-       connections = [connections];
-     }
+   gate: function(connection){
+     this.connections.gate.push(connection);
 
-     for(var i = 0; i < connections.length; i++){
-       var connection = connections[i];
-       this.connections.gate.push(connection);
+     var node = connection.to;
 
-       var node = connection.to;
-       if(!(node in this.trace.extended)){
-         var xtrace = { node: node, connections : [] }
+     if(!(node in this.trace.extended)){
+       var xtrace = { node: node, connections : [] }
 
-         for(var index in this.connections.in){
-           xtrace.connections.push(0);
-         }
-
-         this.trace.extended.push(xtrace);
+       for(var index in this.connections.in){
+         xtrace.connections.push(0);
        }
 
-       found = false;
-       for(influence in this.trace.influences){
-         influence = this.trace.influences[influence];
-         if(influence.node == node){
-           influence.connections.push(connection);
-           found = true;
-           break;
-         }
-       }
-
-       if(!found) this.trace.influences.push({node : node, connections:[connection]});
-
-       connection.gater = this;
+       this.trace.extended.push(xtrace);
      }
-   },*/
+
+     found = false;
+     for(influence in this.trace.influences){
+       influence = this.trace.influences[influence];
+       if(influence.node == node){
+         influence.connections.push(connection);
+         found = true;
+         break;
+       }
+     }
+
+     if(!found) this.trace.influences.push({node : node, connections:[connection]});
+
+     connection.gater = this;
+   },
 
   /**
    * Mutates the node with the given method

@@ -87,7 +87,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 13);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -123,11 +123,11 @@ module.exports = function(module) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation : __webpack_require__(6),
-  Mutation   : __webpack_require__(11),
-  Selection  : __webpack_require__(12),
-  Crossover  : __webpack_require__(10),
-  Cost       : __webpack_require__(9)
+  Activation : __webpack_require__(5),
+  Mutation   : __webpack_require__(10),
+  Selection  : __webpack_require__(11),
+  Crossover  : __webpack_require__(9),
+  Cost       : __webpack_require__(8)
 };
 
 // CommonJS & AMD
@@ -167,15 +167,14 @@ if (module) module.exports = Node;
 
 /* Import */
 var Methods    = __webpack_require__(1);
-var Connection = __webpack_require__(5);
-var Group      = __webpack_require__(3);
+var Connection = __webpack_require__(4);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
 
 /******************************************************************************************
-                                         Node
+                                         node
 *******************************************************************************************/
 
 function Node(type) {
@@ -184,15 +183,7 @@ function Node(type) {
   this.type = type || 'hidden'; // hidden if not specified
 
   this.activation = 0;
-
-  this.connections = {
-    in : [],
-    gate: [],
-    out : [] ,
-    self : new Connection(this, this, 0)
-  };
-
-  this.state = 0;
+  this.connections = { in : [], gate: [], out : [] };
 
   // Data for backpropagation
   this.error = { responsibility: 0, gated: 0, projected: 0 };
@@ -213,8 +204,7 @@ Node.prototype = {
     }
 
     // All activation sources coming from the node itself (self-connections coming in the future)
-    this.state = this.connections.self.gain * this.connections.self.weight *
-    this.state + this.bias;
+    this.state = this.bias;
 
     // Activation sources coming from connections
     for(connection in this.connections.in){
@@ -226,13 +216,35 @@ Node.prototype = {
     this.activation = this.squash(this.state);
     this.derivative = this.squash(this.state, true);
 
+    // Update traces
+    var influences = {};
+    for(var node in this.trace.extended){
+      var influence = 0;
+      for(var incoming in this.trace.influences[node].connections){
+        incoming = this.trace.influences[node].connections[incoming];
+        influence = incoming.weight * incoming.from.activation;
+      }
+
+      influences[node] = influence;
+    }
+
     for (var index in this.connections.in) {
       var input = this.connections.in[index];
 
       // Elegibility trace
-      console.log(this.trace.elegibility[index]);
-      //this.trace.elegibility[index] = this.connections.self.gain * this.connections.self.weight *
       this.trace.elegibility[index] = input.from.activation * input.gain;
+
+      for(var node in this.trace.extended){
+
+        var xtrace = this.trace.extended[node];
+        var influence = influences[node];
+        xtrace.connections[index] = this.derivative * this.trace.elegibility[index] * influence;
+      }
+    }
+
+
+    for(var index in this.connections.gate){
+      this.connections.gate[index].gain = this.activation;
     }
 
     return this.activation;
@@ -260,8 +272,25 @@ Node.prototype = {
       // Projected error responsibility
       this.error.projected = this.derivative * error;
 
+      error = 0;
+
+      // Error responsibilities from gated connections
+      for(var node in this.trace.extended){
+        var influence = 0;
+
+        for(var input in this.trace.influences[node].connections){
+          influence += this.trace.influences[node].connections[input].weight * this.trace.influences[
+            node].connections[input].from.activation;
+        }
+
+        error += this.trace.influences[node].node.error.responsibility * influence;
+      }
+
+      // Gated error responsibility
+      this.error.gated = this.derivative * error;
+
       // Error responsibility
-      this.error.responsibility = this.error.projected;
+      this.error.responsibility = this.error.projected + this.error.gated;
     }
 
     // Learning rate
@@ -271,9 +300,12 @@ Node.prototype = {
     for (var index in this.connections.in) {
       var input = this.connections.in[index];
 
-      console.log(input);
       var gradient = this.error.projected * this.trace.elegibility[index];
-      console.log(gradient, this.error.projected, this.trace.elegibility);
+
+      for(var node in this.trace.extended){
+        gradient += this.trace.extended[node].node.error.responsibility * this.trace.extended[node].connections[index];
+      }
+
 
       input.weight += rate * gradient; // Adjust weights
     }
@@ -285,32 +317,13 @@ Node.prototype = {
   /**
    * Creates a connection from this node to the given node
    */
-  connect: function(target){
-    var connections = [];
-    if(target instanceof Group){
-      for(var i = 0; i < target.nodes.length; i++){
-        var connection = new Connection(this, target.nodes[i]);
-        target.nodes[i].connections.in.push(connection);
-        this.connections.out.push(connection);
-        target.connections.in.push(connection);
+  connect: function(node){
+    var connection = new Connection(this, node);
 
-        connections.push(connection);
-      }
-    } else if(target instanceof Node){
-      if(target == this){
-        // Turn on the self connection by setting the weight !0
-        this.connections.self.weight = Math.random() * .2 - .1;
-        connections.push(this.connections.self);
-      } else {
-        var connection = new Connection(this, target);
-        target.connections.in.push(connection);
-        this.connections.out.push(connection);
+    this.connections.out.push(connection);
+    node.connections.in.push(connection);
 
-        connections.push(connection);
-      }
-    }
-
-    return connections;
+    return connection;
   },
 
   /**
@@ -337,41 +350,35 @@ Node.prototype = {
    /**
     * Make this neuron gate a connection (rewritten from https://github.com/cazala/synaptic)
     */
-   /*gate: function(connections){
-     if(connections instanceof Connection){
-       connections = [connections];
-     }
+   gate: function(connection){
+     this.connections.gate.push(connection);
 
-     for(var i = 0; i < connections.length; i++){
-       var connection = connections[i];
-       this.connections.gate.push(connection);
+     var node = connection.to;
 
-       var node = connection.to;
-       if(!(node in this.trace.extended)){
-         var xtrace = { node: node, connections : [] }
+     if(!(node in this.trace.extended)){
+       var xtrace = { node: node, connections : [] }
 
-         for(var index in this.connections.in){
-           xtrace.connections.push(0);
-         }
-
-         this.trace.extended.push(xtrace);
+       for(var index in this.connections.in){
+         xtrace.connections.push(0);
        }
 
-       found = false;
-       for(influence in this.trace.influences){
-         influence = this.trace.influences[influence];
-         if(influence.node == node){
-           influence.connections.push(connection);
-           found = true;
-           break;
-         }
-       }
-
-       if(!found) this.trace.influences.push({node : node, connections:[connection]});
-
-       connection.gater = this;
+       this.trace.extended.push(xtrace);
      }
-   },*/
+
+     found = false;
+     for(influence in this.trace.influences){
+       influence = this.trace.influences[influence];
+       if(influence.node == node){
+         influence.connections.push(connection);
+         found = true;
+         break;
+       }
+     }
+
+     if(!found) this.trace.influences.push({node : node, connections:[connection]});
+
+     connection.gater = this;
+   },
 
   /**
    * Mutates the node with the given method
@@ -468,179 +475,11 @@ Node.fromJSON = function(json){
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Group;
-
-/* Import */
-var Methods    = __webpack_require__(1);
-var Connection = __webpack_require__(5);
-var Node       = __webpack_require__(2);
-
-/* Easier variable naming */
-var Activation = Methods.Activation;
-var Mutation   = Methods.Mutation;
-
-/******************************************************************************************
-                                         Group
-*******************************************************************************************/
-
-function Group(size){
-  this.nodes = [];
-  this.connections = { in : [], out: [] };
-
-  for(var i = 0; i < size; i++){
-    this.nodes.push(new Node());
-  }
-}
-
-Group.prototype = {
-  /**
-   * Activates all the nodes in the group
-   */
-  activate: function(value){
-    var values = [];
-
-    if(typeof value != 'undefined' && value.length != this.nodes.length){
-      throw new Error('Array with values should be same as the amount of nodes!');
-    }
-
-    for(var i = 0; i < this.nodes.length; i++){
-      if(typeof value == 'undefined'){
-        var activation = this.nodes[i].activate();
-      } else {
-        var activation = this.nodes[i].activate(value[i]);
-      }
-
-      values.push(activation);
-    }
-
-    return values;
-  },
-
-  /**
-   * Propagates all the node in the group
-   */
-  propagate: function(rate, target){
-    if(typeof target != 'undefined' && target.length != this.nodes.length){
-      throw new Error('Array with values should be same as the amount of nodes!');
-    }
-
-    for(var i = this.nodes.length - 1; i >= 0; i--){
-      if(typeof target == 'undefined'){
-        this.nodes[i].propagate(rate);
-      } else {
-        this.nodes[i].propagate(rate, target[i]);
-      }
-    }
-  },
-
-  /**
-   * Connects the nodes in this group to nodes in another group or just a node
-   */
-  connect: function(target){
-    var connections = [];
-    if(target instanceof Group){
-      for(var i = 0; i < this.nodes.length; i++){
-        for(var j = 0; j < target.nodes.length; j++){
-          var connections = this.nodes[i].connect(target.nodes[j]);
-          this.connections.out.push(connections[0]);
-          target.connections.in.push(connections[0]);
-          connections.push(connections[0]);
-        }
-      }
-    } else if(target instanceof Node){
-      for(var i = 0; i < this.nodes.length; i++){
-        var connections = this.nodes[i].connect(target);
-        this.connections.out.push(connections[0]);
-        connections.push(connections[0]);
-      }
-    }
-
-    return connections;
-  },
-
-  /**
-   * Disconnects all nodes from this group from another given instance
-   */
-  disconnect: function(target, twosided){
-    twosided = twosided || false;
-
-    // In the future, disconnect will return a connection so indexOf can be used
-    if(target instanceof Group){
-      for(var i = 0; i < this.nodes.length; i++){
-        for(var j = 0; j < target.nodes.length; j++){
-          this.nodes[i].disconnect(target.nodes[j], twosided);
-
-          for(index in this.connections.out){
-            var conn = this.connections.out[index];
-
-            if(conn.from == this.nodes[i] && conn.to == target.nodes[j]){
-              this.connections.out.splice(index, 1);
-              break;
-            }
-          }
-
-          if(twosided){
-            for(index in this.connections.in){
-              var conn = this.connections.in[index];
-
-              if(conn.from == target.nodes[j] && conn.to == this.nodes[i]){
-                this.connections.in.splice(index, 1);
-                break;
-              }
-            }
-          }
-        }
-      }
-    } else if(target instanceof Node){
-      for(var i = 0; i < this.nodes.length; i++){
-        var connection = this.nodes[i].disconnect(target, twosided);
-
-        for(index in this.connections.out){
-          var conn = this.connections.out[index];
-
-          if(conn.from == this.nodes[i] && conn.to == target){
-            this.connections.out.splice(index, 1);
-            break;
-          }
-        }
-
-        if(twosided){
-          for(index in this.connections.in){
-            var conn = this.connections.in[index];
-
-            if(conn.from == target && conn.to == this.nodes[i]){
-              this.connections.in.splice(index, 1);
-              break;
-            }
-          }
-        }
-      }
-    }
-  },
-
-  /**
-   * All nodes in this group gate a given list of connections
-   */
-  gate: function(connections){
-    for(var i = 0; i < this.nodes.length; i++){
-      for(var j = 0; j < connections.length; j++)
-      this.nodes[i].gate(connections[j]);
-    }
-  }
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Network;
 
 /* Import */
 var Node       = __webpack_require__(2);
-var Connection = __webpack_require__(5);
+var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
 
 /* Easier variable naming */
@@ -662,7 +501,6 @@ function Network(input, output){
   // Store all the node and connection genes
   this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
   this.connections = [];
-  this.gates = [];
 
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
@@ -730,14 +568,10 @@ Network.prototype = {
    * Connects the from node to the to node
    */
   connect: function(from, to){
-    var connections = from.connect(to);
+    var connection = from.connect(to);
+    this.connections.push(connection);
 
-    for(var connection in connections){
-      connection = connections[connection];
-      this.connections.push(connection);
-    }
-
-    return connections;
+    return connection;
   },
 
   /**
@@ -1373,7 +1207,7 @@ Network.prototype = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -1383,12 +1217,12 @@ if (module) module.exports = Connection;
                                       CONNECTION
 *******************************************************************************************/
 
-function Connection(from, to, weight) {
-  this.weight = weight || Math.random() * .2 - .1;
+function Connection(from, to) {
+  this.weight = Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
   this.gater = null;
-
+  
   this.gain = 1; // used for gating
 }
 
@@ -1418,7 +1252,7 @@ Connection.innovationID = function(a, b) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1485,14 +1319,13 @@ if (module) module.exports = Activation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Network = __webpack_require__(4);
+var Network = __webpack_require__(3);
 var Methods = __webpack_require__(1);
 var Node    = __webpack_require__(2);
-var Group   = __webpack_require__(3);
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -1505,26 +1338,13 @@ var Architect = {
   /**
    * Construct a network from a given array of connected nodes
    */
-  Construct: function(list){
+  Construct: function(nodes){
     // Create a network
     var network = new Network(0, 0);
 
-    // Transform all groups into nodes
-    var nodes = [];
-
-    for(item in list){
-      if(list[item] instanceof Group){
-        for(var node in list[item].nodes){
-          nodes.push(list[item].nodes[node]);
-        }
-      } else if(list[item] instanceof Node){
-        nodes.push(list[item]);
-      }
-    }
-
     // Calculate input and output size
     for(var node in nodes){
-      if(nodes[node].connections.out.length + nodes[node].connections.gate.length == 0){
+      if(!nodes[node].connections.out.length){
         nodes[node].type = 'output';
         network.output++;
       } else if(!nodes[node].connections.in.length){
@@ -1541,12 +1361,8 @@ var Architect = {
       for(var conn in nodes[node].connections.out){
         network.connections.push(nodes[node].connections.out[conn]);
       }
-      for(var conn in nodes[node].connections.gate){
-        network.gates.push({ node: nodes[node], connection: nodes[node].connections.gate[conn]});
-      }
+      network.nodes.push(nodes[node]);
     }
-
-    network.nodes = nodes;
 
     return network;
   },
@@ -1556,85 +1372,52 @@ var Architect = {
    */
   Perceptron: function() {
     // Convert arguments to Array
-    var layers = Array.prototype.slice.call(arguments);
-    if (layers.length < 3){
-      throw new Error("not enough layers (minimum 3) !!");
-    }
-
-    // Create a list of nodes/groups
-    var nodes = [];
-
-    nodes.push(new Group(layers[0]));
-
-    for(var i = 1; i < layers.length; i++){
-      var layer = layers[i];
-      var layer = new Group(layer);
-
-      nodes.push(layer);
-      nodes[i-1].connect(nodes[i]);
-    }
-
-    // Return the network
-    return Architect.Construct(nodes);
-  },
-
-  /**
-   * Constructs a LSTM - EXPERIMENTAL
-   */
-  LSTM: function(){
     var args = Array.prototype.slice.call(arguments);
     if (args.length < 3){
       throw new Error("not enough layers (minimum 3) !!");
     }
 
-    var inputLayer  = new Group(args.shift()); // first argument
-    var outputLayer = new Group(args.pop()); // last argument
-    //debug
-    var inputLayer = new Node();
-    var outputLayer = new Node();
+    var inputs = args.shift(); // first argument
+    var outputs = args.pop(); // last argument
+    var layers = args; // all the arguments in the middle
 
-    var blocks = args; // all the arguments in the middle
+    // Create the network
+    var network = new Network(inputs, outputs);
 
-    var nodes = [];
-    nodes.push(inputLayer);
-
-    for(var block in blocks){
-      block = blocks[block];
-
-      // Init required nodes (in activation order)
-      var inputGate  = new Node();
-      var forgetGate = new Node();
-      var memoryCell = new Node();
-      var outputGate = new Node();
-
-      // Connect the input with all the nodes
-      var input = inputLayer.connect(memoryCell);
-      inputLayer.connect(inputGate);
-      inputLayer.connect(outputGate);
-      inputLayer.connect(forgetGate);
-
-      // Set up internal connections
-      memoryCell.connect(inputGate);
-      memoryCell.connect(forgetGate);
-      memoryCell.connect(outputGate);
-      var forget = memoryCell.connect(memoryCell);
-      var output = memoryCell.connect(outputLayer);
-
-      // Set up gates
-      inputGate.gate(input);
-      forgetGate.gate(forget);
-      outputGate.gate(output);
-
-      // At to array
-      nodes.push(inputGate);
-      nodes.push(forgetGate);
-      nodes.push(memoryCell);
-      nodes.push(outputGate);
+    // Reset network connections
+    network.connections = [];
+    for(var node in network.nodes){
+      network.nodes[node].connections = { in : [], out : [] };
     }
 
-    nodes.push(outputLayer);
 
-    return Architect.Construct(nodes);
+    // Add in hidden nodes
+    for (var level in layers) {
+      for(var i = 0; i < layers[level]; i++){
+        var node = new Node();
+        network.nodes.splice(inputs, 0, node);
+      }
+    }
+
+
+    // Connect all the layers
+    var total = 0;
+    var previous = inputs;
+    layers.push(outputs);
+
+    for(var level in layers){
+      for(var i = total; i < total + previous; i++){
+        for(var j = total + previous; j < total + previous + layers[level]; j++){
+          network.connect(network.nodes[i], network.nodes[j]);
+        }
+      }
+
+      total += previous;
+      previous = layers[level];
+    }
+
+    // Return the network
+    return network;
   },
 
 
@@ -1698,7 +1481,7 @@ if (module) module.exports = Architect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
@@ -1706,7 +1489,7 @@ if (module) module.exports = Neat;
 
 /* Import */
 var Node = __webpack_require__(2);
-var Network = __webpack_require__(4);
+var Network = __webpack_require__(3);
 var Methods = __webpack_require__(1);
 
 /* Easier variable naming */
@@ -1877,7 +1660,7 @@ Neat.prototype = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1914,7 +1697,7 @@ if (module) module.exports = Cost;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -1945,11 +1728,11 @@ if (module) module.exports = Crossover;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Activation = __webpack_require__(6);
+var Activation = __webpack_require__(5);
 
 /*******************************************************************************************
                                       MUTATION
@@ -2011,7 +1794,7 @@ if (module) module.exports = Mutation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
@@ -2033,16 +1816,15 @@ if (module) module.exports = Selection;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   Node      : __webpack_require__(2),
-  Neat      : __webpack_require__(8),
-  Network   : __webpack_require__(4),
+  Neat      : __webpack_require__(7),
+  Network   : __webpack_require__(3),
   Methods   : __webpack_require__(1),
-  Architect : __webpack_require__(7),
-  Group     : __webpack_require__(3)
+  Architect : __webpack_require__(6)
 };
 
 // CommonJS & AMD

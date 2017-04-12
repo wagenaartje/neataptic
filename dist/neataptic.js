@@ -230,7 +230,6 @@ Node.prototype = {
       var input = this.connections.in[index];
 
       // Elegibility trace
-      console.log(this.trace.elegibility[index]);
       //this.trace.elegibility[index] = this.connections.self.gain * this.connections.self.weight *
       this.trace.elegibility[index] = input.from.activation * input.gain;
     }
@@ -270,10 +269,7 @@ Node.prototype = {
     // Adjust all the node's incoming connections
     for (var index in this.connections.in) {
       var input = this.connections.in[index];
-
-      console.log(input);
       var gradient = this.error.projected * this.trace.elegibility[index];
-      console.log(gradient, this.error.projected, this.trace.elegibility);
 
       input.weight += rate * gradient; // Adjust weights
     }
@@ -432,10 +428,11 @@ Node.prototype = {
      */
     toJSON: function(){
       var json = {
-        ID     : this.ID,
-        bias   : this.bias,
-        type   : this.type,
-        squash : this.squash.name
+        ID       : this.ID,
+        bias     : this.bias,
+        type     : this.type,
+        squash   : this.squash.name,
+        selfconn : this.connections.self.weight
       };
 
       return json;
@@ -450,6 +447,7 @@ Node.fromJSON = function(json){
   node.ID   = json.ID;
   node.bias = json.bias;
   node.type = json.type;
+  node.connections.self.weight = json.selfconn;
 
   for(squash in Activation){
     if(Activation[squash].name == json.squash){
@@ -1282,7 +1280,8 @@ Network.prototype = {
 
    // Clear the node connections
    for(node in offspring.nodes){
-     offspring.nodes[node].connections = { in : [], out : [] };
+     offspring.nodes[node].connections.in = [];
+     offspring.nodes[node].connections.out = [];
    }
 
    // Create arrays of connection genes
@@ -1725,6 +1724,7 @@ function Neat(input, output, fitness, options){
   this.fitness = fitness; // The fitness function to evaluate the networks
 
   // Configure options
+  options = options || {};
   this.equal          = options.equal          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;

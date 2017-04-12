@@ -645,7 +645,8 @@ Network.prototype = {
 
    // Clear the node connections
    for(node in offspring.nodes){
-     offspring.nodes[node].connections = { in : [], out : [] };
+     offspring.nodes[node].connections.in = [];
+     offspring.nodes[node].connections.out = [];
    }
 
    // Create arrays of connection genes

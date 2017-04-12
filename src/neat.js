@@ -22,7 +22,6 @@ function Neat(input, output, fitness, options){
   this.fitness = fitness; // The fitness function to evaluate the networks
 
   // Configure options
-  options = options || {};
   this.equal          = options.equal          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;

@@ -264,11 +264,10 @@ Node.prototype = {
      */
     toJSON: function(){
       var json = {
-        ID       : this.ID,
-        bias     : this.bias,
-        type     : this.type,
-        squash   : this.squash.name,
-        selfconn : this.connections.self.weight
+        ID     : this.ID,
+        bias   : this.bias,
+        type   : this.type,
+        squash : this.squash.name
       };
 
       return json;
@@ -283,7 +282,6 @@ Node.fromJSON = function(json){
   node.ID   = json.ID;
   node.bias = json.bias;
   node.type = json.type;
-  node.connections.self.weight = json.selfconn;
 
   for(squash in Activation){
     if(Activation[squash].name == json.squash){

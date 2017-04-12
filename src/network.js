@@ -25,6 +25,7 @@ function Network(input, output){
   // Store all the node and connection genes
   this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
   this.connections = [];
+  this.gates = [];
 
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
@@ -92,10 +93,14 @@ Network.prototype = {
    * Connects the from node to the to node
    */
   connect: function(from, to){
-    var connection = from.connect(to);
-    this.connections.push(connection);
+    var connections = from.connect(to);
 
-    return connection;
+    for(var connection in connections){
+      connection = connections[connection];
+      this.connections.push(connection);
+    }
+
+    return connections;
   },
 
   /**

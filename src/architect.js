@@ -2,6 +2,7 @@
 var Network = require('./network');
 var Methods = require('./methods/methods');
 var Node    = require('./node');
+var Group   = require('./group');
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -14,13 +15,26 @@ var Architect = {
   /**
    * Construct a network from a given array of connected nodes
    */
-  Construct: function(nodes){
+  Construct: function(list){
     // Create a network
     var network = new Network(0, 0);
 
+    // Transform all groups into nodes
+    var nodes = [];
+
+    for(item in list){
+      if(list[item] instanceof Group){
+        for(var node in list[item].nodes){
+          nodes.push(list[item].nodes[node]);
+        }
+      } else if(list[item] instanceof Node){
+        nodes.push(list[item]);
+      }
+    }
+
     // Calculate input and output size
     for(var node in nodes){
-      if(!nodes[node].connections.out.length){
+      if(nodes[node].connections.out.length + nodes[node].connections.gate.length == 0){
         nodes[node].type = 'output';
         network.output++;
       } else if(!nodes[node].connections.in.length){
@@ -37,8 +51,12 @@ var Architect = {
       for(var conn in nodes[node].connections.out){
         network.connections.push(nodes[node].connections.out[conn]);
       }
-      network.nodes.push(nodes[node]);
+      for(var conn in nodes[node].connections.gate){
+        network.gates.push({ node: nodes[node], connection: nodes[node].connections.gate[conn]});
+      }
     }
+
+    network.nodes = nodes;
 
     return network;
   },
@@ -48,52 +66,85 @@ var Architect = {
    */
   Perceptron: function() {
     // Convert arguments to Array
+    var layers = Array.prototype.slice.call(arguments);
+    if (layers.length < 3){
+      throw new Error("not enough layers (minimum 3) !!");
+    }
+
+    // Create a list of nodes/groups
+    var nodes = [];
+
+    nodes.push(new Group(layers[0]));
+
+    for(var i = 1; i < layers.length; i++){
+      var layer = layers[i];
+      var layer = new Group(layer);
+
+      nodes.push(layer);
+      nodes[i-1].connect(nodes[i]);
+    }
+
+    // Return the network
+    return Architect.Construct(nodes);
+  },
+
+  /**
+   * Constructs a LSTM - EXPERIMENTAL
+   */
+  LSTM: function(){
     var args = Array.prototype.slice.call(arguments);
     if (args.length < 3){
       throw new Error("not enough layers (minimum 3) !!");
     }
 
-    var inputs = args.shift(); // first argument
-    var outputs = args.pop(); // last argument
-    var layers = args; // all the arguments in the middle
+    var inputLayer  = new Group(args.shift()); // first argument
+    var outputLayer = new Group(args.pop()); // last argument
+    //debug
+    var inputLayer = new Node();
+    var outputLayer = new Node();
 
-    // Create the network
-    var network = new Network(inputs, outputs);
+    var blocks = args; // all the arguments in the middle
 
-    // Reset network connections
-    network.connections = [];
-    for(var node in network.nodes){
-      network.nodes[node].connections = { in : [], out : [] };
+    var nodes = [];
+    nodes.push(inputLayer);
+
+    for(var block in blocks){
+      block = blocks[block];
+
+      // Init required nodes (in activation order)
+      var inputGate  = new Node();
+      var forgetGate = new Node();
+      var memoryCell = new Node();
+      var outputGate = new Node();
+
+      // Connect the input with all the nodes
+      var input = inputLayer.connect(memoryCell);
+      inputLayer.connect(inputGate);
+      inputLayer.connect(outputGate);
+      inputLayer.connect(forgetGate);
+
+      // Set up internal connections
+      memoryCell.connect(inputGate);
+      memoryCell.connect(forgetGate);
+      memoryCell.connect(outputGate);
+      var forget = memoryCell.connect(memoryCell);
+      var output = memoryCell.connect(outputLayer);
+
+      // Set up gates
+      inputGate.gate(input);
+      forgetGate.gate(forget);
+      outputGate.gate(output);
+
+      // At to array
+      nodes.push(inputGate);
+      nodes.push(forgetGate);
+      nodes.push(memoryCell);
+      nodes.push(outputGate);
     }
 
+    nodes.push(outputLayer);
 
-    // Add in hidden nodes
-    for (var level in layers) {
-      for(var i = 0; i < layers[level]; i++){
-        var node = new Node();
-        network.nodes.splice(inputs, 0, node);
-      }
-    }
-
-
-    // Connect all the layers
-    var total = 0;
-    var previous = inputs;
-    layers.push(outputs);
-
-    for(var level in layers){
-      for(var i = total; i < total + previous; i++){
-        for(var j = total + previous; j < total + previous + layers[level]; j++){
-          network.connect(network.nodes[i], network.nodes[j]);
-        }
-      }
-
-      total += previous;
-      previous = layers[level];
-    }
-
-    // Return the network
-    return network;
+    return Architect.Construct(nodes);
   },
 
 

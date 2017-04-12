@@ -3,7 +3,8 @@ var Neataptic = {
   Neat      : require('./neat'),
   Network   : require('./network'),
   Methods   : require('./methods/methods'),
-  Architect : require('./architect')
+  Architect : require('./architect'),
+  Group     : require('./group')
 };
 
 // CommonJS & AMD

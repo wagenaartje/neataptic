@@ -5,12 +5,12 @@ if (module) module.exports = Connection;
                                       CONNECTION
 *******************************************************************************************/
 
-function Connection(from, to) {
-  this.weight = Math.random() * .2 - .1;
+function Connection(from, to, weight) {
+  this.weight = weight || Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
   this.gater = null;
-  
+
   this.gain = 1; // used for gating
 }
 

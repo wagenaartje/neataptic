@@ -4,6 +4,7 @@ if (module) module.exports = Node;
 /* Import */
 var Methods    = require('./methods/methods');
 var Connection = require('./connection');
+var Group      = require('./group');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -19,11 +20,17 @@ function Node(type) {
   this.type = type || 'hidden'; // hidden if not specified
 
   this.activation = 0;
-  this.connections = { in : [], out : [] };
+  this.state = 0;
+
+  this.connections = {
+    in   : [],
+    out  : [] ,
+    self : new Connection(this, this, 0)
+  };
 
   // Data for backpropagation
   this.error = { responsibility: 0, projected: 0 };
-  this.trace = { elegibility: {} };
+  this.trace = { };
 }
 
 Node.prototype = {
@@ -40,11 +47,12 @@ Node.prototype = {
     }
 
     // All activation sources coming from the node itself (self-connections coming in the future)
-    this.state = this.bias;
+    this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections
     for(connection in this.connections.in){
-      this.state += this.connections.in[connection].from.activation * this.connections.in[connection].weight;
+      var connection = this.connections.in[connection];
+      this.state += connection.from.activation * connection.weight * connection.gain;
     }
 
     // Squash the values received
@@ -52,10 +60,11 @@ Node.prototype = {
     this.derivative = this.squash(this.state, true);
 
     for (var connection in this.connections.in) {
-      var input = this.connections.in[connection];
+      var connection = this.connections.in[connection];
 
       // Elegibility trace
-      this.trace.elegibility[connection] = input.from.activation;
+      connection.elegibility = this.connections.self.gain * this.connections.self.weight *
+      connection.elegibility + connection.from.activation * connection.gain;
     }
 
     return this.activation;
@@ -77,7 +86,7 @@ Node.prototype = {
         var connection = this.connections.out[connection];
         var node = connection.to;
         // Eq. 21
-        error += node.error.responsibility * connection.weight;
+        error += node.error.responsibility * connection.weight * connection.gain;
       }
 
       // Projected error responsibility
@@ -92,10 +101,11 @@ Node.prototype = {
 
     // Adjust all the node's incoming connections
     for (var connection in this.connections.in) {
-      var input = this.connections.in[connection];
+      var connection = this.connections.in[connection];
 
-      var gradient = this.error.projected * this.trace.elegibility[connection];
-      input.weight += rate * gradient; // Adjust weights
+      var gradient = this.error.projected * connection.elegibility;
+
+      connection.weight += rate * gradient; // Adjust weights
     }
 
     // Adjust bias
@@ -105,14 +115,32 @@ Node.prototype = {
   /**
    * Creates a connection from this node to the given node
    */
-  connect: function(node){
-    var connection = new Connection(this, node);
+   connect: function(target){
+     var connections = [];
+     if(target instanceof Group){
+       for(var i = 0; i < target.nodes.length; i++){
+         var connection = new Connection(this, target.nodes[i]);
+         target.nodes[i].connections.in.push(connection);
+         this.connections.out.push(connection);
+         target.connections.in.push(connection);
 
-    this.connections.out.push(connection);
-    node.connections.in.push(connection);
+         connections.push(connection);
+       }
+     } else if(target instanceof Node){
+       if(target == this){
+         // Turn on the self connection by setting the weight !0
+         this.connections.self.weight = Math.random() * .2 - .1;
+         connections.push(this.connections.self);
+       } else {
+         var connection = new Connection(this, target);
+         target.connections.in.push(connection);
+         this.connections.out.push(connection);
 
-    return connection;
-  },
+         connections.push(connection);
+       }
+     }
+     return connections;
+   },
 
   /**
    * Disconnects this node from the other node
@@ -197,7 +225,8 @@ Node.prototype = {
         ID     : this.ID,
         bias   : this.bias,
         type   : this.type,
-        squash : this.squash.name
+        squash : this.squash.name,
+        self   : this.connections.self.weight
       };
 
       return json;
@@ -212,6 +241,7 @@ Node.fromJSON = function(json){
   node.ID   = json.ID;
   node.bias = json.bias;
   node.type = json.type;
+  node.connections.self.weight = json.self;
 
   for(squash in Activation){
     if(Activation[squash].name == json.squash){

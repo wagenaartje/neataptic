@@ -45,7 +45,6 @@ describe('Neat', function () {
     // Fitness function
     function fitnessFunction(genome){
       var score = 0;
-
       // XOR distance
       score -= Methods.Cost.MSE([0], genome.activate([0, 0])) * 5000;
       score -= Methods.Cost.MSE([0], genome.activate([0, 1])) * 5000;

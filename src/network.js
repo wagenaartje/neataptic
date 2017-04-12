@@ -25,6 +25,7 @@ function Network(input, output){
   // Store all the node and connection genes
   this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
   this.connections = [];
+  this.gates = [];
 
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
@@ -92,10 +93,14 @@ Network.prototype = {
    * Connects the from node to the to node
    */
   connect: function(from, to){
-    var connection = from.connect(to);
-    this.connections.push(connection);
+    var connections = from.connect(to);
 
-    return connection;
+    for(var connection in connections){
+      connection = connections[connection];
+      this.connections.push(connection);
+    }
+
+    return connections;
   },
 
   /**
@@ -506,7 +511,6 @@ Network.prototype = {
 
 /**
  * Convert a json to a network
- * See reference #4 for future changes
  */
  Network.fromJSON = function(json){
    var network = new Network(json.input, json.output);
@@ -520,7 +524,7 @@ Network.prototype = {
    for(conn in json.connections){
      var conn = json.connections[conn];
 
-     var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to]);
+     var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to])[0];
      connection.weight = conn.weight;
      connection.ID = conn.id;
    }
@@ -640,7 +644,8 @@ Network.prototype = {
 
    // Clear the node connections
    for(node in offspring.nodes){
-     offspring.nodes[node].connections = { in : [], out : [] };
+     var node = offspring.nodes[node];
+     node.connections = { in : [], out : [], self: new Connection(node, node, 0)};
    }
 
    // Create arrays of connection genes
@@ -718,7 +723,7 @@ Network.prototype = {
        var from = offspring.nodes[connData.from];
        if(from.type != 'output'){
          var to   = offspring.nodes[connData.to];
-         var conn = offspring.connect(from, to);
+         var conn = offspring.connect(from, to)[0];
 
          conn.weight = connData.weight;
        }

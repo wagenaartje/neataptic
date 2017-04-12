@@ -5,10 +5,13 @@ if (module) module.exports = Connection;
                                       CONNECTION
 *******************************************************************************************/
 
-function Connection(from, to) {
-  this.weight = Math.random() * .2 - .1;
+function Connection(from, to, weight) {
+  this.weight = weight || Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
+  this.gain = 1;
+
+  this.elegibility = 0;
 }
 
 Connection.prototype = {
@@ -17,8 +20,7 @@ Connection.prototype = {
    */
   toJSON : function(){
     var json = {
-      weight : this.weight,
-      id : this.ID
+      weight : this.weight
     };
 
     return json;

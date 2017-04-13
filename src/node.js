@@ -21,10 +21,12 @@ function Node(type) {
 
   this.activation = 0;
   this.state = 0;
+  this.old = 0;
 
   this.connections = {
     in   : [],
-    out  : [] ,
+    out  : [],
+    gated : [],
     self : new Connection(this, this, 0)
   };
 
@@ -46,12 +48,14 @@ Node.prototype = {
       return this.activation;
     }
 
+    this.old = this.state;
+
     // All activation sources coming from the node itself (self-connections coming in the future)
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections
-    for(connection in this.connections.in){
-      var connection = this.connections.in[connection];
+    for(var connection in this.connections.in){
+      connection = this.connections.in[connection];
       this.state += connection.from.activation * connection.weight * connection.gain;
     }
 
@@ -59,12 +63,52 @@ Node.prototype = {
     this.activation = this.squash(this.state);
     this.derivative = this.squash(this.state, true);
 
+    // Update traces
+    var nodes = [];
+    var influences = [];
+
+    for(var conn in this.connections.gated){
+      conn = this.connections.gated[conn];
+      var node = conn.to;
+
+      var index = nodes.indexOf(node);
+      if(index > -1){
+        influences[index] += conn.weight * conn.from.activation;
+      } else {
+        nodes.push(node);
+        influences.push(node.connections.self.gater == this ? node.old : 0);
+        influences[influences.length - 1] += conn.weight * conn.from.activation;
+      }
+    }
+
     for (var connection in this.connections.in) {
-      var connection = this.connections.in[connection];
+      connection = this.connections.in[connection];
 
       // Elegibility trace
       connection.elegibility = this.connections.self.gain * this.connections.self.weight *
       connection.elegibility + connection.from.activation * connection.gain;
+
+      // Extended trace
+      for(var i = 0; i < nodes.length; i++){
+        var node = nodes[i];
+        var influence = influences[i];
+
+        var index = connection.xtrace.nodes.indexOf(node);
+        if(index >-1){
+          connection.xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
+          connection.xtrace.values[index] + this.derivative * connection.elegibility * influence;
+        } else {
+          // Does not exist there yet, might be through mutation
+          connection.xtrace.nodes.push(node);
+          connection.xtrace.values.push(this.derivative * connection.elegibility * influence);
+        }
+      }
+    }
+
+
+    // Update the gains of the gates
+    for(var connection in this.connections.gated){
+      this.connections.gated[connection].gain = this.activation;
     }
 
     return this.activation;
@@ -92,8 +136,24 @@ Node.prototype = {
       // Projected error responsibility
       this.error.projected = this.derivative * error;
 
+      // Error responsibilities from all connections gated by this neuron
+      error = 0;
+
+      for(var conn in this.connections.gated){
+        conn = this.connections.gated[conn];
+        var node = conn.to;
+        var influence = node.connections.self.gater == this ? node.old : 0;
+
+        influence += conn.weight * conn.from.activation;
+
+        error += node.error.responsibility * influence;
+      }
+
+      // Gated error responsibility
+      this.error.gated = this.derivative * error;
+
       // Error responsibility
-      this.error.responsibility = this.error.projected;
+      this.error.responsibility = this.error.projected + this.error.gated;
     }
 
     // Learning rate
@@ -105,6 +165,11 @@ Node.prototype = {
 
       var gradient = this.error.projected * connection.elegibility;
 
+      for(var i = 0; i < connection.xtrace.nodes.length; i++){
+        var node = connection.xtrace.nodes[i];
+        var value = connection.xtrace.values[i];
+        gradient += node.error.responsibility * value;
+      }
       connection.weight += rate * gradient; // Adjust weights
     }
 
@@ -128,8 +193,8 @@ Node.prototype = {
        }
      } else if(target instanceof Node){
        if(target == this){
-         // Turn on the self connection by setting the weight !0
-         this.connections.self.weight = Math.random() * .2 - .1;
+         // Turn on the self connection by setting the weight
+         this.connections.self.weight = 1;
          connections.push(this.connections.self);
        } else {
          var connection = new Connection(this, target);
@@ -160,6 +225,19 @@ Node.prototype = {
 
      if(twosided){
        node.disconnect(this);
+     }
+   },
+
+   gate: function(connections){
+     if(!Array.isArray(connections)){
+       connections = [connections];
+     }
+
+     for(var connection in connections){
+       connection = connections[connection];
+
+       this.connections.gated.push(connection);
+       connection.gater = this;
      }
    },
 

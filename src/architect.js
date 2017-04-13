@@ -34,7 +34,7 @@ var Architect = {
 
     // Calculate input and output size
     for(var node in nodes){
-      if(!nodes[node].connections.out.length){
+      if(nodes[node].connections.out.length + nodes[node].connections.gated.length == 0){
         nodes[node].type = 'output';
         network.output++;
       } else if(!nodes[node].connections.in.length){
@@ -100,6 +100,68 @@ var Architect = {
     }
 
     return network;
+  },
+
+  LSTM: function(){
+    var args = Array.prototype.slice.call(arguments);
+    if (args.length < 3){
+      throw new Error("not enough layers (minimum 3) !!");
+    }
+    var inputLayer  = new Group(args.shift()); // first argument
+    var outputLayer = new Group(args.pop()); // last argument
+    //debug
+    var inputLayer = new Node();
+    var outputLayer = new Node();
+
+    var blocks = args; // all the arguments in the middle
+
+    var nodes = [];
+    nodes.push(inputLayer);
+
+    for(var block in blocks){
+      block = blocks[block];
+
+      // Init required nodes (in activation order)
+      var inputGate  = new Node();
+      var forgetGate = new Node();
+      var memoryCell = new Node();
+      var outputGate = new Node();
+
+      inputGate.bias = 1;
+      forgetGate.bias = 1;
+      outputGate.bias = 1;
+
+      // Connect the input with all the nodes
+      var input = inputLayer.connect(memoryCell);
+      inputLayer.connect(inputGate);
+      inputLayer.connect(outputGate);
+      inputLayer.connect(forgetGate);
+
+      // Set up internal connections
+      memoryCell.connect(inputGate);
+      memoryCell.connect(forgetGate);
+      memoryCell.connect(outputGate);
+      var forget = memoryCell.connect(memoryCell);
+      var output = memoryCell.connect(outputLayer);
+
+      // Set up gates
+      inputGate.gate(input);
+      forgetGate.gate(forget);
+      outputGate.gate(output);
+
+      // At to array
+      nodes.push(inputGate);
+      nodes.push(forgetGate);
+      nodes.push(memoryCell);
+      nodes.push(outputGate);
+    }
+
+    // input to output direct connection
+    if (true)
+      inputLayer.connect(outputLayer);
+
+    nodes.push(outputLayer);
+    return Architect.Construct(nodes);
   },
 
   /**

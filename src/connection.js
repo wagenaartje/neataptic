@@ -6,12 +6,19 @@ if (module) module.exports = Connection;
 *******************************************************************************************/
 
 function Connection(from, to, weight) {
-  this.weight = weight || Math.random() * .2 - .1;
   this.from = from;
   this.to = to;
   this.gain = 1;
 
+  this.weight = (typeof weight == 'undefined') ? Math.random() * .2 - .1 : weight;
+
+  this.gater = null;
   this.elegibility = 0;
+
+  this.xtrace = {
+    nodes: [],
+    values : []
+  };
 }
 
 Connection.prototype = {

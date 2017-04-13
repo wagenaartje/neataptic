@@ -6,6 +6,7 @@ competitors is neuro-evolution. You can evolve neural networks through a process
 [NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. Scroll down for some examples! Appreciate the repo? Show it by starring it! :star:
 
 <i>Update 12/4/2017: reworking backpropagation (due to future implementation of LSTM). Lots of new features have been / are going to be added, the wiki will update as soon as possible!</i>
+<i>Update 13/4/2017: basic LSTM architecture implemented. Now testing and creating mocha test cases, stay tuned!</i>
 
 <img src="https://i.gyazo.com/5f05245edc02d4c28097d40928568ee1.png" width="33%"/><img src="https://i.gyazo.com/0c2009a073053af5d3729bd361f8b8a6.png" width="33%"/><img src="https://i.gyazo.com/9934cb575d0c24a6faa23dbc3a055ffd.png" width="33%"/>
 [Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/articles/crossover/)

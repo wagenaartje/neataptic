@@ -27,6 +27,26 @@ network.train([{ input: [0,0], output: [0] },
 network.activate([0,1]); // 0.9824...
 ```
 
+You can also create <b>Long short-term memory</b> networks:
+
+```javascript
+var network = new Architect.LSTM(1,1,1);
+
+// Train the XOR gate (in sequence!)
+lstm.train([{ input: [0], output: [0]},
+            { input: [1], output: [1]},
+            { input: [1], output: [0]},
+            { input: [0], output: [1]},
+            { input: [0], output: [0]}]);
+
+// It now outputs a high value when input is changed :)
+lstm.activate([0]); // 0.0004
+lstm.activate([1]); // 0.8994
+lstm.activate([1]); // 0.0921
+lstm.activate([0]); // 0.9493
+lstm.activate([0]); // 0.03328
+```
+
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
 
 ## Examples

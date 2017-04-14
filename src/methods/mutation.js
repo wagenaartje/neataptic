@@ -49,6 +49,18 @@ var Mutation = {
         Activation.BENT_IDENTITY
       ]
     }
+  },
+  ADD_SELF_CONN : {
+    name: "ADD_SELF_CONN"
+  },
+  SUB_SELF_CONN : {
+    name: "SUB_SELF_CONN"
+  },
+  ADD_GATE : {
+    name: "ADD_GATE"
+  },
+  SUB_GATE : {
+    name: "SUB_GATE"
   }
 };
 

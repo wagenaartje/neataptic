@@ -1,18 +1,3 @@
-var names = [
-  "input",
-  "output",
-  "sigmoid",
-  "tanh",
-  "identity",
-  "hlim",
-  "relu",
-  "softsign",
-  "sinusoid",
-  "gaussian",
-  "softplus",
-  "bent identity"
-];
-
 var colorTable = [
   '#2124FF', // input
   '#FF2718', // output
@@ -25,7 +10,8 @@ var colorTable = [
   '#E685E7', // sinusoid
   '#257580', // gaussian
   '#B0484B', // softplus
-  '#4CB148'  // bent_identity
+  '#4CB148',  // bent_identity
+  '#000000'  // GATE
 ];
 
 var activationColor = function(value, max){
@@ -122,7 +108,7 @@ var drawGraph = function(graph, panel, activation) {
           .data(graph.nodes)
           .enter().append("text")
           .attr("class", "label")
-          .text(function (d) { return "(" + d.id + ") " + names[d.type]; })
+          .text(function (d) { return '(' + d.index + ') ' + d.name; })
           .call(d3cola.drag)
 
     d3cola.on("tick", function () {
@@ -132,14 +118,49 @@ var drawGraph = function(graph, panel, activation) {
                 deltaY = d.target.y - d.source.y,
                 dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
                 normX = deltaX / dist,
-                normY = deltaY / dist,
+                normY = deltaY / dist;
+
+                if(isNaN(normX)) normX = 0;
+                if(isNaN(normY)) normY = 0;
+
                 sourcePadding = NODE_RADIUS,
                 targetPadding = NODE_RADIUS + 2,
                 sourceX = d.source.x + (sourcePadding * normX),
                 sourceY = d.source.y + (sourcePadding * normY),
                 targetX = d.target.x - (targetPadding * normX),
                 targetY = d.target.y - (targetPadding * normY);
-            return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY;
+
+                // Defaults for normal edge.
+                drx = 0,
+                dry = 0,
+                xRotation = 0, // degrees
+                largeArc = 0, // 1 or 0
+                sweep = 1; // 1 or 0
+
+                // Self edge.
+                if (d.source.x === d.target.x && d.source.y === d.target.y) {
+                  drx = dist;
+                  dry = dist;
+                  // Fiddle with this angle to get loop oriented.
+                  xRotation = -45;
+
+                  // Needs to be 1.
+                  largeArc = 1;
+
+                  // Change sweep to change orientation of loop.
+                  //sweep = 0;
+
+                  // Make drx and dry different to get an ellipse
+                  // instead of a circle.
+                  drx = 20;
+                  dry = 20;
+
+                  // For whatever reason the arc collapses to a point if the beginning
+                  // and ending points of the arc are the same, so kludge it.
+                  targetX = targetX + 1;
+                  targetY = targetY + 1;
+                }
+            return 'M' + sourceX + ',' + sourceY + "A" + drx + "," + dry + " " + xRotation + "," + largeArc + "," + sweep + " " + targetX + ',' + targetY;
         });
 
         node.attr("cx", function (d) { return d.x; })

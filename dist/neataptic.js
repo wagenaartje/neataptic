@@ -1260,19 +1260,19 @@ Network.prototype = {
 
      for(index in this.nodes){
        var node = this.nodes[index];
-       var type = node.type == 'input'      ? 0 :
-         node.type   == 'output'            ? 1 :
-         node.squash == Activation.LOGISTIC ? 2 :
-         node.squash == Activation.TANH     ? 3 :
-         node.squash == Activation.IDENTITY ? 4 :
-         node.squash == Activation.HLIM     ? 5 :
-         node.squash == Activation.RELU     ? 6 :
-         node.squash == Activation.SOFTSIGN ? 7 :
-         node.squash == Activation.SINUSOID ? 8 :
-         node.squash == Activation.GAUSSIAN ? 9 :
-         node.squash == Activation.SOFTPLUS ? 10 :
-         node.squash == Activation.BENT_IDENTITY ? 11 :
-         null;
+       node.type   == 'input'                  ? (type = 0, name = 'input') :
+       node.type   == 'output'                 ? (type = 1, name = 'output') :
+       node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sinusoid') :
+       node.squash == Activation.TANH          ? (type = 3, name = 'tanh') :
+       node.squash == Activation.IDENTITY      ? (type = 4, name = 'identity') :
+       node.squash == Activation.HLIM          ? (type = 5, name = 'hlim') :
+       node.squash == Activation.RELU          ? (type = 6, name = 'relu') :
+       node.squash == Activation.SOFTSIGN      ? (type = 7, name = 'softsign') :
+       node.squash == Activation.SINUSOID      ? (type = 8, name = 'sinusoid') :
+       node.squash == Activation.GAUSSIAN      ? (type = 9, name = 'gaussian') :
+       node.squash == Activation.SOFTPLUS      ? (type = 10, name = 'softplus') :
+       node.squash == Activation.BENT_IDENTITY ? (type = 11, name = 'bent identity') :
+       null;
 
        if(type == 0){
          json.constraints[0].offsets.push({node:index, offset : (width-margin) / (this.input) * input});
@@ -1290,18 +1290,46 @@ Network.prototype = {
 
        json.nodes.push({
          id: index,
+         name: name,
          type : type,
          activation : node.activation
        });
      }
 
-     for(connection in this.connections){
-       connection = this.connections[connection];
-       json.links.push({
-         source : this.nodes.indexOf(connection.from),
-         target : this.nodes.indexOf(connection.to),
-         weight : connection.weight
-       });
+     var connections = this.connections.concat(this.selfconns);
+     for(connection in connections){
+       connection = connections[connection];
+       if(connection.gater == null){
+         json.links.push({
+           source : this.nodes.indexOf(connection.from),
+           target : this.nodes.indexOf(connection.to),
+           weight : connection.weight
+         });
+       } else {
+         // Add a gater 'node'
+         var index = json.nodes.length;
+         json.nodes.push({
+           id: index,
+           type: 12, // GATE,
+           activation: connection.gater.activation,
+           name: 'GATE'
+         });
+         json.links.push({
+           source: this.nodes.indexOf(connection.from),
+           target: index,
+           weight: 1/2 * connection.weight
+         });
+         json.links.push({
+           source: index,
+           target: this.nodes.indexOf(connection.to),
+           weight: 1/2 * connection.weight
+         });
+         json.links.push({
+           source: this.nodes.indexOf(connection.gater),
+           target: index,
+           weight: connection.gater.activation
+         });
+       }
 
        if(connection.weight > json.main.maxWeight){
          json.main.maxWeight = connection.weight;
@@ -2258,6 +2286,18 @@ var Mutation = {
         Activation.BENT_IDENTITY
       ]
     }
+  },
+  ADD_SELF_CONN : {
+    name: "ADD_SELF_CONN"
+  },
+  SUB_SELF_CONN : {
+    name: "SUB_SELF_CONN"
+  },
+  ADD_GATE : {
+    name: "ADD_GATE"
+  },
+  SUB_GATE : {
+    name: "SUB_GATE"
   }
 };
 

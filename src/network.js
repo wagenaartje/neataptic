@@ -192,40 +192,35 @@ Network.prototype = {
         this.nodes.splice(index, 1);
         break;
       case Mutation.ADD_CONN:
-        // Calculate the maximum amount of connections
-        var maxConn = 0;
+        // Create an array of all uncreated connections
+        var available = [];
         for(var i = 0; i < this.nodes.length; i++){
-          if(this.nodes[i].type == 'input') {
-            maxConn += this.nodes.length - this.input;
-          } else if(this.nodes[i].type == 'hidden'){
-            maxConn += this.nodes.length - (i + 1);
+          var node1 = this.nodes[i];
+          if(node1.type == 'output') continue;
+          for(var j = i + 1; j < this.nodes.length; j++){
+            var node2 = this.nodes[j];
+            if(node2.type == 'input') continue;
+
+            var found = false;
+            for(var a = 0; a < this.connections.length; a++){
+              if(this.connections[a].from == node1 && this.connections[a].to == node2){
+                found = true;
+                break;
+              }
+            }
+
+            if(!found) available.push([node1, node2]);
           }
         }
 
-        if(maxConn <= this.connections.length){
-          if(Mutation.config.warnings) console.warn('Maximum amount of connections reached!');
+        if(available.length == 0){
+          console.warn('No more connections to be made!');
           break;
         }
 
-        var alreadyConnected = true;
-        while(alreadyConnected){
-          alreadyConnected = false;
-          // Look for a non-output node and connect it with a node after its index
-          var index1 = Math.floor(Math.random() * (this.nodes.length - this.output));
-          var node1 = this.nodes[index1];
-          var minBound = Math.max(index1+1, this.input); // must always be greater than input
-          var node2 = this.nodes[Math.floor(Math.random() * (this.nodes.length - minBound) + minBound)];
+        var pair = available[Math.floor(Math.random() * available.length)];
 
-          // Check if they aren't connected already
-          for(conn in this.connections){
-            if(this.connections[conn].from == node1 && this.connections[conn].to == node2){
-              alreadyConnected = true;
-              break;
-            }
-          }
-        }
-
-        this.connect(node1, node2);
+        this.connect(pair[0], pair[1]);
         break;
       case Mutation.SUB_CONN:
         // List of possible connections that can be removed

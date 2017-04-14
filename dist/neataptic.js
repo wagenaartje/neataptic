@@ -926,7 +926,7 @@ Network.prototype = {
         }
 
         if(available.length == 0){
-          console.warn('No more connections to be made!');
+          if(Mutation.config.warnings) console.warn('No more connections to be made!');
           break;
         }
 

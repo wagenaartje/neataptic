@@ -3,7 +3,9 @@ var Methods = {
   Mutation   : require('./mutation'),
   Selection  : require('./selection'),
   Crossover  : require('./crossover'),
-  Cost       : require('./cost')
+  Cost       : require('./cost'),
+  Gating     : require('./gating'),
+  Connection : require('./connection')
 };
 
 // CommonJS & AMD

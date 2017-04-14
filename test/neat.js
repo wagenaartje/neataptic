@@ -11,6 +11,10 @@ var Neat       = neataptic.Neat;
 var Node       = neataptic.Node;
 var Network    = neataptic.Network;
 var Methods    = neataptic.Methods;
+var Config     = neataptic.Config;
+
+/* Turn off warnings */
+Config.warnings = false;
 
 /*******************************************************************************************
                       Tests the effectiveness of evolution

@@ -5,6 +5,7 @@ if (module) module.exports = Network;
 var Node       = require('./node');
 var Connection = require('./connection');
 var Methods    = require('./methods/methods');
+var Config     = require('./config');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -26,6 +27,7 @@ function Network(input, output){
   this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
   this.connections = [];
   this.gates = [];
+  this.selfconns = [];
 
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
@@ -97,7 +99,12 @@ Network.prototype = {
 
     for(var connection in connections){
       connection = connections[connection];
-      this.connections.push(connection);
+      if(from != to){
+        this.connections.push(connection);
+      } else {
+        this.selfconns.push(connection);
+      }
+
     }
 
     return connections;
@@ -117,6 +124,14 @@ Network.prototype = {
 
     // Delete the connection at the sending and receiving neuron
     from.disconnect(to);
+  },
+
+  /**
+   *  Gate a connection with a node
+   */
+  gate: function(node, connection){
+    node.gate(connection);
+    this.gates.push(connection);
   },
 
   /**
@@ -153,7 +168,7 @@ Network.prototype = {
       case Mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if(this.nodes.length == this.input + this.output){
-          if(Mutation.config.warnings) console.warn('No more nodes left to remove!');
+          if(Config.warnings) console.warn('No more nodes left to remove!');
           break;
         }
 
@@ -214,7 +229,7 @@ Network.prototype = {
         }
 
         if(available.length == 0){
-          if(Mutation.config.warnings) console.warn('No more connections to be made!');
+          if(Config.warnings) console.warn('No more connections to be made!');
           break;
         }
 
@@ -235,7 +250,7 @@ Network.prototype = {
         }
 
         if(possible.length == 0){
-          if(Mutation.config.warnings) console.warn('No connections to remove!');
+          if(Config.warnings) console.warn('No connections to remove!');
           break;
         }
 
@@ -272,11 +287,11 @@ Network.prototype = {
 
     // Warning messages
     if(typeof options.rate == 'undefined'){
-      console.warn('Using default learning rate, please define a rate!')
+      if(Config.warnings) console.warn('Using default learning rate, please define a rate!')
     }
 
     if(typeof options.iterations == "undefined"){
-      console.warn('No target iterations given, running until error is reached!')
+      if(Config.warnings) console.warn('No target iterations given, running until error is reached!')
     }
 
     var start = Date.now();
@@ -336,7 +351,6 @@ Network.prototype = {
         error += this._trainSet(set, currentRate, cost);
         error /= set.length;
       }
-
 
       // Checks for options such as scheduled logs and shuffling
       if(shuffle){
@@ -491,6 +505,16 @@ Network.prototype = {
         var node = this.nodes[index].toJSON();
         node.index = index;
         json.nodes.push(node);
+
+        var node = this.nodes[index];
+        if(node.connections.self.weight != 0){
+          var tojson = node.connections.self.toJSON();
+          tojson.from = index;
+          tojson.to = index;
+
+          tojson.gater = node.connections.self.gater != null ? this.nodes.indexOf(node.connections.self.gater) : null;
+          json.connections.push(tojson);
+        }
       }
 
       for(conn in this.connections){
@@ -498,6 +522,9 @@ Network.prototype = {
         var tojson = conn.toJSON();
         tojson.from = this.nodes.indexOf(conn.from);
         tojson.to = this.nodes.indexOf(conn.to);
+
+        tojson.gater = conn.gater != null ? this.nodes.indexOf(conn.gater) : null;
+
         json.connections.push(tojson);
       }
       return json;
@@ -521,7 +548,10 @@ Network.prototype = {
 
      var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to])[0];
      connection.weight = conn.weight;
-     connection.ID = conn.id;
+
+     if(conn.gater != null){
+       network.gate(network.nodes[conn.gater], connection);
+     }
    }
 
    return network;

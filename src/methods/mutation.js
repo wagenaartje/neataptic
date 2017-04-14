@@ -49,9 +49,6 @@ var Mutation = {
         Activation.BENT_IDENTITY
       ]
     }
-  },
-  config : {
-    warnings: false,
   }
 };
 

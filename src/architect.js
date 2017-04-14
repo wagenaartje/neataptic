@@ -51,6 +51,12 @@ var Architect = {
       for(var conn in nodes[node].connections.out){
         network.connections.push(nodes[node].connections.out[conn]);
       }
+      for(var conn in nodes[node].connections.gated){
+        network.gates.push(nodes[node].connections.gated[conn]);
+      }
+      if(nodes[node].connections.self.weight != 0){
+        network.selfconns.push(nodes[node].connections.self);
+      }
     }
 
     network.nodes = nodes;
@@ -107,29 +113,41 @@ var Architect = {
     if (args.length < 3){
       throw new Error("not enough layers (minimum 3) !!");
     }
-    var inputLayer  = new Group(args.shift()); // first argument
-    var outputLayer = new Group(args.pop()); // last argument
-    //debug
-    var inputLayer = new Node();
-    var outputLayer = new Node();
 
+    var last = args.pop();
+
+    if(typeof last == 'number'){
+      var outputLayer = new Group(last);
+      last = {};
+    } else {
+      var outputLayer = new Group(args.pop()); // last argument
+    }
+
+    var options = {};
+    options.memoryToMemory = last.memoryToMemory || false;
+    options.outputToMemory = last.outputToMemory || false;
+    options.outputToGates  = last.outputToGates  || false;
+    options.inputToOutput  = last.inputToOutput  || true;
+
+    var inputLayer  = new Group(args.shift()); // first argument
     var blocks = args; // all the arguments in the middle
 
     var nodes = [];
     nodes.push(inputLayer);
 
+    var previous = null;
     for(var block in blocks){
       block = blocks[block];
 
       // Init required nodes (in activation order)
-      var inputGate  = new Node();
-      var forgetGate = new Node();
-      var memoryCell = new Node();
-      var outputGate = new Node();
+      var inputGate  = new Group(block);
+      var forgetGate = new Group(block);
+      var memoryCell = new Group(block);
+      var outputGate = new Group(block);
 
-      inputGate.bias = 1;
-      forgetGate.bias = 1;
-      outputGate.bias = 1;
+      inputGate.set({ bias:1 });
+      forgetGate.set({ bias:1 });
+      outputGate.set({ bias:1 });
 
       // Connect the input with all the nodes
       var input = inputLayer.connect(memoryCell);
@@ -145,20 +163,46 @@ var Architect = {
       var output = memoryCell.connect(outputLayer);
 
       // Set up gates
-      inputGate.gate(input);
-      forgetGate.gate(forget);
-      outputGate.gate(output);
+      inputGate.gate(input, Methods.Gating.INPUT);
+      forgetGate.gate(forget, Methods.Gating.SELF);
+      outputGate.gate(output, Methods.Gating.OUTPUT);
+
+      // Connect previous memory block to this block
+      if(previous != null){
+        previous.connect(memoryCell);
+        previous.connect(inputGate);
+        previous.connect(forgetGate);
+        previous.connect(outputGate);
+      }
+
+      // Optional connections
+      if(options.memoryToMemory){
+        memoryCell.connect(memoryCell, Methods.Connection.ALL_TO_ELSE);
+      }
+
+      if(options.outputToMemory){
+        outputLayer.connect(memoryCell);
+      }
+
+      if(options.outputToGates){
+        outputLayer.connect(inputGate);
+        outputLayer.connect(forgetGate);
+        outputLayer.connect(outputGate);
+      }
 
       // At to array
       nodes.push(inputGate);
       nodes.push(forgetGate);
       nodes.push(memoryCell);
       nodes.push(outputGate);
+
+      previous = memoryCell;
     }
 
     // input to output direct connection
-    if (true)
+    if(options.inputToOutput){
       inputLayer.connect(outputLayer);
+    }
 
     nodes.push(outputLayer);
     return Architect.Construct(nodes);

@@ -41,7 +41,8 @@ function learnSet(set, iterations, error){
   var options = {
     iterations: iterations,
     error: .001,
-    shuffle: true
+    shuffle: true,
+    rate: 0.3
   };
 
   var results = network.train(set, options);
@@ -79,6 +80,7 @@ describe('Networks', function () {
   });
   describe("Structure", function(){
     it("Feed-forward", function(){
+      this.timeout(4000);
       var network1 = new Network(2,2);
       var network2 = new Network(2,2);
 
@@ -206,6 +208,28 @@ describe('Networks', function () {
       }
 
       learnSet(set, 500, 0.05);
+    });
+    it("LSTM - XOR", function(){
+      this.timeout(30000);
+      lstm = new Architect.LSTM(1,1,1);
+
+      lstm.train([
+        { input: [0], output: [0]},
+        { input: [1], output: [1]},
+        { input: [1], output: [0]},
+        { input: [0], output: [1]},
+        { input: [0], output: [0]},
+      ], {
+        error: 0.001,
+        iterations: 5000,
+        rate: 0.3
+      });
+
+      lstm.activate([0]);
+      assert.isBelow(0.9, lstm.activate([1]), "LSTM error");
+      assert.isBelow(lstm.activate([1]), 0.1, "LSTM error");
+      assert.isBelow(0.9, lstm.activate([0]), "LSTM error");
+      assert.isBelow(lstm.activate([0]), 0.1, "LSTM error");
     });
   });
 });

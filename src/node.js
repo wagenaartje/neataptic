@@ -32,7 +32,6 @@ function Node(type) {
 
   // Data for backpropagation
   this.error = { responsibility: 0, projected: 0 };
-  this.trace = { };
 }
 
 Node.prototype = {

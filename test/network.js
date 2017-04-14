@@ -44,7 +44,7 @@ function learnSet(set, iterations, error){
 
   var options = {
     iterations: iterations,
-    error: .001,
+    error: error,
     shuffle: true,
     rate: 0.3
   };
@@ -52,6 +52,24 @@ function learnSet(set, iterations, error){
   var results = network.train(set, options);
 
   assert.isBelow(results.error, error);
+}
+
+function testEquality(original, copied){
+  for(var j = 0; j < 50; j++){
+    var input = [];
+    for(var a = 0; a < original.inputs; a++){
+      input.push(Math.random());
+    }
+
+    var ORout = original.activate([input]);
+    var COout = copied.activate([input]);
+
+    for(var a = 0; a < original.output; a++){
+      ORout[a] = ORout[a].toFixed(9);
+      COout[a] = COout[a].toFixed(9);
+    }
+    assert.deepEqual(ORout, COout, 'Original and JSON copied networks are not the same!');
+  }
 }
 
 /*******************************************************************************************
@@ -109,6 +127,33 @@ describe('Networks', function () {
         // Exception will be made for memory connections soon
         assert.isBelow(from, to, "network is not feeding forward correctly");
       }
+    });
+    it("from/toJSON equivalency", function(){
+      this.timeout(10000);
+      var original = new Architect.Perceptron(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1));
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
+
+
+      var original = new Architect.Perceptron(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1));
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
+
+      var original = new Network(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1));
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
+
+      var original = new Architect.LSTM(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1));
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
+
+      var original = new Architect.LSTM(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 5 + 1));
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
+
+      var original = new Architect.Random(Math.floor(Math.random() * 5 + 1), Math.floor(Math.random() * 10 + 1), Math.floor(Math.random() * 5 + 1), 2);
+      var copy = Network.fromJSON(original.toJSON());
+      testEquality(original, copy);
     });
   });
   describe('Learning capability', function () {

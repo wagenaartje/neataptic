@@ -60,7 +60,7 @@ of Neataptic, feel free to create a pull request!
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/neataptic/92c7df96/dist/neataptic.js"></script>
+<script src="https://cdn.rawgit.com/wagenaartje/neataptic/3f095167/dist/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

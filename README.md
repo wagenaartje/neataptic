@@ -2,7 +2,7 @@
 
 Neataptic is thé Javascript neural network solution. Not only does it allow you to create neural networks on-the-go, it also allows you
 to visualise your networks to understand what's really going on. An important aspect that neataptic introduces in comparison with its
-competitors is neuro-evolution. You can evolve neural networks through a process described in the 
+competitors is neuro-evolution. You can evolve neural networks through a process described in the
 [NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. Scroll down for some examples! Appreciate the repo? Show it by starring it! :star:
 
 <i>Update 14/4/2017: LSTM successfully implemented, documentation on gating and groups coming soon!</i>
@@ -49,7 +49,7 @@ lstm.activate([0]); // 0.03328
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
 
 ## Examples
-Neural networks can be used for nearly anything; driving a car, playing a game and even to predict words! At this moment, 
+Neural networks can be used for nearly anything; driving a car, playing a game and even to predict words! At this moment,
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
@@ -60,7 +60,7 @@ of Neataptic, feel free to create a pull request!
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
-<script src="https://cdn.rawgit.com/wagenaartje/neataptic/3f095167/dist/neataptic.js"></script>
+<script src="https://wagenaartje.github.io/neataptic/cdn/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

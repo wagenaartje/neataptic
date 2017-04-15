@@ -3,11 +3,13 @@ var license = require('./prebuild.js')
 module.exports = {
   context: __dirname,
   entry: {
-    neataptic: './src/neataptic.js',
-    'neataptic.min': './src/neataptic.js'
+    'dist/neataptic': './src/neataptic.js',
+    'docs/cdn/neataptic': './src/neataptic.js',
+    'dist/neataptic.min': './src/neataptic.js',
+    'docs/cdn/neataptic.min': './src/neataptic.js'
   },
   output: {
-    path: 'dist',
+    path: './',
     filename: '[name].js',
   },
   plugins: [

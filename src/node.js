@@ -210,6 +210,11 @@ Node.prototype = {
    * Disconnects this node from the other node
    */
    disconnect: function(node, twosided){
+     if(this == node){
+       this.connections.self.weight = 0;
+       return;
+     }
+
      twosided = twosided || false;
 
      for(var i in this.connections.out){
@@ -227,6 +232,9 @@ Node.prototype = {
      }
    },
 
+   /**
+    * Make the node gate a connection
+    */
    gate: function(connections){
      if(!Array.isArray(connections)){
        connections = [connections];
@@ -239,6 +247,23 @@ Node.prototype = {
        connection.gater = this;
      }
    },
+
+ /**
+  * Ungates a connection
+  */
+  ungate: function(connections){
+    if(!Array.isArray(connections)){
+      connections = [connections];
+    }
+
+    for(var connection in connections){
+      connection = connections[connection];
+
+      var index = this.connections.gated.indexOf(connection);
+      this.connections.gated.splice(index, 1);
+      connection.gater = null;
+    }
+  },
 
   /**
    * Mutates the node with the given method

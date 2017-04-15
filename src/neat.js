@@ -26,11 +26,21 @@ function Neat(input, output, fitness, options){
   this.equal          = options.equal          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;
-  this.mutation       = options.mutation       || Object.keys(Methods.Mutation).map(function(val) { return Methods.Mutation[val] });
-  this.selection      = options.selection      || Object.keys(Methods.Selection).map(function(val) { return Methods.Selection[val] });
-  this.crossover      = options.crossover      || Object.keys(Methods.Crossover).map(function(val) { return Methods.Crossover[val] });
   this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
+
+  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
+  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
+                                              Methods.Crossover.TWO_POINT,
+                                              Methods.Crossover.UNIFORM,
+                                              Methods.Crossover.AVERAGE];
+  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
+                                              Methods.Mutation.SUB_CONN,
+                                              Methods.Mutation.ADD_NODE,
+                                              Methods.Mutation.SUB_NODE,
+                                              Methods.Mutation.MOD_BIAS,
+                                              Methods.Mutation.MOD_WEIGHT,
+                                              Methods.Mutation.MOD_ACTIVATION];
 
   // Generation counter
   this.generation = 0;

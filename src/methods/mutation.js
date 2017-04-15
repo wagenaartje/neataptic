@@ -61,6 +61,12 @@ var Mutation = {
   },
   SUB_GATE : {
     name: "SUB_GATE"
+  },
+  ADD_BACK_CONN : {
+    name: "ADD_BACK_CONN"
+  },
+  SUB_BACK_CONN : {
+    name: "SUB_BACK_CONN"
   }
 };
 

@@ -18,6 +18,9 @@ Config.warnings = false;
 /* Functions used in the testing process */
 function checkMutation(method){
   var network = new Architect.Perceptron(2, 4, 4, 4, 2);
+  network.mutate(Methods.Mutation.ADD_GATE);
+  network.mutate(Methods.Mutation.ADD_BACK_CONN);
+  network.mutate(Methods.Mutation.ADD_SELF_CONN);
 
   var originalOutput = [];
   for(var i = 0; i <= 10; i++){
@@ -98,6 +101,24 @@ describe('Networks', function () {
     });
     it("MOD_ACTIVATION", function(){
       checkMutation(Methods.Mutation.MOD_ACTIVATION);
+    });
+    it("ADD_GATE", function(){
+      checkMutation(Methods.Mutation.ADD_GATE);
+    });
+    it("SUB_GATE", function(){
+      checkMutation(Methods.Mutation.SUB_GATE);
+    });
+    it("ADD_SELF_CONN", function(){
+      checkMutation(Methods.Mutation.ADD_SELF_CONN);
+    });
+    it("SUB_SELF_CONN", function(){
+      checkMutation(Methods.Mutation.SUB_SELF_CONN);
+    });
+    it("ADD_BACK_CONN", function(){
+      checkMutation(Methods.Mutation.ADD_BACK_CONN);
+    });
+    it("SUB_BACK_CONN", function(){
+      checkMutation(Methods.Mutation.SUB_BACK_CONN);
     });
   });
   describe("Structure", function(){

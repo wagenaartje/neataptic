@@ -376,6 +376,11 @@ Node.prototype = {
    * Disconnects this node from the other node
    */
    disconnect: function(node, twosided){
+     if(this == node){
+       this.connections.self.weight = 0;
+       return;
+     }
+
      twosided = twosided || false;
 
      for(var i in this.connections.out){
@@ -393,6 +398,9 @@ Node.prototype = {
      }
    },
 
+   /**
+    * Make the node gate a connection
+    */
    gate: function(connections){
      if(!Array.isArray(connections)){
        connections = [connections];
@@ -405,6 +413,23 @@ Node.prototype = {
        connection.gater = this;
      }
    },
+
+ /**
+  * Ungates a connection
+  */
+  ungate: function(connections){
+    if(!Array.isArray(connections)){
+      connections = [connections];
+    }
+
+    for(var connection in connections){
+      connection = connections[connection];
+
+      var index = this.connections.gated.indexOf(connection);
+      this.connections.gated.splice(index, 1);
+      connection.gater = null;
+    }
+  },
 
   /**
    * Mutates the node with the given method
@@ -936,10 +961,18 @@ Network.prototype = {
    */
   disconnect: function(from, to){
     // Delete the connection in the network's connection array
-    for(conn in this.connections){
-      if(this.connections[conn].from == from && this.connections[conn].to == to){
-        this.connections.splice(conn, 1);
-        break;
+    if(from != to){
+      for(conn in this.connections){
+        if(this.connections[conn].from == from && this.connections[conn].to == to){
+          this.connections.splice(conn, 1);
+          break;
+        }
+      }
+    } else {
+      for(conn in this.selfconns){
+        if(this.selfconns[conn].from == from){
+          this.selfconns.splice(conn, 1);
+        }
       }
     }
 
@@ -955,14 +988,25 @@ Network.prototype = {
     this.gates.push(connection);
   },
 
+ /**
+  *  Remove the gate of a connection
+  */
+  ungate: function(connection){
+    var index = this.gates.indexOf(connection);
+    if(index == -1){
+      throw new Error('This connection is not gated!');
+    }
+
+    this.gates.splice(index, 1);
+    connection.gater.ungate(connection);
+ },
+
   /**
    * Mutates the network with the given method
    */
   mutate: function(method){
     if(typeof method == 'undefined'){
-      throw new Error('No mutate method given!');
-    } else if(!method.name in Methods.Mutation){
-      throw new Error('This method does not exist!');
+      throw new Error('No (correct) mutate method given!');
     }
 
     switch(method){
@@ -1028,7 +1072,7 @@ Network.prototype = {
         this.nodes.splice(index, 1);
         break;
       case Mutation.ADD_CONN:
-        // Create an array of all uncreated connections
+        // Create an array of all uncreated (feedforward) connections
         var available = [];
         for(var i = 0; i < this.nodes.length; i++){
           var node1 = this.nodes[i];
@@ -1065,7 +1109,7 @@ Network.prototype = {
         for(conn in this.connections){
           conn = this.connections[conn];
           // Check if it is not disabling a node
-          if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1){
+          if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1 && this.nodes.indexOf(conn.to) > this.nodes.indexOf(conn.from)){
             possible.push(conn);
           }
         }
@@ -1096,6 +1140,120 @@ Network.prototype = {
         var node = this.nodes[index];
 
         node.mutate(Mutation.MOD_ACTIVATION);
+        break;
+      case Mutation.ADD_SELF_CONN:
+        // Check which nodes aren't selfconnected yet
+        var possible = [];
+        for(var i = this.input; i < this.nodes.length; i++){
+          var node = this.nodes[i];
+          if(node.connections.self.weight == 0){
+            possible.push(node);
+          }
+        }
+
+        if(possible.length == 0){
+          if(Config.warnings) console.warn('No more self-connections to add!');
+          break;
+        }
+
+        // Select a random node
+        var node = possible[Math.floor(Math.random() * possible.length)];
+
+        // Connect it to himself
+        this.connect(node, node);
+        break;
+      case Mutation.SUB_SELF_CONN:
+        if(this.selfconns.length == 0){
+          if(Config.warnings) console.warn('No more self-connections to remove!');
+          break;
+        }
+        var conn = this.selfconns[Math.floor(Math.random() * this.selfconns.length)];
+        this.disconnect(conn.from, conn.to);
+        break;
+      case Mutation.ADD_GATE:
+        var allconnections = this.connections.concat(this.selfconns);
+
+        // Create a list of all non-gated connections
+        var possible = [];
+        for(var conn in allconnections){
+          conn = allconnections[conn];
+          if(conn.gater == null){
+            possible.push(conn);
+          }
+        }
+
+        if(possible.length == 0){
+          if(Config.warnings) console.warn('No more connections to gate!');
+          break;
+        }
+
+        // Select a random gater node and connection
+        var node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
+        var conn = possible[Math.floor(Math.random() * possible.length)];
+
+        // Gate the connection with the node
+        this.gate(node, conn);
+        break;
+      case Mutation.SUB_GATE:
+        // Select a random gated connection
+        if(this.gates.length == 0){
+          if(Config.warnings) console.warn('No more connections to ungate!');
+          break;
+        }
+
+        var gatedconn = this.gates[Math.floor(Math.random() * this.gates.length)];
+        this.ungate(gatedconn);
+        break;
+      case Mutation.ADD_BACK_CONN:
+        // Create an array of all uncreated (backfed) connections
+        var available = [];
+        for(var i = 0; i < this.nodes.length; i++){
+          var node1 = this.nodes[i];
+          if(node1.type == 'input') continue;
+          for(var j = 0; j < i; j++){
+            var node2 = this.nodes[j];
+            if(node2.type == 'input') continue;
+
+            var found = false;
+            for(var a = 0; a < this.connections.length; a++){
+              if(this.connections[a].from == node1 && this.connections[a].to == node2){
+                found = true;
+                break;
+              }
+            }
+
+            if(!found) available.push([node1, node2]);
+          }
+        }
+
+        if(available.length == 0){
+          if(Config.warnings) console.warn('No more connections to be made!');
+          break;
+        }
+
+        var pair = available[Math.floor(Math.random() * available.length)];
+
+        this.connect(pair[0], pair[1]);
+        break;
+      case Mutation.SUB_BACK_CONN:
+        // List of possible connections that can be removed
+        var possible = [];
+
+        for(conn in this.connections){
+          conn = this.connections[conn];
+          // Check if it is not disabling a node
+          if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1 && this.nodes.indexOf(conn.from) > this.nodes.indexOf(conn.to)){
+            possible.push(conn);
+          }
+        }
+
+        if(possible.length == 0){
+          if(Config.warnings) console.warn('No connections to remove!');
+          break;
+        }
+
+        var randomConn = possible[Math.floor(Math.random() * possible.length)];
+        this.disconnect(randomConn.from, randomConn.to);
         break;
     }
   },
@@ -1963,11 +2121,21 @@ function Neat(input, output, fitness, options){
   this.equal          = options.equal          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;
-  this.mutation       = options.mutation       || Object.keys(Methods.Mutation).map(function(val) { return Methods.Mutation[val] });
-  this.selection      = options.selection      || Object.keys(Methods.Selection).map(function(val) { return Methods.Selection[val] });
-  this.crossover      = options.crossover      || Object.keys(Methods.Crossover).map(function(val) { return Methods.Crossover[val] });
   this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
+
+  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
+  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
+                                              Methods.Crossover.TWO_POINT,
+                                              Methods.Crossover.UNIFORM,
+                                              Methods.Crossover.AVERAGE];
+  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
+                                              Methods.Mutation.SUB_CONN,
+                                              Methods.Mutation.ADD_NODE,
+                                              Methods.Mutation.SUB_NODE,
+                                              Methods.Mutation.MOD_BIAS,
+                                              Methods.Mutation.MOD_WEIGHT,
+                                              Methods.Mutation.MOD_ACTIVATION];
 
   // Generation counter
   this.generation = 0;
@@ -2298,6 +2466,12 @@ var Mutation = {
   },
   SUB_GATE : {
     name: "SUB_GATE"
+  },
+  ADD_BACK_CONN : {
+    name: "ADD_BACK_CONN"
+  },
+  SUB_BACK_CONN : {
+    name: "SUB_BACK_CONN"
   }
 };
 

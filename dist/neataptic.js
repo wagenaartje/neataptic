@@ -389,6 +389,7 @@ Node.prototype = {
          this.connections.out.splice(i, 1);
          var j = conn.to.connections.in.indexOf(conn);
          conn.to.connections.in.splice(j, 1);
+         if(conn.gater != null) this.ungate(conn);
          break;
        }
      }
@@ -961,18 +962,14 @@ Network.prototype = {
    */
   disconnect: function(from, to){
     // Delete the connection in the network's connection array
-    if(from != to){
-      for(conn in this.connections){
-        if(this.connections[conn].from == from && this.connections[conn].to == to){
-          this.connections.splice(conn, 1);
-          break;
-        }
-      }
-    } else {
-      for(conn in this.selfconns){
-        if(this.selfconns[conn].from == from){
-          this.selfconns.splice(conn, 1);
-        }
+    var connections = from == to ? this.selfconns : this.connections;
+
+    for(conn in connections){
+      var connection = connections[conn];
+      if(connection.from == from && connection.to == to){
+        if(connection.gater != null) this.ungate(connection);
+        connections.splice(conn, 1);
+        break;
       }
     }
 
@@ -1027,8 +1024,15 @@ Network.prototype = {
         this.nodes.splice(minBound, 0, node);
 
         // Now create two new connections
-        this.connect(connection.from, node);
-        this.connect(node, connection.to);
+        var newConn1 = this.connect(connection.from, node)[0];
+        var newConn2 = this.connect(node, connection.to)[0];
+
+        // Check if the original connection was gated
+        if(connection.gater != null){
+          var gater = connection.gater;
+          gater.ungate(connection);
+          gater.gate(Math.random() >= 0.5 ? newConn1 : newConn2);
+        }
         break;
       case Mutation.SUB_NODE:
         // Check if there are nodes left to remove
@@ -1485,7 +1489,8 @@ Network.prototype = {
          json.links.push({
            source: this.nodes.indexOf(connection.gater),
            target: index,
-           weight: connection.gater.activation
+           weight: connection.gater.activation,
+           gate: true
          });
        }
 

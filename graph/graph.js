@@ -83,6 +83,12 @@ var drawGraph = function(graph, panel, activation) {
         .style("stroke", function (d) {
               if(activation){
                 return activationColor(d.source.activation * d.weight, graph.main.maxActivation * graph.main.maxWeight);
+              } else if(d.gate){
+                if(d.source.activation){
+                  return activationColor(d.source.activation, graph.main.maxActivation);
+                } else{
+                  return 'rgb(255,0,0)';
+                }
               }
           });
 

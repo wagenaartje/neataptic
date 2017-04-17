@@ -1677,7 +1677,9 @@ Network.prototype = {
    // Clear the node connections
    for(node in offspring.nodes){
      var node = offspring.nodes[node];
-     node.connections = { in : [], out : [], self: new Connection(node, node, 0)};
+     node.connections.in = [];
+     node.connections.out = [];
+     node.connections.gated = [];
    }
 
    // Create arrays of connection genes
@@ -1689,7 +1691,8 @@ Network.prototype = {
      var data = {
        weight: conn.weight,
        from  : network1.nodes.indexOf(conn.from),
-       to    : network1.nodes.indexOf(conn.to)
+       to    : network1.nodes.indexOf(conn.to),
+       gater : network1.nodes.indexOf(conn.gater)
      };
      if(data.to == network1.nodes.length - 1){
        if(data.from < size - 1){
@@ -1707,7 +1710,8 @@ Network.prototype = {
      var data = {
        weight: conn.weight,
        from  : network2.nodes.indexOf(conn.from),
-       to    : network2.nodes.indexOf(conn.to)
+       to    : network2.nodes.indexOf(conn.to),
+       gater : network2.nodes.indexOf(conn.gater)
      };
      if(data.to == network2.nodes.length - 1){
        if(data.from < size - 1){
@@ -1751,13 +1755,17 @@ Network.prototype = {
    // Add common conn genes uniformly
    for(conn in connections){
      var connData = connections[conn];
-     if(connData.to < size){
+     if(connData.to < size && connData.from < size){
        var from = offspring.nodes[connData.from];
-       if(from.type != 'output'){
+       if(connData.from > connData.to || from.type != 'output'){
          var to   = offspring.nodes[connData.to];
          var conn = offspring.connect(from, to)[0];
 
          conn.weight = connData.weight;
+
+         if(connData.gater != -1 && connData.gater < size){
+           offspring.gate(offspring.nodes[connData.gater], conn);
+         }
        }
      }
    }

@@ -26,22 +26,12 @@ describe('Neat', function () {
 
     // Construct the neat instance
     var neat = new Neat(2, 1, fitnessFunction, {
-      mutation: [
-        Methods.Mutation.ADD_NODE,
-        Methods.Mutation.ADD_CONN,
-        Methods.Mutation.MOD_WEIGHT,
-        Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE
-      ],
-      mutationRate: 0.3,
-      equal: true
+      mutationRate: 0.3
     });
 
     // Evolve the population
-    for(var i = 0; i < 200; i++){
-      if(neat.getAverage() > -2000){
-        break;
-      }
+    for(var i = 0; i < 500; i++){
+      if(neat.getAverage() > -2000) break;
       neat.evolve();
     }
 
@@ -52,7 +42,8 @@ describe('Neat', function () {
     // Fitness function
     function fitnessFunction(genome){
       var score = 0;
-      // XOR distance
+
+      // AND distance
       score -= Methods.Cost.MSE([0], genome.activate([0, 0])) * 5000;
       score -= Methods.Cost.MSE([0], genome.activate([0, 1])) * 5000;
       score -= Methods.Cost.MSE([0], genome.activate([1, 0])) * 5000;
@@ -72,22 +63,12 @@ describe('Neat', function () {
 
     // Construct the neat instance
     var neat = new Neat(2, 1, fitnessFunction, {
-      mutation: [
-        Methods.Mutation.ADD_NODE,
-        Methods.Mutation.ADD_CONN,
-        Methods.Mutation.MOD_WEIGHT,
-        Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE
-      ],
-      mutationRate: 0.3,
-      equal: true
+      mutationRate: 0.3
     });
 
     // Evolve the population
-    for(var i = 0; i < 200; i++){
-      if(neat.getAverage() > -2000){
-        break;
-      }
+    for(var i = 0; i < 500; i++){
+      if(neat.getAverage() > -2000) break;
       neat.evolve();
     }
 
@@ -119,22 +100,19 @@ describe('Neat', function () {
 
     // Construct the neat instance
     var neat = new Neat(2, 1, fitnessFunction, {
+      mutationRate: 0.4,
       mutation: [
         Methods.Mutation.ADD_NODE,
         Methods.Mutation.ADD_CONN,
         Methods.Mutation.MOD_WEIGHT,
         Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.SUB_NODE
-      ],
-      mutationRate: 0.3,
-      equal: true
+        Methods.Mutation.MOD_ACTIVATION
+      ]
     });
 
     // Evolve the population
-    for(var i = 0; i < 200; i++){
-      if(neat.getAverage() > -3000){
-        break;
-      }
+    for(var i = 0; i < 500; i++){
+      if(neat.getAverage() > -3000) break;
       neat.evolve();
     }
 
@@ -146,7 +124,7 @@ describe('Neat', function () {
     function fitnessFunction(genome){
       var score = 0;
 
-      // XOR distance
+      // XNOR distance
       score -= Methods.Cost.MSE([1], genome.activate([0, 0])) * 5000;
       score -= Methods.Cost.MSE([0], genome.activate([0, 1])) * 5000;
       score -= Methods.Cost.MSE([0], genome.activate([1, 0])) * 5000;

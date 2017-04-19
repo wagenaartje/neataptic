@@ -134,6 +134,9 @@ Network.prototype = {
    *  Gate a connection with a node
    */
   gate: function(node, connection){
+    if(this.nodes.indexOf(node) == -1){
+      throw new Error('This node is not part of the network!');
+    }
     node.gate(connection);
     this.gates.push(connection);
   },
@@ -162,40 +165,60 @@ Network.prototype = {
       throw new Error('This node does not exist!');
     }
 
+    // Keep track of gaters
+    var gaters = [];
+
     // Get all its inputting nodes
     var inputs = [];
-    for(var conn = node.connections.in.length - 1; conn >= 0; conn--){
-      var input = node.connections.in[conn].from;
-      inputs.push(input);
-      this.disconnect(input, node);
+    for(var i = node.connections.in.length - 1; i >= 0; i--){
+      var connection = node.connections.in[i];
+      if(Methods.Mutation.SUB_NODE.keep_gates && connection.gater != null && connection.gater != node){
+        gaters.push(connection.gater);
+      }
+      inputs.push(connection.from);
+      this.disconnect(connection.from, node);
     }
 
     // Get all its outputing nodes
     var outputs = [];
-    for(var conn = node.connections.out.length - 1; conn >= 0; conn--){
-      var output = node.connections.out[conn].to;
-      outputs.push(output);
-      this.disconnect(node, output);
+    for(var i = node.connections.out.length - 1; i >= 0; i--){
+      var connection = node.connections.out[i];
+      if(Methods.Mutation.SUB_NODE.keep_gates && connection.gater != null && connection.gater != node){
+        gaters.push(connection.gater);
+      }
+      outputs.push(connection.to);
+      this.disconnect(node, connection.to);
     }
 
     // Connect the input nodes to the output nodes (if not already connected)
+    var connections = [];
     for(var input in inputs){
       input = inputs[input];
       for(var output in outputs){
         output = outputs[output];
         if(!input.isProjectingTo(output)){
-          this.connect(input, output);
+          var conn = this.connect(input, output);
+          connections.push(conn[0]);
         }
       }
     }
 
-    // Remove gated connections
+    // Gate random connections with gaters
+    for(var gater in gaters){
+      if(connections.length == 0) break;
+      gater = gaters[gater];
+      var connIndex = Math.floor(Math.random() * connections.length);
+      this.gate(gater, connections[connIndex]);
+      connections.splice(connIndex, 1);
+    }
+
+    // Remove gated connections gated by this node
     for(var i = node.connections.gated.length - 1; i >= 0 ; i--){
       var conn = node.connections.gated[i];
       this.ungate(conn);
     }
 
-    // Remove selfconns
+    // Remove selfconnection
     this.disconnect(node, node);
 
     // Remove the node from this.nodes

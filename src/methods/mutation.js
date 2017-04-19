@@ -11,7 +11,8 @@ var Mutation = {
     name : "ADD_NODE"
   },
   SUB_NODE : {
-    name : "SUB_NODE"
+    name : "SUB_NODE",
+    keep_gates: true
   },
   ADD_CONN : {
     name : "ADD_CONN"
@@ -35,20 +36,18 @@ var Mutation = {
   },
   MOD_ACTIVATION : {
     name : "MOD_ACTIVATION",
-    config : {
-      allowed : [
-        Activation.LOGISTIC,
-        Activation.TANH,
-        Activation.RELU,
-        Activation.IDENTITY,
-        Activation.HLIM,
-        Activation.SOFTSIGN,
-        Activation.SINUSOID,
-        Activation.GAUSSIAN,
-        Activation.SOFTPLUS,
-        Activation.BENT_IDENTITY
-      ]
-    }
+    allowed : [
+      Activation.LOGISTIC,
+      Activation.TANH,
+      Activation.RELU,
+      Activation.IDENTITY,
+      Activation.HLIM,
+      Activation.SOFTSIGN,
+      Activation.SINUSOID,
+      Activation.GAUSSIAN,
+      Activation.SOFTPLUS,
+      Activation.BENT_IDENTITY
+    ]
   },
   ADD_SELF_CONN : {
     name: "ADD_SELF_CONN"

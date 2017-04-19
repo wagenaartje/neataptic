@@ -76,7 +76,7 @@ describe('Neat', function () {
     var average = neat.getAverage();
     assert.isAbove(average, -2000);
 
-    // Fitness functionmocah
+    // Fitness function
     function fitnessFunction(genome){
       var score = 0;
 

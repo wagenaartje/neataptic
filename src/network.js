@@ -149,7 +149,58 @@ Network.prototype = {
 
     this.gates.splice(index, 1);
     connection.gater.ungate(connection);
- },
+    connection.gater = null;
+  },
+
+  /**
+   *  Removes a node from the network
+   */
+  remove: function(node){
+    var index = this.nodes.indexOf(node);
+
+    if(index == -1){
+      throw new Error('This node does not exist!');
+    }
+
+    // Get all its inputting nodes
+    var inputs = [];
+    for(var conn = node.connections.in.length - 1; conn >= 0; conn--){
+      var input = node.connections.in[conn].from;
+      inputs.push(input);
+      this.disconnect(input, node);
+    }
+
+    // Get all its outputing nodes
+    var outputs = [];
+    for(var conn = node.connections.out.length - 1; conn >= 0; conn--){
+      var output = node.connections.out[conn].to;
+      outputs.push(output);
+      this.disconnect(node, output);
+    }
+
+    // Connect the input nodes to the output nodes (if not already connected)
+    for(var input in inputs){
+      input = inputs[input];
+      for(var output in outputs){
+        output = outputs[output];
+        if(!input.isProjectingTo(output)){
+          this.connect(input, output);
+        }
+      }
+    }
+
+    // Remove gated connections
+    for(var i = node.connections.gated.length - 1; i >= 0 ; i--){
+      var conn = node.connections.gated[i];
+      this.ungate(conn);
+    }
+
+    // Remove selfconns
+    this.disconnect(node, node);
+
+    // Remove the node from this.nodes
+    this.nodes.splice(index, 1);
+  },
 
   /**
    * Mutates the network with the given method
@@ -197,36 +248,7 @@ Network.prototype = {
         // Select a node which isn't an input or output node
         var index = Math.floor(Math.random() * (this.nodes.length - this.output - this.input) + this.input);
         var node = this.nodes[index];
-
-        // Get all its inputting nodes
-        var inputs = [];
-        for(var conn = node.connections.in.length - 1; conn >= 0; conn--){
-          var input = node.connections.in[conn].from;
-          inputs.push(input);
-          this.disconnect(input, node);
-        }
-
-        // Get all its outputingg nodes
-        var outputs = [];
-        for(var conn = node.connections.out.length - 1; conn >= 0; conn--){
-          var output = node.connections.out[conn].to;
-          outputs.push(output);
-          this.disconnect(node, output);
-        }
-
-        // Connect the input nodes to the output nodes (if not already connected)
-        for(var input in inputs){
-          input = inputs[input];
-          for(var output in outputs){
-            output = outputs[output];
-            if(!input.isProjectingTo(output)){
-              this.connect(input, output);
-            }
-          }
-        }
-
-        // Remove the node from this.nodes
-        this.nodes.splice(index, 1);
+        this.remove(node);
         break;
       case Mutation.ADD_CONN:
         // Create an array of all uncreated (feedforward) connections
@@ -667,11 +689,11 @@ Network.prototype = {
       };
 
       for(index in this.nodes){
-        var node = this.nodes[index].toJSON();
-        node.index = index;
-        json.nodes.push(node);
-
         var node = this.nodes[index];
+        var tojson = node.toJSON();
+        tojson.index = index;
+        json.nodes.push(tojson);
+
         if(node.connections.self.weight != 0){
           var tojson = node.connections.self.toJSON();
           tojson.from = index;
@@ -692,6 +714,8 @@ Network.prototype = {
 
         json.connections.push(tojson);
       }
+
+
       return json;
     }
 };
@@ -786,13 +810,12 @@ Network.prototype = {
    if(score1 == score2){
      var max = Math.max(network1.nodes.length, network2.nodes.length);
      var min = Math.min(network1.nodes.length, network2.nodes.length);
-     var size = Math.floor(Math.random() * (max-min+1) + min);
+     var size = Math.floor(Math.random() * (max - min + 1) + min);
    } else if(score1 > score2){
      var size = network1.nodes.length;
    } else {
      var size = network2.nodes.length;
    }
-
 
    // Assign nodes from parents to offspring
    for(var i = 0; i < size; i++){
@@ -838,14 +861,16 @@ Network.prototype = {
      node.connections.in = [];
      node.connections.out = [];
      node.connections.gated = [];
+     node.connections.self = new Connection(node, node, 0);
    }
 
    // Create arrays of connection genes
    var n1conns = {};
    var n2conns = {};
 
-   for(conn in network1.connections){
-     var conn = network1.connections[conn];
+   var n1connections = network1.connections.concat(network1.selfconns);
+   for(conn in n1connections){
+     var conn = n1connections[conn];
      var data = {
        weight: conn.weight,
        from  : network1.nodes.indexOf(conn.from),
@@ -863,8 +888,9 @@ Network.prototype = {
      n1conns[id] = data;
    }
 
-   for(conn in network2.connections){
-     var conn = network2.connections[conn];
+   var n2connections = network2.connections.concat(network2.selfconns);
+   for(conn in n2connections){
+     var conn = n2connections[conn];
      var data = {
        weight: conn.weight,
        from  : network2.nodes.indexOf(conn.from),
@@ -927,6 +953,5 @@ Network.prototype = {
        }
      }
    }
-
    return offspring;
  }

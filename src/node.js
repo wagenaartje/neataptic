@@ -2,8 +2,8 @@
 if (module) module.exports = Node;
 
 /* Import */
-var Methods    = require('./methods/methods');
 var Connection = require('./connection');
+var Methods    = require('./methods/methods');
 var Group      = require('./group');
 
 /* Easier variable naming */
@@ -11,7 +11,7 @@ var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
 
 /******************************************************************************************
-                                         node
+                                         Node
 *******************************************************************************************/
 
 function Node(type) {
@@ -31,7 +31,11 @@ function Node(type) {
   };
 
   // Data for backpropagation
-  this.error = { responsibility: 0, projected: 0 };
+  this.error = {
+    responsibility: 0,
+    projected: 0,
+    gated: 0
+  };
 }
 
 Node.prototype = {
@@ -144,7 +148,6 @@ Node.prototype = {
         var influence = node.connections.self.gater == this ? node.old : 0;
 
         influence += conn.weight * conn.from.activation;
-
         error += node.error.responsibility * influence;
       }
 
@@ -214,8 +217,6 @@ Node.prototype = {
        this.connections.self.weight = 0;
        return;
      }
-
-     twosided = twosided || false;
 
      for(var i in this.connections.out){
        var conn = this.connections.out[i];

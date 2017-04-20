@@ -168,9 +168,10 @@ if (typeof window == 'object')
 if (module) module.exports = Node;
 
 /* Import */
-var Connection = __webpack_require__(3);
+var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
 var Group      = __webpack_require__(5);
+var Config     = __webpack_require__(3);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -362,8 +363,14 @@ Node.prototype = {
      } else if(target instanceof Node){
        if(target == this){
          // Turn on the self connection by setting the weight
-         this.connections.self.weight = 1;
+         if(this.connections.self.weight != 0){
+           if(Config.warnings) console.warn('This connection already exists!');
+         } else {
+           this.connections.self.weight = 1;
+         }
          connections.push(this.connections.self);
+       } else if (this.isProjectingTo(target)){
+         throw new Error('Already projecting a connection to this node!');
        } else {
          var connection = new Connection(this, target);
          target.connections.in.push(connection);
@@ -424,8 +431,9 @@ Node.prototype = {
       connections = [connections];
     }
 
-    for(var connection in connections){
-      connection = connections[connection];
+
+    for(var i = connections.length - 1; i >= 0; i--){
+      var connection = connections[i];
 
       var index = this.connections.gated.indexOf(connection);
       this.connections.gated.splice(index, 1);
@@ -525,6 +533,24 @@ Node.fromJSON = function(json){
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                      CONFIG
+*******************************************************************************************/
+
+// Config
+var Config =  {
+  warnings: true
+};
+
+/* Export */
+if (module) module.exports = Config;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Connection;
 
@@ -573,24 +599,6 @@ Connection.innovationID = function(a, b) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                      CONFIG
-*******************************************************************************************/
-
-// Config
-var Config =  {
-  warnings: true
-};
-
-/* Export */
-if (module) module.exports = Config;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -599,9 +607,9 @@ if (module) module.exports = Group;
 
 /* Import */
 var Methods    = __webpack_require__(1);
-var Connection = __webpack_require__(3);
+var Connection = __webpack_require__(4);
 var Node       = __webpack_require__(2);
-var Config     = __webpack_require__(4);
+var Config     = __webpack_require__(3);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -851,9 +859,9 @@ if (module) module.exports = Network;
 
 /* Import */
 var Node       = __webpack_require__(2);
-var Connection = __webpack_require__(3);
+var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
-var Config     = __webpack_require__(4);
+var Config     = __webpack_require__(3);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -984,6 +992,9 @@ Network.prototype = {
   gate: function(node, connection){
     if(this.nodes.indexOf(node) == -1){
       throw new Error('This node is not part of the network!');
+    } else if (connection.gater != null){
+      if(Config.warnings) console.warn('This connection is already gated!');
+      return;
     }
     node.gate(connection);
     this.gates.push(connection);
@@ -1000,7 +1011,6 @@ Network.prototype = {
 
     this.gates.splice(index, 1);
     connection.gater.ungate(connection);
-    connection.gater = null;
   },
 
   /**
@@ -1055,7 +1065,10 @@ Network.prototype = {
     for(var gater in gaters){
       if(connections.length == 0) break;
       gater = gaters[gater];
+
       var connIndex = Math.floor(Math.random() * connections.length);
+      var conn = connections[connIndex];
+
       this.gate(gater, connections[connIndex]);
       connections.splice(connIndex, 1);
     }
@@ -1085,6 +1098,7 @@ Network.prototype = {
       case Mutation.ADD_NODE:
         // Look for an existing connection and place a node in between
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
+        var gater = connection.gater;
         this.disconnect(connection.from, connection.to);
 
         // Insert the new node right before the old connection.to
@@ -1103,10 +1117,8 @@ Network.prototype = {
         var newConn2 = this.connect(node, connection.to)[0];
 
         // Check if the original connection was gated
-        if(connection.gater != null){
-          var gater = connection.gater;
-          gater.ungate(connection);
-          gater.gate(Math.random() >= 0.5 ? newConn1 : newConn2);
+        if(gater != null){
+          this.gate(gater, Math.random() >= 0.5 ? newConn1 : newConn2);
         }
         break;
       case Mutation.SUB_NODE:
@@ -1251,7 +1263,9 @@ Network.prototype = {
           break;
         }
 
-        var gatedconn = this.gates[Math.floor(Math.random() * this.gates.length)];
+        var index = Math.floor(Math.random() * this.gates.length);
+        var gatedconn = this.gates[index];
+
         this.ungate(gatedconn);
         break;
       case Mutation.ADD_BACK_CONN:
@@ -1687,7 +1701,7 @@ Network.prototype = {
    } else {
      var size = network2.nodes.length;
    }
-
+   
    // Assign nodes from parents to offspring
    for(var i = 0; i < size; i++){
      if(i < network1.nodes.length && i < network2.nodes.length){
@@ -1726,13 +1740,9 @@ Network.prototype = {
      }
    }
 
-   // Clear the node connections
+   // Clear the node connections, make a copy
    for(node in offspring.nodes){
-     var node = offspring.nodes[node];
-     node.connections.in = [];
-     node.connections.out = [];
-     node.connections.gated = [];
-     node.connections.self = new Connection(node, node, 0);
+     offspring.nodes[node] = Node.fromJSON(offspring.nodes[node].toJSON());
    }
 
    // Create arrays of connection genes
@@ -1812,15 +1822,13 @@ Network.prototype = {
      var connData = connections[conn];
      if(connData.to < size && connData.from < size){
        var from = offspring.nodes[connData.from];
-       if(connData.from > connData.to || from.type != 'output'){
-         var to   = offspring.nodes[connData.to];
-         var conn = offspring.connect(from, to)[0];
+       var to   = offspring.nodes[connData.to];
+       var conn = offspring.connect(from, to)[0];
 
-         conn.weight = connData.weight;
+       conn.weight = connData.weight;
 
-         if(connData.gater != -1 && connData.gater < size){
-           offspring.gate(offspring.nodes[connData.gater], conn);
-         }
+       if(connData.gater != -1 && connData.gater < size){
+         offspring.gate(offspring.nodes[connData.gater], conn);
        }
      }
    }
@@ -2574,8 +2582,8 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = 
   Methods    : __webpack_require__(1),
   Architect  : __webpack_require__(8),
   Group      : __webpack_require__(5),
-  Connection : __webpack_require__(3),
-  Config     : __webpack_require__(4)
+  Connection : __webpack_require__(4),
+  Config     : __webpack_require__(3)
 };
 
 // CommonJS & AMD

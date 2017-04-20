@@ -5,6 +5,7 @@ if (module) module.exports = Node;
 var Connection = require('./connection');
 var Methods    = require('./methods/methods');
 var Group      = require('./group');
+var Config     = require('./config');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -196,8 +197,14 @@ Node.prototype = {
      } else if(target instanceof Node){
        if(target == this){
          // Turn on the self connection by setting the weight
-         this.connections.self.weight = 1;
+         if(this.connections.self.weight != 0){
+           if(Config.warnings) console.warn('This connection already exists!');
+         } else {
+           this.connections.self.weight = 1;
+         }
          connections.push(this.connections.self);
+       } else if (this.isProjectingTo(target)){
+         throw new Error('Already projecting a connection to this node!');
        } else {
          var connection = new Connection(this, target);
          target.connections.in.push(connection);
@@ -258,8 +265,9 @@ Node.prototype = {
       connections = [connections];
     }
 
-    for(var connection in connections){
-      connection = connections[connection];
+
+    for(var i = connections.length - 1; i >= 0; i--){
+      var connection = connections[i];
 
       var index = this.connections.gated.indexOf(connection);
       this.connections.gated.splice(index, 1);

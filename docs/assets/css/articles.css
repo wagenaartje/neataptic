@@ -5,5 +5,8 @@
   background-image: linear-gradient(0deg, #3b3e4c, #666678);
 }
 .classifycolors{
-  background: linear-gradient(16deg, red, yellow); 
+  background-image: linear-gradient(16deg, red, yellow);
+}
+.playground{
+  background-image: linear-gradient(0deg, #5bc0de, #428bca);
 }

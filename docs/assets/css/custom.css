@@ -149,3 +149,6 @@ body{
   background-color: #337ab7;
   color: white;
 }
+.btn-group-justified{
+  margin-bottom: 15px;
+}

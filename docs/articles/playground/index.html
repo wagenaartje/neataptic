@@ -1,0 +1,154 @@
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Play around with neural networks">
+      <meta name="author" content="Thomas Wagenaar">
+
+      <title>Neataptic.js - Playground</title>
+
+      <link rel="icon" type="image/png" href="../../assets/fav.png"/>
+
+      <!-- JQuery -->
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+      <!-- Bootstrap -->
+      <link async rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- Custom CSS -->
+      <link async href="../../assets/css/custom.css" rel="stylesheet">
+      <link async href="../../assets/css/articles.css" rel="stylesheet">
+      <link async href="graph.css" rel="stylesheet">
+
+      <!-- Social buttons -->
+      <link async rel="stylesheet" href="../../libs/social.css">
+
+      <!-- Fonts -->
+      <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
+      <link async href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700,700i" rel="stylesheet">
+
+      <!-- Neataptic -->
+      <script src="https://wagenaartje.github.io/neataptic/cdn/neataptic.js"></script>
+
+      <!-- Google Analytics -->
+      <script async>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-51480408-2', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+      <div class="container maxwidth">
+        <div class="row">
+          <div class="col-md-12 playground">
+            <!-- Page Content -->
+            <div class="row">
+              <ul class="nav navbar-nav">
+                  <li>
+                    <a href="../../" style="color: white;"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> BACK TO HOME</a>
+                  </li>
+              </ul>
+            </div>
+            <div class="article-head">
+              <p class="article-icon"><i class="fa fa-cubes fa-5x"></i></p>
+              <p class="article-title" style="color: white; opacity: 0.6; padding-bottom: 50px;">Playground</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-2">
+          </div>
+          <div class="col-md-2 article-content">
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.SUB_NODE)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default">Node</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.ADD_NODE)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+              </div>
+            </div>
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.SUB_CONN)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default">Conn</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.ADD_CONN)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+              </div>
+            </div>
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.SUB_GATE)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default">Gate</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.ADD_GATE)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+              </div>
+            </div>
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.SUB_SELF_CONN)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default">Self-conn</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.ADD_SELF_CONN)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+              </div>
+            </div>
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.SUB_BACK_CONN)">&zwnj;<span class="glyphicon glyphicon-minus"></button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default">Back-conn</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-default" onclick="mutate(Methods.Mutation.ADD_BACK_CONN)">&zwnj;<span class="glyphicon glyphicon-plus"></button>
+              </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 15px;">
+              <span class="input-group-addon">input1</span>
+              <input type="number" class="form-control input1" value=0>
+            </div>
+            <div class="input-group" style="margin-bottom: 15px;">
+              <span class="input-group-addon">input2</span>
+              <input type="number" class="form-control input2" value=1>
+            </div>
+            <div class="btn-group btn-group-justified">
+              <div class="btn-group" role="group">
+                <button class="btn btn-info" onclick="activate()">Activate</button>
+              </div>
+            </div>
+            <pre>Output: <span class="output"></span></pre>
+
+          </div>
+          <div class="col-md-6 article-content">
+            <div class="panel panel-default">
+              <svg class="draw" width="100%" height="60%"/>
+            </div>
+
+          </div>
+          <div class="col-md-2">
+          </div>
+        </div>
+      </div>
+      <script src="../../libs/d3v3.js"></script>
+      <script src="../../libs/webcola.js"></script>
+      <script src="events.js"></script>
+      <script src="graph.js"></script>
+      <script src="neural.js"></script>
+  </body>
+</html>

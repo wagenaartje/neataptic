@@ -1,0 +1,18 @@
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+    cursor: move;
+}
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 1.5px;
+  opacity: 0.4;
+  marker-end: url(#end-arrow);
+}
+.label {
+    fill: #CCCCCC;
+    font-size: 12px;
+    text-anchor: middle;
+    cursor: move;
+}

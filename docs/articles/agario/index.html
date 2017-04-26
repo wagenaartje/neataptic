@@ -1,0 +1,256 @@
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Evolve networks to play Agar.io">
+      <meta name="author" content="Thomas Wagenaar">
+
+      <title>Neataptic.js - Agar.io AI</title>
+
+      <link rel="icon" type="image/png" href="../../assets/fav.png"/>
+
+      <!-- JQuery -->
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+      <!-- Bootstrap -->
+      <link async rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- Custom CSS -->
+      <link async href="../../assets/css/custom.css" rel="stylesheet">
+      <link async href="../../assets/css/articles.css" rel="stylesheet">
+
+      <!-- Social buttons -->
+      <link async rel="stylesheet" href="../../libs/social.css">
+
+      <!-- Fonts -->
+      <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
+      <link async href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700,700i" rel="stylesheet">
+
+      <!-- Neataptic -->
+      <script src="https://cdn.rawgit.com/wagenaartje/neataptic/a7610e38/dist/neataptic.js"></script>
+
+      <!-- Google Analytics -->
+      <script async>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-51480408-2', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+      <div class="container maxwidth">
+        <div class="row">
+          <div class="col-md-12 header agario">
+            <!-- Page Content -->
+            <div class="row">
+              <ul class="nav navbar-nav">
+                  <li>
+                    <a href="../../" style="color: white;"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> BACK TO HOME</a>
+                  </li>
+              </ul>
+            </div>
+            <div class="article-head">
+              <p class="article-icon"><i class="fa fa-codiepie fa-5x"></i></p>
+              <p class="article-title" style="color: white">Agar.io AI</p>
+              <p class="article-author">THOMAS WAGENAAR</p>
+              <p class="article-date">APRIL 26, 2017</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+          </div>
+          <div class="col-md-6 article-content">
+            <p class="article-text">
+              Agar.io is quite a simple game to play... well, for humans it is. However is it
+              just as simple for artificial agents? In this article I will tell you how I have
+              constructed a genetic algorithm that evolves neural networks to play in an
+              Agario.io-like environment. The following simulation shows agents that resulted
+              from 1000+ generations of running the algorithm:
+              <div id="field" width="500px" height="500px">
+              </div>
+              <i class="small">Hover your mouse over a blob to see some more info! Source code <a target="blank" href="https://github.com/wagenaartje/agario-ai">here</a>.</i>
+            </p>
+            <p class="article-text">
+              As you might have noticed, the genomes are performing quite well, but far from
+              perfect. The genomes shows human-like traits: searching food, avoiding bigger
+              blobs and chasing smaller blobs. However sometimes one genome just runs into a
+              bigger blob for no reason at all. That is because each genome <b>can only see
+              3 other blobs and 3 food blobs</b>. But above all, the settings of the GA are
+              far from optimized. That is why I invite you to optimize the settings, and
+              perform a pull request on <a target="blank" href="https://github.com/wagenaartje/agario-ai">this</a> repo.
+            </p>
+            <h1 class="blocktext">The making of</h1>
+            <p class="article-text">
+              The code consists of 3 main parts: the field, the player and the genetic algorithm.
+              In the following few paragraphs i'll go into depth on this topics, discussing my
+              choices made. At the bottom of this article you will find a list of improvemetns I
+              have thought of, but not made yet.
+            </p>
+            <p class="article-text">
+              If you have any questions about the code in the linked repo, please create an issue on <a target="blank" href="https://github.com/wagenaartje/neataptic">this</a> repo.
+            </p>
+            <h3 class="blocktext">The field</h3>
+            <p class="article-text">
+              The field consists of 2 different objects: food and players. Food is stationary, and has
+              no 'brain'. Every piece of food has a static feeding value. Once food has been eaten, it just
+              moves to a new location on the field.
+
+              Players on the other hand are capable of making decisions through neural networks. They slowly decay
+              in size when not replenished (either by eating other players or food).
+            </p>
+            <p class="article-text">
+              The field has no borders; when a blob hits the left wall, it will 'teleport' to the right wall. During
+              tests with a bordered field, the entire population of genomes tended to stick to one of the walls without
+              ever evolving to a more flexible population. However, having borderless walls comes with a problem of which
+              a fix has not yet been implemented: genomes that are for example near the left wall, won't detect blobs that
+              are close to the right wall - even though the distance between the blobs can be very small.
+            </p>
+            <p class="article-text">
+              <b>Some (configurable) settings</b>
+              <ul>
+                <li>There is óne food blob per ~2500 pixels</li>
+                <li>There is óne player per ~12500 pixels</li>
+              </ul>
+            </p>
+            <h3 class="blocktext">The player</h3>
+            <p class="article-text">
+              The player is a simplified version of the player in the <a target="blank" href="http://agar.io/">real</a> game.
+              A genome can't split and shoot - it can only move. The output of each genomes brain consists of merely a movement
+              direction and movement speed.
+            </p>
+            <p class="article-text">
+              Genomes can't accelerate, they immediately adapt to the speed given by their brain. They can only eat other blobs
+              when they are 10% bigger, and they can move freely through other blobs that are less than 10% bigger. Each genome
+              will only see the 3 closest players and the 3 closest food blobs within a certain radius.
+            </p>
+            <p class="article-text">
+              <b>Some (configurable) settings</b>
+              <ul>
+                <li>A player must be 10% bigger than a blob to eat it</li>
+                <li>The minimal area of a player is 400 pixels</li>
+                <li>The maximal area of a player is 10000 pixels</li>
+                <li>The detection radius is 150 pixels</li>
+                <li>A player can see up to 3 other players in its detection radius</li>
+                <li>A player can see up to 3 food blobs in its detection radius</li>
+                <li>The maximum speed of a player is 3px/frame</li>
+                <li>The minimal speed of a player is 0.6px/frame</li>
+                <li>Every frame, the player loses 0.2% of its mass</li>
+              </ul>
+            </p>
+            <h3 class="blocktext">The genetic algorithm</h3>
+            <p class="article-text">
+              The genetic algorithm is the core of the AI. In the first frame, a certain
+              amount of players are initialized with a neural network as brain. The brains
+              represent the population of a generation. These brains are then evolved by
+              putting the entire population in óne playing field and letting them compete
+              against each other. The fittest brains are moved on the next generation,
+              the less fit brains have a high chance of being removed.
+            </p>
+            <pre>
+neat.sort();
+var newPopulation = [];
+
+// Elitism
+for(var i = 0; i < neat.elitism; i++){
+  newPopulation.push(neat.population[i]);
+}
+
+// Breed the next individuals
+for(var i = 0; i < neat.popsize - neat.elitism; i++){
+  newPopulation.push(neat.getOffspring());
+}
+
+// Replace the old population with the new population
+neat.population = newPopulation;
+neat.mutate();
+
+neat.generation++;
+startEvaluation();</pre>
+            <p class="article-text">
+              The above code shows the code run when the evaluation is finished. It is very similar
+              to the built-in evolve() function of Neataptic, however adapted to avoid a fitness
+              function as all genomes must be evaluated at the same time.
+            </p>
+            <p class="article-text">
+              The scoring of the genomes is quite easy: when a certain amount of iterations has been reached,
+              each genome is ranked by their area. Better performing genomes have eaten more blobs, and thus
+              have a bigger area. This scoring is identical to the scoring in Agar.io. I have experimented
+              with other scoring systems, but lots of them stimulated small players to finish themselves off
+              if their score was too low for a certain amount of time.
+            </p>
+            <p class="article-text">
+              <b>Some (configurable) settings</b>
+              <ul>
+                <li>An evaluation runs for 1000 frames</li>
+                <li>The mutation rate is 0.3</li>
+                <li>The elitism is 10%</li>
+                <li>Each genome starts with 0 hidden nodes</li>
+                <li>All mutation methods are allowed</li>
+              </ul>
+            </p>
+            <h1 class="blocktext">Issues/future improvements</h1>
+            <p class="article-text">
+              There are a couple of known issues. However, most of them linked
+              are linked to a future improvement in some way or another.
+            </p>
+            <p class="article-text">
+              <b>Issues</b>
+              <ul>
+                <li>Genomes tend to avoid hidden nodes (this is really bad)</li>
+              </ul>
+            </p>
+            <p class="article-text">
+              <b>Future improvements</b>
+              <ul>
+                <li>Players must be able to detect close players, even if they are on the other side of the field</li>
+                <li>Players/food should not be spawned at locations occupied by players</li>
+                <li>The genetic algorithm should be able to run without any visualisation</li>
+                <li>... <a target="blank" href="https://github.com/wagenaartje/neataptic">tell me your idea!</a></li>
+              </ul>
+            </p>
+            <div class="article-footer article-text">
+              <hr>
+              Thanks for reading this article! If you found any mistakes, or want to make any
+              remarks, please mail me at <a> wagenaartje@protonmail.com</a>! Want to
+              post your own article here? Send me your article! (must be about neataptic)!
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div class="row articles">
+          <a class="card classifycolors" href="../classifycolors">
+            <p class="card-title">Classify colors</p>
+            <p class="card-icon"><i class="fa fa-eercast fa-5x"></i><p>
+            <p class="card-date">APRIL 9, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+          <a class="card crossover" href="../crossover">
+            <p class="card-title">Crossover sandbox</p>
+            <p class="card-icon"><i class="fa fa-venus-mars fa-5x"></i><p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+          <a class="card xorevolution" href="../evolvexor">
+            <p class="card-title">XOR evolution</p>
+            <p class="card-icon"><i class="fa fa-object-group fa-5x"></i></p>
+            <p class="card-date">APRIL 4, 2017 </p>
+            <p class="card-author">by Thomas Wagenaar</p>
+          </a>
+        </div>
+      </div>
+
+      <script src="libs/p5.js"></script>
+
+      <script src="js/main.js"></script>
+      <script src="js/population.js"></script>
+      <script src="js/player.js"></script>
+      <script src="js/food.js"></script>
+      <script src="js/field.js"></script>
+  </body>
+</html>

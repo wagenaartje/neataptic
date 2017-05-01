@@ -17,7 +17,7 @@ var Mutation   = Methods.Mutation;
 
 function Group(size){
   this.nodes = [];
-  this.connections = { in : [], out: [] , self: []};
+  this.connections = { in : [], out: [] , self: [] };
 
   for(var i = 0; i < size; i++){
     this.nodes.push(new Node());

@@ -81,6 +81,7 @@ Player.prototype = {
     var color = activationColor(this.brain.score, highestScore);
     stroke(color);
     ellipse(this.x, this.y, DETECTION_RADIUS*2);
+    noStroke();
   },
 
   /* Checks if object can be eaten */

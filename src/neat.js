@@ -180,4 +180,30 @@ Neat.prototype = {
         break;
     }
   },
+
+  /**
+   * Export the current population
+   */
+  export: function(){
+    var json = [];
+    for(var genome in this.population){
+      genome = this.population[genome];
+      json.push(genome.toJSON());
+    }
+
+    return json;
+  },
+
+  /**
+   * Import population from a json
+   */
+  import: function(json){
+    var population = [];
+    for(var genome in json){
+      genome = json[genome];
+      population.push(Network.fromJSON(genome));
+    }
+    this.population = population;
+    this.popsize = population.length;
+  }
 };

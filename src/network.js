@@ -746,6 +746,16 @@ Network.prototype = {
 
 
       return json;
+    },
+
+  /**
+   * Sets the value of a property for every node
+   */
+    set: function(values){
+      for(var node in this.nodes){
+        this.nodes[node].bias = values.bias || this.nodes[node].bias;
+        this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      }
     }
 };
 
@@ -845,7 +855,7 @@ Network.prototype = {
    } else {
      var size = network2.nodes.length;
    }
-   
+
    // Assign nodes from parents to offspring
    for(var i = 0; i < size; i++){
      if(i < network1.nodes.length && i < network2.nodes.length){

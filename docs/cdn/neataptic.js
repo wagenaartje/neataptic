@@ -621,7 +621,7 @@ var Mutation   = Methods.Mutation;
 
 function Group(size){
   this.nodes = [];
-  this.connections = { in : [], out: [] , self: []};
+  this.connections = { in : [], out: [] , self: [] };
 
   for(var i = 0; i < size; i++){
     this.nodes.push(new Node());
@@ -1602,6 +1602,16 @@ Network.prototype = {
 
 
       return json;
+    },
+
+  /**
+   * Sets the value of a property for every node
+   */
+    set: function(values){
+      for(var node in this.nodes){
+        this.nodes[node].bias = values.bias || this.nodes[node].bias;
+        this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      }
     }
 };
 
@@ -1701,7 +1711,7 @@ Network.prototype = {
    } else {
      var size = network2.nodes.length;
    }
-   
+
    // Assign nodes from parents to offspring
    for(var i = 0; i < size; i++){
      if(i < network1.nodes.length && i < network2.nodes.length){
@@ -2345,6 +2355,32 @@ Neat.prototype = {
         break;
     }
   },
+
+  /**
+   * Export the current population
+   */
+  export: function(){
+    var json = [];
+    for(var genome in this.population){
+      genome = this.population[genome];
+      json.push(genome.toJSON());
+    }
+
+    return json;
+  },
+
+  /**
+   * Import population from a json
+   */
+  import: function(json){
+    var population = [];
+    for(var genome in json){
+      genome = json[genome];
+      population.push(Network.fromJSON(genome));
+    }
+    this.population = population;
+    this.popsize = population.length;
+  }
 };
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))

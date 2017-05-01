@@ -1,10 +1,10 @@
 <html lang="en">
   <head>
       <meta charset="utf-8">
-      <meta name="description" content="Evolve networks to play Agar.io">
+      <meta name="description" content="Neural agents learn to seek targets">
       <meta name="author" content="Thomas Wagenaar">
 
-      <title>Neataptic.js - Agar.io AI</title>
+      <title>Neataptic.js - Target-seeking AI</title>
 
       <link rel="icon" type="image/png" href="../../assets/fav.png"/>
 
@@ -44,7 +44,7 @@
   <body>
       <div class="container maxwidth">
         <div class="row">
-          <div class="col-md-12 header agario">
+          <div class="col-md-12 header targetseeking">
             <!-- Page Content -->
             <div class="row">
               <ul class="nav navbar-nav">
@@ -54,10 +54,10 @@
               </ul>
             </div>
             <div class="article-head">
-              <p class="article-icon"><i class="fa fa-codiepie fa-5x"></i></p>
-              <p class="article-title" style="color: white">Agar.io AI</p>
+              <p class="article-icon"><i class="fa fa-bullseye fa-5x"></i></p>
+              <p class="article-title" style="color: white">Target-seeking AI</p>
               <p class="article-author">THOMAS WAGENAAR</p>
-              <p class="article-date">APRIL 26, 2017</p>
+              <p class="article-date">MAY 1, 2017</p>
             </div>
           </div>
         </div>
@@ -66,81 +66,71 @@
           </div>
           <div class="col-md-6 article-content">
             <p class="article-text">
-              Agar.io is quite a simple game to play... well, for humans it is. However is it
-              just as simple for artificial agents? In this article I will tell you how I have
-              constructed a genetic algorithm that evolves neural networks to play in an
-              Agario.io-like environment. The following simulation shows agents that resulted
-              from 1000+ generations of running the algorithm:
+              In the simulation below, neural networks that have been evolved through roughly
+              100 generations try to seek a target. Their goal is to stay as close to the target
+              as possible at all times. If you want to see how one of these networks looks like,
+              check out the <a href="https://wagenaartje.github.io/target-seeking-ai/">complete simulation</a>.
               <div id="field" height="500px">
               </div>
-              <i class="small">Hover your mouse over a blob to see some more info! Source code <a target="blank" href="https://github.com/wagenaartje/agario-ai">here</a>.</i>
+              <i class="small">Click on the field to relocate the target! Source code <a target="blank" href="https://github.com/wagenaartje/target-seeking-ai">here</a>.</i>
             </p>
             <p class="article-text">
-              As you might have noticed, the genomes are performing quite well, but far from
-              perfect. The genomes shows human-like traits: searching food, avoiding bigger
-              blobs and chasing smaller blobs. However sometimes one genome just runs into a
-              bigger blob for no reason at all. That is because each genome <b>can only see
-              3 other blobs and 3 food blobs</b>. But above all, the settings of the GA are
-              far from optimized. That is why I invite you to optimize the settings, and
-              perform a pull request on <a target="blank" href="https://github.com/wagenaartje/agario-ai">this</a> repo.
+              The neural agents are actually performing really well. At least one agent will have
+              'solved the problem' after roughly 20 generations. That is because the base of the solution
+              is quite easy: one of the inputs of the neural networks is the angle to the target, so all it
+              has to do is output some value that is similar to this input value. This can easily be done
+              through the identity activation function, but surprisingly, most agents in the simulation above
+              tend to avoid this function.
+            </p>
+            <p class="article-text">You can check out the topology of the networks <a href="https://wagenaartje.github.io/target-seeking-ai/">here</a>.
+              If you manage to evolve the genomes quicker or better than this simulation with different settings, please
+              perform a pull request on <a target="blank" href="https://wagenaartje.github.io/target-seeking-ai/">this</a> repo.
             </p>
             <h1 class="blocktext">The making of</h1>
             <p class="article-text">
-              The code consists of 3 main parts: the field, the player and the genetic algorithm.
-              In the following few paragraphs i'll go into depth on this topics, discussing my
-              choices made. At the bottom of this article you will find a list of improvemetns I
-              have thought of, but not made yet.
+              In the previous article I have gone more into depth on the environment of the algorithm, but in this article
+              I will focus more on the settings and inputs/outputs of the algorithm itself.
             </p>
             <p class="article-text">
               If you have any questions about the code in the linked repo, please create an issue on <a target="blank" href="https://github.com/wagenaartje/neataptic">this</a> repo.
             </p>
-            <h3 class="blocktext">The field</h3>
+            <h3 class="blocktext">The agents</h3>
             <p class="article-text">
-              The field consists of 2 different objects: food and players. Food is stationary, and has
-              no 'brain'. Every piece of food has a static feeding value. Once food has been eaten, it just
-              moves to a new location on the field.
-
-              Players on the other hand are capable of making decisions through neural networks. They slowly decay
-              in size when not replenished (either by eating other players or food).
+              The agents' task is very simple. They have to get in the vicinity of the target which is set to about
+              100 pixels, once they are in that vicinity, each agents' score will be increased proportionally (100 - dist)
+              to the distance. There is one extra though: for every node in the agents' network, the score of the agent will
+              be decreased. This has two reasons; 1. networks shouldn't overfit the solution and 2. having smaller networks
+              reduces computation power.
             </p>
             <p class="article-text">
-              The field has no borders; when a blob hits the left wall, it will 'teleport' to the right wall. During
-              tests with a bordered field, the entire population of genomes tended to stick to one of the walls without
-              ever evolving to a more flexible population. However, having borderless walls comes with a problem of which
-              a fix has not yet been implemented: genomes that are for example near the left wall, won't detect blobs that
-              are close to the right wall - even though the distance between the blobs can be very small.
+              Agents have some kind of momentum. They don't have mass, but they do have acceleration, so it takes a small
+              amount of time for a agent to reach the top speed in a certain direction.
             </p>
             <p class="article-text">
-              <b>Some (configurable) settings</b>
+              <b>Each agent has the following inputs:</b>
               <ul>
-                <li>There is óne food blob per ~2500 pixels</li>
-                <li>There is óne player per ~12500 pixels</li>
+                <li>Its own speed in the x-axis</li>
+                <li>Its own speed in the y-axis</li>
+                <li>The targets' speed in the x-axis</li>
+                <li>The targets' speed in the y-axis</li>
+                <li>The angle towards the target</li>
+                <li>The distance to the target</li>
               </ul>
             </p>
-            <h3 class="blocktext">The player</h3>
             <p class="article-text">
-              The player is a simplified version of the player in the <a target="blank" href="http://agar.io/">real</a> game.
-              A genome can't split and shoot - it can only move. The output of each genomes brain consists of merely a movement
-              direction and movement speed.
+              The output of each agent is just the desired movement direction.
             </p>
             <p class="article-text">
-              Genomes can't accelerate, they immediately adapt to the speed given by their brain. They can only eat other blobs
-              when they are 10% bigger, and they can move freely through other blobs that are less than 10% bigger. Each genome
-              will only see the 3 closest players and the 3 closest food blobs within a certain radius.
+              There is no kind of collision, except for the walls of the fields. In the future, it might be interesting to
+              add collisions between multiple agents and/or the target to reveal some new tactics. This would require the
+              agent to know the location of surrounding agents.
             </p>
+            <h3 class="blocktext">The target</h3>
             <p class="article-text">
-              <b>Some (configurable) settings</b>
-              <ul>
-                <li>A player must be 10% bigger than a blob to eat it</li>
-                <li>The minimal area of a player is 400 pixels</li>
-                <li>The maximal area of a player is 10000 pixels</li>
-                <li>The detection radius is 150 pixels</li>
-                <li>A player can see up to 3 other players in its detection radius</li>
-                <li>A player can see up to 3 food blobs in its detection radius</li>
-                <li>The maximum speed of a player is 3px/frame</li>
-                <li>The minimal speed of a player is 0.6px/frame</li>
-                <li>Every frame, the player loses 0.2% of its mass</li>
-              </ul>
+              The target is fairly easy. It's programmed to switch direction every now and then by a random amount. There
+              is one important thing however: <i>the target moves with half the speed of the agents</i>, this makes sure
+              that agents always have the ability to catch up with the target. Apart from that, the physics for the target
+              are similar to the agents' physics.
             </p>
             <h3 class="blocktext">The genetic algorithm</h3>
             <p class="article-text">
@@ -152,7 +142,19 @@
               the less fit brains have a high chance of being removed.
             </p>
             <pre>
+// Networks shouldn't get too big
+for(var genome in neat.population){
+  genome = neat.population[genome];
+  genome.score -= genome.nodes.length * SCORE_RADIUS / 10;
+}
+
+// Sort the population by score
 neat.sort();
+
+// Draw the best genome
+drawGraph(neat.population[0].graph($('.best').width(), $('.best').height()), '.best', false);
+
+// Init new pop
 var newPopulation = [];
 
 // Elitism
@@ -170,7 +172,8 @@ neat.population = newPopulation;
 neat.mutate();
 
 neat.generation++;
-startEvaluation();</pre>
+startEvaluation();
+};</pre>
             <p class="article-text">
               The above code shows the code run when the evaluation is finished. It is very similar
               to the built-in evolve() function of Neataptic, however adapted to avoid a fitness
@@ -178,15 +181,13 @@ startEvaluation();</pre>
             </p>
             <p class="article-text">
               The scoring of the genomes is quite easy: when a certain amount of iterations has been reached,
-              each genome is ranked by their area. Better performing genomes have eaten more blobs, and thus
-              have a bigger area. This scoring is identical to the scoring in Agar.io. I have experimented
-              with other scoring systems, but lots of them stimulated small players to finish themselves off
-              if their score was too low for a certain amount of time.
+              each genome is ranked by their final score. Genomes with a higher score have a small amount of nodes
+              and have been close to the target throughout the iteration.
             </p>
             <p class="article-text">
               <b>Some (configurable) settings</b>
               <ul>
-                <li>An evaluation runs for 1000 frames</li>
+                <li>An evaluation runs for 250 frames</li>
                 <li>The mutation rate is 0.3</li>
                 <li>The elitism is 10%</li>
                 <li>Each genome starts with 0 hidden nodes</li>
@@ -195,22 +196,8 @@ startEvaluation();</pre>
             </p>
             <h1 class="blocktext">Issues/future improvements</h1>
             <p class="article-text">
-              There are a couple of known issues. However, most of them linked
-              are linked to a future improvement in some way or another.
-            </p>
-            <p class="article-text">
-              <b>Issues</b>
               <ul>
-                <li>Genomes tend to avoid hidden nodes (this is really bad)</li>
-              </ul>
-            </p>
-            <p class="article-text">
-              <b>Future improvements</b>
-              <ul>
-                <li>Players must be able to detect close players, even if they are on the other side of the field</li>
-                <li>Players/food should not be spawned at locations occupied by players</li>
-                <li>The genetic algorithm should be able to run without any visualisation</li>
-                <li>... <a target="blank" href="https://github.com/wagenaartje/neataptic">tell me your idea!</a></li>
+                <li>... none yet! <a target="blank" href="https://github.com/wagenaartje/neataptic">Tell me your ideas!</a></li>
               </ul>
             </p>
             <div class="article-footer article-text">
@@ -224,10 +211,10 @@ startEvaluation();</pre>
           </div>
         </div>
         <div class="row articles">
-          <a class="card targetseeking" href="../targetseeking">
-            <p class="card-title">Target-seeking AI</p>
-            <p class="card-icon"><i class="fa fa-bullseye fa-5x"></i><p>
-            <p class="card-date">May 1, 2017 </p>
+          <a class="card agario" href="../agario">
+            <p class="card-title">Agario AI</p>
+            <p class="card-icon"><i class="fa fa-codiepie fa-5x"></i><p>
+            <p class="card-date">APRIL 26, 2017 </p>
             <p class="card-author">by Thomas Wagenaar</p>
           </a>
           <a class="card classifycolors" href="../classifycolors">
@@ -256,7 +243,8 @@ startEvaluation();</pre>
       <script src="js/main.js"></script>
       <script src="js/population.js"></script>
       <script src="js/player.js"></script>
-      <script src="js/food.js"></script>
+      <script src="js/walker.js"></script>
+
       <script src="js/field.js"></script>
   </body>
 </html>

@@ -14,31 +14,15 @@ var colorTable = [
   '#000000'  // GATE
 ];
 
-var activationColor = function(value, max){
-  var power = 1 - Math.min(value/max, 1);
-  var color = [255, 255, 0]
-
-  if(power < 0.5){
-    color[0] = 2 * power * 255;
-  } else {
-    color[1] = (1.0 - 2 * (power - 0.5)) * 255;
-  }
-
-  return color;
-}
-
 var NODE_RADIUS = 7;
 var REPEL_FORCE = 10;
 var LINK_DISTANCE = 100;
 
-var WIDTH = 1000;
-var HEIGHT = 500;
-
-var d3cola = cola.d3adaptor()
-      .avoidOverlaps(true)
-      .size([WIDTH, HEIGHT]);
-
 var drawGraph = function(graph, panel, activation) {
+  var d3cola = cola.d3adaptor()
+        .avoidOverlaps(true)
+        .size([$('.best').width(), $('.best').height()]);
+
     var svg = d3.select(panel);
 
     d3.selectAll(panel + "> *").remove();
@@ -60,7 +44,6 @@ var drawGraph = function(graph, panel, activation) {
     d3cola
         .nodes(graph.nodes)
         .links(graph.links)
-        .constraints(graph.constraints)
         .symmetricDiffLinkLengths(REPEL_FORCE)
         .linkDistance(LINK_DISTANCE)
         .start(10, 15, 20);

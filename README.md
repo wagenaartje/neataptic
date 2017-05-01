@@ -15,7 +15,8 @@ of Neataptic, feel free to create a pull request!
 
 Simultaneous evolution:
 - [Agar.io](https://wagenaartje.github.io/neataptic/articles/agario/)
-- Car steering (coming soon!)
+- [Target seeking](https://wagenaartje.github.io/neataptic/articles/targetseeking/)
+- Collision avoiding (coming soon!)
 
 
 Sequential evolution:

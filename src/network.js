@@ -92,6 +92,15 @@ Network.prototype = {
   },
 
   /**
+   * Clear the context of the network
+   */
+  clear: function(){
+    for(var node in this.nodes){
+      this.nodes[node].clear();
+    }
+  },
+
+  /**
    * Connects the from node to the to node
    */
   connect: function(from, to){
@@ -581,6 +590,7 @@ Network.prototype = {
    * Tests a set and returns the error and elapsed time
    */
   test: function(set, cost) {
+    cost = cost || Methods.Cost.MSE;
     var error = 0;
     var input, output, target;
 

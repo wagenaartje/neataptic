@@ -276,6 +276,24 @@ Node.prototype = {
   },
 
   /**
+   * Clear the context of the node
+   */
+  clear: function(){
+    for (var connection in this.connections.in) {
+      connection = this.connections.in[connection];
+
+      connection.elegibility = 0;
+      connection.xtrace = {
+        nodes: [],
+        values : []
+      };
+    }
+
+    this.error.responsibility = this.error.projected = this.error.gated = 0;
+    this.old = this.state = this.activation = 0;
+  },
+
+  /**
    * Mutates the node with the given method
    */
   mutate: function(method){

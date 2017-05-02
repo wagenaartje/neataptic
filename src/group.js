@@ -241,5 +241,14 @@ Group.prototype = {
         }
       }
     }
+  },
+
+  /**
+   * Clear the context of the group
+   */
+  clear: function(){
+    for(var node in this.nodes){
+      this.nodes[node].clear();
+    }
   }
 }

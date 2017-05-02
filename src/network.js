@@ -500,6 +500,7 @@ Network.prototype = {
     var shuffle       = options.shuffle       || false;
     var iterations    = options.iterations    || 0;
     var crossValidate = options.crossValidate || false;
+    var clear         = options.clear         || false;
 
     if(crossValidate){
       var testSize = options.crossValidate.testSize;
@@ -542,9 +543,12 @@ Network.prototype = {
       // Checks if cross validation is enabled
       if (crossValidate) {
         this._trainSet(trainSet, currentRate, cost);
+        if(clear) this.clear();
         error += this.test(testSet, cost).error;
+        if(clear) this.clear();
       } else {
         error += this._trainSet(set, currentRate, cost);
+        if(clear) this.clear();
         error /= set.length;
       }
 

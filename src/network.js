@@ -645,13 +645,18 @@ Network.prototype = {
        node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sinusoid') :
        node.squash == Activation.TANH          ? (type = 3, name = 'tanh') :
        node.squash == Activation.IDENTITY      ? (type = 4, name = 'identity') :
-       node.squash == Activation.HLIM          ? (type = 5, name = 'hlim') :
+       node.squash == Activation.STEP          ? (type = 5, name = 'step') :
        node.squash == Activation.RELU          ? (type = 6, name = 'relu') :
        node.squash == Activation.SOFTSIGN      ? (type = 7, name = 'softsign') :
        node.squash == Activation.SINUSOID      ? (type = 8, name = 'sinusoid') :
        node.squash == Activation.GAUSSIAN      ? (type = 9, name = 'gaussian') :
        node.squash == Activation.SOFTPLUS      ? (type = 10, name = 'softplus') :
        node.squash == Activation.BENT_IDENTITY ? (type = 11, name = 'bent identity') :
+       node.squash == Activation.COMPLEMENTARY_LOG_LOG ? (type = 12, name = 'complementary log-log') :
+       node.squash == Activation.BIPOLAR       ? (type = 13, name = 'bipolar') :
+       node.squash == Activation.BIPOLAR_SIGMOID ? (type = 14, name = 'bipolar sigmoid') :
+       node.squash == Activation.HARD_TANH     ? (type = 15, name = 'hard tanh') :
+       node.squash == Activation.ABSOLUTE      ? (type = 16, name = 'absolute') :
        null;
 
        if(type == 0){
@@ -690,7 +695,7 @@ Network.prototype = {
          var index = json.nodes.length;
          json.nodes.push({
            id: index,
-           type: 12, // GATE,
+           type: 17, // GATE,
            activation: connection.gater.activation,
            name: 'GATE'
          });

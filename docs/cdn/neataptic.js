@@ -1528,13 +1528,18 @@ Network.prototype = {
        node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sinusoid') :
        node.squash == Activation.TANH          ? (type = 3, name = 'tanh') :
        node.squash == Activation.IDENTITY      ? (type = 4, name = 'identity') :
-       node.squash == Activation.HLIM          ? (type = 5, name = 'hlim') :
+       node.squash == Activation.STEP          ? (type = 5, name = 'step') :
        node.squash == Activation.RELU          ? (type = 6, name = 'relu') :
        node.squash == Activation.SOFTSIGN      ? (type = 7, name = 'softsign') :
        node.squash == Activation.SINUSOID      ? (type = 8, name = 'sinusoid') :
        node.squash == Activation.GAUSSIAN      ? (type = 9, name = 'gaussian') :
        node.squash == Activation.SOFTPLUS      ? (type = 10, name = 'softplus') :
        node.squash == Activation.BENT_IDENTITY ? (type = 11, name = 'bent identity') :
+       node.squash == Activation.COMPLEMENTARY_LOG_LOG ? (type = 12, name = 'complementary log-log') :
+       node.squash == Activation.BIPOLAR       ? (type = 13, name = 'bipolar') :
+       node.squash == Activation.BIPOLAR_SIGMOID ? (type = 14, name = 'bipolar sigmoid') :
+       node.squash == Activation.HARD_TANH     ? (type = 15, name = 'hard tanh') :
+       node.squash == Activation.ABSOLUTE      ? (type = 16, name = 'absolute') :
        null;
 
        if(type == 0){
@@ -1573,7 +1578,7 @@ Network.prototype = {
          var index = json.nodes.length;
          json.nodes.push({
            id: index,
-           type: 12, // GATE,
+           type: 17, // GATE,
            activation: connection.gater.activation,
            name: 'GATE'
          });
@@ -1897,6 +1902,7 @@ Network.prototype = {
 *******************************************************************************************/
 
 // https://en.wikipedia.org/wiki/Activation_function
+// https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
 var Activation = {
   LOGISTIC : function(x, derivate) {
     if (!derivate)
@@ -1912,8 +1918,8 @@ var Activation = {
   IDENTITY : function(x, derivate) { // not normalized
     return derivate ? 1 : x;
   },
-  HLIM : function(x, derivate) {
-    return derivate ? 1 : x > 0 ? 1 : 0;
+  STEP : function(x, derivate) {
+    return derivate ? 0 : x > 0 ? 1 : 0;
   },
   RELU : function(x, derivate) { // not normalized
     if (derivate)
@@ -1940,13 +1946,38 @@ var Activation = {
   SOFTPLUS : function(x, derivate){
     if(derivate)
       return Activation.LOGISTIC(x);
-    return Math.log(1 + Math.exp(x));
+    return Math.log(Math.max(1 + Math.exp(x), 1e-15));
   },
   BENT_IDENTITY: function(x, derivate){
     var d = Math.sqrt(Math.pow(x, 2) + 1);
     if(derivate)
       return x / (2 * d) + 1;
     return (d - 1) / 2 + x;
+  },
+  // https://www.rocq.inria.fr/axis/modulad/Workshop_Franco_Bresilien/programme/GomesLudermir-slides.pdf
+  COMPLEMENTARY_LOG_LOG : function(x, derivate){
+    if(derivate)
+      return Math.exp(x) * Math.exp(-Math.exp(x));
+    return 1 - Math.exp(-Math.exp(x));
+  },
+  BIPOLAR : function(x, derivate){
+    return derivate ? 0 : x > 0 ? 1 : -1;
+  },
+  BIPOLAR_SIGMOID : function(x, derivate){
+    var d = 2 / (1 + Math.exp(-x)) - 1;
+    if(derivate)
+      return 1/2 * (1 + d) * (1 - d);
+    return d;
+  },
+  HARD_TANH : function(x, derivate){
+    if(derivate)
+      return x > -1 && x < 1 ? 1 : 0;
+    return Math.max(-1, Math.min(1, x));
+  },
+  ABSOLUTE : function(x, derivate){
+    if(derivate)
+      return x < 0 ? -1 : 1;
+    return Math.abs(x);
   }
 };
 
@@ -2636,12 +2667,17 @@ var Mutation = {
       Activation.TANH,
       Activation.RELU,
       Activation.IDENTITY,
-      Activation.HLIM,
+      Activation.STEP,
       Activation.SOFTSIGN,
       Activation.SINUSOID,
       Activation.GAUSSIAN,
       Activation.SOFTPLUS,
-      Activation.BENT_IDENTITY
+      Activation.BENT_IDENTITY,
+      Activation.COMPLEMENTARY_LOG_LOG,
+      Activation.BIPOLAR,
+      Activation.BIPOLAR_SIGMOID,
+      Activation.HARD_TANH,
+      Activation.ABSOLUTE
     ]
   },
   ADD_SELF_CONN : {

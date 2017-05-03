@@ -41,12 +41,17 @@ var Mutation = {
       Activation.TANH,
       Activation.RELU,
       Activation.IDENTITY,
-      Activation.HLIM,
+      Activation.STEP,
       Activation.SOFTSIGN,
       Activation.SINUSOID,
       Activation.GAUSSIAN,
       Activation.SOFTPLUS,
-      Activation.BENT_IDENTITY
+      Activation.BENT_IDENTITY,
+      Activation.COMPLEMENTARY_LOG_LOG,
+      Activation.BIPOLAR,
+      Activation.BIPOLAR_SIGMOID,
+      Activation.HARD_TANH,
+      Activation.ABSOLUTE
     ]
   },
   ADD_SELF_CONN : {

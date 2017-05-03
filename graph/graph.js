@@ -10,7 +10,12 @@ var colorTable = [
   '#E685E7', // sinusoid
   '#257580', // gaussian
   '#B0484B', // softplus
-  '#4CB148',  // bent_identity
+  '#4CB148', // bent_identity
+  '#82C0C3', // complementary log-log
+  '#BB4A4E', // bipolar
+  '#45C321', // bipolar sigmoid
+  '#DB80D6', // hard tanh
+  '#B297B7', // absolute
   '#000000'  // GATE
 ];
 

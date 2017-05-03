@@ -4,7 +4,7 @@ var colorTable = [
   '#1F22C1', // logistic sigmoid
   '#EE8A2A', // tanh
   '#B17516', // identity
-  '#B1B0AA', // hlim
+  '#B1B0AA', // step
   '#2CB11F', // relu
   '#C5B12C', // softsign
   '#E685E7', // sinusoid

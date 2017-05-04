@@ -123,7 +123,7 @@ describe('Networks', function () {
   });
   describe("Structure", function(){
     it("Feed-forward", function(){
-      this.timeout(4000);
+      this.timeout(10000);
       var network1 = new Network(2,2);
       var network2 = new Network(2,2);
 

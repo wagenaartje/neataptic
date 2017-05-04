@@ -45,7 +45,7 @@ var articles = [
   },
 ];
 
-var start = 3;
+var start = 0;
 
 $( window ).resize(function() {
   drawArticles();

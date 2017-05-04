@@ -107,7 +107,7 @@ var Architect = {
       network.mutate(Methods.Mutation.ADD_NODE);
     }
 
-    for(var i = 0; i < connections; i++){
+    for(var i = 0; i < connections - hidden; i++){
       network.mutate(Methods.Mutation.ADD_CONN);
     }
 

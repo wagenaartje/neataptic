@@ -1525,7 +1525,7 @@ Network.prototype = {
        var node = this.nodes[index];
        node.type   == 'input'                  ? (type = 0, name = 'input') :
        node.type   == 'output'                 ? (type = 1, name = 'output') :
-       node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sinusoid') :
+       node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sigmoid') :
        node.squash == Activation.TANH          ? (type = 3, name = 'tanh') :
        node.squash == Activation.IDENTITY      ? (type = 4, name = 'identity') :
        node.squash == Activation.STEP          ? (type = 5, name = 'step') :
@@ -2099,7 +2099,7 @@ var Architect = {
       network.mutate(Methods.Mutation.ADD_NODE);
     }
 
-    for(var i = 0; i < connections; i++){
+    for(var i = 0; i < connections - hidden; i++){
       network.mutate(Methods.Mutation.ADD_CONN);
     }
 

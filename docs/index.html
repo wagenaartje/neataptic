@@ -43,14 +43,13 @@
   </head>
   <body>
       <div class="container maxwidth">
-        <div class="row welcome">
-          <div class="col-md-5 maxheight">
-            <!-- Page Content -->
+        <div class="row">
+          <div class="col-md-5 welcome">
             <div class="parent">
               <div class="child">
                 <div class="text-center centered">
                   <h1 class="title">NEATAPTIC</h1>
-                  <p class="subtitle">Evolving complex neural networks in the browser. </p>
+                  <p class="subtitle">Evolving complex neural networks in the browser.</p>
                   <hr>
                   <a href="https://github.com/wagenaartje/neataptic" class="subsubtitle"><i class="fa fa-lg fa-github"></i> VIEW IT ON GITHUB</a>
                   |
@@ -59,46 +58,32 @@
               </div>
             </div>
           </div>
-          <div class="col-md-7 maxheight" style="background-color: black;">
+          <div class="col-md-7 welcome">
             <svg class="mainsvg maxwidth maxheight"/>
           </div>
         </div>
-        <div class="row articles">
-          <a class="card targetseeking" href="./articles/targetseeking">
-            <p class="card-title">Target-seeking AI</p>
-            <p class="card-icon"><i class="fa fa-bullseye fa-5x"></i><p>
-            <p class="card-date">May 1, 2017 </p>
-            <p class="card-author">by Thomas Wagenaar</p>
-          </a>
-          <a class="card agario" href="./articles/agario">
-            <p class="card-title">Agario AI</p>
-            <p class="card-icon"><i class="fa fa-codiepie fa-5x"></i><p>
-            <p class="card-date">APRIL 26, 2017 </p>
-            <p class="card-author">by Thomas Wagenaar</p>
-          </a>
-          <a class="card classifycolors" href="./articles/classifycolors">
-            <p class="card-title">Classify colors</p>
-            <p class="card-icon"><i class="fa fa-eercast fa-5x"></i><p>
-            <p class="card-date">APRIL 9, 2017 </p>
-            <p class="card-author">by Thomas Wagenaar</p>
-          </a>
-          <a class="card crossover" href="./articles/crossover">
-            <p class="card-title">Crossover sandbox</p>
-            <p class="card-icon"><i class="fa fa-venus-mars fa-5x"></i><p>
-            <p class="card-date">APRIL 4, 2017 </p>
-            <p class="card-author">by Thomas Wagenaar</p>
-          </a>
-          <a class="card xorevolution" href="./articles/evolvexor">
-            <p class="card-title">XOR evolution</p>
-            <p class="card-icon"><i class="fa fa-object-group fa-5x"></i></p>
-            <p class="card-date">APRIL 4, 2017 </p>
-            <p class="card-author">by Thomas Wagenaar</p>
-          </a>
+        <div class="row">
+          <div class="col-md-1 col-sm-1">
+            <a class="chevron-cont" href="#">
+              <p class="chevron lefts"><i class="fa fa-chevron-left fa-5x"></i></p>
+            </a>
+          </div>
+          <div class="col-md-10 col-sm-10 articles">
+          </div>
+          <div class="col-md-1 col-sm-1">
+            <a class="chevron-cont" href="#">
+              <p class="chevron rights"><i class="fa fa-chevron-right fa-5x"></i></p>
+            </a>
+          </div>
         </div>
       </div>
-      <script src="libs/d3v3.js"></script>
-      <script src="libs/webcola.js"></script>
-      <script src="graph.js"></script>
-      <script src="neural.js"></script>
+    </div>
+
+    <!-- Scripts -->
+    <script src="libs/d3v3.js"></script>
+    <script src="libs/webcola.js"></script>
+    <script src="graph.js"></script>
+    <script src="neural.js"></script>
+    <script src="assets/js/articles.js"></script>
   </body>
 </html>

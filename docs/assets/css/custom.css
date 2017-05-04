@@ -1,6 +1,12 @@
 body{
   font-family: 'Montserrat', sans-serif;
 }
+.mainsvg {
+  position: absolute;
+  left: 0;
+  background-image: linear-gradient(rgb(255, 165, 0), rgb(255, 0, 0));
+  box-shadow: 0 4px 8px 2px rgba(0, 0, 0, 0.2), 0 6px 20px 2px rgba(0, 0, 0, 0.19);
+}
 .maxheight{
   height: 100%;
 }
@@ -55,13 +61,15 @@ body{
 }
 .articles{
   background-color: #eff7f8;
+  text-align: center;
 }
 .card{
   height: 300px;
-  width: 215;
+  width: 215px;
   box-shadow: 0 4px 8px 0px rgba(0, 0, 0, 0.2), 0 6px 20px 0px rgba(0, 0, 0, 0.19);
   border-radius: 5px;
-  margin-left: 100px;
+  margin-left: 40px;
+  margin-right: 40px;
   margin-top: 30px;
   margin-bottom: 20px;
   padding: 20px;
@@ -93,6 +101,21 @@ body{
   margin-top: 35px;
   opacity: 0.4;
   text-align: center;
+}
+.chevron-cont{
+  height: 300px;
+  width: 50px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+.chevron{
+  font-size: 1.5vw;
+  opacity: 0.2;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  color: black;
 }
 .header{
   height: 400px;

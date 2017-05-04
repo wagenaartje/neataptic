@@ -93,16 +93,34 @@ var Architect = {
   /**
    * Returns a randomly connected network
    */
-  Random: function(input, hidden, output, ratio){
-    ratio = ratio || 2;
+  Random: function(input, hidden, output, options){
+    options = options || {};
+
+    var connections      = options.connections      || hidden * 2;
+    var backconnections  = options.backconnections  || 0;
+    var selfconnections  = options.selfconnections  || 0;
+    var gates            = options.gates            || 0;
+
     var network = new Network(input, output);
 
     for(var i = 0; i < hidden; i++){
       network.mutate(Methods.Mutation.ADD_NODE);
     }
 
-    for(var i = 0; i < hidden * ratio; i++){
+    for(var i = 0; i < connections; i++){
       network.mutate(Methods.Mutation.ADD_CONN);
+    }
+
+    for(var i = 0; i < backconnections; i++){
+      network.mutate(Methods.Mutation.ADD_BACK_CONN);
+    }
+
+    for(var i = 0; i < selfconnections; i++){
+      network.mutate(Methods.Mutation.ADD_SELF_CONN);
+    }
+
+    for(var i = 0; i < gates; i++){
+      network.mutate(Methods.Mutation.ADD_GATE);
     }
 
     return network;

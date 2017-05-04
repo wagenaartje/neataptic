@@ -60,8 +60,10 @@ body{
   font-weight: 400;
 }
 .articles{
-  background-color: #eff7f8;
   text-align: center;
+}
+.lightblue{
+  background-color: #eff7f8;
 }
 .card{
   height: 300px;

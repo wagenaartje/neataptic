@@ -1506,10 +1506,9 @@ Network.prototype = {
   /**
    * Creates a json that can be used to create a graph with d3 and webcola
    */
-   graph: function(width, height, margin){
-     var margin = margin || 100;
-     var input = 1;
-     var output = 1;
+   graph: function(width, height){
+     var input = 0;
+     var output = 0;
 
      var json = {
        nodes : [],
@@ -1517,52 +1516,31 @@ Network.prototype = {
        constraints : [
          { type:"alignment", axis:"x", offsets:[] },
          { type:"alignment", axis:"y", offsets:[] }
-       ],
-       main : {
-         maxActivation : 0,
-         maxWeight: 0
-       }
+       ]
      };
 
      for(index in this.nodes){
        var node = this.nodes[index];
-       node.type   == 'input'                  ? (type = 0, name = 'input') :
-       node.type   == 'output'                 ? (type = 1, name = 'output') :
-       node.squash == Activation.LOGISTIC      ? (type = 2, name = 'sigmoid') :
-       node.squash == Activation.TANH          ? (type = 3, name = 'tanh') :
-       node.squash == Activation.IDENTITY      ? (type = 4, name = 'identity') :
-       node.squash == Activation.STEP          ? (type = 5, name = 'step') :
-       node.squash == Activation.RELU          ? (type = 6, name = 'relu') :
-       node.squash == Activation.SOFTSIGN      ? (type = 7, name = 'softsign') :
-       node.squash == Activation.SINUSOID      ? (type = 8, name = 'sinusoid') :
-       node.squash == Activation.GAUSSIAN      ? (type = 9, name = 'gaussian') :
-       node.squash == Activation.SOFTPLUS      ? (type = 10, name = 'softplus') :
-       node.squash == Activation.BENT_IDENTITY ? (type = 11, name = 'bent identity') :
-       node.squash == Activation.COMPLEMENTARY_LOG_LOG ? (type = 12, name = 'complementary log-log') :
-       node.squash == Activation.BIPOLAR       ? (type = 13, name = 'bipolar') :
-       node.squash == Activation.BIPOLAR_SIGMOID ? (type = 14, name = 'bipolar sigmoid') :
-       node.squash == Activation.HARD_TANH     ? (type = 15, name = 'hard tanh') :
-       node.squash == Activation.ABSOLUTE      ? (type = 16, name = 'absolute') :
-       null;
 
-       if(type == 0){
-         json.constraints[0].offsets.push({node:index, offset : (width-margin) / (this.input) * input});
+       if(node.type == 'input'){
+         if(this.input == 1){
+           json.constraints[0].offsets.push({node:index, offset: 0});
+         } else {
+           json.constraints[0].offsets.push({node:index, offset : 0.8 * width / (this.input-1) * input++});
+         }
          json.constraints[1].offsets.push({node:index, offset : 0});
-         input++;
-       } else if (type == 1){
-         json.constraints[0].offsets.push({node:index, offset : (width-margin) / (this.output+1) * output});
-         json.constraints[1].offsets.push({node:index, offset : -(height-margin)/2});
-         output++;
-       }
-
-       if(node.activation > json.main.maxActivation){
-         json.main.maxActivation = node.activation;
+       } else if (node.type == 'output'){
+         if(this.output == 1){
+           json.constraints[0].offsets.push({node:index, offset: 0});
+         } else {
+           json.constraints[0].offsets.push({node:index, offset : 0.8 * width / (this.output-1) * output++});
+         }
+         json.constraints[1].offsets.push({node:index, offset : -0.8 * height});
        }
 
        json.nodes.push({
          id: index,
-         name: name,
-         type : type,
+         name: node.type == 'hidden' ? node.squash.name : node.type.toUpperCase(),
          activation : node.activation
        });
      }
@@ -1581,7 +1559,6 @@ Network.prototype = {
          var index = json.nodes.length;
          json.nodes.push({
            id: index,
-           type: 17, // GATE,
            activation: connection.gater.activation,
            name: 'GATE'
          });
@@ -1601,10 +1578,6 @@ Network.prototype = {
            weight: connection.gater.activation,
            gate: true
          });
-       }
-
-       if(connection.weight > json.main.maxWeight){
-         json.main.maxWeight = connection.weight;
        }
      }
 

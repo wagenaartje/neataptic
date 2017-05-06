@@ -1,39 +1,5 @@
-var colorTable = [
-  '#2124FF', // input
-  '#FF2718', // output
-  '#1F22C1', // logistic sigmoid
-  '#EE8A2A', // tanh
-  '#B17516', // identity
-  '#B1B0AA', // step
-  '#2CB11F', // relu
-  '#C5B12C', // softsign
-  '#E685E7', // sinusoid
-  '#257580', // gaussian
-  '#B0484B', // softplus
-  '#4CB148', // bent_identity
-  '#82C0C3', // complementary log-log
-  '#BB4A4E', // bipolar
-  '#45C321', // bipolar sigmoid
-  '#DB80D6', // hard tanh
-  '#B297B7', // absolute
-  '#000000'  // GATE
-];
-
-var activationColor = function(value, max){
-  var power = 1 - Math.min(value/max, 1);
-  var color = [255, 255, 0]
-
-  if(power < 0.5){
-    color[0] = 2 * power * 255;
-  } else {
-    color[1] = (1.0 - 2 * (power - 0.5)) * 255;
-  }
-
-  return color;
-}
-
 var NODE_RADIUS = 7;
-var REPEL_FORCE = 10;
+var REPEL_FORCE = 0;
 var LINK_DISTANCE = 100;
 
 var WIDTH = 1000;
@@ -43,7 +9,7 @@ var d3cola = cola.d3adaptor()
       .avoidOverlaps(true)
       .size([WIDTH, HEIGHT]);
 
-var drawGraph = function(graph, panel, activation) {
+var drawGraph = function(graph, panel) {
     var svg = d3.select(panel);
 
     d3.selectAll(panel + "> *").remove();
@@ -53,12 +19,11 @@ var drawGraph = function(graph, panel, activation) {
         .attr('id', 'end-arrow')
         .attr('viewBox', '0 -5 10 10')
         .attr('refX', 6)
-        .attr('markerWidth', 5)
-        .attr('markerHeight', 5)
+        .attr('markerWidth', 4)
+        .attr('markerHeight', 4)
         .attr('orient', 'auto')
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
 
     graph.nodes.forEach(function (v) { v.height = v.width = 2 * NODE_RADIUS; });
 
@@ -74,48 +39,39 @@ var drawGraph = function(graph, panel, activation) {
         .data(graph.links)
         .enter().append('svg:path')
         .attr('class', 'link')
-        .style("stroke-width", function (d) {
-          if(activation){
-            return 1.5;
-          } else {
-            return 1.5 + Math.sqrt(d.weight * 5);
-          }
-          })
-        .style("stroke", function (d) {
-              if(activation){
-                return activationColor(d.source.activation * d.weight, graph.main.maxActivation * graph.main.maxWeight);
-              } else if(d.gate){
-                if(d.source.activation){
-                  return activationColor(d.source.activation, graph.main.maxActivation);
-                } else{
-                  return 'rgb(255,0,0)';
-                }
-              }
-          });
+
+    path.append("title")
+      .text(function (d) {
+        var text = "";
+        text += "Weight: " + Math.round(d.weight*1000)/1000 + "\n";;
+        text += "Source: " + d.source.id + "\n";;
+        text += "Target: " + d.target.id;
+        return text;
+      });
 
     var node = svg.selectAll(".node")
         .data(graph.nodes)
         .enter().append("circle")
-        .attr("class", "node")
+        .attr("class", function(d){
+          return "node " + d.name;
+        })
         .attr("r", function(d) { return NODE_RADIUS; })
-        .style("fill", function (d) {
-              if(activation){
-                return activationColor(d.activation, graph.main.maxActivation);
-              } else {
-                return colorTable[d.type];
-              }
 
-          })
         .call(d3cola.drag);
 
     node.append("title")
-        .text(function (d) { return d.id; });
+        .text(function (d){
+           var text = "";
+           text += "Activation: " + Math.round(d.activation*1000)/1000 + "\n";
+           text += "Position: " + d.id;
+           return text;
+         });
 
     var label = svg.selectAll(".label")
           .data(graph.nodes)
           .enter().append("text")
           .attr("class", "label")
-          .text(function (d) { return '(' + d.index + ') ' + d.name; })
+          .text(function (d){return '(' + d.index + ') ' + d.name; })
           .call(d3cola.drag)
 
     d3cola.on("tick", function () {
@@ -148,22 +104,10 @@ var drawGraph = function(graph, panel, activation) {
                 if (d.source.x === d.target.x && d.source.y === d.target.y) {
                   drx = dist;
                   dry = dist;
-                  // Fiddle with this angle to get loop oriented.
                   xRotation = -45;
-
-                  // Needs to be 1.
                   largeArc = 1;
-
-                  // Change sweep to change orientation of loop.
-                  //sweep = 0;
-
-                  // Make drx and dry different to get an ellipse
-                  // instead of a circle.
                   drx = 20;
                   dry = 20;
-
-                  // For whatever reason the arc collapses to a point if the beginning
-                  // and ending points of the arc are the same, so kludge it.
                   targetX = targetX + 1;
                   targetY = targetY + 1;
                 }

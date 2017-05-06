@@ -5,7 +5,7 @@ to visualise your networks to understand what's really going on. An important as
 competitors is neuro-evolution. You can evolve neural networks through a process described in the
 [NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. An example of neuro-evolution is [Agar.io AI](https://wagenaartje.github.io/neataptic/articles/agario/), where neural agents learn to play Agar.io by evolving their topology! Appreciate the repo? Show it by starring it! :star:
 
-<img src="https://i.gyazo.com/5f05245edc02d4c28097d40928568ee1.png" width="33%"/><img src="https://i.gyazo.com/0c2009a073053af5d3729bd361f8b8a6.png" width="33%"/><img src="https://i.gyazo.com/9934cb575d0c24a6faa23dbc3a055ffd.png" width="33%"/>
+<img src="https://i.gyazo.com/27e8003df60dbbd21e240a53f8ec093a.png" width="33%"/><img src="https://i.gyazo.com/5325ca9217dbca3151a891739548a01d.png" width="33%"/><img src="https://i.gyazo.com/d1fc4d2d59daa454df9c566ac7b640da.png" width="33%"/>
 [Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/articles/playground/)
 
 ## Examples

@@ -75,3 +75,10 @@ Installing with node is also possible:
 ```javascript
 npm install neataptic
 ```
+
+<hr>
+
+You made it all the way down! If you appreciate this repo and want to support the development of it, please consider donating :)
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CXS3G8NHBYEZE)
+

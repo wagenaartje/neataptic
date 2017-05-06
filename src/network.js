@@ -75,6 +75,7 @@ Network.prototype = {
    */
   propagate: function(rate, target){
     this.nodes.reverse();
+    target.reverse();
 
     // Propagate nodes from end to start
     for(node in this.nodes){
@@ -88,6 +89,7 @@ Network.prototype = {
       }
     }
 
+    target.reverse();
     this.nodes.reverse();
   },
 

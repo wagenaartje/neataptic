@@ -5,24 +5,24 @@
 // https://en.wikipedia.org/wiki/Activation_function
 // https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
 var Activation = {
-  LOGISTIC : function(x, derivate) {
+  LOGISTIC : function(x, derivate){
     if (!derivate)
       return 1 / (1 + Math.exp(-x));
     var fx = Activation.LOGISTIC(x);
     return fx * (1 - fx);
   },
-  TANH : function(x, derivate) {
+  TANH : function(x, derivate){
     if (derivate)
       return 1 - Math.pow(Activation.TANH(x), 2);
     return Math.tanh(x);
   },
-  IDENTITY : function(x, derivate) { // not normalized
+  IDENTITY : function(x, derivate){
     return derivate ? 1 : x;
   },
-  STEP : function(x, derivate) {
+  STEP : function(x, derivate){
     return derivate ? 0 : x > 0 ? 1 : 0;
   },
-  RELU : function(x, derivate) { // not normalized
+  RELU : function(x, derivate){
     if (derivate)
       return x > 0 ? 1 : 0;
     return x > 0 ? x : 0;

@@ -19,11 +19,11 @@
 #end-arrow{
   opacity: 0.4;
 }
-.input{
+.INPUT{
   fill: #ff6666;
   stroke:  #ff4d4d;
 }
-.output{
+.OUTPUT{
   fill : #ff8c66;
   stroke: #ff794d;
 }

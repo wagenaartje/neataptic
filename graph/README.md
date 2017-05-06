@@ -70,7 +70,7 @@ Make sure to include graph.css in your html file. This makes sure your connectio
 ## Disable constraints
 Normally graphs look like the network on the left. If you want a more fluid design, disable constraints, and you'll get a graph like on the right:
 
-<img src="https://camo.githubusercontent.com/4a9aa3c7ad75705ce1d3eaf5e0321a95f89882ac/68747470733a2f2f692e6779617a6f2e636f6d2f35663035323435656463303264346332383039376434303932383536386565312e706e67" width="50%"/><img src="https://i.gyazo.com/3a49943c195b454cf711e77b3bfbfd62.png" width="50%"/>
+<img src="https://i.gyazo.com/d22470d901ed9afb792e106151ed7e95.png" width="50%"/><img src="https://i.gyazo.com/8626b66afc8881ab6e535ed9c00d46cf.png" width="50%"/>
 
 In `graph.js`, remove line 60:
 
@@ -79,16 +79,3 @@ In `graph.js`, remove line 60:
 ```
 
 This basically makes the input and output nodes less distinguishable.
-
-## Show activation
-You can also draw graphs that display which nodes have a higher state linked to a certain input. Make sure to activate the network before visualising it. Something like this:
-
-<img src="https://i.gyazo.com/84e731eab3b1fabf410ee0d14c18bacb.png"/>
-<i>Light green is low activation, dark red is high activation</i>
-
-
-All you have to is add an extra parameter to `drawGraph()`:
-
-```javascript
-drawGraph(network.graph(1000, 800), '.svg', true); // set it to true
-```

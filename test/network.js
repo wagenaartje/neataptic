@@ -249,17 +249,13 @@ describe('Networks', function () {
     });
     it("SIN function", function(){
       this.timeout(30000);
-      var mySin = function (x) {
-        return (Math.sin(x) + 1) / 2;
-      };
-
       var set = [];
 
       while (set.length < 100) {
         var inputValue = Math.random() * Math.PI * 2;
         set.push({
-          input: [inputValue],
-          output: [mySin(inputValue)]
+          input: [inputValue / (Math.PI * 2)],
+          output: [(Math.sin(inputValue) + 1) / 2]
         });
       }
 
@@ -279,7 +275,7 @@ describe('Networks', function () {
 
       learnSet(set, 500, 0.05);
     });
-    it("LSTM - XOR", function(){
+    it("LSTM XOR", function(){
       this.timeout(30000);
       lstm = new Architect.LSTM(1,1,1);
 
@@ -300,6 +296,36 @@ describe('Networks', function () {
       assert.isBelow(lstm.activate([1]), 0.1, "LSTM error");
       assert.isBelow(0.9, lstm.activate([0]), "LSTM error");
       assert.isBelow(lstm.activate([0]), 0.1, "LSTM error");
+    });
+    it("SIN + COS", function(){
+      this.timeout(30000);
+      var set = [];
+
+      while (set.length < 100) {
+        var inputValue = Math.random() * Math.PI * 2;
+        set.push({
+          input: [inputValue / (Math.PI * 2)],
+          output: [
+            (Math.sin(inputValue) + 1) / 2,
+            (Math.cos(inputValue) + 1) / 2
+          ]
+        });
+      }
+
+      learnSet(set, 1000, 0.05);
+    });
+    it("SHIFT", function(){
+      var set = [];
+
+      for(var i = 0; i < 1000; i++){
+        var x = Math.random();
+        var y = Math.random();
+        var z = Math.random();
+
+        set.push({ input: [x,y,z], output: [z,x,y] });
+      }
+
+      learnSet(set, 500, 0.03);
     });
   });
 });

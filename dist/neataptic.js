@@ -339,6 +339,7 @@ Node.prototype = {
         var value = connection.xtrace.values[i];
         gradient += node.error.responsibility * value;
       }
+
       connection.weight += rate * gradient; // Adjust weights
     }
 
@@ -1945,22 +1946,11 @@ var Activation = {
       return -2 * x * d;
     return d;
   },
-  SOFTPLUS : function(x, derivate){
-    if(derivate)
-      return Activation.LOGISTIC(x);
-    return Math.log(Math.max(1 + Math.exp(x), 1e-15));
-  },
   BENT_IDENTITY: function(x, derivate){
     var d = Math.sqrt(Math.pow(x, 2) + 1);
     if(derivate)
       return x / (2 * d) + 1;
     return (d - 1) / 2 + x;
-  },
-  // https://www.rocq.inria.fr/axis/modulad/Workshop_Franco_Bresilien/programme/GomesLudermir-slides.pdf
-  COMPLEMENTARY_LOG_LOG : function(x, derivate){
-    if(derivate)
-      return Math.exp(x) * Math.exp(-Math.exp(x));
-    return 1 - Math.exp(-Math.exp(x));
   },
   BIPOLAR : function(x, derivate){
     return derivate ? 0 : x > 0 ? 1 : -1;
@@ -2691,9 +2681,7 @@ var Mutation = {
       Activation.SOFTSIGN,
       Activation.SINUSOID,
       Activation.GAUSSIAN,
-      Activation.SOFTPLUS,
       Activation.BENT_IDENTITY,
-      Activation.COMPLEMENTARY_LOG_LOG,
       Activation.BIPOLAR,
       Activation.BIPOLAR_SIGMOID,
       Activation.HARD_TANH,

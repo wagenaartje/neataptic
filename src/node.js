@@ -173,6 +173,7 @@ Node.prototype = {
         var value = connection.xtrace.values[i];
         gradient += node.error.responsibility * value;
       }
+
       connection.weight += rate * gradient; // Adjust weights
     }
 

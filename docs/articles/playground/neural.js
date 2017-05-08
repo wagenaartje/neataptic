@@ -22,12 +22,10 @@ function activate(){
   if(in1 > 1 || in1 < 0 || in2 > 1 || in2 < 0){
     alert('Inputs must be between 0 and 1!');
   }
-  
-  var output = network.activate([in1, in2]);
 
+  var output = network.activate([in1, in2]);
   $('.output').text(output);
 }
 function refresh(){
-  console.log( );
-  drawGraph(network.graph($('.draw').width() / 1.4, $('.draw').height() / 1), '.draw');
+  drawGraph(network.graph($('.draw').width() / 1.4, $('.draw').height() / 1.4), '.draw');
 }

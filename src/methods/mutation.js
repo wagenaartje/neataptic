@@ -69,6 +69,9 @@ var Mutation = {
   },
   SUB_BACK_CONN : {
     name: "SUB_BACK_CONN"
+  },
+  SWAP_NODES : {
+    name: "SWAP_NODES"
   }
 };
 

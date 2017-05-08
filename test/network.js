@@ -120,6 +120,9 @@ describe('Networks', function () {
     it("SUB_BACK_CONN", function(){
       checkMutation(Methods.Mutation.SUB_BACK_CONN);
     });
+    it("SWAP_NODES", function(){
+      checkMutation(Methods.Mutation.SWAP_NODES);
+    });
   });
   describe("Structure", function(){
     it("Feed-forward", function(){

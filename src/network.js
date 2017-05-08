@@ -474,6 +474,21 @@ Network.prototype = {
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
         this.disconnect(randomConn.from, randomConn.to);
         break;
+      case Mutation.SWAP_NODES:
+        // Input nodes are excluded
+        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var node1 = this.nodes[index];
+        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var node2 = this.nodes[index];
+
+        var biasTemp = node1.bias;
+        var squashTemp = node1.squash;
+
+        node1.bias = node2.bias;
+        node1.squash = node2.squash;
+        node2.bias = biasTemp;
+        node2.squash = squashTemp;
+        break;
     }
   },
 

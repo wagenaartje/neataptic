@@ -31,7 +31,7 @@ Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detai
 over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:
 
 ```javascript
-var network = new Architect.Perceptron(2,4,1);
+var network = new neataptic.Architect.Perceptron(2,4,1);
 
 // Train the XOR gate
 network.train([{ input: [0,0], output: [0] },
@@ -45,7 +45,7 @@ network.activate([0,1]); // 0.9824...
 You can also create <b>Long short-term memory</b> networks:
 
 ```javascript
-var network = new Architect.LSTM(1,1,1);
+var network = new neataptic.Architect.LSTM(1,1,1);
 
 // Train the XOR gate (in sequence!)
 lstm.train([{ input: [0], output: [0]},
@@ -61,6 +61,28 @@ lstm.activate([1]); // 0.0921
 lstm.activate([0]); // 0.9493
 lstm.activate([0]); // 0.03328
 ```
+
+Or even <b>NARX networks</b>:
+
+```javascript
+var narx = new neataptic.Architect.NARX(1, 5, 1, 3, 3);
+
+// Train a sequence: 00100100..
+narx.train([
+  { input: [0], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [1] },
+  { input: [1], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [1] }
+]);
+
+narx.activate([0]); // 0.0275
+narx.activate([0]); // 0.0370
+narx.activate([0]); // 0.8695
+```
+[Run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/)
 
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
 

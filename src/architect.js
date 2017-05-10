@@ -36,12 +36,12 @@ var Architect = {
     var inputs = [];
     var outputs = [];
     for(var i = nodes.length - 1; i >= 0; i--){
-      if(nodes[i].connections.out.length + nodes[i].connections.gated.length == 0){
+      if(nodes[i].type == 'output' || nodes[i].connections.out.length + nodes[i].connections.gated.length == 0){
         nodes[i].type = 'output';
         network.output++;
         outputs.push(nodes[i]);
         nodes.splice(i, 1);
-      } else if(!nodes[i].connections.in.length){
+      } else if(nodes[i].type == 'input' || !nodes[i].connections.in.length){
         nodes[i].type = 'input';
         network.input++;
         inputs.push(nodes[i]);
@@ -268,6 +268,84 @@ var Architect = {
     }
 
     return network;
+  },
+
+  /**
+   * Returns a NARX network
+   */
+  NARX: function(inputSize, hiddenLayers, outputSize, previousInput, previousOutput){
+    if(!Array.isArray(hiddenLayers)){
+      hiddenLayers = [hiddenLayers];
+    }
+
+    var nodes = [];
+
+    // Create input
+    var input = new Group(inputSize);
+    input.set({type: 'input'});
+
+    // Create output
+    var output = new Group(outputSize);
+    output.set({type: 'output'});
+
+    // Create hidden layers
+    var hidden = [];
+    for(var i = 0; i < hiddenLayers.length; i++){
+      hidden.push(new Group(hiddenLayers[i]));
+    }
+
+    input.connect(hidden[0]);
+    hidden[hiddenLayers.length - 1].connect(output);
+
+    // Create previous outputs
+    var pOutputs = [];
+    var previous = output;
+    for(var i = 0; i < previousOutput; i++){
+      var next = new Group(outputSize);
+
+      next.set({
+        squash: Methods.Activation.IDENTITY,
+        bias: 0,
+        type: 'constant'
+      });
+
+      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      next.connect(hidden[0]);
+
+      pOutputs.push(next);
+
+      previous = next;
+    }
+    pOutputs.reverse();
+
+    // Create previous inputs
+    var pInputs = [];
+    var previous = input;
+    for(var i = 0; i < previousInput; i++){
+      var next = new Group(inputSize);
+      next.set({
+        squash: Methods.Activation.IDENTITY,
+        bias: 0,
+        type: 'constant'
+      });
+
+      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      next.connect(hidden[0]);
+
+      pInputs.push(next);
+
+      previous = next;
+    }
+    pInputs.reverse();
+
+    // INPUT > SHIFT OUTPUT > HIDDEN > SHIFT INPUT > OUTPUT (activation order)
+    nodes = nodes.concat(input);
+    nodes = nodes.concat(pOutputs);
+    nodes = nodes.concat(hidden);
+    nodes = nodes.concat(pInputs);
+    nodes = nodes.concat(output);
+
+    return Architect.Construct(nodes);
   }
 }
 

@@ -325,6 +325,8 @@ Node.prototype = {
       this.error.responsibility = this.error.projected + this.error.gated;
     }
 
+    if(this.type == 'constant') return;
+
     // Learning rate
     rate = rate || .1;
 
@@ -350,11 +352,11 @@ Node.prototype = {
   /**
    * Creates a connection from this node to the given node
    */
-   connect: function(target){
+   connect: function(target, weight){
      var connections = [];
      if(target instanceof Group){
        for(var i = 0; i < target.nodes.length; i++){
-         var connection = new Connection(this, target.nodes[i]);
+         var connection = new Connection(this, target.nodes[i], weight);
          target.nodes[i].connections.in.push(connection);
          this.connections.out.push(connection);
          target.connections.in.push(connection);
@@ -367,13 +369,13 @@ Node.prototype = {
          if(this.connections.self.weight != 0){
            if(Config.warnings) console.warn('This connection already exists!');
          } else {
-           this.connections.self.weight = 1;
+           this.connections.self.weight = weight || 1;
          }
          connections.push(this.connections.self);
        } else if (this.isProjectingTo(target)){
          throw new Error('Already projecting a connection to this node!');
        } else {
-         var connection = new Connection(this, target);
+         var connection = new Connection(this, target, weight);
          target.connections.in.push(connection);
          this.connections.out.push(connection);
 
@@ -691,7 +693,7 @@ Group.prototype = {
   /**
    * Connects the nodes in this group to nodes in another group or just a node
    */
-  connect: function(target, method){
+  connect: function(target, method, weight){
     var connections = [];
     if(target instanceof Group){
       if(typeof method == 'undefined'){
@@ -707,7 +709,7 @@ Group.prototype = {
         for(var i = 0; i < this.nodes.length; i++){
           for(var j = 0; j < target.nodes.length; j++){
             if(method == Methods.Connection.ALL_TO_ELSE && this.nodes[i] == target.nodes[j]) continue;
-            var connection = this.nodes[i].connect(target.nodes[j]);
+            var connection = this.nodes[i].connect(target.nodes[j], weight);
             this.connections.out.push(connection[0]);
             target.connections.in.push(connection[0]);
             connections.push(connection[0]);
@@ -719,7 +721,7 @@ Group.prototype = {
         }
 
         for(var i = 0; i < this.nodes.length; i++){
-          var connection = this.nodes[i].connect(target.nodes[i]);
+          var connection = this.nodes[i].connect(target.nodes[i], weight);
           this.connections.self.push(connection[0]);
           connections.push(connection[0]);
         }
@@ -727,7 +729,7 @@ Group.prototype = {
 
     } else if(target instanceof Node){
       for(var i = 0; i < this.nodes.length; i++){
-        var connection = this.nodes[i].connect(target);
+        var connection = this.nodes[i].connect(target, weight);
         this.connections.out.push(connection[0]);
         connections.push(connection[0]);
       }
@@ -801,8 +803,12 @@ Group.prototype = {
    */
   set: function(values){
     for(var node in this.nodes){
-      this.nodes[node].bias = values.bias || this.nodes[node].bias;
+      if(typeof values.bias != 'undefined'){
+        this.nodes[node].bias = values.bias;
+      }
+
       this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      this.nodes[node].type = values.type || this.nodes[node].type;
     }
   },
 
@@ -938,17 +944,13 @@ Network.prototype = {
     var output = [];
     // Activate nodes chronologically
     for(node in this.nodes){
-      switch(this.nodes[node].type){
-        case('input'):
-          this.nodes[node].activate(input[node]);
-          break;
-        case('hidden'):
-          this.nodes[node].activate();
-          break;
-        case('output'):
-          var activation = this.nodes[node].activate();
-          output.push(activation);
-          break;
+      if(this.nodes[node].type == 'input'){
+        this.nodes[node].activate(input[node]);
+      } else if (this.nodes[node].type == 'output'){
+        var activation = this.nodes[node].activate();
+        output.push(activation);
+      } else {
+        this.nodes[node].activate();
       }
     }
     return output;
@@ -2008,12 +2010,12 @@ var Architect = {
     var inputs = [];
     var outputs = [];
     for(var i = nodes.length - 1; i >= 0; i--){
-      if(nodes[i].connections.out.length + nodes[i].connections.gated.length == 0){
+      if(nodes[i].type == 'output' || nodes[i].connections.out.length + nodes[i].connections.gated.length == 0){
         nodes[i].type = 'output';
         network.output++;
         outputs.push(nodes[i]);
         nodes.splice(i, 1);
-      } else if(!nodes[i].connections.in.length){
+      } else if(nodes[i].type == 'input' || !nodes[i].connections.in.length){
         nodes[i].type = 'input';
         network.input++;
         inputs.push(nodes[i]);
@@ -2240,6 +2242,84 @@ var Architect = {
     }
 
     return network;
+  },
+
+  /**
+   * Returns a NARX network
+   */
+  NARX: function(inputSize, hiddenLayers, outputSize, previousInput, previousOutput){
+    if(!Array.isArray(hiddenLayers)){
+      hiddenLayers = [hiddenLayers];
+    }
+
+    var nodes = [];
+
+    // Create input
+    var input = new Group(inputSize);
+    input.set({type: 'input'});
+
+    // Create output
+    var output = new Group(outputSize);
+    output.set({type: 'output'});
+
+    // Create hidden layers
+    var hidden = [];
+    for(var i = 0; i < hiddenLayers.length; i++){
+      hidden.push(new Group(hiddenLayers[i]));
+    }
+
+    input.connect(hidden[0]);
+    hidden[hiddenLayers.length - 1].connect(output);
+
+    // Create previous outputs
+    var pOutputs = [];
+    var previous = output;
+    for(var i = 0; i < previousOutput; i++){
+      var next = new Group(outputSize);
+
+      next.set({
+        squash: Methods.Activation.IDENTITY,
+        bias: 0,
+        type: 'constant'
+      });
+
+      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      next.connect(hidden[0]);
+
+      pOutputs.push(next);
+
+      previous = next;
+    }
+    pOutputs.reverse();
+
+    // Create previous inputs
+    var pInputs = [];
+    var previous = input;
+    for(var i = 0; i < previousInput; i++){
+      var next = new Group(inputSize);
+      next.set({
+        squash: Methods.Activation.IDENTITY,
+        bias: 0,
+        type: 'constant'
+      });
+
+      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      next.connect(hidden[0]);
+
+      pInputs.push(next);
+
+      previous = next;
+    }
+    pInputs.reverse();
+
+    // INPUT > SHIFT OUTPUT > HIDDEN > SHIFT INPUT > OUTPUT (activation order)
+    nodes = nodes.concat(input);
+    nodes = nodes.concat(pOutputs);
+    nodes = nodes.concat(hidden);
+    nodes = nodes.concat(pInputs);
+    nodes = nodes.concat(output);
+
+    return Architect.Construct(nodes);
   }
 }
 

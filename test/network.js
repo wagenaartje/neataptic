@@ -300,6 +300,28 @@ describe('Networks', function () {
       assert.isBelow(0.9, lstm.activate([0]), "LSTM error");
       assert.isBelow(lstm.activate([0]), 0.1, "LSTM error");
     });
+    it("NARX Sequence", function(){
+      var narx = new Architect.NARX(1, 5, 1, 3, 3);
+
+      // Train the XOR gate (in sequence!)
+      var trainingData = [
+        { input: [0], output: [0] },
+        { input: [0], output: [0] },
+        { input: [0], output: [1] },
+        { input: [1], output: [0] },
+        { input: [0], output: [0] },
+        { input: [0], output: [0] },
+        { input: [0], output: [1] },
+      ];
+
+      narx.train(trainingData, {
+        iterations: 1000,
+        error: 0.005,
+        rate: 0.05
+      });
+
+      assert.isBelow(narx.test(trainingData).error, 0.005);
+    });
     it("SIN + COS", function(){
       this.timeout(30000);
       var set = [];

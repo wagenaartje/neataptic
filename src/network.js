@@ -54,17 +54,13 @@ Network.prototype = {
     var output = [];
     // Activate nodes chronologically
     for(node in this.nodes){
-      switch(this.nodes[node].type){
-        case('input'):
-          this.nodes[node].activate(input[node]);
-          break;
-        case('hidden'):
-          this.nodes[node].activate();
-          break;
-        case('output'):
-          var activation = this.nodes[node].activate();
-          output.push(activation);
-          break;
+      if(this.nodes[node].type == 'input'){
+        this.nodes[node].activate(input[node]);
+      } else if (this.nodes[node].type == 'output'){
+        var activation = this.nodes[node].activate();
+        output.push(activation);
+      } else {
+        this.nodes[node].activate();
       }
     }
     return output;

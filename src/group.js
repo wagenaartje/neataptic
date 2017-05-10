@@ -68,7 +68,7 @@ Group.prototype = {
   /**
    * Connects the nodes in this group to nodes in another group or just a node
    */
-  connect: function(target, method){
+  connect: function(target, method, weight){
     var connections = [];
     if(target instanceof Group){
       if(typeof method == 'undefined'){
@@ -84,7 +84,7 @@ Group.prototype = {
         for(var i = 0; i < this.nodes.length; i++){
           for(var j = 0; j < target.nodes.length; j++){
             if(method == Methods.Connection.ALL_TO_ELSE && this.nodes[i] == target.nodes[j]) continue;
-            var connection = this.nodes[i].connect(target.nodes[j]);
+            var connection = this.nodes[i].connect(target.nodes[j], weight);
             this.connections.out.push(connection[0]);
             target.connections.in.push(connection[0]);
             connections.push(connection[0]);
@@ -96,7 +96,7 @@ Group.prototype = {
         }
 
         for(var i = 0; i < this.nodes.length; i++){
-          var connection = this.nodes[i].connect(target.nodes[i]);
+          var connection = this.nodes[i].connect(target.nodes[i], weight);
           this.connections.self.push(connection[0]);
           connections.push(connection[0]);
         }
@@ -104,7 +104,7 @@ Group.prototype = {
 
     } else if(target instanceof Node){
       for(var i = 0; i < this.nodes.length; i++){
-        var connection = this.nodes[i].connect(target);
+        var connection = this.nodes[i].connect(target, weight);
         this.connections.out.push(connection[0]);
         connections.push(connection[0]);
       }
@@ -178,8 +178,12 @@ Group.prototype = {
    */
   set: function(values){
     for(var node in this.nodes){
-      this.nodes[node].bias = values.bias || this.nodes[node].bias;
+      if(typeof values.bias != 'undefined'){
+        this.nodes[node].bias = values.bias;
+      }
+
       this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      this.nodes[node].type = values.type || this.nodes[node].type;
     }
   },
 

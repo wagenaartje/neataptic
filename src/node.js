@@ -159,6 +159,8 @@ Node.prototype = {
       this.error.responsibility = this.error.projected + this.error.gated;
     }
 
+    if(this.type == 'constant') return;
+
     // Learning rate
     rate = rate || .1;
 
@@ -184,11 +186,11 @@ Node.prototype = {
   /**
    * Creates a connection from this node to the given node
    */
-   connect: function(target){
+   connect: function(target, weight){
      var connections = [];
      if(target instanceof Group){
        for(var i = 0; i < target.nodes.length; i++){
-         var connection = new Connection(this, target.nodes[i]);
+         var connection = new Connection(this, target.nodes[i], weight);
          target.nodes[i].connections.in.push(connection);
          this.connections.out.push(connection);
          target.connections.in.push(connection);
@@ -201,13 +203,13 @@ Node.prototype = {
          if(this.connections.self.weight != 0){
            if(Config.warnings) console.warn('This connection already exists!');
          } else {
-           this.connections.self.weight = 1;
+           this.connections.self.weight = weight || 1;
          }
          connections.push(this.connections.self);
        } else if (this.isProjectingTo(target)){
          throw new Error('Already projecting a connection to this node!');
        } else {
-         var connection = new Connection(this, target);
+         var connection = new Connection(this, target, weight);
          target.connections.in.push(connection);
          this.connections.out.push(connection);
 

@@ -32,16 +32,25 @@ var Architect = {
       }
     }
 
-    // Calculate input and output size
-    for(var node in nodes){
-      if(nodes[node].connections.out.length + nodes[node].connections.gated.length == 0){
-        nodes[node].type = 'output';
+    // Determine input and output nodes
+    var inputs = [];
+    var outputs = [];
+    for(var i = nodes.length - 1; i >= 0; i--){
+      if(nodes[i].connections.out.length + nodes[i].connections.gated.length == 0){
+        nodes[i].type = 'output';
         network.output++;
-      } else if(!nodes[node].connections.in.length){
-        nodes[node].type = 'input';
+        outputs.push(nodes[i]);
+        nodes.splice(i, 1);
+      } else if(!nodes[i].connections.in.length){
+        nodes[i].type = 'input';
         network.input++;
+        inputs.push(nodes[i]);
+        nodes.splice(i, 1);
       }
     }
+
+    // Input nodes are always first, output nodes are always last
+    nodes = inputs.concat(nodes).concat(outputs);
 
     if(network.input == 0 || network.output == 0){
       throw new Error('Given nodes have no clear input/output node!');

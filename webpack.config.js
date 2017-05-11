@@ -11,6 +11,8 @@ module.exports = {
   output: {
     path: './',
     filename: '[name].js',
+    library: 'neataptic',
+    libraryTarget: 'umd'
   },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),

@@ -1,7 +1,6 @@
 /* Import */
 var chai = require('chai');
 var assert = chai.assert;
-var neataptic = require('../src/neataptic.js');
 
 /* Shorten var names */
 var Connection = neataptic.Connection;

@@ -1,10 +1,12 @@
 {
   "name": "neataptic",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
-    "test:travis": "mocha test && npm run build",
+    "test:src" : "mocha test/src.js test",
+    "test:dist" : "mocha test/dist.js test",
+    "test:travis": "npm run test:src && npm run build && npm run test:dist",
     "build": "webpack"
   },
   "devDependencies": {

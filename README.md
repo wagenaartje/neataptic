@@ -82,7 +82,7 @@ narx.activate([0]); // 0.0275
 narx.activate([0]); // 0.0370
 narx.activate([0]); // 0.8695
 ```
-[Run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/1/)
+[Run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)
 
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
 

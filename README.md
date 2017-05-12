@@ -26,6 +26,8 @@ Sequential evolution:
 Furthermore:
 - [Crossover](https://wagenaartje.github.io/neataptic/articles/crossover/)
 
+I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
+
 ## Usage
 Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
 over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:

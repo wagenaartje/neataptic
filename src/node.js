@@ -308,17 +308,12 @@ Node.prototype = {
 
     switch(method){
       case Mutation.MOD_ACTIVATION:
-        var squash = Math.floor(Math.random()*Mutation.MOD_ACTIVATION.allowed.length);
-
-        // Should really be a NEW squash
-        while(Mutation.MOD_ACTIVATION.allowed[squash] == this.squash){
-          squash = Math.floor(Math.random()*Mutation.MOD_ACTIVATION.allowed.length);
-        }
-
-        this.squash = Mutation.MOD_ACTIVATION.allowed[squash];
+        // Can't be the same squash
+        var squash = method.allowed[(method.allowed.indexOf(this.squash) + Math.floor(Math.random() * (method.allowed.length - 1)) + 1) % method.allowed.length];
+        this.squash = squash;
         break;
       case Mutation.MOD_BIAS:
-        var modification = Math.random() * (Mutation.MOD_BIAS.config.max - Mutation.MOD_BIAS.config.min) + Mutation.MOD_BIAS.config.min;
+        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
         this.bias += modification;
         break;
     }

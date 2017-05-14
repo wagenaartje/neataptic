@@ -38,10 +38,7 @@ function Network(input, output){
   // Connect input nodes with output nodes directly
   for(var i = 0; i < this.input; i++){
     for(var j = this.input; j < this.output + this.input; j++){
-      this.connect(
-        this.nodes[i], // input neuron
-        this.nodes[j]  // output neuron
-      );
+      this.connect(this.nodes[i], this.nodes[j]);
     }
   }
 }
@@ -111,7 +108,6 @@ Network.prototype = {
       } else {
         this.selfconns.push(connection);
       }
-
     }
 
     return connections;
@@ -138,7 +134,7 @@ Network.prototype = {
   },
 
   /**
-   *  Gate a connection with a node
+   * Gate a connection with a node
    */
   gate: function(node, connection){
     if(this.nodes.indexOf(node) == -1){
@@ -171,7 +167,7 @@ Network.prototype = {
     var index = this.nodes.indexOf(node);
 
     if(index == -1){
-      throw new Error('This node does not exist!');
+      throw new Error('This node does not exist in the network!');
     }
 
     // Keep track of gaters
@@ -281,28 +277,16 @@ Network.prototype = {
 
         // Select a node which isn't an input or output node
         var index = Math.floor(Math.random() * (this.nodes.length - this.output - this.input) + this.input);
-        var node = this.nodes[index];
-        this.remove(node);
+        this.remove(this.nodes[index]);
         break;
       case Mutation.ADD_CONN:
         // Create an array of all uncreated (feedforward) connections
         var available = [];
-        for(var i = 0; i < this.nodes.length; i++){
+        for(var i = 0; i < this.nodes.length - this.output; i++){
           var node1 = this.nodes[i];
-          if(node1.type == 'output') continue;
-          for(var j = i + 1; j < this.nodes.length; j++){
+          for(var j = i + 1; (j >= this.input && j < this.nodes.length); j++){
             var node2 = this.nodes[j];
-            if(node2.type == 'input') continue;
-
-            var found = false;
-            for(var a = 0; a < this.connections.length; a++){
-              if(this.connections[a].from == node1 && this.connections[a].to == node2){
-                found = true;
-                break;
-              }
-            }
-
-            if(!found) available.push([node1, node2]);
+            if(!node1.isProjectingTo(node2)) available.push([node1, node2]);
           }
         }
 
@@ -312,7 +296,6 @@ Network.prototype = {
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
-
         this.connect(pair[0], pair[1]);
         break;
       case Mutation.SUB_CONN:
@@ -337,7 +320,7 @@ Network.prototype = {
         break;
       case Mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
-        var modification = Math.random() * (Mutation.MOD_WEIGHT.config.max - Mutation.MOD_WEIGHT.config.min) + Mutation.MOD_WEIGHT.config.min;
+        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
         connection.weight += modification;
         break;
       case Mutation.MOD_BIAS:
@@ -345,14 +328,14 @@ Network.prototype = {
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
 
-        node.mutate(Mutation.MOD_BIAS);
+        node.mutate(method);
         break;
       case Mutation.MOD_ACTIVATION:
         // Has no effect on input node, so they are excluded
-        var index = Math.floor(Math.random() * (this.nodes.length - (Mutation.MOD_ACTIVATION.mutateOutput ? 0 : this.output) - this.input) + this.input);
+        var index = Math.floor(Math.random() * (this.nodes.length - (method.mutateOutput ? 0 : this.output) - this.input) + this.input);
         var node = this.nodes[index];
 
-        node.mutate(Mutation.MOD_ACTIVATION);
+        node.mutate(method);
         break;
       case Mutation.ADD_SELF_CONN:
         // Check which nodes aren't selfconnected yet
@@ -422,22 +405,11 @@ Network.prototype = {
       case Mutation.ADD_BACK_CONN:
         // Create an array of all uncreated (backfed) connections
         var available = [];
-        for(var i = 0; i < this.nodes.length; i++){
+        for(var i = this.inputs; i < this.nodes.length; i++){
           var node1 = this.nodes[i];
-          if(node1.type == 'input') continue;
-          for(var j = 0; j < i; j++){
+          for(var j = this.inputs; j < i; j++){
             var node2 = this.nodes[j];
-            if(node2.type == 'input') continue;
-
-            var found = false;
-            for(var a = 0; a < this.connections.length; a++){
-              if(this.connections[a].from == node1 && this.connections[a].to == node2){
-                found = true;
-                break;
-              }
-            }
-
-            if(!found) available.push([node1, node2]);
+            if(!node1.isProjectingTo(node2)) available.push([node1, node2]);
           }
         }
 
@@ -447,7 +419,6 @@ Network.prototype = {
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
-
         this.connect(pair[0], pair[1]);
         break;
       case Mutation.SUB_BACK_CONN:

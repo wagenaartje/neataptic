@@ -24,7 +24,7 @@ function Network(input, output){
   this.output = output;
 
   // Store all the node and connection genes
-  this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
+  this.nodes = []; // Stored in activation order
   this.connections = [];
   this.gates = [];
   this.selfconns = [];
@@ -67,7 +67,7 @@ Network.prototype = {
   },
 
   /**
-   * Propagate the error through the network
+   * Backpropagate the network
    */
   propagate: function(rate, target){
     this.nodes.reverse();
@@ -489,7 +489,7 @@ Network.prototype = {
   },
 
   /**
-   * Train a trainingset to a network
+   * Train the given set to this network
    */
   train: function(set, options) {
     options = options || {};
@@ -712,7 +712,7 @@ Network.prototype = {
    },
 
    /**
-    * Convert the network to a json
+    * Convert the network to a json object
     */
     toJSON: function(){
       var json = {
@@ -754,7 +754,7 @@ Network.prototype = {
     },
 
   /**
-   * Sets the value of a property for every node
+   * Sets the value of a property for every node in this network
    */
     set: function(values){
       for(var node in this.nodes){
@@ -765,7 +765,7 @@ Network.prototype = {
 };
 
 /**
- * Convert a json to a network
+ * Convert a json object to a network
  */
  Network.fromJSON = function(json){
    var network = new Network(json.input, json.output);

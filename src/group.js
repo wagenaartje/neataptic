@@ -114,7 +114,7 @@ Group.prototype = {
   },
 
   /**
-   * Nodes in this group will gate connections
+   * Make nodes from this group gate the given connection(s)
    */
   gate: function(connections, method){
     if(typeof method == 'undefined'){
@@ -188,7 +188,7 @@ Group.prototype = {
   },
 
   /**
-   * Disconnects all nodes from this group from another given instance
+   * Disconnects all nodes from this group from another given group/node
    */
   disconnect: function(target, twosided){
     twosided = twosided || false;
@@ -248,7 +248,7 @@ Group.prototype = {
   },
 
   /**
-   * Clear the context of the group
+   * Clear the context of this group
    */
   clear: function(){
     for(var node in this.nodes){

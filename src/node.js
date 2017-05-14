@@ -12,13 +12,13 @@ var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
 
 /******************************************************************************************
-                                         Node
+                                         NODE
 *******************************************************************************************/
 
 function Node(type) {
   this.bias = (type == 'input') ? 0 : Math.random() * .2 - .1;
   this.squash = Activation.LOGISTIC;
-  this.type = type || 'hidden'; // hidden if not specified
+  this.type = type || 'hidden';
 
   this.activation = 0;
   this.state = 0;
@@ -119,7 +119,7 @@ Node.prototype = {
   },
 
   /**
-   * Back-propagate the error
+   * Back-propagate the error, aka learn
    */
   propagate: function(rate, target) {
     // Error accumulator
@@ -245,7 +245,7 @@ Node.prototype = {
    },
 
    /**
-    * Make the node gate a connection
+    * Make this node gate a connection
     */
    gate: function(connections){
      if(!Array.isArray(connections)){
@@ -261,7 +261,7 @@ Node.prototype = {
    },
 
  /**
-  * Ungates a connection
+  * Removes the gates from this node from the given connection(s)
   */
   ungate: function(connections){
     if(!Array.isArray(connections)){
@@ -351,7 +351,7 @@ Node.prototype = {
     },
 
     /**
-     * Converts the node to a json
+     * Converts the node to a json object
      */
     toJSON: function(){
       var json = {
@@ -365,7 +365,7 @@ Node.prototype = {
 };
 
 /**
- * Convert a json to a node
+ * Convert a json object to a node
  */
 Node.fromJSON = function(json){
   var node = new Node();

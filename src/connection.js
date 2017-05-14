@@ -23,7 +23,7 @@ function Connection(from, to, weight) {
 
 Connection.prototype = {
   /**
-   * Converts the node to a json
+   * Converts the connection to a json object
    */
   toJSON : function(){
     var json = {

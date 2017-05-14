@@ -182,7 +182,7 @@ Neat.prototype = {
   },
 
   /**
-   * Export the current population
+   * Export the current population to a json object
    */
   export: function(){
     var json = [];
@@ -195,7 +195,7 @@ Neat.prototype = {
   },
 
   /**
-   * Import population from a json
+   * Import population from a json object
    */
   import: function(json){
     var population = [];

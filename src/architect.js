@@ -8,12 +8,9 @@ var Group   = require('./group');
                                         ARCHITECT
 *******************************************************************************************/
 
-/**
- * Collection of built-in architectures
- */
 var Architect = {
   /**
-   * Construct a network from a given array of connected nodes
+   * Constructs a network from a given array of connected nodes
    */
   Construct: function(list){
     // Create a network
@@ -74,7 +71,7 @@ var Architect = {
   },
 
   /**
-   * Returns a multilayer perceptron (MLP)
+   * Creates a multilayer perceptron (MLP)
    */
   Perceptron: function() {
     // Convert arguments to Array
@@ -100,7 +97,7 @@ var Architect = {
 
 
   /**
-   * Returns a randomly connected network
+   * Creates a randomly connected network
    */
   Random: function(input, hidden, output, options){
     options = options || {};
@@ -135,6 +132,9 @@ var Architect = {
     return network;
   },
 
+  /**
+   * Creates a long short-term memory network
+   */
   LSTM: function(){
     var args = Array.prototype.slice.call(arguments);
     if (args.length < 3){
@@ -236,7 +236,7 @@ var Architect = {
   },
 
   /**
-   * Returns a hopfield network of the given size
+   * Creates a hopfield network of the given size
    */
   Hopfield: function(size){
     var network = new Network(size, size);
@@ -271,7 +271,7 @@ var Architect = {
   },
 
   /**
-   * Returns a NARX network
+   * Creates a NARX network (remember previous inputs/outputs)
    */
   NARX: function(inputSize, hiddenLayers, outputSize, previousInput, previousOutput){
     if(!Array.isArray(hiddenLayers)){

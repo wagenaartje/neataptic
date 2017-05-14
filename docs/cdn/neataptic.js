@@ -188,13 +188,13 @@ var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
 
 /******************************************************************************************
-                                         Node
+                                         NODE
 *******************************************************************************************/
 
 function Node(type) {
   this.bias = (type == 'input') ? 0 : Math.random() * .2 - .1;
   this.squash = Activation.LOGISTIC;
-  this.type = type || 'hidden'; // hidden if not specified
+  this.type = type || 'hidden';
 
   this.activation = 0;
   this.state = 0;
@@ -295,7 +295,7 @@ Node.prototype = {
   },
 
   /**
-   * Back-propagate the error
+   * Back-propagate the error, aka learn
    */
   propagate: function(rate, target) {
     // Error accumulator
@@ -421,7 +421,7 @@ Node.prototype = {
    },
 
    /**
-    * Make the node gate a connection
+    * Make this node gate a connection
     */
    gate: function(connections){
      if(!Array.isArray(connections)){
@@ -437,7 +437,7 @@ Node.prototype = {
    },
 
  /**
-  * Ungates a connection
+  * Removes the gates from this node from the given connection(s)
   */
   ungate: function(connections){
     if(!Array.isArray(connections)){
@@ -527,7 +527,7 @@ Node.prototype = {
     },
 
     /**
-     * Converts the node to a json
+     * Converts the node to a json object
      */
     toJSON: function(){
       var json = {
@@ -541,7 +541,7 @@ Node.prototype = {
 };
 
 /**
- * Convert a json to a node
+ * Convert a json object to a node
  */
 Node.fromJSON = function(json){
   var node = new Node();
@@ -607,7 +607,7 @@ function Connection(from, to, weight) {
 
 Connection.prototype = {
   /**
-   * Converts the node to a json
+   * Converts the connection to a json object
    */
   toJSON : function(){
     var json = {
@@ -749,7 +749,7 @@ Group.prototype = {
   },
 
   /**
-   * Nodes in this group will gate connections
+   * Make nodes from this group gate the given connection(s)
    */
   gate: function(connections, method){
     if(typeof method == 'undefined'){
@@ -823,7 +823,7 @@ Group.prototype = {
   },
 
   /**
-   * Disconnects all nodes from this group from another given instance
+   * Disconnects all nodes from this group from another given group/node
    */
   disconnect: function(target, twosided){
     twosided = twosided || false;
@@ -883,7 +883,7 @@ Group.prototype = {
   },
 
   /**
-   * Clear the context of the group
+   * Clear the context of this group
    */
   clear: function(){
     for(var node in this.nodes){
@@ -924,7 +924,7 @@ function Network(input, output){
   this.output = output;
 
   // Store all the node and connection genes
-  this.nodes = []; // STORED IN ACTIVATION ORDER! (except for output)
+  this.nodes = []; // Stored in activation order
   this.connections = [];
   this.gates = [];
   this.selfconns = [];
@@ -967,7 +967,7 @@ Network.prototype = {
   },
 
   /**
-   * Propagate the error through the network
+   * Backpropagate the network
    */
   propagate: function(rate, target){
     this.nodes.reverse();
@@ -1389,7 +1389,7 @@ Network.prototype = {
   },
 
   /**
-   * Train a trainingset to a network
+   * Train the given set to this network
    */
   train: function(set, options) {
     options = options || {};
@@ -1612,7 +1612,7 @@ Network.prototype = {
    },
 
    /**
-    * Convert the network to a json
+    * Convert the network to a json object
     */
     toJSON: function(){
       var json = {
@@ -1654,7 +1654,7 @@ Network.prototype = {
     },
 
   /**
-   * Sets the value of a property for every node
+   * Sets the value of a property for every node in this network
    */
     set: function(values){
       for(var node in this.nodes){
@@ -1665,7 +1665,7 @@ Network.prototype = {
 };
 
 /**
- * Convert a json to a network
+ * Convert a json object to a network
  */
  Network.fromJSON = function(json){
    var network = new Network(json.input, json.output);
@@ -1992,12 +1992,9 @@ var Group   = __webpack_require__(5);
                                         ARCHITECT
 *******************************************************************************************/
 
-/**
- * Collection of built-in architectures
- */
 var Architect = {
   /**
-   * Construct a network from a given array of connected nodes
+   * Constructs a network from a given array of connected nodes
    */
   Construct: function(list){
     // Create a network
@@ -2058,7 +2055,7 @@ var Architect = {
   },
 
   /**
-   * Returns a multilayer perceptron (MLP)
+   * Creates a multilayer perceptron (MLP)
    */
   Perceptron: function() {
     // Convert arguments to Array
@@ -2084,7 +2081,7 @@ var Architect = {
 
 
   /**
-   * Returns a randomly connected network
+   * Creates a randomly connected network
    */
   Random: function(input, hidden, output, options){
     options = options || {};
@@ -2119,6 +2116,9 @@ var Architect = {
     return network;
   },
 
+  /**
+   * Creates a long short-term memory network
+   */
   LSTM: function(){
     var args = Array.prototype.slice.call(arguments);
     if (args.length < 3){
@@ -2220,7 +2220,7 @@ var Architect = {
   },
 
   /**
-   * Returns a hopfield network of the given size
+   * Creates a hopfield network of the given size
    */
   Hopfield: function(size){
     var network = new Network(size, size);
@@ -2255,7 +2255,7 @@ var Architect = {
   },
 
   /**
-   * Returns a NARX network
+   * Creates a NARX network (remember previous inputs/outputs)
    */
   NARX: function(inputSize, hiddenLayers, outputSize, previousInput, previousOutput){
     if(!Array.isArray(hiddenLayers)){
@@ -2526,7 +2526,7 @@ Neat.prototype = {
   },
 
   /**
-   * Export the current population
+   * Export the current population to a json object
    */
   export: function(){
     var json = [];
@@ -2539,7 +2539,7 @@ Neat.prototype = {
   },
 
   /**
-   * Import population from a json
+   * Import population from a json object
    */
   import: function(json){
     var population = [];

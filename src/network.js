@@ -349,7 +349,7 @@ Network.prototype = {
         break;
       case Mutation.MOD_ACTIVATION:
         // Has no effect on input node, so they are excluded
-        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var index = Math.floor(Math.random() * (this.nodes.length - (Mutation.MOD_ACTIVATION.mutateOutput ? 0 : this.output) - this.input) + this.input);
         var node = this.nodes[index];
 
         node.mutate(Mutation.MOD_ACTIVATION);

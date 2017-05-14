@@ -36,6 +36,7 @@ var Mutation = {
   },
   MOD_ACTIVATION : {
     name : "MOD_ACTIVATION",
+    mutateOutput: true,
     allowed : [
       Activation.LOGISTIC,
       Activation.TANH,

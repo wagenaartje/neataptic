@@ -284,10 +284,8 @@ Network.prototype = {
         var available = [];
         for(var i = 0; i < this.nodes.length - this.output; i++){
           var node1 = this.nodes[i];
-          for(var j = i + 1; j < this.nodes.length; j++){
-            if(j < this.input) continue;
+          for(var j = Math.max(i + 1, this.input); j < this.nodes.length; j++){
             var node2 = this.nodes[j];
-
             if(!node1.isProjectingTo(node2)) available.push([node1, node2]);
           }
         }

@@ -63,6 +63,7 @@ var drawGraph = function(graph, panel) {
         .text(function (d){
            var text = "";
            text += "Activation: " + Math.round(d.activation*1000)/1000 + "\n";
+           text += "Bias: " + Math.round(d.bias*1000)/1000 + "\n";
            text += "Position: " + d.id;
            return text;
          });

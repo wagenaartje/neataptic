@@ -638,7 +638,8 @@ Network.prototype = {
        json.nodes.push({
          id: index,
          name: node.type == 'hidden' ? node.squash.name : node.type.toUpperCase(),
-         activation : node.activation
+         activation : node.activation,
+         bias: node.bias
        });
      }
 

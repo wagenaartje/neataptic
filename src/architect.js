@@ -290,8 +290,15 @@ var Architect = {
 
     // Create hidden layers
     var hidden = [];
-    for(var i = 0; i < hiddenLayers.length; i++){
-      hidden.push(new Group(hiddenLayers[i]));
+    var previous = new Group(hiddenLayers[0]);
+    hidden.push(previous);
+
+    for(var i = 1; i < hiddenLayers.length; i++){
+      var next = new Group(hiddenLayers[i]);
+      previous.connect(next, Methods.Connection.ALL_TO_ALL);
+      hidden.push(next);
+
+      previous = next;
     }
 
     input.connect(hidden[0]);

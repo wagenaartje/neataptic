@@ -320,14 +320,13 @@ Network.prototype = {
         break;
       case Mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
-        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
+        var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;
         break;
       case Mutation.MOD_BIAS:
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
-
         node.mutate(method);
         break;
       case Mutation.MOD_ACTIVATION:

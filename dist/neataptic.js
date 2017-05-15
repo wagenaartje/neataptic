@@ -489,7 +489,7 @@ Node.prototype = {
         this.squash = squash;
         break;
       case Mutation.MOD_BIAS:
-        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
+        var modification = Math.random() * (method.max - method.min) + method.min;
         this.bias += modification;
         break;
     }
@@ -1215,14 +1215,13 @@ Network.prototype = {
         break;
       case Mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
-        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
+        var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;
         break;
       case Mutation.MOD_BIAS:
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
-
         node.mutate(method);
         break;
       case Mutation.MOD_ACTIVATION:
@@ -2711,17 +2710,13 @@ var Mutation = {
   },
   MOD_WEIGHT : {
     name: "MOD_WEIGHT",
-    config: {
-      min: -1,
-      max: 1
-    }
+    min: -1,
+    max: 1
   },
   MOD_BIAS : {
     name: "MOD_BIAS",
-    config: {
-      min: -1,
-      max: 1
-    }
+    min: -1,
+    max: 1
   },
   MOD_ACTIVATION : {
     name : "MOD_ACTIVATION",

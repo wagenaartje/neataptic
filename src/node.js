@@ -313,7 +313,7 @@ Node.prototype = {
         this.squash = squash;
         break;
       case Mutation.MOD_BIAS:
-        var modification = Math.random() * (method.config.max - method.config.min) + method.config.min;
+        var modification = Math.random() * (method.max - method.min) + method.min;
         this.bias += modification;
         break;
     }

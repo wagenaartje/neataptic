@@ -22,17 +22,13 @@ var Mutation = {
   },
   MOD_WEIGHT : {
     name: "MOD_WEIGHT",
-    config: {
-      min: -1,
-      max: 1
-    }
+    min: -1,
+    max: 1
   },
   MOD_BIAS : {
     name: "MOD_BIAS",
-    config: {
-      min: -1,
-      max: 1
-    }
+    min: -1,
+    max: 1
   },
   MOD_ACTIVATION : {
     name : "MOD_ACTIVATION",

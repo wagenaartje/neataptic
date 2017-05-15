@@ -1,4 +1,4 @@
-# Neataptic [![Build Status](https://travis-ci.org/wagenaartje/neataptic.svg?branch=master)](https://travis-ci.org/wagenaartje/neataptic)
+# Neataptic [![Build Status](https://travis-ci.org/wagenaartje/neataptic.svg?branch=master)](https://travis-ci.org/wagenaartje/neataptic) [![Downloads](https://img.shields.io/npm/dm/neataptic.svg?colorB=ffa500)](https://www.npmjs.com/package/neataptic) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/wagenaartje/neataptic/master/LICENSE)
 
 Neataptic is thé Javascript neural network solution. Not only does it allow you to create neural networks on-the-go, it also allows you
 to visualise your networks to understand what's really going on. An important aspect that neataptic introduces in comparison with its

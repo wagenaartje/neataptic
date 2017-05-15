@@ -1179,8 +1179,10 @@ Network.prototype = {
         var available = [];
         for(var i = 0; i < this.nodes.length - this.output; i++){
           var node1 = this.nodes[i];
-          for(var j = i + 1; (j >= this.input && j < this.nodes.length); j++){
+          for(var j = i + 1; j < this.nodes.length; j++){
+            if(j < this.input) continue;
             var node2 = this.nodes[j];
+
             if(!node1.isProjectingTo(node2)) available.push([node1, node2]);
           }
         }
@@ -1299,9 +1301,9 @@ Network.prototype = {
       case Mutation.ADD_BACK_CONN:
         // Create an array of all uncreated (backfed) connections
         var available = [];
-        for(var i = this.inputs; i < this.nodes.length; i++){
+        for(var i = this.input; i < this.nodes.length; i++){
           var node1 = this.nodes[i];
-          for(var j = this.inputs; j < i; j++){
+          for(var j = this.input; j < i; j++){
             var node2 = this.nodes[j];
             if(!node1.isProjectingTo(node2)) available.push([node1, node2]);
           }

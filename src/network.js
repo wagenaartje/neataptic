@@ -331,6 +331,11 @@ Network.prototype = {
         break;
       case Mutation.MOD_ACTIVATION:
         // Has no effect on input node, so they are excluded
+        if(!method.mutateOutput && this.input + this.output == this.nodes.length){
+          if(Config.warnings) console.warn('No nodes that allow mutation of activation function');
+          break;
+        }
+
         var index = Math.floor(Math.random() * (this.nodes.length - (method.mutateOutput ? 0 : this.output) - this.input) + this.input);
         var node = this.nodes[index];
 

@@ -72,5 +72,31 @@ var Mutation = {
   }
 };
 
+Mutation.ALL = [
+  Mutation.ADD_NODE,
+  Mutation.SUB_NODE,
+  Mutation.ADD_CONN,
+  Mutation.SUB_CONN,
+  Mutation.MOD_WEIGHT,
+  Mutation.MOD_BIAS,
+  Mutation.MOD_ACTIVATION,
+  Mutation.ADD_GATE,
+  Mutation.SUB_GATE,
+  Mutation.ADD_SELF_CONN,
+  Mutation.SUB_SELF_CONN,
+  Mutation.ADD_BACK_CONN,
+  Mutation.SUB_BACK_CONN
+];
+
+Mutation.FFW = [
+  Mutation.ADD_NODE,
+  Mutation.SUB_NODE,
+  Mutation.ADD_CONN,
+  Mutation.SUB_CONN,
+  Mutation.MOD_WEIGHT,
+  Mutation.MOD_BIAS,
+  Mutation.MOD_ACTIVATION
+];
+
 /* Export */
 if (module) module.exports = Mutation;

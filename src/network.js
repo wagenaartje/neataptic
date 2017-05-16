@@ -737,7 +737,55 @@ Network.prototype = {
         this.nodes[node].bias = values.bias || this.nodes[node].bias;
         this.nodes[node].squash = values.squash || this.nodes[node].squash;
       }
-    }
+    },
+
+  /**
+   * Evolves the network to reach a lower error on a dataset
+   */
+   evolve: function(set, options){
+     var cost = options.cost || Methods.Cost.MSE;
+     var amount = options.amount || 1;
+     var growth = options.growth || 0.0001;
+     var iterations = options.iterations || 0;
+     var error = options.error || 0.03;
+     var log = options.log || false;
+
+     var start = Date.now();
+
+     function fitness(genome){
+       var score = 0;
+       for(var i = 0; i < amount; i++){
+         score -= genome.test(set, cost).error;
+       }
+       score -= (genome.nodes.length + genome.connections.length + genome.gates.length) * growth;
+
+       score = isNaN(score) ? -Infinity : score;
+       return score/amount;
+     }
+
+     options.network = this;
+     var neat = new Neat(0,0, fitness, options);
+
+     var mse = -Infinity;
+     var fittest = null;
+
+     while(mse < -error && (iterations == 0 || neat.generation < iterations)){
+       neat.evolve();
+       fittest = neat.getFittest();
+       mse = -fittest.test(trainingSet).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
+
+       console.log('generation', neat.generation, 'error', fittest.score, 'cost error', mse);
+     }
+
+     var results = {
+       error: mse,
+       generations: neat.generation,
+       time: Date.now() - start,
+       evolved: fittest
+     };
+
+     return results;
+   },
 };
 
 /**

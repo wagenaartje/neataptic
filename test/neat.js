@@ -23,119 +23,76 @@ describe('Neat', function () {
   it("AND", function(){
     this.timeout(40000);
 
-    // Construct the neat instance
-    var neat = new Neat(2, 1, fitnessFunction, {
-      mutationRate: 0.3
+    // Train the AND gate
+    var trainingSet = [
+       { input: [0,0], output: [0] },
+       { input: [0,1], output: [0] },
+       { input: [1,0], output: [0] },
+       { input: [1,1], output: [1] }
+    ];
+
+    var network = new Network(2,1);
+    var results = network.evolve(trainingSet, {
+      mutation: Methods.Mutation.FFW,
+      equal: true,
+      popSize: 100,
+      elitism: 10,
+      mutationRate: 0.5,
+      error: 0.004
     });
 
-    // Evolve the population
-    for(var i = 0; i < 500; i++){
-      if(neat.getAverage() > -2000) break;
-      neat.evolve();
-    }
-
     // Get average and check if it's enough
-    var average = neat.getAverage();
-    assert.isAbove(average, -2000);
-
-    // Fitness function
-    function fitnessFunction(genome){
-      var score = 0;
-
-      // AND distance
-      score -= Methods.Cost.MSE([0], genome.activate([0, 0])) * 5000;
-      score -= Methods.Cost.MSE([0], genome.activate([0, 1])) * 5000;
-      score -= Methods.Cost.MSE([0], genome.activate([1, 0])) * 5000;
-      score -= Methods.Cost.MSE([1], genome.activate([1, 1])) * 5000;
-
-      // Size reduction
-      if(score <= -5000){
-        score -= Math.abs(6 - genome.nodes.length) * 1;
-        score -= Math.abs(5 - genome.connections.length) * 1;
-      }
-
-      return Math.round(score);
-    }
+    var test = results.evolved.test(trainingSet);
+    assert.isBelow(test.error, 0.005);
   });
   it("XOR", function(){
     this.timeout(40000);
 
-    // Construct the neat instance
-    var neat = new Neat(2, 1, fitnessFunction, {
-      mutationRate: 0.3
+    // Train the XOR gate
+    var trainingSet = [
+       { input: [0,0], output: [0] },
+       { input: [0,1], output: [1] },
+       { input: [1,0], output: [1] },
+       { input: [1,1], output: [0] }
+    ];
+
+    var network = new Network(2,1);
+    var results = network.evolve(trainingSet, {
+      mutation: Methods.Mutation.FFW,
+      equal: true,
+      popSize: 100,
+      elitism: 10,
+      mutationRate: 0.5,
+      error: 0.003
     });
 
-    // Evolve the population
-    for(var i = 0; i < 500; i++){
-      if(neat.getAverage() > -2000) break;
-      neat.evolve();
-    }
-
     // Get average and check if it's enough
-    var average = neat.getAverage();
-    assert.isAbove(average, -2000);
-
-    // Fitness function
-    function fitnessFunction(genome){
-      var score = 0;
-
-      // XOR distance
-      score -= Methods.Cost.MSE([0], genome.activate([0, 0])) * 5000;
-      score -= Methods.Cost.MSE([1], genome.activate([0, 1])) * 5000;
-      score -= Methods.Cost.MSE([1], genome.activate([1, 0])) * 5000;
-      score -= Methods.Cost.MSE([0], genome.activate([1, 1])) * 5000;
-
-      // Size reduction
-      if(score <= -5000){
-        score -= Math.abs(6 - genome.nodes.length) * 1;
-        score -= Math.abs(5 - genome.connections.length) * 1;
-      }
-
-      return score;
-    }
+    var test = results.evolved.test(trainingSet);
+    assert.isBelow(test.error, 0.005);
   });
   it("XNOR", function(){
     this.timeout(60000);
 
-    // Construct the neat instance
-    var neat = new Neat(2, 1, fitnessFunction, {
-      mutationRate: 0.4,
-      mutation: [
-        Methods.Mutation.ADD_NODE,
-        Methods.Mutation.ADD_CONN,
-        Methods.Mutation.MOD_WEIGHT,
-        Methods.Mutation.MOD_BIAS,
-        Methods.Mutation.MOD_ACTIVATION
-      ]
-    });
+      // Train the XNOR gate
+      var trainingSet = [
+         { input: [0,0], output: [1] },
+         { input: [0,1], output: [0] },
+         { input: [1,0], output: [0] },
+         { input: [1,1], output: [1] }
+      ];
 
-    // Evolve the population
-    for(var i = 0; i < 500; i++){
-      if(neat.getAverage() > -3000) break;
-      neat.evolve();
-    }
+      var network = new Network(2,1);
+      var results = network.evolve(trainingSet, {
+        mutation: Methods.Mutation.FFW,
+        equal: true,
+        popSize: 100,
+        elitism: 10,
+        mutationRate: 0.5,
+        error: 0.004
+      });
 
-    // Get average and check if it's enough
-    var average = neat.getAverage();
-    assert.isAbove(average, -3000);
-
-    // Fitness function
-    function fitnessFunction(genome){
-      var score = 0;
-
-      // XNOR distance
-      score -= Methods.Cost.MSE([1], genome.activate([0, 0])) * 5000;
-      score -= Methods.Cost.MSE([0], genome.activate([0, 1])) * 5000;
-      score -= Methods.Cost.MSE([0], genome.activate([1, 0])) * 5000;
-      score -= Methods.Cost.MSE([1], genome.activate([1, 1])) * 5000;
-
-      // Size reduction
-      if(score <= -5000){
-        score -= Math.abs(6 - genome.nodes.length) * 1;
-        score -= Math.abs(5 - genome.connections.length) * 1;
-      }
-
-      return Math.round(score);
-    }
+      // Get average and check if it's enough
+      var test = results.evolved.test(trainingSet);
+      assert.isBelow(test.error, 0.005);
   });
 });

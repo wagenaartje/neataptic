@@ -6,6 +6,7 @@ var Node       = require('./node');
 var Connection = require('./connection');
 var Methods    = require('./methods/methods');
 var Config     = require('./config');
+var Neat       = require('./neat');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -747,8 +748,8 @@ Network.prototype = {
      var amount = options.amount || 1;
      var growth = options.growth || 0.0001;
      var iterations = options.iterations || 0;
-     var error = options.error || 0.005;
-     var log = options.log || false;
+     var targetError = options.error || 0.005;
+     var log = options.log || 0;
 
      var start = Date.now();
 
@@ -766,22 +767,30 @@ Network.prototype = {
      options.network = this;
      var neat = new Neat(0,0, fitness, options);
 
-     var mse = -Infinity;
-     var fittest = null;
+     var error = -Infinity;
+     var bestError = -Infinity;
+     var bestGenome = null;
 
-     while(mse < -error && (iterations == 0 || neat.generation < iterations)){
+     while(error < -targetError && (iterations == 0 || neat.generation < iterations)){
        neat.evolve();
-       fittest = neat.getFittest();
-       mse = -fittest.test(trainingSet).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
+       var fittest = neat.getFittest();
+       error = -fittest.test(set).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
 
-       console.log('generation', neat.generation, 'error', fittest.score, 'cost error', mse);
+       if(error > bestError){
+         bestError = error;
+         bestGenome = fittest;
+       }
+
+       if(log && neat.generation % log == 0){
+         console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
+       }
      }
 
      var results = {
-       error: mse,
+       error: error,
        generations: neat.generation,
        time: Date.now() - start,
-       evolved: fittest
+       evolved: bestGenome
      };
 
      return results;

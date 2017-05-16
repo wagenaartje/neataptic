@@ -133,7 +133,7 @@ module.exports = function(module) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation : __webpack_require__(7),
+  Activation : __webpack_require__(8),
   Mutation   : __webpack_require__(14),
   Selection  : __webpack_require__(15),
   Crossover  : __webpack_require__(12),
@@ -901,6 +901,7 @@ var Node       = __webpack_require__(2);
 var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
 var Config     = __webpack_require__(3);
+var Neat       = __webpack_require__(7);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -1642,8 +1643,8 @@ Network.prototype = {
      var amount = options.amount || 1;
      var growth = options.growth || 0.0001;
      var iterations = options.iterations || 0;
-     var error = options.error || 0.005;
-     var log = options.log || false;
+     var targetError = options.error || 0.005;
+     var log = options.log || 0;
 
      var start = Date.now();
 
@@ -1661,22 +1662,30 @@ Network.prototype = {
      options.network = this;
      var neat = new Neat(0,0, fitness, options);
 
-     var mse = -Infinity;
-     var fittest = null;
+     var error = -Infinity;
+     var bestError = -Infinity;
+     var bestGenome = null;
 
-     while(mse < -error && (iterations == 0 || neat.generation < iterations)){
+     while(error < -targetError && (iterations == 0 || neat.generation < iterations)){
        neat.evolve();
-       fittest = neat.getFittest();
-       mse = -fittest.test(trainingSet).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
+       var fittest = neat.getFittest();
+       error = -fittest.test(set).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
 
-       console.log('generation', neat.generation, 'error', fittest.score, 'cost error', mse);
+       if(error > bestError){
+         bestError = error;
+         bestGenome = fittest;
+       }
+
+       if(log && neat.generation % log == 0){
+         console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
+       }
      }
 
      var results = {
-       error: mse,
+       error: error,
        generations: neat.generation,
        time: Date.now() - start,
-       evolved: fittest
+       evolved: bestGenome
      };
 
      return results;
@@ -1919,6 +1928,222 @@ Network.prototype = {
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
+if (module) module.exports = Neat;
+
+/* Import */
+var Node = __webpack_require__(2);
+var Network = __webpack_require__(6);
+var Methods = __webpack_require__(1);
+
+/* Easier variable naming */
+var Activation = Methods.Activation;
+var Mutation   = Methods.Mutation;
+var Selection  = Methods.Selection;
+var Crossover  = Methods.Crossover;
+
+/*******************************************************************************************
+                                         NEAT
+*******************************************************************************************/
+
+function Neat(input, output, fitness, options){
+  this.input   = input;   // The input size of the networks
+  this.output  = output;  // The output size of the networks
+  this.fitness = fitness; // The fitness function to evaluate the networks
+
+  // Configure options
+  options = options || {};
+  this.equal          = options.equal          || false;
+  this.popsize        = options.popsize        || 50;
+  this.elitism        = options.elitism        || 0;
+  this.mutationRate   = options.mutationRate   || 0.3;
+  this.mutationAmount = options.mutationAmount || 1;
+
+  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
+  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
+                                              Methods.Crossover.TWO_POINT,
+                                              Methods.Crossover.UNIFORM,
+                                              Methods.Crossover.AVERAGE];
+  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
+                                              Methods.Mutation.SUB_CONN,
+                                              Methods.Mutation.ADD_NODE,
+                                              Methods.Mutation.SUB_NODE,
+                                              Methods.Mutation.MOD_BIAS,
+                                              Methods.Mutation.MOD_WEIGHT,
+                                              Methods.Mutation.MOD_ACTIVATION];
+
+  // Generation counter
+  this.generation = 0;
+
+  // Initialise the genomes
+  this.createPool(options.network || new Network(this.input, this.output));
+}
+
+Neat.prototype = {
+  /**
+   * Create the initial pool of genomes
+   */
+  createPool: function(network){
+    this.population = [];
+
+    for(var i = 0; i < this.popsize; i++){
+      var copy = Network.fromJSON(network.toJSON());
+      this.population.push(copy);
+    }
+  },
+
+  /**
+   * Evaluates, selects, breeds and mutates population
+   */
+  evolve: function(){
+    // Evaluate and sort the population
+    this.evaluate();
+    this.sort();
+
+    var newPopulation = [];
+
+    // Elitism
+    for(var i = 0; i < this.elitism; i++){
+      newPopulation.push(this.population[i]);
+    }
+
+    // Breed the next individuals
+    for(var i = 0; i < this.popsize - this.elitism; i++){
+      newPopulation.push(this.getOffspring());
+    }
+
+    // Replace the old population with the new population
+    this.population = newPopulation;
+    this.mutate();
+
+    this.generation++;
+  },
+
+  /**
+   * Breeds two parents into an offspring, population MUST be surted
+   */
+   getOffspring: function(){
+     parent1 = this.getParent();
+     parent2 = this.getParent();
+
+     if(this.equal == true){
+       parent1.score = 0;
+       parent2.score = 0;
+     }
+
+     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
+     return Network.crossOver(parent1, parent2, crossoverMethod);
+   },
+
+  /**
+   * Mutates the given (or current) population
+   */
+  mutate: function(){
+    for(genome in this.population){
+      if(Math.random() <= this.mutationRate){
+        for(var i = 0; i < this.mutationAmount; i++){
+          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          this.population[genome].mutate(mutationMethod);
+        }
+      }
+    }
+  },
+
+  /**
+   * Evaluates the current population
+   */
+  evaluate: function(){
+    for(genome in this.population){
+      var score = this.fitness(this.population[genome]);
+      this.population[genome].score = score;
+    }
+  },
+
+  /**
+   * Sorts the population by score
+   */
+  sort: function(){
+    this.population.sort(function(a,b){
+      return b.score - a.score;
+    });
+  },
+
+  /**
+   * Returns the fittest genome of the current population
+   */
+  getFittest: function(){
+    // Check if evaluated
+    if(typeof this.population[this.population.length-1].score == 'undefined'){
+      this.evaluate();
+    }
+
+    this.sort();
+    return this.population[0];
+  },
+
+  /**
+   * Returns the average fitness of the current population
+   */
+   getAverage: function(){
+     if(typeof this.population[this.population.length-1].score == 'undefined'){
+       this.evaluate();
+     }
+
+     var score = 0;
+     for(genome in this.population){
+       score += this.population[genome].score;
+     }
+
+     return score / this.popsize;
+   },
+
+  /**
+   * Gets a genome based on the selection function
+   * @return {Network} genome
+   */
+  getParent: function(){
+    var selectionMethod = this.selection[Math.floor(Math.random() * this.selection.length)];
+    switch(selectionMethod){
+      case Selection.FITNESS_PROPORTIONATE:
+        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.popsize);
+        return this.population[r];
+        break;
+    }
+  },
+
+  /**
+   * Export the current population to a json object
+   */
+  export: function(){
+    var json = [];
+    for(var genome in this.population){
+      genome = this.population[genome];
+      json.push(genome.toJSON());
+    }
+
+    return json;
+  },
+
+  /**
+   * Import population from a json object
+   */
+  import: function(json){
+    var population = [];
+    for(var genome in json){
+      genome = json[genome];
+      population.push(Network.fromJSON(genome));
+    }
+    this.population = population;
+    this.popsize = population.length;
+  }
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
                                   ACTIVATION FUNCTIONS
 *******************************************************************************************/
@@ -1998,7 +2223,7 @@ if (module) module.exports = Activation;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
@@ -2365,222 +2590,6 @@ if (module) module.exports = Architect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Neat;
-
-/* Import */
-var Node = __webpack_require__(2);
-var Network = __webpack_require__(6);
-var Methods = __webpack_require__(1);
-
-/* Easier variable naming */
-var Activation = Methods.Activation;
-var Mutation   = Methods.Mutation;
-var Selection  = Methods.Selection;
-var Crossover  = Methods.Crossover;
-
-/*******************************************************************************************
-                                         NEAT
-*******************************************************************************************/
-
-function Neat(input, output, fitness, options){
-  this.input   = input;   // The input size of the networks
-  this.output  = output;  // The output size of the networks
-  this.fitness = fitness; // The fitness function to evaluate the networks
-
-  // Configure options
-  options = options || {};
-  this.equal          = options.equal          || false;
-  this.popsize        = options.popsize        || 50;
-  this.elitism        = options.elitism        || 0;
-  this.mutationRate   = options.mutationRate   || 0.3;
-  this.mutationAmount = options.mutationAmount || 1;
-
-  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
-  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
-                                              Methods.Crossover.TWO_POINT,
-                                              Methods.Crossover.UNIFORM,
-                                              Methods.Crossover.AVERAGE];
-  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
-                                              Methods.Mutation.SUB_CONN,
-                                              Methods.Mutation.ADD_NODE,
-                                              Methods.Mutation.SUB_NODE,
-                                              Methods.Mutation.MOD_BIAS,
-                                              Methods.Mutation.MOD_WEIGHT,
-                                              Methods.Mutation.MOD_ACTIVATION];
-
-  // Generation counter
-  this.generation = 0;
-
-  // Initialise the genomes
-  this.createPool(options.network || new Network(this.input, this.output));
-}
-
-Neat.prototype = {
-  /**
-   * Create the initial pool of genomes
-   */
-  createPool: function(network){
-    this.population = [];
-
-    for(var i = 0; i < this.popsize; i++){
-      var copy = Network.fromJSON(network.toJSON());
-      this.population.push(copy);
-    }
-  },
-
-  /**
-   * Evaluates, selects, breeds and mutates population
-   */
-  evolve: function(){
-    // Evaluate and sort the population
-    this.evaluate();
-    this.sort();
-
-    var newPopulation = [];
-
-    // Elitism
-    for(var i = 0; i < this.elitism; i++){
-      newPopulation.push(this.population[i]);
-    }
-
-    // Breed the next individuals
-    for(var i = 0; i < this.popsize - this.elitism; i++){
-      newPopulation.push(this.getOffspring());
-    }
-
-    // Replace the old population with the new population
-    this.population = newPopulation;
-    this.mutate();
-
-    this.generation++;
-  },
-
-  /**
-   * Breeds two parents into an offspring, population MUST be surted
-   */
-   getOffspring: function(){
-     parent1 = this.getParent();
-     parent2 = this.getParent();
-
-     if(this.equal == true){
-       parent1.score = 0;
-       parent2.score = 0;
-     }
-
-     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-     return Network.crossOver(parent1, parent2, crossoverMethod);
-   },
-
-  /**
-   * Mutates the given (or current) population
-   */
-  mutate: function(){
-    for(genome in this.population){
-      if(Math.random() <= this.mutationRate){
-        for(var i = 0; i < this.mutationAmount; i++){
-          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-          this.population[genome].mutate(mutationMethod);
-        }
-      }
-    }
-  },
-
-  /**
-   * Evaluates the current population
-   */
-  evaluate: function(){
-    for(genome in this.population){
-      var score = this.fitness(this.population[genome]);
-      this.population[genome].score = score;
-    }
-  },
-
-  /**
-   * Sorts the population by score
-   */
-  sort: function(){
-    this.population.sort(function(a,b){
-      return b.score - a.score;
-    });
-  },
-
-  /**
-   * Returns the fittest genome of the current population
-   */
-  getFittest: function(){
-    // Check if evaluated
-    if(typeof this.population[this.population.length-1].score == 'undefined'){
-      this.evaluate();
-    }
-
-    this.sort();
-    return this.population[0];
-  },
-
-  /**
-   * Returns the average fitness of the current population
-   */
-   getAverage: function(){
-     if(typeof this.population[this.population.length-1].score == 'undefined'){
-       this.evaluate();
-     }
-
-     var score = 0;
-     for(genome in this.population){
-       score += this.population[genome].score;
-     }
-
-     return score / this.popsize;
-   },
-
-  /**
-   * Gets a genome based on the selection function
-   * @return {Network} genome
-   */
-  getParent: function(){
-    var selectionMethod = this.selection[Math.floor(Math.random() * this.selection.length)];
-    switch(selectionMethod){
-      case Selection.FITNESS_PROPORTIONATE:
-        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.popsize);
-        return this.population[r];
-        break;
-    }
-  },
-
-  /**
-   * Export the current population to a json object
-   */
-  export: function(){
-    var json = [];
-    for(var genome in this.population){
-      genome = this.population[genome];
-      json.push(genome.toJSON());
-    }
-
-    return json;
-  },
-
-  /**
-   * Import population from a json object
-   */
-  import: function(json){
-    var population = [];
-    for(var genome in json){
-      genome = json[genome];
-      population.push(Network.fromJSON(genome));
-    }
-    this.population = population;
-    this.popsize = population.length;
-  }
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2748,7 +2757,7 @@ if (module) module.exports = Gating;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Activation = __webpack_require__(7);
+var Activation = __webpack_require__(8);
 
 /*******************************************************************************************
                                       MUTATION
@@ -2880,10 +2889,10 @@ if (module) module.exports = Selection;
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   Node       : __webpack_require__(2),
-  Neat       : __webpack_require__(9),
+  Neat       : __webpack_require__(7),
   Network    : __webpack_require__(6),
   Methods    : __webpack_require__(1),
-  Architect  : __webpack_require__(8),
+  Architect  : __webpack_require__(9),
   Group      : __webpack_require__(5),
   Connection : __webpack_require__(4),
   Config     : __webpack_require__(3)

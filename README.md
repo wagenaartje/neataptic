@@ -13,11 +13,9 @@ Neural networks can be used for nearly anything; driving a car, playing a game a
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
-Backpropagation:
+Basic XOR example:
 
-<details> 
-<summary>XOR gate</summary>
-<pre>
+```js
 var network = new neataptic.Architect.Perceptron(2,4,1);
 
 // Train the XOR gate
@@ -27,8 +25,9 @@ network.train([{ input: [0,0], output: [0] },
                { input: [1,1], output: [0] }]);
 
 network.activate([0,1]); // 0.9824...
-</pre>
-</details>
+```
+
+Backpropagation examples:
 
 <details> 
 <summary>LSTM XOR gate</summary>
@@ -73,8 +72,9 @@ narx.activate([0]); // 0.8695
 </pre>
 <a href="https://jsfiddle.net/wagenaartje/1o7t91yk/2/">Run it here yourself</a>
 </details>
+&zwnj;
 
-Supervised evolution:
+Supervised evolution examples:
 <details>
 <summary>XOR gate</summary>
 <pre>
@@ -122,7 +122,7 @@ results.evolved.activate([0]); // 0.0411
 </details>
 &zwnj;
 
-Unsupervised evolution:
+Unsupervised evolution examples:
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a></summary>
 </details>

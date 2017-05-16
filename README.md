@@ -120,6 +120,7 @@ results.evolved.activate([0]); // 0.0411
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a></summary>
 </details>
+&zwnj;
 
 Unsupervised evolution:
 <details>
@@ -128,6 +129,7 @@ Unsupervised evolution:
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a></summary>
 </details>
+&zwnj;
 
 Furthermore:
 <details>

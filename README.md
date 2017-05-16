@@ -27,32 +27,9 @@ network.train([{ input: [0,0], output: [0] },
 network.activate([0,1]); // 0.9824...
 ```
 
-Backpropagation examples:
+Or predict timeseries with a NARX network ([run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)):
 
-<details> 
-<summary>LSTM XOR gate</summary>
-<pre>
-var network = new neataptic.Architect.LSTM(1,1,1);
-
-// Train the XOR gate (in sequence!)
-lstm.train([{ input: [0], output: [0]},
-            { input: [1], output: [1]},
-            { input: [1], output: [0]},
-            { input: [0], output: [1]},
-            { input: [0], output: [0]}]);
-
-// It now outputs a high value when input is changed :)
-lstm.activate([0]); // 0.0004
-lstm.activate([1]); // 0.8994
-lstm.activate([1]); // 0.0921
-lstm.activate([0]); // 0.9493
-lstm.activate([0]); // 0.0332
-</pre>
-</details>
-
-<details>
-<summary>NARX prediction</summary>
-<pre>
+```javascript
 var narx = new neataptic.Architect.NARX(1, 5, 1, 3, 3);
 
 // Train a sequence: 00100100..
@@ -69,18 +46,14 @@ narx.train([
 narx.activate([0]); // 0.0275
 narx.activate([0]); // 0.0370
 narx.activate([0]); // 0.8695
-</pre>
-<a href="https://jsfiddle.net/wagenaartje/1o7t91yk/2/">Run it here yourself</a>
-</details>
-&zwnj;
+```
 
-Supervised evolution examples:
-<details>
-<summary>XOR gate</summary>
-<pre>
+You can also evolve neural networks to perform as an XOR gate / do timeseries predictions:
+
+```js
 var network = new Network(2,1);
 
-// trainingSet is the same as in the previous example
+// trainingSet = XOR trainingset
 var results = network.evolve(trainingSet, {
   mutation: Methods.Mutation.FFW,
   equal: true,
@@ -92,15 +65,13 @@ results.evolved.activate([0,0]); // 0.2413
 results.evolved.activate([0,1]); // 1.0000
 results.evolved.activate([1,0]); // 0.7663
 results.evolved.activate([1,1]); // -0.008
-</pre>
-</details>
 
-<details>
-<summary>XOR sequence</summary>
-<pre>
+```
+```js
+// this network even learns to do an XOR sequence (recurrent)
 var network = new Network(1,1);
 
-// trainingSet is from previous example
+// trainingSet = XOR sequence
 var results = network.evolve(trainingSet, {
   mutation: Methods.Mutation.ALL,
   equal: true,
@@ -114,28 +85,26 @@ results.evolved.activate([1]); // 0.9711
 results.evolved.activate([1]); // 0.0008
 results.evolved.activate([0]); // 0.9756
 results.evolved.activate([0]); // 0.0411
-</pre>
-</details>
+```
 
+More: 
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a></summary>
-</details>
-&zwnj;
-
-Unsupervised evolution examples:
-<details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a></summary>
+<summary><a href="http://stackoverflow.com/questions/43574799/dead-simple-example-of-synaptic-js-lstm-rnn-algorithm/43734612#43734612">LSTM timeseries</a> (unsupervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a></summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a> (unsupervised)</summary>
 </details>
-&zwnj;
-
-Furthermore:
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a> (unsupervised)</summary>
+</details>
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a> (unsupervised)</summary>
+</details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/)">Crossover playground</a></summary>
 </details>
 &zwnj;
+
 
 I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
 

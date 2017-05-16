@@ -38,7 +38,7 @@ describe('Neat', function () {
       popSize: 100,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.004
+      error: 0.002
     });
 
     // Get average and check if it's enough
@@ -63,7 +63,7 @@ describe('Neat', function () {
       popSize: 100,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.003
+      error: 0.002
     });
 
     // Get average and check if it's enough
@@ -88,7 +88,7 @@ describe('Neat', function () {
         popSize: 100,
         elitism: 10,
         mutationRate: 0.5,
-        error: 0.004
+        error: 0.002
       });
 
       // Get average and check if it's enough

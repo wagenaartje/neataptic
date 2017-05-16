@@ -13,26 +13,11 @@ Neural networks can be used for nearly anything; driving a car, playing a game a
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
-Simultaneous evolution:
-- [Agar.io](https://wagenaartje.github.io/neataptic/articles/agario/)
-- [Target seeking](https://wagenaartje.github.io/neataptic/articles/targetseeking/)
-- Collision avoiding (coming soon!)
+Backpropagation:
 
-
-Sequential evolution:
-- [Evolve XOR](https://wagenaartje.github.io/neataptic/articles/evolvexor/)
-- [Color classification](https://wagenaartje.github.io/neataptic/articles/classifycolors)
-
-Furthermore:
-- [Crossover](https://wagenaartje.github.io/neataptic/articles/crossover/)
-
-I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
-
-## Usage
-Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
-over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. This example shows how to create a basic neural network, and teaching it to perform as an XOR gate:
-
-```javascript
+<details> 
+<summary>XOR gate</summary>
+<pre>
 var network = new neataptic.Architect.Perceptron(2,4,1);
 
 // Train the XOR gate
@@ -42,31 +27,11 @@ network.train([{ input: [0,0], output: [0] },
                { input: [1,1], output: [0] }]);
 
 network.activate([0,1]); // 0.9824...
-```
-
-You can even <b>evolve</b> a network to perform as an XOR gate:
-
-```javascript
-var network = new Network(2,1);
-
-// trainingSet is the same as in the previous example
-var results = network.evolve(trainingSet, {
-  mutation: Methods.Mutation.FFW,
-  equal: true,
-  elitism: 5,
-  mutationRate: 0.5
-});
-
-results.evolved.activate([0,0]); // 0.2413
-results.evolved.activate([0,1]); // 1.0000
-results.evolved.activate([1,0]); // 0.7663
-results.evolved.activate([1,1]); // -0.008
-```
+</pre>
+</details>
 
 <details> 
-  <summary>More examples </summary>
-   <b>Long short-term memory</b> networks:
-
+<summary>LSTM XOR gate</summary>
 <pre>
 var network = new neataptic.Architect.LSTM(1,1,1);
 
@@ -84,29 +49,10 @@ lstm.activate([1]); // 0.0921
 lstm.activate([0]); // 0.9493
 lstm.activate([0]); // 0.0332
 </pre>
+</details>
 
-You can even <b>evolve</b> a network to learn a sequence:
-<pre>
-var network = new Network(1,1);
-
-// trainingSet is from previous example
-var results = network.evolve(trainingSet, {
-  mutation: Methods.Mutation.ALL,
-  equal: true,
-  popSize: 100,
-  elitism: 10,
-  amount: 10
-});
-
-results.evolved.activate([0]); // 0.0398
-results.evolved.activate([1]); // 0.9711
-results.evolved.activate([1]); // 0.0008
-results.evolved.activate([0]); // 0.9756
-results.evolved.activate([0]); // 0.0411
-</pre>
-
-Or even <b>NARX networks</b>:
-
+<details>
+<summary>NARX prediction</summary>
 <pre>
 var narx = new neataptic.Architect.NARX(1, 5, 1, 3, 3);
 
@@ -128,7 +74,72 @@ narx.activate([0]); // 0.8695
 <a href="https://jsfiddle.net/wagenaartje/1o7t91yk/2/">Run it here yourself</a>
 </details>
 
-If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
+Supervised evolution:
+<details>
+<summary>XOR gate</summary>
+<pre>
+var network = new Network(2,1);
+
+// trainingSet is the same as in the previous example
+var results = network.evolve(trainingSet, {
+  mutation: Methods.Mutation.FFW,
+  equal: true,
+  elitism: 5,
+  mutationRate: 0.5
+});
+
+results.evolved.activate([0,0]); // 0.2413
+results.evolved.activate([0,1]); // 1.0000
+results.evolved.activate([1,0]); // 0.7663
+results.evolved.activate([1,1]); // -0.008
+</pre>
+</details>
+
+<details>
+<summary>XOR sequence</summary>
+<pre>
+var network = new Network(1,1);
+
+// trainingSet is from previous example
+var results = network.evolve(trainingSet, {
+  mutation: Methods.Mutation.ALL,
+  equal: true,
+  popSize: 100,
+  elitism: 10,
+  amount: 10
+});
+
+results.evolved.activate([0]); // 0.0398
+results.evolved.activate([1]); // 0.9711
+results.evolved.activate([1]); // 0.0008
+results.evolved.activate([0]); // 0.9756
+results.evolved.activate([0]); // 0.0411
+</pre>
+</details>
+
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a></summary>
+</details>
+
+Unsupervised evolution:
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a></summary>
+</details>
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a></summary>
+</details>
+
+Furthermore:
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/)">Crossover playground</a></summary>
+</details>
+&zwnj;
+
+I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
+
+## Usage
+Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
+over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. 
 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:

@@ -747,7 +747,7 @@ Network.prototype = {
      var amount = options.amount || 1;
      var growth = options.growth || 0.0001;
      var iterations = options.iterations || 0;
-     var error = options.error || 0.03;
+     var error = options.error || 0.005;
      var log = options.log || false;
 
      var start = Date.now();

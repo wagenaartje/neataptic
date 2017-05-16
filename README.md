@@ -92,10 +92,10 @@ More:
 <summary><a href="http://stackoverflow.com/questions/43574799/dead-simple-example-of-synaptic-js-lstm-rnn-algorithm/43734612#43734612">LSTM timeseries</a> (unsupervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a> (unsupervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a> (supervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a> (unsupervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a> (supervised)</summary>
 </details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a> (unsupervised)</summary>

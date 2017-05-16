@@ -49,7 +49,6 @@ You can even <b>evolve</b> a network to perform as an XOR gate:
 ```javascript
 var network = new Network(2,1);
 
-
 // trainingSet is the same as in the previous example
 var results = network.evolve(trainingSet, {
   mutation: Methods.Mutation.FFW,

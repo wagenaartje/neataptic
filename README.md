@@ -52,10 +52,9 @@ var network = new Network(2,1);
 
 // trainingSet is the same as in the previous example
 var results = network.evolve(trainingSet, {
-  mutation: Methods.Mutation.ALL,
+  mutation: Methods.Mutation.FFW,
   equal: true,
-  popSize: 100,
-  elitism: 10,
+  elitism: 5,
   mutationRate: 0.5
 });
 

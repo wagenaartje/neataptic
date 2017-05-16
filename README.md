@@ -44,9 +44,32 @@ network.train([{ input: [0,0], output: [0] },
 network.activate([0,1]); // 0.9824...
 ```
 
-You can also create <b>Long short-term memory</b> networks:
+You can even <b>evolve</b> a network to perform as an XOR gate:
 
 ```javascript
+var network = new Network(2,1);
+
+
+// trainingSet is the same as in the previous example
+var results = network.evolve(trainingSet, {
+  mutation: Methods.Mutation.ALL,
+  equal: true,
+  popSize: 100,
+  elitism: 10,
+  mutationRate: 0.5
+});
+
+results.evolved.activate([0,0]); // 0.2413
+results.evolved.activate([0,1]); // 1.0000
+results.evolved.activate([1,0]); // 0.7663
+results.evolved.activate([1,1]); // -0.008
+```
+
+<details> 
+  <summary>More examples </summary>
+   <b>Long short-term memory</b> networks:
+
+<pre>
 var network = new neataptic.Architect.LSTM(1,1,1);
 
 // Train the XOR gate (in sequence!)
@@ -61,12 +84,32 @@ lstm.activate([0]); // 0.0004
 lstm.activate([1]); // 0.8994
 lstm.activate([1]); // 0.0921
 lstm.activate([0]); // 0.9493
-lstm.activate([0]); // 0.03328
-```
+lstm.activate([0]); // 0.0332
+</pre>
+
+You can even <b>evolve</b> a network to learn a sequence:
+<pre>
+var network = new Network(1,1);
+
+// trainingSet is from previous example
+var results = network.evolve(trainingSet, {
+  mutation: Methods.Mutation.ALL,
+  equal: true,
+  popSize: 100,
+  elitism: 10,
+  amount: 10
+});
+
+results.evolved.activate([0]); // 0.0398
+results.evolved.activate([1]); // 0.9711
+results.evolved.activate([1]); // 0.0008
+results.evolved.activate([0]); // 0.9756
+results.evolved.activate([0]); // 0.0411
+</pre>
 
 Or even <b>NARX networks</b>:
 
-```javascript
+<pre>
 var narx = new neataptic.Architect.NARX(1, 5, 1, 3, 3);
 
 // Train a sequence: 00100100..
@@ -83,8 +126,9 @@ narx.train([
 narx.activate([0]); // 0.0275
 narx.activate([0]); // 0.0370
 narx.activate([0]); // 0.8695
-```
-[Run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)
+</pre>
+<a href="https://jsfiddle.net/wagenaartje/1o7t91yk/2/">Run it here yourself</a>
+</details>
 
 If you want to get started on visualisation, [check this out](https://github.com/wagenaartje/neataptic/wiki/Visualising-101).
 

@@ -32,7 +32,7 @@ describe('Neat', function () {
     ];
 
     var network = new Network(2,1);
-    var results = network.evolve(trainingSet, {
+    network.evolve(trainingSet, {
       mutation: Methods.Mutation.FFW,
       equal: true,
       popSize: 100,
@@ -42,7 +42,7 @@ describe('Neat', function () {
     });
 
     // Get average and check if it's enough
-    var test = results.evolved.test(trainingSet);
+    var test = network.test(trainingSet);
     assert.isBelow(test.error, 0.005);
   });
   it("XOR", function(){
@@ -57,7 +57,7 @@ describe('Neat', function () {
     ];
 
     var network = new Network(2,1);
-    var results = network.evolve(trainingSet, {
+    network.evolve(trainingSet, {
       mutation: Methods.Mutation.FFW,
       equal: true,
       popSize: 100,
@@ -67,7 +67,7 @@ describe('Neat', function () {
     });
 
     // Get average and check if it's enough
-    var test = results.evolved.test(trainingSet);
+    var test = network.test(trainingSet);
     assert.isBelow(test.error, 0.005);
   });
   it("XNOR", function(){
@@ -82,7 +82,7 @@ describe('Neat', function () {
       ];
 
       var network = new Network(2,1);
-      var results = network.evolve(trainingSet, {
+      network.evolve(trainingSet, {
         mutation: Methods.Mutation.FFW,
         equal: true,
         popSize: 100,
@@ -92,7 +92,7 @@ describe('Neat', function () {
       });
 
       // Get average and check if it's enough
-      var test = results.evolved.test(trainingSet);
+      var test = network.test(trainingSet);
       assert.isBelow(test.error, 0.005);
   });
 });

@@ -142,13 +142,13 @@ function freeze(id, set, options){
   $('.example' + id).show();
 
   var width = $('.example' + id).width();
-  drawGraph(results.evolved.graph(width, 400), '.example' + id, width, 400);
+  drawGraph(network.graph(width, 400), '.example' + id, width, 400);
 
   var s = '';
   for(var i = 0; i < set.length; i++){
     var input = JSON.stringify(set[i].input);
     var targetoutput = JSON.stringify(set[i].output);
-    var output = results.evolved.activate(set[i].input);
+    var output = network.activate(set[i].input);
 
     for(var j = 0; j < output.length; j++){
       output[j] = Math.round(output[j] * 1000) / 1000;

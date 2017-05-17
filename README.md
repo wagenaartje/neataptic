@@ -55,7 +55,7 @@ You can also evolve neural networks to perform as an XOR gate (in sequence):
 var network = new Network(1,1);
 
 // trainingSet = XOR sequence
-var results = network.evolve(trainingSet, {
+network.evolve(trainingSet, {
   mutation: Methods.Mutation.ALL,
   equal: true,
   popSize: 100,
@@ -63,10 +63,10 @@ var results = network.evolve(trainingSet, {
   amount: 10
 });
 
-results.evolved.activate([0]); // 0.0398
-results.evolved.activate([1]); // 0.9711
-results.evolved.activate([1]); // 0.0008
-results.evolved.activate([0]); // 0.9756
+network.activate([0]); // 0.0398
+network.activate([1]); // 0.9711
+network.activate([1]); // 0.0008
+network.activate([0]); // 0.9756
 ```
 
 More:
@@ -94,7 +94,7 @@ I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
 
 ## Usage
 Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
-over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder. 
+over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder.
 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
@@ -112,4 +112,3 @@ npm install neataptic
 
 You made it all the way down! If you appreciate this repo and want to support the development of it, please consider donating :thumbsup:
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CXS3G8NHBYEZE)
-

@@ -796,9 +796,13 @@ Network.prototype = {
      var results = {
        error: error,
        generations: neat.generation,
-       time: Date.now() - start,
-       evolved: bestGenome
+       time: Date.now() - start
      };
+
+     this.nodes = bestGenome.nodes;
+     this.connections = bestGenome.connections;
+     this.gates = bestGenome.gates;
+     this.selfconns = bestGenome.selfconns;
 
      return results;
    },

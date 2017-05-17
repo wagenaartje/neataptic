@@ -48,25 +48,8 @@ narx.activate([0]); // 0.0370
 narx.activate([0]); // 0.8695
 ```
 
-You can also evolve neural networks to perform as an XOR gate / do timeseries predictions:
+You can also evolve neural networks to perform as an XOR gate (in sequence):
 
-```js
-var network = new Network(2,1);
-
-// trainingSet = XOR trainingset
-var results = network.evolve(trainingSet, {
-  mutation: Methods.Mutation.FFW,
-  equal: true,
-  elitism: 5,
-  mutationRate: 0.5
-});
-
-results.evolved.activate([0,0]); // 0.2413
-results.evolved.activate([0,1]); // 1.0000
-results.evolved.activate([1,0]); // 0.7663
-results.evolved.activate([1,1]); // -0.008
-
-```
 ```js
 // this network even learns to do an XOR sequence (recurrent)
 var network = new Network(1,1);
@@ -84,18 +67,20 @@ results.evolved.activate([0]); // 0.0398
 results.evolved.activate([1]); // 0.9711
 results.evolved.activate([1]); // 0.0008
 results.evolved.activate([0]); // 0.9756
-results.evolved.activate([0]); // 0.0411
 ```
 
-More: 
+More:
 <details>
-<summary><a href="http://stackoverflow.com/questions/43574799/dead-simple-example-of-synaptic-js-lstm-rnn-algorithm/43734612#43734612">LSTM timeseries</a> (unsupervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">Neuroevolution examples</a> (supervised)</summary>
+</details>
+<details>
+<summary><a href="http://stackoverflow.com/questions/43574799/dead-simple-example-of-synaptic-js-lstm-rnn-algorithm/43734612#43734612">LSTM timeseries</a> (supervised)</summary>
 </details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a> (supervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/">Agar.io-AI</a> (supervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/">Agar.io-AI</a> (unsupervised)</summary>
 </details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/">Target seeking AI</a> (unsupervised)</summary>
@@ -104,7 +89,6 @@ More:
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/">Crossover playground</a></summary>
 </details>
 &zwnj;
-
 
 I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
 

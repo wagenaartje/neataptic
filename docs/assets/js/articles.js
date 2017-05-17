@@ -4,6 +4,14 @@ Number.prototype.mod = function(n) {
 
 var articles = [
   {
+    name: 'Neuroevolution',
+    icon: 'retweet',
+    date: 'MAY 17, 2017',
+    author: 'Thomas wagenaar',
+    class: 'neuroevolution',
+    location: 'neuroevolution'
+  },
+  {
     name: 'Target-seeking AI',
     icon: 'bullseye',
     date: 'MAY 1, 2017',
@@ -42,14 +50,6 @@ var articles = [
     author: 'Thomas Wagenaar',
     class: 'xorevolution',
     location: 'evolvexor'
-  },
-  {
-    name: 'Neuroevolution',
-    icon: 'retweet',
-    date: 'MAY 17, 2017',
-    author: 'Thomas wagenaar',
-    class: 'neuroevolution',
-    location: 'neuroevolution'
   }
 ];
 

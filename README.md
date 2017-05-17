@@ -95,13 +95,13 @@ More:
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/classifycolors">Color classification</a> (supervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/)">Agar.io-AI</a> (supervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/agario/">Agar.io-AI</a> (supervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/)">Target seeking AI</a> (unsupervised)</summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/">Target seeking AI</a> (unsupervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/)">Crossover playground</a></summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/">Crossover playground</a></summary>
 </details>
 &zwnj;
 

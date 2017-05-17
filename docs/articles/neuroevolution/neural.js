@@ -85,8 +85,7 @@ var examples = [
       elitism: 5,
       iterations: 1500,
       clear: true,
-      error: 0.001,
-      log: 50
+      error: 0.001
     }
   },
 ]

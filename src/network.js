@@ -750,12 +750,14 @@ Network.prototype = {
      var iterations = options.iterations || 0;
      var targetError = options.error || 0.005;
      var log = options.log || 0;
+     var clear = options.clear || false;
 
      var start = Date.now();
 
      function fitness(genome){
        var score = 0;
        for(var i = 0; i < amount; i++){
+         if(clear) genome.clear();
          score -= genome.test(set, cost).error;
        }
        score -= (genome.nodes.length + genome.connections.length + genome.gates.length) * growth;

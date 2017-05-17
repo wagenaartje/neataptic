@@ -1641,7 +1641,7 @@ Network.prototype = {
    evolve: function(set, options){
      var cost = options.cost || Methods.Cost.MSE;
      var amount = options.amount || 1;
-     var growth = options.growth || 0.0001;
+     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
      var iterations = options.iterations || 0;
      var targetError = options.error || 0.005;
      var log = options.log || 0;
@@ -1655,6 +1655,7 @@ Network.prototype = {
          if(clear) genome.clear();
          score -= genome.test(set, cost).error;
        }
+
        score -= (genome.nodes.length + genome.connections.length + genome.gates.length) * growth;
 
        score = isNaN(score) ? -Infinity : score;
@@ -1671,6 +1672,8 @@ Network.prototype = {
      while(error < -targetError && (iterations == 0 || neat.generation < iterations)){
        neat.evolve();
        var fittest = neat.getFittest();
+
+       if(clear) fittest.clear();
        error = -fittest.test(set).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
 
        if(error > bestError){
@@ -1682,6 +1685,8 @@ Network.prototype = {
          console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
        }
      }
+
+     if(clear) bestGenome.clear();
 
      var results = {
        error: error,

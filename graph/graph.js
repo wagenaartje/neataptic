@@ -1,4 +1,5 @@
 var NODE_RADIUS = 7;
+var GATE_RADIUS = 2;
 var REPEL_FORCE = 0;
 var LINK_DISTANCE = 100;
 
@@ -25,7 +26,9 @@ var drawGraph = function(graph, panel) {
         .append('svg:path')
         .attr('d', 'M0,-5L10,0L0,5')
 
-    graph.nodes.forEach(function (v) { v.height = v.width = 2 * NODE_RADIUS; });
+    graph.nodes.forEach(function(v){
+      v.height = v.width = 2 * (v.name == 'GATE' ? GATE_RADIUS : NODE_RADIUS); }
+    );
 
     d3cola
         .nodes(graph.nodes)
@@ -55,7 +58,7 @@ var drawGraph = function(graph, panel) {
         .attr("class", function(d){
           return "node " + d.name;
         })
-        .attr("r", function(d) { return NODE_RADIUS; })
+        .attr("r", function(d) { return d.name == 'GATE' ? GATE_RADIUS : NODE_RADIUS; })
 
         .call(d3cola.drag);
 
@@ -87,8 +90,8 @@ var drawGraph = function(graph, panel) {
                 if(isNaN(normX)) normX = 0;
                 if(isNaN(normY)) normY = 0;
 
-                sourcePadding = NODE_RADIUS,
-                targetPadding = NODE_RADIUS + 2,
+                sourcePadding = d.source.width / 2,
+                targetPadding = d.target.width / 2 + 2,
                 sourceX = d.source.x + (sourcePadding * normX),
                 sourceY = d.source.y + (sourcePadding * normY),
                 targetX = d.target.x - (targetPadding * normX),

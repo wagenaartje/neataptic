@@ -1,0 +1,168 @@
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="description" content="Showing how to evolve an XOR with neataptic">
+      <meta name="author" content="Thomas Wagenaar">
+
+      <title>Neataptic.js - Neuroevolution</title>
+
+      <link rel="icon" type="image/png" href="../../assets/fav.png"/>
+
+      <!-- JQuery -->
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+      <!-- Bootstrap -->
+      <link async rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+      <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+      <!-- Custom CSS -->
+      <link async href="../../assets/css/custom.css" rel="stylesheet">
+      <link async href="../../assets/css/articles.css" rel="stylesheet">
+      <link async href="graph.css" rel="stylesheet">
+
+      <!-- Social buttons -->
+      <link async rel="stylesheet" href="../../libs/social.css">
+
+      <!-- Fonts -->
+      <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
+      <link async href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700,700i" rel="stylesheet">
+
+      <!-- Neataptic -->
+      <script src="https://cdn.rawgit.com/wagenaartje/neataptic/a0762091/dist/neataptic.js"></script>
+
+      <!-- Google Analytics -->
+      <script async>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-51480408-2', 'auto');
+        ga('send', 'pageview');
+      </script>
+  </head>
+  <body>
+      <div class="container maxwidth">
+        <div class="row">
+          <div class="col-md-12 header neuroevolution">
+            <!-- Page Content -->
+            <div class="row">
+              <ul class="nav navbar-nav">
+                  <li>
+                    <a href="../../" style="color: white;"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> BACK TO HOME</a>
+                  </li>
+              </ul>
+            </div>
+            <div class="article-head">
+              <p class="article-icon"><i class="fa fa-retweet fa-5x"></i></p>
+              <p class="article-title" style="color: white">Neuroevolution</p>
+              <p class="article-author">THOMAS WAGENAAR</p>
+              <p class="article-date">MAY 17, 2017</p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+          </div>
+          <div class="col-md-6 article-content">
+            <p class="article-text">This page shows some neuroevolution examples. Please note that not every example may always be succesful. More may be added in the future!</p>
+            <div class="panel panel-warning autocollapse">
+    					<div class="panel-heading clickable">
+    						<h3 class="panel-title">1: Uphill and downhill</h3>
+    					</div>
+              <div class="panel-body">
+                <p class="small">This neural network gets taught to increase the input by 0.2 until 1.0 is reached, then it must decrease the input by 2.0.</p>
+                <button type="button" class="btn btn-default" onclick="showModal(1, 0)">Training set</button>
+                <button type="button" class="btn btn-default" onclick="showModal(1, 1)">Evolve settings</button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-warning" onclick="run(1)">Start</button>
+                  <button type="button" class="btn btn-default status1" style="display: none" onclick="showModal(1, 2)">Status</button>
+                  <button type="button" class="btn btn-danger error1" style="display: none">Error</button>
+                </div>
+                <svg class="example1" style="display: none"/>
+              </div>
+    				</div>
+            <div class="panel panel-warning autocollapse">
+              <div class="panel-heading clickable">
+                <h3 class="panel-title">2: Count to ten</h3>
+              </div>
+              <div class="panel-body">
+                <p class="small">This neural network gets taught to wait 9 inputs of 0, to output 1 at input number 10.</p>
+                <button type="button" class="btn btn-default" onclick="showModal(2, 0)">Training set</button>
+                <button type="button" class="btn btn-default" onclick="showModal(2, 1)">Evolve settings</button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-warning" onclick="run(2)">Start</button>
+                  <button type="button" class="btn btn-default status2" style="display: none" onclick="showModal(2, 2)">Status</button>
+                  <button type="button" class="btn btn-danger error2" style="display: none">Error</button>
+                </div>
+                <svg class="example2" style="display: none"/>
+              </div>
+            </div>
+
+            <div class="panel panel-warning autocollapse">
+              <div class="panel-heading clickable">
+                <h3 class="panel-title">3: Vowel vs. consonants classification</h3>
+              </div>
+              <div class="panel-body">
+                <p class="small">This neural network gets taught to classify if a letter of the alphabet is a vowel or not. The data is one-hot-encoded.</p>
+                <button type="button" class="btn btn-default" onclick="showModal(3, 0)">Training set</button>
+                <button type="button" class="btn btn-default" onclick="showModal(3, 1)">Evolve settings</button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-warning" onclick="run(3)">Start</button>
+                  <button type="button" class="btn btn-default status3" style="display: none" onclick="showModal(3, 2)">Status</button>
+                  <button type="button" class="btn btn-danger error3" style="display: none">Error</button>
+                </div>
+                <svg class="example3" style="display: none"/>
+              </div>
+            </div>
+
+            <div class="modal fade" id="modal" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"></h4>
+                  </div>
+                  <div class="modal-body">
+                    <pre class="modalcontent"></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="article-footer article-text ">
+              <hr>
+              Thanks for reading this article! If you found any mistakes, or want to make any
+              remarks, please mail me at <a href="#"> wagenaartje@protonmail.com</a>! Want to
+              post your own article here? Send me your article! (must be about neataptic)!
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+        </div>
+        <div class="row lightblue">
+          <div class="col-md-1 col-sm-1">
+            <a class="chevron-cont" href="#">
+              <p class="chevron lefts"><i class="fa fa-chevron-left fa-5x"></i></p>
+            </a>
+          </div>
+          <div class="col-md-10 col-sm-10 articles">
+          </div>
+          <div class="col-md-1 col-sm-1">
+            <a class="chevron-cont" href="#">
+              <p class="chevron rights"><i class="fa fa-chevron-right fa-5x"></i></p>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scripts -->
+      <script src="../../libs/d3v3.js"></script>
+      <script src="../../libs/webcola.js"></script>
+      <script src="events.js"></script>
+      <script src="graph.js"></script>
+      <script src="neural.js"></script>
+      <script src="../../assets/js/articles.js"></script>
+  </body>
+</html>

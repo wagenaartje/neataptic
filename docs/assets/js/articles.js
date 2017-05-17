@@ -43,6 +43,14 @@ var articles = [
     class: 'xorevolution',
     location: 'evolvexor'
   },
+  {
+    name: 'Neuroevolution',
+    icon: 'retweet',
+    date: 'MAY 17, 2017',
+    author: 'Thomas wagenaar',
+    class: 'neuroevolution',
+    location: 'neuroevolution'
+  }
 ];
 
 var start = 0;

@@ -1,12 +1,37 @@
-# Neataptic [![Build Status](https://travis-ci.org/wagenaartje/neataptic.svg?branch=master)](https://travis-ci.org/wagenaartje/neataptic) [![Downloads](https://img.shields.io/npm/dm/neataptic.svg?colorB=ffa500)](https://www.npmjs.com/package/neataptic) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/wagenaartje/neataptic/master/LICENSE)
+<p align="center">
+  <a href="https://wagenaartje.github.io/neataptic/">
+    <img alt="react-router" src="http://i.imgur.com/fTAn686.png" width="144">
+  </a>
+</p>
 
-Neataptic is thé Javascript neural network solution. Not only does it allow you to create neural networks on-the-go, it also allows you
-to visualise your networks to understand what's really going on. An important aspect that neataptic introduces in comparison with its
-competitors is neuro-evolution. You can evolve neural networks through a process described in the
-[NEAT](http://nn.cs.utexas.edu/downloads/papers/stanley.gecco02_1.pdf) paper. An example of neuro-evolution is [Agar.io AI](https://wagenaartje.github.io/neataptic/articles/agario/), where neural agents learn to play Agar.io by evolving their topology! Appreciate the repo? Show it by starring it! :star:
+<h3 align="center">
+  Neataptic
+</h3>
+
+<p align="center">
+  Backprop + neuro-evolution in the browser</a>
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
+  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
+  <a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
+</p>
+
+<hr>
+
+Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved. 
+
+<details>
+<summary><a href="https://github.com/wagenaartje/neataptic/wiki">Visit the wiki to get started</a></summary>
+</details>
+<details>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/playground/">or play around with neural networks</a></summary>
+</details>
+
+
 
 <img src="https://i.gyazo.com/27e8003df60dbbd21e240a53f8ec093a.png" width="33%"/><img src="https://i.gyazo.com/5325ca9217dbca3151a891739548a01d.png" width="33%"/><img src="https://i.gyazo.com/f566d2364af43dd3a78c8926ed204a51.png" width="33%"/>
-[Click here to play around with neural networks!](https://wagenaartje.github.io/neataptic/articles/playground/)
 
 ## Examples
 Neural networks can be used for nearly anything; driving a car, playing a game and even to predict words! At this moment,

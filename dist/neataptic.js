@@ -230,7 +230,7 @@ Node.prototype = {
 
     this.old = this.state;
 
-    // All activation sources coming from the node itself (self-connections coming in the future)
+    // All activation sources coming from the node itself
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections
@@ -2478,33 +2478,15 @@ var Architect = {
    * Creates a hopfield network of the given size
    */
   Hopfield: function(size){
-    var network = new Network(size, size);
+    var input = new Group(size);
+    var output = new Group(size)
 
-    network.learn = function(patterns){
-      var set = [];
-      for (var p in patterns)
-        set.push({
-          input: patterns[p],
-          output: patterns[p]
-        });
+    input.connect(output, Methods.Connection.ALL_TO_ALL);
 
-      return network.train(set, {
-        iterations: 500000,
-        error: .00005,
-        rate: 1
-      });
-    }
+    input.set({type: 'input'});
+    output.set({squash: Methods.Activation.STEP, type: 'output'});
 
-    network.feed = function(pattern){
-      var output = this.activate(pattern);
-
-      var pattern = [];
-      for (var i in output){
-        pattern[i] = output[i] >= .5 ? 1 : 0;
-      }
-
-      return pattern;
-    }
+    var network = new Architect.Construct([input, output]);
 
     return network;
   },

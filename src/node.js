@@ -54,7 +54,7 @@ Node.prototype = {
 
     this.old = this.state;
 
-    // All activation sources coming from the node itself (self-connections coming in the future)
+    // All activation sources coming from the node itself
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections

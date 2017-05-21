@@ -1451,6 +1451,8 @@ Network.prototype = {
       }
     }
 
+    if(clear) this.clear();
+
     // Creates an object of the results
     var results = {
       error: error,

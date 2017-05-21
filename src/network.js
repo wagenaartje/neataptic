@@ -490,6 +490,7 @@ Network.prototype = {
     var iterations    = options.iterations    || 0;
     var crossValidate = options.crossValidate || false;
     var clear         = options.clear         || false;
+    var schedule      = options.schedule;
 
     if(crossValidate){
       var testSize = options.crossValidate.testSize;
@@ -547,7 +548,11 @@ Network.prototype = {
       }
 
       if(log && iteration % log == 0){
-        console.log('iterations', iteration, 'error', error, 'rate', currentRate);
+        console.log('iteration', iteration, 'error', error, 'rate', currentRate);
+      }
+
+      if(schedule && iteration % schedule.iterations == 0){
+        schedule.function();
       }
     }
 
@@ -744,13 +749,14 @@ Network.prototype = {
    * Evolves the network to reach a lower error on a dataset
    */
    evolve: function(set, options){
-     var cost = options.cost || Methods.Cost.MSE;
-     var amount = options.amount || 1;
+     var cost = options.cost             || Methods.Cost.MSE;
+     var amount = options.amount         || 1;
      var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
      var iterations = options.iterations || 0;
-     var targetError = options.error || 0.005;
-     var log = options.log || 0;
-     var clear = options.clear || false;
+     var targetError = options.error     || 0.005;
+     var log = options.log               || 0;
+     var clear = options.clear           || false;
+     var schedule = options.schedule;
 
      var start = Date.now();
 
@@ -788,6 +794,10 @@ Network.prototype = {
 
        if(log && neat.generation % log == 0){
          console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
+       }
+
+       if(schedule && iteration % schedule.iterations == 0){
+         schedule.function();
        }
      }
 

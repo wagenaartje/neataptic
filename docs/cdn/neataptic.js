@@ -2011,6 +2011,7 @@ Neat.prototype = {
 
     for(var i = 0; i < this.popsize; i++){
       var copy = Network.fromJSON(network.toJSON());
+      copy.score = null;
       this.population.push(copy);
     }
   },
@@ -2019,8 +2020,10 @@ Neat.prototype = {
    * Evaluates, selects, breeds and mutates population
    */
   evolve: function(){
-    // Evaluate and sort the population
-    this.evaluate();
+    // Check if evaluated, sort the population
+    if(this.population[this.population.length-1].score == null){
+      this.evaluate();
+    }
     this.sort();
 
     var newPopulation = [];
@@ -2038,6 +2041,11 @@ Neat.prototype = {
     // Replace the old population with the new population
     this.population = newPopulation;
     this.mutate();
+
+    // Reset the scores
+    for(var i = 0; i < this.population.length; i++){
+      this.population[i].score = null;
+    }
 
     this.generation++;
   },
@@ -2096,7 +2104,7 @@ Neat.prototype = {
    */
   getFittest: function(){
     // Check if evaluated
-    if(typeof this.population[this.population.length-1].score == 'undefined'){
+    if(this.population[this.population.length-1].score == null){
       this.evaluate();
     }
 
@@ -2108,7 +2116,7 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
-     if(typeof this.population[this.population.length-1].score == 'undefined'){
+     if(this.population[this.population.length-1].score == null){
        this.evaluate();
      }
 

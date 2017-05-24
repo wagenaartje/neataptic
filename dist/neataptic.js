@@ -200,6 +200,8 @@ function Node(type) {
   this.state = 0;
   this.old = 0;
 
+  this.mask = 1;
+
   this.connections = {
     in   : [],
     out  : [],
@@ -240,7 +242,7 @@ Node.prototype = {
     }
 
     // Squash the values received
-    this.activation = this.squash(this.state);
+    this.activation = this.squash(this.state) * this.mask;
     this.derivative = this.squash(this.state, true);
 
     // Update traces
@@ -351,6 +353,8 @@ Node.prototype = {
         var value = connection.xtrace.values[i];
         gradient += node.error.responsibility * value;
       }
+
+      gradient *= this.mask;
 
       connection.weight += rate * gradient; // Adjust weights
     }
@@ -528,7 +532,8 @@ Node.prototype = {
       var json = {
         bias   : this.bias,
         type   : this.type,
-        squash : this.squash.name
+        squash : this.squash.name,
+        mask   : this.mask
       };
 
       return json;
@@ -542,6 +547,7 @@ Node.fromJSON = function(json){
   var node = new Node();
   node.bias = json.bias;
   node.type = json.type;
+  node.mask = json.mask;
 
   for(squash in Activation){
     if(Activation[squash].name == json.squash){
@@ -925,6 +931,9 @@ function Network(input, output){
   this.gates = [];
   this.selfconns = [];
 
+  // Regularization
+  this.dropout = 0;
+
   // Create input and output nodes
   for(var i = 0; i < this.input + this.output; i++){
     var type = (i < this.input) ? 'input' : 'output';
@@ -943,7 +952,7 @@ Network.prototype = {
   /**
    * Activates the network
    */
-  activate: function(input){
+  activate: function(input, training){
     var output = [];
     // Activate nodes chronologically
     for(node in this.nodes){
@@ -953,6 +962,7 @@ Network.prototype = {
         var activation = this.nodes[node].activate();
         output.push(activation);
       } else {
+        if(training) this.nodes[node].mask = Math.random() < this.dropout ? 0 : 1;
         this.nodes[node].activate();
       }
     }
@@ -1385,7 +1395,11 @@ Network.prototype = {
     var iterations    = options.iterations    || 0;
     var crossValidate = options.crossValidate || false;
     var clear         = options.clear         || false;
+    var dropout       = options.dropout       || 0;
     var schedule      = options.schedule;
+
+    // Save to network
+    this.dropout = dropout;
 
     if(crossValidate){
       var testSize = options.crossValidate.testSize;
@@ -1453,6 +1467,14 @@ Network.prototype = {
 
     if(clear) this.clear();
 
+    if(dropout){
+      for(var i = 0; i < this.nodes.length; i++){
+        if(this.nodes[i].type == 'hidden' || this.nodes[i].type == 'constant'){
+          this.nodes[i].mask = 1 - this.dropout;
+        }
+      }
+    }
+
     // Creates an object of the results
     var results = {
       error: error,
@@ -1473,7 +1495,7 @@ Network.prototype = {
       var input = set[train].input;
       var target = set[train].output;
 
-      var output = this.activate(input);
+      var output = this.activate(input, true);
       this.propagate(currentRate, target);
 
       errorSum += costFunction(target, output);
@@ -1598,7 +1620,8 @@ Network.prototype = {
         nodes : [],
         connections : [],
         input : this.input,
-        output : this.output
+        output : this.output,
+        dropout: this.dropout
       };
 
       for(index in this.nodes){
@@ -1720,6 +1743,7 @@ Network.prototype = {
  */
  Network.fromJSON = function(json){
    var network = new Network(json.input, json.output);
+   network.dropout = json.dropout;
    network.nodes = [];
    network.connections = [];
 

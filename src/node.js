@@ -24,6 +24,8 @@ function Node(type) {
   this.state = 0;
   this.old = 0;
 
+  this.mask = 1;
+
   this.connections = {
     in   : [],
     out  : [],
@@ -64,7 +66,7 @@ Node.prototype = {
     }
 
     // Squash the values received
-    this.activation = this.squash(this.state);
+    this.activation = this.squash(this.state) * this.mask;
     this.derivative = this.squash(this.state, true);
 
     // Update traces
@@ -175,6 +177,8 @@ Node.prototype = {
         var value = connection.xtrace.values[i];
         gradient += node.error.responsibility * value;
       }
+
+      gradient *= this.mask;
 
       connection.weight += rate * gradient; // Adjust weights
     }
@@ -352,7 +356,8 @@ Node.prototype = {
       var json = {
         bias   : this.bias,
         type   : this.type,
-        squash : this.squash.name
+        squash : this.squash.name,
+        mask   : this.mask
       };
 
       return json;
@@ -366,6 +371,7 @@ Node.fromJSON = function(json){
   var node = new Node();
   node.bias = json.bias;
   node.type = json.type;
+  node.mask = json.mask;
 
   for(squash in Activation){
     if(Activation[squash].name == json.squash){

@@ -298,7 +298,7 @@ var Architect = {
         type: 'constant'
       });
 
-      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      previous.connect(next, Methods.Connection.ONE_TO_ONE, 1);
       next.connect(hidden[0]);
 
       pOutputs.push(next);
@@ -318,7 +318,7 @@ var Architect = {
         type: 'constant'
       });
 
-      previous.connect(next, Methods.Connection.ALL_TO_ALL, 1);
+      previous.connect(next, Methods.Connection.ONE_TO_ONE, 1);
       next.connect(hidden[0]);
 
       pInputs.push(next);

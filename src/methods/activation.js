@@ -68,6 +68,11 @@ var Activation = {
     if(derivate)
       return x < 0 ? -1 : 1;
     return Math.abs(x);
+  },
+  INVERSE : function(x, derivate){
+    if(derivate)
+      return -1;
+    return 1 - x;
   }
 };
 

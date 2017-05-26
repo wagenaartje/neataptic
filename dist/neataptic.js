@@ -2269,6 +2269,11 @@ var Activation = {
     if(derivate)
       return x < 0 ? -1 : 1;
     return Math.abs(x);
+  },
+  INVERSE : function(x, derivate){
+    if(derivate)
+      return -1;
+    return 1 - x;
   }
 };
 
@@ -2515,6 +2520,83 @@ var Architect = {
     }
 
     nodes.push(outputLayer);
+    return Architect.Construct(nodes);
+  },
+
+  /**
+   * Creates a long short-term memory network
+   */
+  GRU: function(){
+    var args = Array.prototype.slice.call(arguments);
+    if (args.length < 3){
+      throw new Error("not enough layers (minimum 3) !!");
+    }
+
+    var outputLayer = new Group(args.pop()); // last argument
+    var inputLayer  = new Group(args.shift()); // first argument
+    var blocks = args; // all the arguments in the middle
+
+    var nodes = [];
+    nodes.push(inputLayer);
+
+    var previous = inputLayer;
+    for(var block in blocks){
+      block = blocks[block];
+
+      // Init required nodes (in activation order)
+      var input = new Group(block);
+      var updateGate = new Group(block);
+      var inverseUpdateGate = new Group(block);
+      var resetGate = new Group(block);
+      var memoryCell = new Group(block);
+      var output = new Group(block);
+      var previousOutput = new Group(block);
+
+      previousOutput.set({ bias: 0, squash: Methods.Activation.IDENTITY, type: 'constant'});
+      memoryCell.set({ squash: Methods.Activation.TANH });
+      inverseUpdateGate.set({ bias: 0, squash: Methods.Activation.INVERSE, type: 'constant'});
+      updateGate.set({ bias: 1 });
+      resetGate.set({ bias: 1 });
+
+      // Update gate calculation
+      input.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+      previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+
+      // Inverse update gate calculation
+      updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
+
+      // Reset gate calculation
+      input.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+      previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+
+      // Memory calculation
+      input.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+      var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+
+      resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
+
+      // Output calculation
+      var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
+      var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
+
+      updateGate.gate(update1, Methods.Gating.OUTPUT);
+      inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
+
+      // Previous output calculation
+      output.connect(previousOutput, Methods.Connection.ALL_TO_ALL, 1);
+
+      // Connect previous
+      previous.connect(input, Methods.Connection.ALL_TO_ALL);
+
+      // output is afhankelijk van input en previous, maar deze zijn in de gegeven opstelling GELIJK
+      nodes = nodes.concat([input, updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput]);
+
+      previous = output;
+    }
+
+    previous.connect(outputLayer, Methods.Connection.ALL_TO_ALL);
+    nodes.push(outputLayer);
+
     return Architect.Construct(nodes);
   },
 

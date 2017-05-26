@@ -2583,7 +2583,7 @@ var Architect = {
       inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
 
       // Previous output calculation
-      output.connect(previousOutput, Methods.Connection.ALL_TO_ALL, 1);
+      output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
 
       // Connect previous
       previous.connect(input, Methods.Connection.ALL_TO_ALL);

@@ -6,6 +6,7 @@ var Methods    = require('./methods/methods');
 var Connection = require('./connection');
 var Node       = require('./node');
 var Config     = require('./config');
+var Layer      = require('./layer');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -101,7 +102,8 @@ Group.prototype = {
           connections.push(connection[0]);
         }
       }
-
+    } else if(target instanceof Layer){
+      var connections = target.input(this, method, weight);
     } else if(target instanceof Node){
       for(var i = 0; i < this.nodes.length; i++){
         var connection = this.nodes[i].connect(target, weight);

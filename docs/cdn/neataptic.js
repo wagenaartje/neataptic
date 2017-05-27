@@ -133,7 +133,7 @@ module.exports = function(module) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation : __webpack_require__(8),
+  Activation : __webpack_require__(10),
   Mutation   : __webpack_require__(15),
   Selection  : __webpack_require__(16),
   Crossover  : __webpack_require__(13),
@@ -642,6 +642,7 @@ var Methods    = __webpack_require__(1);
 var Connection = __webpack_require__(4);
 var Node       = __webpack_require__(2);
 var Config     = __webpack_require__(3);
+var Layer      = __webpack_require__(6);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -737,7 +738,8 @@ Group.prototype = {
           connections.push(connection[0]);
         }
       }
-
+    } else if(target instanceof Layer){
+      var connections = target.input(this, method, weight);
     } else if(target instanceof Node){
       for(var i = 0; i < this.nodes.length; i++){
         var connection = this.nodes[i].connect(target, weight);
@@ -900,6 +902,315 @@ Group.prototype = {
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
+if (module) module.exports = Layer;
+
+/* Import */
+var Methods    = __webpack_require__(1);
+var Connection = __webpack_require__(4);
+var Node       = __webpack_require__(2);
+var Config     = __webpack_require__(3);
+var Architect  = __webpack_require__(8);
+var Group      = __webpack_require__(5);
+
+/* Easier variable naming */
+var Activation = Methods.Activation;
+var Mutation   = Methods.Mutation;
+
+/******************************************************************************************
+                                         Group
+*******************************************************************************************/
+
+function Layer(){
+  this.output = null;
+
+  this.nodes = [];
+  this.connections = { in : [], out: [] , self: [] };
+}
+
+Layer.prototype = {
+  /**
+   * Activates all the nodes in the group
+   */
+  activate: function(value){
+    var values = [];
+
+    if(typeof value != 'undefined' && value.length != this.nodes.length){
+      throw new Error('Array with values should be same as the amount of nodes!');
+    }
+
+    for(var i = 0; i < this.nodes.length; i++){
+      if(typeof value == 'undefined'){
+        var activation = this.nodes[i].activate();
+      } else {
+        var activation = this.nodes[i].activate(value[i]);
+      }
+
+      values.push(activation);
+    }
+
+    return values;
+  },
+
+  /**
+   * Propagates all the node in the group
+   */
+  propagate: function(rate, target){
+    if(typeof target != 'undefined' && target.length != this.nodes.length){
+      throw new Error('Array with values should be same as the amount of nodes!');
+    }
+
+    for(var i = this.nodes.length - 1; i >= 0; i--){
+      if(typeof target == 'undefined'){
+        this.nodes[i].propagate(rate);
+      } else {
+        this.nodes[i].propagate(rate, target[i]);
+      }
+    }
+  },
+
+  /**
+   * Connects the nodes in this group to nodes in another group or just a node
+   */
+  connect: function(target, method, weight){
+    if(target instanceof Group || target instanceof Node){
+      var connections = this.output.connect(target, method, weight);
+    } else if (target instanceof Layer){
+      var connections = target.input(this, method, weight);
+    }
+
+    return connections;
+  },
+
+  /**
+   * Make nodes from this group gate the given connection(s)
+   */
+  gate: function(connections, method){
+    this.output.gate(connections, method);
+  },
+
+  /**
+   * Sets the value of a property for every node
+   */
+  set: function(values){
+    for(var node in this.nodes){
+      if(typeof values.bias != 'undefined'){
+        this.nodes[node].bias = values.bias;
+      }
+
+      this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      this.nodes[node].type = values.type || this.nodes[node].type;
+    }
+  },
+
+  /**
+   * Disconnects all nodes from this group from another given group/node
+   */
+  disconnect: function(target, twosided){
+    twosided = twosided || false;
+
+    // In the future, disconnect will return a connection so indexOf can be used
+    if(target instanceof Group){
+      for(var i = 0; i < this.nodes.length; i++){
+        for(var j = 0; j < target.nodes.length; j++){
+          this.nodes[i].disconnect(target.nodes[j], twosided);
+
+          for(index in this.connections.out){
+            var conn = this.connections.out[index];
+
+            if(conn.from == this.nodes[i] && conn.to == target.nodes[j]){
+              this.connections.out.splice(index, 1);
+              break;
+            }
+          }
+
+          if(twosided){
+            for(index in this.connections.in){
+              var conn = this.connections.in[index];
+
+              if(conn.from == target.nodes[j] && conn.to == this.nodes[i]){
+                this.connections.in.splice(index, 1);
+                break;
+              }
+            }
+          }
+        }
+      }
+    } else if(target instanceof Node){
+      for(var i = 0; i < this.nodes.length; i++){
+        var connection = this.nodes[i].disconnect(target, twosided);
+
+        for(index in this.connections.out){
+          var conn = this.connections.out[index];
+
+          if(conn.from == this.nodes[i] && conn.to == target){
+            this.connections.out.splice(index, 1);
+            break;
+          }
+        }
+
+        if(twosided){
+          for(index in this.connections.in){
+            var conn = this.connections.in[index];
+
+            if(conn.from == target && conn.to == this.nodes[i]){
+              this.connections.in.splice(index, 1);
+              break;
+            }
+          }
+        }
+      }
+    }
+  },
+
+  /**
+   * Clear the context of this group
+   */
+  clear: function(){
+    for(var node in this.nodes){
+      this.nodes[node].clear();
+    }
+  }
+}
+
+Layer.Dense = function(size){
+  // Create the layer
+  var layer = new Layer();
+
+  // Init required nodes (in activation order)
+  var block = new Group(size);
+
+  layer.nodes.push(block);
+  layer.output = block;
+
+  layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
+    method = method || Methods.Connection.ALL_TO_ALL;
+    return from.connect(block, method, weight);
+  }
+
+  return layer;
+}
+
+Layer.LSTM = function(size){
+  // Create the layer
+  var layer = new Layer();
+
+  // Init required nodes (in activation order)
+  var inputGate   = new Group(size);
+  var forgetGate  = new Group(size);
+  var memoryCell  = new Group(size);
+  var outputGate  = new Group(size);
+  var outputBlock = new Group(size);
+
+  inputGate.set({ bias:1 });
+  forgetGate.set({ bias:1 });
+  outputGate.set({ bias:1 });
+
+  // Set up internal connections
+  memoryCell.connect(inputGate,  Methods.Connection.ALL_TO_ALL);
+  memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
+  memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
+  var forget = memoryCell.connect(memoryCell,  Methods.Connection.ONE_TO_ONE);
+  var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
+
+  // Set up gates
+  forgetGate.gate(forget, Methods.Gating.SELF);
+  outputGate.gate(output, Methods.Gating.OUTPUT);
+
+  // Add to nodes array
+  layer.nodes = [inputGate, forgetGate, memoryCell, outputGate, outputBlock];
+
+  // Define output
+  layer.output = outputBlock;
+
+  layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
+    method = method || Methods.Connection.ALL_TO_ALL;
+    var connections = [];
+
+    var input = from.connect(memoryCell, method, weight);
+    connections.concat(input);
+
+    connections.concat(from.connect(inputGate,  method, weight));
+    connections.concat(from.connect(outputGate, method, weight));
+    connections.concat(from.connect(forgetGate, method, weight));
+
+    inputGate.gate(input, Methods.Gating.INPUT);
+
+    return connections;
+  }
+
+  return layer;
+};
+
+Layer.GRU = function(size){
+  // Create the layer
+  var layer = new Layer();
+
+  var updateGate        = new Group(size);
+  var inverseUpdateGate = new Group(size);
+  var resetGate         = new Group(size);
+  var memoryCell        = new Group(size);
+  var output            = new Group(size);
+  var previousOutput    = new Group(size);
+
+  previousOutput.set({ bias: 0, squash: Methods.Activation.IDENTITY, type: 'constant'});
+  memoryCell.set({ squash: Methods.Activation.TANH });
+  inverseUpdateGate.set({ bias: 0, squash: Methods.Activation.INVERSE, type: 'constant'});
+  updateGate.set({ bias: 1 });
+  resetGate.set({ bias: 0 });
+
+  // Update gate calculation
+  previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+
+  // Inverse update gate calculation
+  updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
+
+  // Reset gate calculation
+  previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+
+  // Memory calculation
+  var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+
+  resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
+
+  // Output calculation
+  var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
+  var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
+
+  updateGate.gate(update1, Methods.Gating.OUTPUT);
+  inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
+
+  // Previous output calculation
+  output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
+
+  // Add to nodes array
+  layer.nodes = [updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput];
+
+  layer.output = output;
+
+  layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
+    method = method || Methods.Connection.ALL_TO_ALL;
+    var connections = [];
+
+    connections.concat(from.connect(updateGate, method, weight));
+    connections.concat(from.connect(resetGate,  method, weight));
+    connections.concat(from.connect(memoryCell, method, weight));
+
+    return connections;
+  }
+
+  return layer;
+}
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(module) {/* Export */
 if (module) module.exports = Network;
 
 /* Import */
@@ -907,7 +1218,7 @@ var Node       = __webpack_require__(2);
 var Connection = __webpack_require__(4);
 var Methods    = __webpack_require__(1);
 var Config     = __webpack_require__(3);
-var Neat       = __webpack_require__(7);
+var Neat       = __webpack_require__(9);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -1972,325 +2283,15 @@ Network.prototype = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Neat;
-
-/* Import */
-var Node = __webpack_require__(2);
-var Network = __webpack_require__(6);
-var Methods = __webpack_require__(1);
-
-/* Easier variable naming */
-var Activation = Methods.Activation;
-var Mutation   = Methods.Mutation;
-var Selection  = Methods.Selection;
-var Crossover  = Methods.Crossover;
-
-/*******************************************************************************************
-                                         NEAT
-*******************************************************************************************/
-
-function Neat(input, output, fitness, options){
-  this.input   = input;   // The input size of the networks
-  this.output  = output;  // The output size of the networks
-  this.fitness = fitness; // The fitness function to evaluate the networks
-
-  // Configure options
-  options = options || {};
-  this.equal          = options.equal          || false;
-  this.popsize        = options.popsize        || 50;
-  this.elitism        = options.elitism        || 0;
-  this.mutationRate   = options.mutationRate   || 0.3;
-  this.mutationAmount = options.mutationAmount || 1;
-
-  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
-  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
-                                              Methods.Crossover.TWO_POINT,
-                                              Methods.Crossover.UNIFORM,
-                                              Methods.Crossover.AVERAGE];
-  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
-                                              Methods.Mutation.SUB_CONN,
-                                              Methods.Mutation.ADD_NODE,
-                                              Methods.Mutation.SUB_NODE,
-                                              Methods.Mutation.MOD_BIAS,
-                                              Methods.Mutation.MOD_WEIGHT,
-                                              Methods.Mutation.MOD_ACTIVATION];
-
-  // Generation counter
-  this.generation = 0;
-
-  // Initialise the genomes
-  this.createPool(options.network || new Network(this.input, this.output));
-}
-
-Neat.prototype = {
-  /**
-   * Create the initial pool of genomes
-   */
-  createPool: function(network){
-    this.population = [];
-
-    for(var i = 0; i < this.popsize; i++){
-      var copy = Network.fromJSON(network.toJSON());
-      copy.score = null;
-      this.population.push(copy);
-    }
-  },
-
-  /**
-   * Evaluates, selects, breeds and mutates population
-   */
-  evolve: function(){
-    // Check if evaluated, sort the population
-    if(this.population[this.population.length-1].score == null){
-      this.evaluate();
-    }
-    this.sort();
-
-    var newPopulation = [];
-
-    // Elitism
-    for(var i = 0; i < this.elitism; i++){
-      newPopulation.push(this.population[i]);
-    }
-
-    // Breed the next individuals
-    for(var i = 0; i < this.popsize - this.elitism; i++){
-      newPopulation.push(this.getOffspring());
-    }
-
-    // Replace the old population with the new population
-    this.population = newPopulation;
-    this.mutate();
-
-    // Reset the scores
-    for(var i = 0; i < this.population.length; i++){
-      this.population[i].score = null;
-    }
-
-    this.generation++;
-  },
-
-  /**
-   * Breeds two parents into an offspring, population MUST be surted
-   */
-   getOffspring: function(){
-     parent1 = this.getParent();
-     parent2 = this.getParent();
-
-     if(this.equal == true){
-       parent1.score = 0;
-       parent2.score = 0;
-     }
-
-     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-     return Network.crossOver(parent1, parent2, crossoverMethod);
-   },
-
-  /**
-   * Mutates the given (or current) population
-   */
-  mutate: function(){
-    for(genome in this.population){
-      if(Math.random() <= this.mutationRate){
-        for(var i = 0; i < this.mutationAmount; i++){
-          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-          this.population[genome].mutate(mutationMethod);
-        }
-      }
-    }
-  },
-
-  /**
-   * Evaluates the current population
-   */
-  evaluate: function(){
-    for(genome in this.population){
-      var score = this.fitness(this.population[genome]);
-      this.population[genome].score = score;
-    }
-  },
-
-  /**
-   * Sorts the population by score
-   */
-  sort: function(){
-    this.population.sort(function(a,b){
-      return b.score - a.score;
-    });
-  },
-
-  /**
-   * Returns the fittest genome of the current population
-   */
-  getFittest: function(){
-    // Check if evaluated
-    if(this.population[this.population.length-1].score == null){
-      this.evaluate();
-    }
-
-    this.sort();
-    return this.population[0];
-  },
-
-  /**
-   * Returns the average fitness of the current population
-   */
-   getAverage: function(){
-     if(this.population[this.population.length-1].score == null){
-       this.evaluate();
-     }
-
-     var score = 0;
-     for(genome in this.population){
-       score += this.population[genome].score;
-     }
-
-     return score / this.popsize;
-   },
-
-  /**
-   * Gets a genome based on the selection function
-   * @return {Network} genome
-   */
-  getParent: function(){
-    var selectionMethod = this.selection[Math.floor(Math.random() * this.selection.length)];
-    switch(selectionMethod){
-      case Selection.FITNESS_PROPORTIONATE:
-        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.popsize);
-        return this.population[r];
-        break;
-    }
-  },
-
-  /**
-   * Export the current population to a json object
-   */
-  export: function(){
-    var json = [];
-    for(var genome in this.population){
-      genome = this.population[genome];
-      json.push(genome.toJSON());
-    }
-
-    return json;
-  },
-
-  /**
-   * Import population from a json object
-   */
-  import: function(json){
-    var population = [];
-    for(var genome in json){
-      genome = json[genome];
-      population.push(Network.fromJSON(genome));
-    }
-    this.population = population;
-    this.popsize = population.length;
-  }
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
-                                  ACTIVATION FUNCTIONS
-*******************************************************************************************/
-
-// https://en.wikipedia.org/wiki/Activation_function
-// https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
-var Activation = {
-  LOGISTIC : function(x, derivate){
-    if (!derivate)
-      return 1 / (1 + Math.exp(-x));
-    var fx = Activation.LOGISTIC(x);
-    return fx * (1 - fx);
-  },
-  TANH : function(x, derivate){
-    if (derivate)
-      return 1 - Math.pow(Activation.TANH(x), 2);
-    return Math.tanh(x);
-  },
-  IDENTITY : function(x, derivate){
-    return derivate ? 1 : x;
-  },
-  STEP : function(x, derivate){
-    return derivate ? 0 : x > 0 ? 1 : 0;
-  },
-  RELU : function(x, derivate){
-    if (derivate)
-      return x > 0 ? 1 : 0;
-    return x > 0 ? x : 0;
-  },
-  SOFTSIGN : function(x, derivate){
-    var d = 1 + Math.abs(x);
-    if(derivate)
-      return x / Math.pow(d, 2);
-    return x / d;
-  },
-  SINUSOID : function(x, derivate){
-    if(derivate)
-      return Math.cos(x);
-    return Math.sin(x);
-  },
-  GAUSSIAN : function(x, derivate){
-    var d = Math.exp(-Math.pow(x, 2));
-    if(derivate)
-      return -2 * x * d;
-    return d;
-  },
-  BENT_IDENTITY: function(x, derivate){
-    var d = Math.sqrt(Math.pow(x, 2) + 1);
-    if(derivate)
-      return x / (2 * d) + 1;
-    return (d - 1) / 2 + x;
-  },
-  BIPOLAR : function(x, derivate){
-    return derivate ? 0 : x > 0 ? 1 : -1;
-  },
-  BIPOLAR_SIGMOID : function(x, derivate){
-    var d = 2 / (1 + Math.exp(-x)) - 1;
-    if(derivate)
-      return 1/2 * (1 + d) * (1 - d);
-    return d;
-  },
-  HARD_TANH : function(x, derivate){
-    if(derivate)
-      return x > -1 && x < 1 ? 1 : 0;
-    return Math.max(-1, Math.min(1, x));
-  },
-  ABSOLUTE : function(x, derivate){
-    if(derivate)
-      return x < 0 ? -1 : 1;
-    return Math.abs(x);
-  },
-  INVERSE : function(x, derivate){
-    if(derivate)
-      return -1;
-    return 1 - x;
-  }
-};
-
-/* Export */
-if (module) module.exports = Activation;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Network = __webpack_require__(6);
+var Network = __webpack_require__(7);
 var Methods = __webpack_require__(1);
 var Node    = __webpack_require__(2);
 var Group   = __webpack_require__(5);
+var Layer   = __webpack_require__(6);
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -2546,64 +2547,23 @@ var Architect = {
       throw new Error("not enough layers (minimum 3) !!");
     }
 
-    var outputLayer = new Group(args.pop()); // last argument
     var inputLayer  = new Group(args.shift()); // first argument
+    var outputLayer = new Group(args.pop()); // last argument
     var blocks = args; // all the arguments in the middle
 
     var nodes = [];
     nodes.push(inputLayer);
 
     var previous = inputLayer;
-    for(var block in blocks){
-      block = blocks[block];
+    for(var i = 0; i < blocks.length; i++){
+      var layer = new Layer.GRU(blocks[i]);
+      previous.connect(layer);
+      previous = layer;
 
-      // Init required nodes (in activation order)
-      var updateGate = new Group(block);
-      var inverseUpdateGate = new Group(block);
-      var resetGate = new Group(block);
-      var memoryCell = new Group(block);
-      var output = new Group(block);
-      var previousOutput = new Group(block);
-
-      previousOutput.set({ bias: 0, squash: Methods.Activation.IDENTITY, type: 'constant'});
-      memoryCell.set({ squash: Methods.Activation.TANH });
-      inverseUpdateGate.set({ bias: 0, squash: Methods.Activation.INVERSE, type: 'constant'});
-      updateGate.set({ bias: 1 });
-      resetGate.set({ bias: 0 });
-
-      // Update gate calculation
-      previous.connect(updateGate, Methods.Connection.ALL_TO_ALL);
-      previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
-
-      // Inverse update gate calculation
-      updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
-
-      // Reset gate calculation
-      previous.connect(resetGate, Methods.Connection.ALL_TO_ALL);
-      previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
-
-      // Memory calculation
-      previous.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-      var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-
-      resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
-
-      // Output calculation
-      var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
-      var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
-
-      updateGate.gate(update1, Methods.Gating.OUTPUT);
-      inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
-
-      // Previous output calculation
-      output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
-
-      nodes = nodes.concat([updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput]);
-
-      previous = output;
+      nodes.push(layer);
     }
 
-    previous.connect(outputLayer, Methods.Connection.ALL_TO_ALL);
+    previous.connect(outputLayer);
     nodes.push(outputLayer);
 
     return Architect.Construct(nodes);
@@ -2718,306 +2678,313 @@ if (module) module.exports = Architect;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Layer;
+if (module) module.exports = Neat;
 
 /* Import */
-var Methods    = __webpack_require__(1);
-var Connection = __webpack_require__(4);
-var Node       = __webpack_require__(2);
-var Config     = __webpack_require__(3);
+var Node = __webpack_require__(2);
+var Network = __webpack_require__(7);
+var Methods = __webpack_require__(1);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
 var Mutation   = Methods.Mutation;
+var Selection  = Methods.Selection;
+var Crossover  = Methods.Crossover;
 
-/******************************************************************************************
-                                         Group
+/*******************************************************************************************
+                                         NEAT
 *******************************************************************************************/
 
-function Layer(){
-  this.output = null;
+function Neat(input, output, fitness, options){
+  this.input   = input;   // The input size of the networks
+  this.output  = output;  // The output size of the networks
+  this.fitness = fitness; // The fitness function to evaluate the networks
 
-  this.nodes = [];
-  this.connections = { in : [], out: [] , self: [] };
+  // Configure options
+  options = options || {};
+  this.equal          = options.equal          || false;
+  this.popsize        = options.popsize        || 50;
+  this.elitism        = options.elitism        || 0;
+  this.mutationRate   = options.mutationRate   || 0.3;
+  this.mutationAmount = options.mutationAmount || 1;
+
+  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
+  this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
+                                              Methods.Crossover.TWO_POINT,
+                                              Methods.Crossover.UNIFORM,
+                                              Methods.Crossover.AVERAGE];
+  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
+                                              Methods.Mutation.SUB_CONN,
+                                              Methods.Mutation.ADD_NODE,
+                                              Methods.Mutation.SUB_NODE,
+                                              Methods.Mutation.MOD_BIAS,
+                                              Methods.Mutation.MOD_WEIGHT,
+                                              Methods.Mutation.MOD_ACTIVATION];
+
+  // Generation counter
+  this.generation = 0;
+
+  // Initialise the genomes
+  this.createPool(options.network || new Network(this.input, this.output));
 }
 
-Layer.prototype = {
+Neat.prototype = {
   /**
-   * Activates all the nodes in the group
+   * Create the initial pool of genomes
    */
-  activate: function(value){
-    var values = [];
+  createPool: function(network){
+    this.population = [];
 
-    if(typeof value != 'undefined' && value.length != this.nodes.length){
-      throw new Error('Array with values should be same as the amount of nodes!');
-    }
-
-    for(var i = 0; i < this.nodes.length; i++){
-      if(typeof value == 'undefined'){
-        var activation = this.nodes[i].activate();
-      } else {
-        var activation = this.nodes[i].activate(value[i]);
-      }
-
-      values.push(activation);
-    }
-
-    return values;
-  },
-
-  /**
-   * Propagates all the node in the group
-   */
-  propagate: function(rate, target){
-    if(typeof target != 'undefined' && target.length != this.nodes.length){
-      throw new Error('Array with values should be same as the amount of nodes!');
-    }
-
-    for(var i = this.nodes.length - 1; i >= 0; i--){
-      if(typeof target == 'undefined'){
-        this.nodes[i].propagate(rate);
-      } else {
-        this.nodes[i].propagate(rate, target[i]);
-      }
+    for(var i = 0; i < this.popsize; i++){
+      var copy = Network.fromJSON(network.toJSON());
+      copy.score = null;
+      this.population.push(copy);
     }
   },
 
   /**
-   * Connects the nodes in this group to nodes in another group or just a node
+   * Evaluates, selects, breeds and mutates population
    */
-  connect: function(target, method, weight){
-    if(target instanceof Group || target instanceof Node){
-      var connections = this.output.connect(target, method, weight);
-    } else if (target instanceof Layer){
-      var connections = target.input(this, method, weight);
+  evolve: function(){
+    // Check if evaluated, sort the population
+    if(this.population[this.population.length-1].score == null){
+      this.evaluate();
+    }
+    this.sort();
+
+    var newPopulation = [];
+
+    // Elitism
+    for(var i = 0; i < this.elitism; i++){
+      newPopulation.push(this.population[i]);
     }
 
-    return connections;
-  },
-
-  /**
-   * Make nodes from this group gate the given connection(s)
-   */
-  gate: function(connections, method){
-    this.output.gate(connections, method);
-  },
-
-  /**
-   * Sets the value of a property for every node
-   */
-  set: function(values){
-    for(var node in this.nodes){
-      if(typeof values.bias != 'undefined'){
-        this.nodes[node].bias = values.bias;
-      }
-
-      this.nodes[node].squash = values.squash || this.nodes[node].squash;
-      this.nodes[node].type = values.type || this.nodes[node].type;
+    // Breed the next individuals
+    for(var i = 0; i < this.popsize - this.elitism; i++){
+      newPopulation.push(this.getOffspring());
     }
+
+    // Replace the old population with the new population
+    this.population = newPopulation;
+    this.mutate();
+
+    // Reset the scores
+    for(var i = 0; i < this.population.length; i++){
+      this.population[i].score = null;
+    }
+
+    this.generation++;
   },
 
   /**
-   * Disconnects all nodes from this group from another given group/node
+   * Breeds two parents into an offspring, population MUST be surted
    */
-  disconnect: function(target, twosided){
-    twosided = twosided || false;
+   getOffspring: function(){
+     parent1 = this.getParent();
+     parent2 = this.getParent();
 
-    // In the future, disconnect will return a connection so indexOf can be used
-    if(target instanceof Group){
-      for(var i = 0; i < this.nodes.length; i++){
-        for(var j = 0; j < target.nodes.length; j++){
-          this.nodes[i].disconnect(target.nodes[j], twosided);
+     if(this.equal == true){
+       parent1.score = 0;
+       parent2.score = 0;
+     }
 
-          for(index in this.connections.out){
-            var conn = this.connections.out[index];
+     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
+     return Network.crossOver(parent1, parent2, crossoverMethod);
+   },
 
-            if(conn.from == this.nodes[i] && conn.to == target.nodes[j]){
-              this.connections.out.splice(index, 1);
-              break;
-            }
-          }
-
-          if(twosided){
-            for(index in this.connections.in){
-              var conn = this.connections.in[index];
-
-              if(conn.from == target.nodes[j] && conn.to == this.nodes[i]){
-                this.connections.in.splice(index, 1);
-                break;
-              }
-            }
-          }
-        }
-      }
-    } else if(target instanceof Node){
-      for(var i = 0; i < this.nodes.length; i++){
-        var connection = this.nodes[i].disconnect(target, twosided);
-
-        for(index in this.connections.out){
-          var conn = this.connections.out[index];
-
-          if(conn.from == this.nodes[i] && conn.to == target){
-            this.connections.out.splice(index, 1);
-            break;
-          }
-        }
-
-        if(twosided){
-          for(index in this.connections.in){
-            var conn = this.connections.in[index];
-
-            if(conn.from == target && conn.to == this.nodes[i]){
-              this.connections.in.splice(index, 1);
-              break;
-            }
-          }
+  /**
+   * Mutates the given (or current) population
+   */
+  mutate: function(){
+    for(genome in this.population){
+      if(Math.random() <= this.mutationRate){
+        for(var i = 0; i < this.mutationAmount; i++){
+          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          this.population[genome].mutate(mutationMethod);
         }
       }
     }
   },
 
   /**
-   * Clear the context of this group
+   * Evaluates the current population
    */
-  clear: function(){
-    for(var node in this.nodes){
-      this.nodes[node].clear();
+  evaluate: function(){
+    for(genome in this.population){
+      var score = this.fitness(this.population[genome]);
+      this.population[genome].score = score;
     }
+  },
+
+  /**
+   * Sorts the population by score
+   */
+  sort: function(){
+    this.population.sort(function(a,b){
+      return b.score - a.score;
+    });
+  },
+
+  /**
+   * Returns the fittest genome of the current population
+   */
+  getFittest: function(){
+    // Check if evaluated
+    if(this.population[this.population.length-1].score == null){
+      this.evaluate();
+    }
+
+    this.sort();
+    return this.population[0];
+  },
+
+  /**
+   * Returns the average fitness of the current population
+   */
+   getAverage: function(){
+     if(this.population[this.population.length-1].score == null){
+       this.evaluate();
+     }
+
+     var score = 0;
+     for(genome in this.population){
+       score += this.population[genome].score;
+     }
+
+     return score / this.popsize;
+   },
+
+  /**
+   * Gets a genome based on the selection function
+   * @return {Network} genome
+   */
+  getParent: function(){
+    var selectionMethod = this.selection[Math.floor(Math.random() * this.selection.length)];
+    switch(selectionMethod){
+      case Selection.FITNESS_PROPORTIONATE:
+        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.popsize);
+        return this.population[r];
+        break;
+    }
+  },
+
+  /**
+   * Export the current population to a json object
+   */
+  export: function(){
+    var json = [];
+    for(var genome in this.population){
+      genome = this.population[genome];
+      json.push(genome.toJSON());
+    }
+
+    return json;
+  },
+
+  /**
+   * Import population from a json object
+   */
+  import: function(json){
+    var population = [];
+    for(var genome in json){
+      genome = json[genome];
+      population.push(Network.fromJSON(genome));
+    }
+    this.population = population;
+    this.popsize = population.length;
   }
-}
-
-Layer.Dense = function(size){
-  // Create the layer
-  var layer = new Layer();
-
-  // Init required nodes (in activation order)
-  var block = new Group(size);
-
-  layer.nodes.push(block);
-  layer.output = block;
-
-  layer.input = function(from, method, weight){
-    method = method || Methods.Connection.ALL_TO_ALL;
-    return from.output.connect(block, method, weight);
-  }
-
-  return layer;
-}
-
-Layer.LSTM = function(size){
-  // Create the layer
-  var layer = new Layer();
-
-  // Init required nodes (in activation order)
-  var inputGate   = new Group(size);
-  var forgetGate  = new Group(size);
-  var memoryCell  = new Group(size);
-  var outputGate  = new Group(size);
-  var outputBlock = new Group(size);
-
-  inputGate.set({ bias:1 });
-  forgetGate.set({ bias:1 });
-  outputGate.set({ bias:1 });
-
-  // Set up internal connections
-  memoryCell.connect(inputGate,  Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-  var forget = memoryCell.connect(memoryCell,  Methods.Connection.ONE_TO_ONE);
-  var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
-
-  // Set up gates
-  forgetGate.gate(forget, Methods.Gating.SELF);
-  outputGate.gate(output, Methods.Gating.OUTPUT);
-
-  // Add to nodes array
-  layer.nodes = [inputGate, forgetGate, memoryCell, outputGate, outputBlock];
-
-  // Define output
-  layer.output = outputBlock;
-
-  layer.input = function(from, method, weight){
-    method = method || Methods.Connection.ALL_TO_ALL;
-    var connections = [];
-
-    var input = from.output.connect(memoryCell, method, weight);
-    connections.concat(input);
-
-    connections.concat(from.output.connect(inputGate,  method, weight));
-    connections.concat(from.output.connect(outputGate, method, weight));
-    connections.concat(from.output.connect(forgetGate, method, weight));
-
-    inputGate.gate(input, Methods.Gating.INPUT);
-
-    return connections;
-  }
-
-  return layer;
 };
 
-Layer.GRU = function(size){
-  // Create the layer
-  var layer = new Layer();
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
-  var updateGate        = new Group(size);
-  var inverseUpdateGate = new Group(size);
-  var resetGate         = new Group(size);
-  var memoryCell        = new Group(size);
-  var output            = new Group(size);
-  var previousOutput    = new Group(size);
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
 
-  previousOutput.set({ bias: 0, squash: Methods.Activation.IDENTITY, type: 'constant'});
-  memoryCell.set({ squash: Methods.Activation.TANH });
-  inverseUpdateGate.set({ bias: 0, squash: Methods.Activation.INVERSE, type: 'constant'});
-  updateGate.set({ bias: 1 });
-  resetGate.set({ bias: 0 });
+/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+                                  ACTIVATION FUNCTIONS
+*******************************************************************************************/
 
-  // Update gate calculation
-  previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
-
-  // Inverse update gate calculation
-  updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
-
-  // Reset gate calculation
-  previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
-
-  // Memory calculation
-  var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-
-  resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
-
-  // Output calculation
-  var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
-  var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
-
-  updateGate.gate(update1, Methods.Gating.OUTPUT);
-  inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
-
-  // Previous output calculation
-  output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
-
-  // Add to nodes array
-  layer.nodes = [updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput];
-
-  layer.output = output;
-
-  layer.input = function(from, method, weight){
-    method = method || Methods.Connection.ALL_TO_ALL;
-    var connections = [];
-
-    connections.concat(from.output.connect(updateGate, method, weight));
-    connections.concat(from.output.connect(resetGate,  method, weight));
-    connections.concat(from.output.connect(memoryCell, method, weight));
-
-    return connections;
+// https://en.wikipedia.org/wiki/Activation_function
+// https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
+var Activation = {
+  LOGISTIC : function(x, derivate){
+    if (!derivate)
+      return 1 / (1 + Math.exp(-x));
+    var fx = Activation.LOGISTIC(x);
+    return fx * (1 - fx);
+  },
+  TANH : function(x, derivate){
+    if (derivate)
+      return 1 - Math.pow(Activation.TANH(x), 2);
+    return Math.tanh(x);
+  },
+  IDENTITY : function(x, derivate){
+    return derivate ? 1 : x;
+  },
+  STEP : function(x, derivate){
+    return derivate ? 0 : x > 0 ? 1 : 0;
+  },
+  RELU : function(x, derivate){
+    if (derivate)
+      return x > 0 ? 1 : 0;
+    return x > 0 ? x : 0;
+  },
+  SOFTSIGN : function(x, derivate){
+    var d = 1 + Math.abs(x);
+    if(derivate)
+      return x / Math.pow(d, 2);
+    return x / d;
+  },
+  SINUSOID : function(x, derivate){
+    if(derivate)
+      return Math.cos(x);
+    return Math.sin(x);
+  },
+  GAUSSIAN : function(x, derivate){
+    var d = Math.exp(-Math.pow(x, 2));
+    if(derivate)
+      return -2 * x * d;
+    return d;
+  },
+  BENT_IDENTITY: function(x, derivate){
+    var d = Math.sqrt(Math.pow(x, 2) + 1);
+    if(derivate)
+      return x / (2 * d) + 1;
+    return (d - 1) / 2 + x;
+  },
+  BIPOLAR : function(x, derivate){
+    return derivate ? 0 : x > 0 ? 1 : -1;
+  },
+  BIPOLAR_SIGMOID : function(x, derivate){
+    var d = 2 / (1 + Math.exp(-x)) - 1;
+    if(derivate)
+      return 1/2 * (1 + d) * (1 - d);
+    return d;
+  },
+  HARD_TANH : function(x, derivate){
+    if(derivate)
+      return x > -1 && x < 1 ? 1 : 0;
+    return Math.max(-1, Math.min(1, x));
+  },
+  ABSOLUTE : function(x, derivate){
+    if(derivate)
+      return x < 0 ? -1 : 1;
+    return Math.abs(x);
+  },
+  INVERSE : function(x, derivate){
+    if(derivate)
+      return -1;
+    return 1 - x;
   }
+};
 
-  return layer;
-}
+/* Export */
+if (module) module.exports = Activation;
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
@@ -3189,7 +3156,7 @@ if (module) module.exports = Gating;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Activation = __webpack_require__(8);
+var Activation = __webpack_require__(10);
 
 /*******************************************************************************************
                                       MUTATION
@@ -3321,14 +3288,14 @@ if (module) module.exports = Selection;
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   Node       : __webpack_require__(2),
-  Neat       : __webpack_require__(7),
-  Network    : __webpack_require__(6),
+  Neat       : __webpack_require__(9),
+  Network    : __webpack_require__(7),
   Methods    : __webpack_require__(1),
-  Architect  : __webpack_require__(9),
+  Architect  : __webpack_require__(8),
   Group      : __webpack_require__(5),
   Connection : __webpack_require__(4),
   Config     : __webpack_require__(3),
-  Layer      : __webpack_require__(10)
+  Layer      : __webpack_require__(6)
 };
 
 // CommonJS & AMD

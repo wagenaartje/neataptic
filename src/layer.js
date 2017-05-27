@@ -6,6 +6,8 @@ var Methods    = require('./methods/methods');
 var Connection = require('./connection');
 var Node       = require('./node');
 var Config     = require('./config');
+var Architect  = require('./architect');
+var Group      = require('./group');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -178,8 +180,9 @@ Layer.Dense = function(size){
   layer.output = block;
 
   layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
     method = method || Methods.Connection.ALL_TO_ALL;
-    return from.output.connect(block, method, weight);
+    return from.connect(block, method, weight);
   }
 
   return layer;
@@ -218,15 +221,16 @@ Layer.LSTM = function(size){
   layer.output = outputBlock;
 
   layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
     method = method || Methods.Connection.ALL_TO_ALL;
     var connections = [];
 
-    var input = from.output.connect(memoryCell, method, weight);
+    var input = from.connect(memoryCell, method, weight);
     connections.concat(input);
 
-    connections.concat(from.output.connect(inputGate,  method, weight));
-    connections.concat(from.output.connect(outputGate, method, weight));
-    connections.concat(from.output.connect(forgetGate, method, weight));
+    connections.concat(from.connect(inputGate,  method, weight));
+    connections.concat(from.connect(outputGate, method, weight));
+    connections.concat(from.connect(forgetGate, method, weight));
 
     inputGate.gate(input, Methods.Gating.INPUT);
 
@@ -283,12 +287,13 @@ Layer.GRU = function(size){
   layer.output = output;
 
   layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
     method = method || Methods.Connection.ALL_TO_ALL;
     var connections = [];
 
-    connections.concat(from.output.connect(updateGate, method, weight));
-    connections.concat(from.output.connect(resetGate,  method, weight));
-    connections.concat(from.output.connect(memoryCell, method, weight));
+    connections.concat(from.connect(updateGate, method, weight));
+    connections.concat(from.connect(resetGate,  method, weight));
+    connections.concat(from.connect(memoryCell, method, weight));
 
     return connections;
   }

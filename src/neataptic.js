@@ -6,7 +6,8 @@ var Neataptic = {
   Architect  : require('./architect'),
   Group      : require('./group'),
   Connection : require('./connection'),
-  Config     : require('./config')
+  Config     : require('./config'),
+  Layer      : require('./layer')
 };
 
 // CommonJS & AMD

@@ -24,6 +24,12 @@ var Architect = {
         for(var node in list[item].nodes){
           nodes.push(list[item].nodes[node]);
         }
+      } else if(list[item] instanceof Layer){
+        for(var group in list[item].nodes){
+          for(var node in list[item].nodes[group].nodes){
+            nodes.push(list[item].nodes[group].nodes[node]);
+          }
+        }
       } else if(list[item] instanceof Node){
         nodes.push(list[item]);
       }
@@ -304,7 +310,6 @@ var Architect = {
       // Previous output calculation
       output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
 
-      // output is afhankelijk van input en previous, maar deze zijn in de gegeven opstelling GELIJK
       nodes = nodes.concat([updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput]);
 
       previous = output;

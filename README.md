@@ -22,14 +22,35 @@
 
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved. 
 
+Use any of the <b>6</b> built-in networks with customisable sizes to create an network:
+
+```javascript
+var myNetwork = new Architect.LSTM(1,10,5,1);
+```
+
+Or built your <b>own</b> network with pre-built layers:
+
+```javascript
+var input = new Layer.Dense(2);
+var hidden1 = new Layer.LSTM(5);
+var hidden2 = new Layer.GRU(3);
+var output = new Layer.Dense(1);
+
+input.connect(hidden1);
+hidden1.connect(hidden2);
+hidden2.connect(output);
+
+var myNetwork = Architect.Construct([input, hidden1, hidden2, output]);
+```
+
+You can even built your network neuron-by-neuron using <b>nodes</b> and <b>groups</b>!
+
 <details>
 <summary><a href="https://github.com/wagenaartje/neataptic/wiki">Visit the wiki to get started</a></summary>
 </details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/playground/">or play around with neural networks</a></summary>
 </details>
-
-
 
 <img src="https://i.gyazo.com/27e8003df60dbbd21e240a53f8ec093a.png" width="33%"/><img src="https://i.gyazo.com/5325ca9217dbca3151a891739548a01d.png" width="33%"/><img src="https://i.gyazo.com/f566d2364af43dd3a78c8926ed204a51.png" width="33%"/>
 
@@ -41,7 +62,7 @@ of Neataptic, feel free to create a pull request!
 Basic XOR example:
 
 ```js
-var network = new neataptic.Architect.Perceptron(2,4,1);
+var network = new Architect.Perceptron(2,4,1);
 
 // Train the XOR gate
 network.train([{ input: [0,0], output: [0] },
@@ -55,7 +76,7 @@ network.activate([0,1]); // 0.9824...
 Or predict timeseries with a NARX network ([run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)):
 
 ```javascript
-var narx = new neataptic.Architect.NARX(1, 5, 1, 3, 3);
+var narx = new Architect.NARX(1, 5, 1, 3, 3);
 
 // Train a sequence: 00100100..
 narx.train([

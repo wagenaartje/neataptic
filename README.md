@@ -22,7 +22,7 @@
 
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved. 
 
-Use any of the <b>6</b> built-in networks with customisable sizes to create an network:
+Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript
 var myNetwork = new Architect.LSTM(1,10,5,1);

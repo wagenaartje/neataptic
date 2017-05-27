@@ -301,7 +301,7 @@ describe('Networks', function () {
     });
     it("GRU XOR", function(){
       this.timeout(30000);
-      var gru = new Architect.GRU(1,1,1);
+      var gru = new Architect.GRU(1,2,1);
 
       gru.train([
         { input: [0], output: [0]},

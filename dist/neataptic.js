@@ -2552,7 +2552,6 @@ var Architect = {
       block = blocks[block];
 
       // Init required nodes (in activation order)
-      var input = new Group(block);
       var updateGate = new Group(block);
       var inverseUpdateGate = new Group(block);
       var resetGate = new Group(block);
@@ -2564,21 +2563,21 @@ var Architect = {
       memoryCell.set({ squash: Methods.Activation.TANH });
       inverseUpdateGate.set({ bias: 0, squash: Methods.Activation.INVERSE, type: 'constant'});
       updateGate.set({ bias: 1 });
-      resetGate.set({ bias: 1 });
+      resetGate.set({ bias: 0 });
 
       // Update gate calculation
-      input.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+      previous.connect(updateGate, Methods.Connection.ALL_TO_ALL);
       previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
 
       // Inverse update gate calculation
       updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
 
       // Reset gate calculation
-      input.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+      previous.connect(resetGate, Methods.Connection.ALL_TO_ALL);
       previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
 
       // Memory calculation
-      input.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+      previous.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
       var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
 
       resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
@@ -2593,11 +2592,8 @@ var Architect = {
       // Previous output calculation
       output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
 
-      // Connect previous
-      previous.connect(input, Methods.Connection.ALL_TO_ALL);
-
       // output is afhankelijk van input en previous, maar deze zijn in de gegeven opstelling GELIJK
-      nodes = nodes.concat([input, updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput]);
+      nodes = nodes.concat([updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput]);
 
       previous = output;
     }

@@ -2438,85 +2438,93 @@ var Architect = {
       var outputLayer = new Group(args.pop()); // last argument
     }
 
+    outputLayer.set({ type: 'output'});
+
     var options = {};
     options.memoryToMemory = last.memoryToMemory || false;
     options.outputToMemory = last.outputToMemory || false;
     options.outputToGates  = last.outputToGates  || false;
-    options.inputToOutput  = last.inputToOutput  || true;
+    options.inputToOutput  = last.inputToOutput == undefined ? true : last.inputToOutput;
+    options.inputToDeep    = last.inputToDeep   == undefined ? true : last.inputToDeep;
 
     var inputLayer  = new Group(args.shift()); // first argument
+    inputLayer.set({ type: 'input'});
+
+
     var blocks = args; // all the arguments in the middle
 
     var nodes = [];
     nodes.push(inputLayer);
 
-    var previous = null;
-    for(var block in blocks){
-      block = blocks[block];
+    var previous = inputLayer;
+    for(var i = 0; i < blocks.length; i++){
+      var block = blocks[i];
 
       // Init required nodes (in activation order)
-      var inputGate  = new Group(block);
-      var forgetGate = new Group(block);
-      var memoryCell = new Group(block);
-      var outputGate = new Group(block);
+      var inputGate   = new Group(block);
+      var forgetGate  = new Group(block);
+      var memoryCell  = new Group(block);
+      var outputGate  = new Group(block);
+      var outputBlock = i == blocks.length-1 ? outputLayer : new Group(block);
 
       inputGate.set({ bias:1 });
       forgetGate.set({ bias:1 });
       outputGate.set({ bias:1 });
 
       // Connect the input with all the nodes
-      var input = inputLayer.connect(memoryCell);
-      inputLayer.connect(inputGate);
-      inputLayer.connect(outputGate);
-      inputLayer.connect(forgetGate);
+      var input = previous.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+      previous.connect(inputGate,  Methods.Connection.ALL_TO_ALL);
+      previous.connect(outputGate, Methods.Connection.ALL_TO_ALL);
+      previous.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
 
       // Set up internal connections
-      memoryCell.connect(inputGate);
-      memoryCell.connect(forgetGate);
-      memoryCell.connect(outputGate);
-      var forget = memoryCell.connect(memoryCell);
-      var output = memoryCell.connect(outputLayer);
+      memoryCell.connect(inputGate,  Methods.Connection.ALL_TO_ALL);
+      memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
+      memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
+      var forget = memoryCell.connect(memoryCell,  Methods.Connection.ONE_TO_ONE);
+      var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
 
       // Set up gates
       inputGate.gate(input, Methods.Gating.INPUT);
       forgetGate.gate(forget, Methods.Gating.SELF);
       outputGate.gate(output, Methods.Gating.OUTPUT);
 
-      // Connect previous memory block to this block
-      if(previous != null){
-        previous.connect(memoryCell);
-        previous.connect(inputGate);
-        previous.connect(forgetGate);
-        previous.connect(outputGate);
+      // Input to all memory cells
+      if(options.inputToDeep && i > 0){
+        var input = inputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+        inputGate.gate(input, Methods.Gating.INPUT);
       }
 
       // Optional connections
       if(options.memoryToMemory){
-        memoryCell.connect(memoryCell, Methods.Connection.ALL_TO_ELSE);
+        var input = memoryCell.connect(memoryCell, Methods.Connection.ALL_TO_ELSE);
+        inputGate.gate(input, Methods.Gating.INPUT);
       }
 
       if(options.outputToMemory){
-        outputLayer.connect(memoryCell);
+        var input = outputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+        inputGate.gate(input, Methods.Gating.INPUT);
       }
 
       if(options.outputToGates){
-        outputLayer.connect(inputGate);
-        outputLayer.connect(forgetGate);
-        outputLayer.connect(outputGate);
+        outputLayer.connect(inputGate,  Methods.Connection.ALL_TO_ALL);
+        outputLayer.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
+        outputLayer.connect(outputGate, Methods.Connection.ALL_TO_ALL);
       }
 
-      // At to array
+      // Add to array
       nodes.push(inputGate);
       nodes.push(forgetGate);
       nodes.push(memoryCell);
       nodes.push(outputGate);
+      if(i != blocks.length - 1) nodes.push(outputBlock);
 
-      previous = memoryCell;
+      previous = outputBlock;
     }
 
     // input to output direct connection
     if(options.inputToOutput){
-      inputLayer.connect(outputLayer);
+      inputLayer.connect(outputLayer, Methods.Connection.ALL_TO_ALL);
     }
 
     nodes.push(outputLayer);
@@ -2524,7 +2532,7 @@ var Architect = {
   },
 
   /**
-   * Creates a long short-term memory network
+   * Creates a gated recurrent unit network
    */
   GRU: function(){
     var args = Array.prototype.slice.call(arguments);

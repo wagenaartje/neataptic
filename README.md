@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://wagenaartje.github.io/neataptic/">
-    <img alt="react-router" src="http://i.imgur.com/L5YuqNQ.png" width="200">
+    <img alt="react-router" src="http://i.imgur.com/0PSJuPX.png" width="200">
   </a>
 </p>
 

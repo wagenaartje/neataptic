@@ -6,7 +6,7 @@
   "scripts": {
     "test:src" : "mocha test/src.js test",
     "test:dist" : "mocha test/dist.js test",
-    "test:travis": "npm run test:src && npm run build && npm run test:dist",
+    "test:travis": "npm run build && npm run test:dist",
     "build": "webpack"
   },
   "devDependencies": {

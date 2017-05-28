@@ -2016,7 +2016,7 @@ Network.prototype = {
        var fittest = neat.getFittest();
 
        if(clear) fittest.clear();
-       error = -fittest.test(set).error + (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
+       error = -fittest.test(set).error - (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
 
        if(error > bestError){
          bestError = error;

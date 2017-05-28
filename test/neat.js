@@ -38,12 +38,12 @@ describe('Neat', function () {
       popSize: 100,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.002
+      error: 0.03
     });
 
     // Get average and check if it's enough
     var test = network.test(trainingSet);
-    assert.isBelow(test.error, 0.005);
+    assert.isBelow(test.error, 0.03);
   });
   it("XOR", function(){
     this.timeout(40000);
@@ -63,12 +63,12 @@ describe('Neat', function () {
       popSize: 100,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.002
+      error: 0.03
     });
 
     // Get average and check if it's enough
     var test = network.test(trainingSet);
-    assert.isBelow(test.error, 0.005);
+    assert.isBelow(test.error, 0.03);
   });
   it("XNOR", function(){
     this.timeout(60000);
@@ -88,11 +88,11 @@ describe('Neat', function () {
         popSize: 100,
         elitism: 10,
         mutationRate: 0.5,
-        error: 0.002
+        error: 0.03
       });
 
       // Get average and check if it's enough
       var test = network.test(trainingSet);
-      assert.isBelow(test.error, 0.005);
+      assert.isBelow(test.error, 0.03);
   });
 });

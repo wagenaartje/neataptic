@@ -1,0 +1,59 @@
+site_name: Neataptic.js
+theme: null
+theme_dir: theme
+repo_url: https://github.com/wagenaartje/neataptic
+site_url: https://wagenaartje.github.io/neataptic/
+site_author: 'Thomas Wagenaar'
+site_description: 'Documentation for Neataptic, the Javascript neural network library'
+docs_dir: templates
+
+google_analytics: ['UA-51480408-2', 'wagenaartje.github.io']
+extra_css:
+    - css/extra.css
+
+markdown_extensions:
+  - meta
+
+pages:
+  - Home: index.md
+  - Docs:
+    - Docs: docs/index.md
+    - Tutorials:
+      - Tutorials: docs/tutorials/tutorials.md
+      - Training: docs/tutorials/training.md
+      - Evolution: docs/tutorials/evolution.md
+      - Normalization: docs/tutorials/normalization.md
+      - Visualization: docs/tutorials/visualization.md
+    - Built-in networks:
+      - Built-in networks: docs/builtins/builtins.md
+      - Perceptron: docs/builtins/perceptron.md
+      - LSTM: docs/builtins/lstm.md
+      - GRU: docs/builtins/gru.md
+      - NARX: docs/builtins/narx.md
+      - Random: docs/builtins/random.md
+      - Hopfield: docs/builtins/hopfield.md
+    - Architecture:
+      - Architecture: docs/architecture/architecture.md
+      - Construct: docs/architecture/construct.md
+      - Network: docs/architecture/network.md
+      - Layer: docs/architecture/layer.md
+      - Group: docs/architecture/group.md
+      - Node: docs/architecture/node.md
+      - Connection: docs/architecture/connection.md
+    - Methods:
+      - Methods: docs/methods/methods.md
+      - Regularization: docs/methods/regularization.md
+      - Mutation: docs/methods/mutation.md
+      - Selection: docs/methods/selection.md
+      - Activation: docs/methods/activation.md
+      - Cost: docs/methods/cost.md
+      - Connection: docs/architecture/connection.md
+      - Gating: docs/methods/gating.md
+    - NEAT: docs/neat.md
+  - Articles:
+    - Articles: articles/index.md
+    - Neuroevolution : articles/neuroevolution.md
+    - 'Target-seeking AI': articles/targetseeking.md
+    - 'Agar.io AI': articles/agario.md
+    - 'Classify colors': articles/classifycolors.md
+    - Playground: articles/playground.md

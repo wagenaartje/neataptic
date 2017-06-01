@@ -1,0 +1,310 @@
+<html>
+  <head>
+    <title>Neataptic.js - LSTM</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="How to use the Long Short-Term Memory network in Neataptic">
+    
+
+    
+    <meta name="keywords" content="recurrent, neural-network, LSTM, architecture">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../methods/regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/gating/">Gating</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>LSTM</h1>
+          <hr>
+          <p>The <a href="http://en.wikipedia.org/wiki/Long_short_term_memory">long short-term memory</a> is an architecture well-suited to learn from experience to classify, process and predict time series when there are very long time lags of unknown size between important events.</p>
+<p><img alt="Long short-term memory cell" src="https://i.gyazo.com/9d4310c6175006d1bad5669d0249061c.png" /></p>
+<p>To use this architecture you have to set at least one input node, one memory block assembly (consisting of four nodes: input gate, memory cell, forget gate and output gate), and an output node.</p>
+<pre><code class="javascript">var myLSTM = new Architect.LSTM(2,6,1);
+</code></pre>
+
+<p>Also you can set many layers of memory blocks:</p>
+<pre><code class="javascript">var myLSTM = new Architect.LSTM(2, 4, 4, 4, 1);
+</code></pre>
+
+<p>That LSTM network has 3 memory block assemblies, with 4 memory cells each, and their own input gates, memory cells, forget gates and output gates.</p>
+<p>You can pass options if desired like so:</p>
+<pre><code class="javascript">var options = {
+  memoryToMemory: false,    // default is false
+  outputToMemory: false,    // default is false
+  outputToGates: false,     // default is false
+  inputToOutput: true,      // default is true
+  inputToDeep: true         // default is true
+};
+
+var myLSTM = new Architect.LSTM(2, 4, 4, 4, 1, options);
+</code></pre>
+
+<p>While training sequences or timeseries prediction to a LSTM, make sure you set the <code>clear</code> option to true while training. <a href="https://jsfiddle.net/9t2787k5/4/">See an example of sequence prediction here.</a></p>
+<p>This is an example of character-by-character typing by an LSTM: <a href="https://jsfiddle.net/wagenaartje/k23zbf0f/1/">JSFiddle</a></p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

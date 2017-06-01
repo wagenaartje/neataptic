@@ -1,0 +1,321 @@
+<html>
+  <head>
+    <title>Neataptic.js - NARX</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="How to use the Nonlinear Autoregressive Exogenous model network in Neataptic">
+    
+
+    
+    <meta name="keywords" content="recurrent, neural-network, NARX, architecture">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../gru/">GRU</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../methods/regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/gating/">Gating</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>NARX</h1>
+          <hr>
+          <p>Just like LSTM's, <a href="https://en.wikipedia.org/wiki/Nonlinear_autoregressive_exogenous_model">NARX networks</a> are very good at timeseries prediction. That is because they use previous inputs and their corresponding output values as the next input to the hidden layer.</p>
+<p><img alt="" src="http://i.imgur.com/qcLyVcw.png" /></p>
+<p>The constructor looks like this:</p>
+<pre><code class="js">var network = new Architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
+</code></pre>
+
+<p>A quick explanation of each argument:
+<em> <code>inputSize</code>: the amount of input nodes
+</em> <code>hiddenLayers</code>: an array containing hidden layer sizes, e.g. <code>[10,20,10]</code>. If only one hidden layer, can be a number (of nodes)
+<em> <code>outputSize</code>: the amount of output nodes
+</em> <code>previousInput</code>: the amount of previous inputs you want it to remember
+* <code>previousOutput</code>: the amount of previous outputs you want it to remember</p>
+<p>Example:</p>
+<pre><code class="javascript">var narx = new Architect.NARX(1, 5, 1, 3, 3);
+
+// Train the XOR gate (in sequence!)
+var trainingData = [
+  { input: [0], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [1] },
+  { input: [1], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [0] },
+  { input: [0], output: [1] },
+];
+
+narx.train(trainingData, {
+  log: 1,
+  iterations: 3000,
+  error: 0.03,
+  rate: 0.05
+});
+</code></pre>
+
+<p><a href="https://jsfiddle.net/wagenaartje/1o7t91yk/2/">Run it here</a></p>
+<p>The NARX network type has 'constant' nodes. These nodes won't affect the weight of their incoming connections and their bias will never change. Please do note that mutation CAN change all of these.</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

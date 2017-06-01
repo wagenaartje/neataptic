@@ -20,7 +20,7 @@
 
 <hr>
 
-Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved. 
+Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
 
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
@@ -46,7 +46,7 @@ var myNetwork = Architect.Construct([input, hidden1, hidden2, output]);
 You can even built your network neuron-by-neuron using <b>nodes</b> and <b>groups</b>!
 
 <details>
-<summary><a href="https://github.com/wagenaartje/neataptic/wiki">Visit the wiki to get started</a></summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/docs/">Visit the wiki to get started</a></summary>
 </details>
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/playground/">or play around with neural networks</a></summary>
@@ -139,7 +139,7 @@ More:
 I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
 
 ## Usage
-Head over to the [wiki](https://github.com/wagenaartje/neataptic/wiki) for detailed usage. If you want to visualise your graphs, head
+Head over to the [wiki](https://wagenaartje.github.io/neataptic/docs/) for detailed usage. If you want to visualise your graphs, head
 over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder.
 
 ## Install

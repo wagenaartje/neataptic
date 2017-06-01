@@ -1,116 +1,186 @@
-<html lang="en">
+<html>
   <head>
-      <meta charset="utf-8">
-      <meta name="description" content="Classify different colors through genetic algorithms">
-      <meta name="author" content="Thomas Wagenaar">
+    <title>Neataptic.js - Classify colors</title>
 
-      <title>Neataptic.js - Classify colors</title>
+    <!-- Meta data -->
+    <meta charset="UTF-8">
 
-      <link rel="icon" type="image/png" href="../../assets/fav.png"/>
+    
+    <meta name="description" content="Classify different colors through genetic algorithms">
+    
 
-      <!-- JQuery -->
-      <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    
+    <meta name="keywords" content="color classification, genetic-algorithm, NEAT, Neataptic">
+    
 
-      <!-- Bootstrap -->
-      <link async rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-      <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
 
-      <!-- Custom CSS -->
-      <link async href="../../assets/css/custom.css" rel="stylesheet">
-      <link async href="../../assets/css/articles.css" rel="stylesheet">
-      <link async href="custom.css" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../custom.css">
 
-      <!-- Social buttons -->
-      <link async rel="stylesheet" href="../../libs/social.css">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
 
-      <!-- Fonts -->
-      <script async src="https://use.fontawesome.com/c33ca51140.js"></script>
-      <link async href="https://fonts.googleapis.com/css?family=Montserrat:200,300,400,500,600,700" rel="stylesheet">
-      <link href="https://fonts.googleapis.com/css?family=Vollkorn:400,400i,700,700i" rel="stylesheet">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
 
-      <!-- Neataptic -->
-      <script src="https://cdn.rawgit.com/wagenaartje/neataptic/9784406f/dist/neataptic.min.js"></script>
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-      <!-- Google Analytics -->
-      <script async>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
 
-        ga('create', 'UA-51480408-2', 'auto');
-        ga('send', 'pageview');
-      </script>
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body>
-      <div class="container maxwidth">
-        <div class="row">
-          <div class="col-md-12 header classifycolors">
-            <!-- Page Content -->
-            <div class="row">
-              <ul class="nav navbar-nav">
-                  <li>
-                    <a href="../../" style="color: white;"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> BACK TO HOME</a>
-                  </li>
-              </ul>
-            </div>
-            <div class="article-head">
-              <p class="article-icon"><i class="fa fa-eercast fa-5x"></i></p>
-              <p class="article-title" style="color: white">Classify colors</p>
-              <p class="article-author">THOMAS WAGENAAR</p>
-              <p class="article-date">APRIL 9, 2017</p>
-            </div>
-          </div>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../.."><p class="brand">Neataptic</p></a>
         </div>
-        <div class="row">
-          <div class="col-md-3">
-          </div>
-          <div class="col-md-6 article-content">
-            <p class="article-text">
-              Classifying is something a neural network can do quite well. In this article
-              I will demonstrate how you can set up the evolution process of a neural network
-              that learns to classify colors. Keep in mind: this simulation is far from optimal.
-            </p>
-            <p class="article-text">
-              Colors:
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="red" checked="true">Red</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="orange">Orange</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="yellow">Yellow</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="green" checked="true">Green</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="blue" checked="true">Blue</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="purple">Purple</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="pink">Pink</label>
-              <label class="checkbox-inline"><input class="colors" type="checkbox" value="monochrome">Monochrome</label>
-            </p>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../..">Home</a></li>
+            <li class="current"><a href="../../docs/">Docs</a></li>
+            <li class="current"><a href="../">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
-            <p class="article-text" style="margin-top: -20px;">
-              <a href="#" class="start" style="text-decoration: none"><span class="glyphicon glyphicon-play"></span> Start evolution</a>
-            </p>
-            <pre class="stats">Iteration: <span class="iteration">0</span>         Best-fitness: <span class="bestfitness">0</span>          Average-fitness: <span class="averagefitness">0</span></pre>
-            <div class="row" style="margin-top: -15px;">
-              <div class="col-md-6">
-                <center><h2 class="blocktext">Set sorted by color</h3></center>
-                <div class="row set" style="padding: 30px; margin-top: -40px; padding-right: 40px;">
-                </div>
-              </div>
-              <div class="col-md-6">
-                <center><h2 class="blocktext">Set sorted by NN</h3></center>
-                <div class="row fittestset" style="padding-left: 40px;">
-                </div>
-              </div>
-            </div>
-            <hr>
-            <h1 class="blocktext">How it works</h1>
-            <p class="article-text">
-              The algorithm to this classification is actually <i>pretty</i> easy.
-              One of my biggest problem was generating the colors, however I stumbled
-              upon <a href="https://github.com/davidmerfield/randomColor">this</a>
-              javascript module that allows you to generate colors randomly by name
-              - exactly what I needed (but it also created a problem, read below).
-              So I used it to create a training set:
-            </p>
-            <pre>
-function createSet(){
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../neuroevolution/">Neuroevolution</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../targetseeking/">Target-seeking AI</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../agario/">Agar.io AI</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="active">
+                            <a href="./">Classify colors</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../playground/">Playground</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>Classify colors</h1>
+          <hr>
+          <blockquote>
+<p>This article was written a while ago, it might be outdated!</p>
+</blockquote>
+<p>Classifying is something a neural network can do quite well. In this article
+I will demonstrate how you can set up the evolution process of a neural network
+that learns to classify colors. Keep in mind: this simulation is far from optimal.</p>
+<p>Colors:
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="red" checked="true">Red</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="orange">Orange</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="yellow">Yellow</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="green" checked="true">Green</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="blue" checked="true">Blue</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="purple">Purple</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="pink">Pink</label>
+<label class="checkbox-inline"><input class="colors" type="checkbox" value="monochrome">Monochrome</label></p>
+<p><a href="#" class="start" style="text-decoration: none"><span class="glyphicon glyphicon-play"></span> Start evolution</a></p>
+<pre class="stats">Iteration: <span class="iteration">0</span>         Best-fitness: <span class="bestfitness">0</span>          Average-fitness: <span class="averagefitness">0</span></pre>
+
+<div class="row" style="margin-top: -15px;">
+  <div class="col-md-6">
+    <center><h2 class="blocktext">Set sorted by color</h3></center>
+    <div class="row set" style="padding: 30px; margin-top: -40px; padding-right: 40px;">
+    </div>
+  </div>
+  <div class="col-md-6">
+    <center><h2 class="blocktext">Set sorted by NN</h3></center>
+    <div class="row fittestset" style="padding-left: 40px;">
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<h3 id="how-it-works">How it works</h3>
+<p>The algorithm to this classification is actually <em>pretty</em> easy.
+One of my biggest problem was generating the colors, however I stumbled
+upon <a href="https://github.com/davidmerfield/randomColor">this</a>
+Javascript module that allows you to generate colors randomly by name
+- exactly what I needed (but it also created a problem, read below).
+So I used it to create a training set:</p>
+<pre><code class="javascript">function createSet(){
   var set = [];
 
   for(index in COLORS){
@@ -125,18 +195,17 @@ function createSet(){
       set.push({ input: random, output: [index / (COLORS.length - 1)], color: color, rgb:rgb});
     }
   }
+}
 
-  return set;
-</pre>
-            <p class="article-text">
-              <i>COLORS</i> is an array storing all color names in strings. The
-              possible colors are listed above. Next, we convert this rgb string to
-              an array and normalize the values between 0 and 1. Last of all, we normalize
-              the colors to a number between 0 and 1 as well. Please note that the `color`
-              and `rgb` object attributes are irrelevant for the algorithm.
-            </p>
-            <pre>
-function createNeat(){
+return set;
+</code></pre>
+
+<p><em>COLORS</em> is an array storing all color names in strings. The
+possible colors are listed above. Next, we convert this rgb string to
+an array and normalize the values between 0 and 1. Last of all, we normalize
+the colors to a number between 0 and 1 as well. Please note that the <code>color</code>
+and <code>rgb</code> object attributes are irrelevant for the algorithm.</p>
+<pre><code class="javascript">function createNeat(){
   neat = new Neat(3, 1, fitness, {
     mutation: [
       Methods.Mutation.ADD_NODE,
@@ -151,16 +220,14 @@ function createNeat(){
     popsize: 100,
   });
 }
-            </pre>
-            <p class="article-text">
-              Now we creat the built-in genetic algorithm in neataptic.js. We define
-              that we want to use all possible mutation methods (except <i>SUB_CONN</i>)
-              and set the mutation rate higher than normal. Sprinkle in some elitism and
-              double the default population size. Experiment with the parameters yourself,
-              maybe you'll find even better parameters!
-            </p>
-            <pre>
-function fitness(genome){
+</code></pre>
+
+<p>Now we create the built-in genetic algorithm in neataptic.js. We define
+that we want to use all possible mutation methods (except <em>SUB_CONN</em>)
+and set the mutation rate higher than normal. Sprinkle in some elitism and
+double the default population size. Experiment with the parameters yourself,
+maybe you'll find even better parameters!</p>
+<pre><code class="javascript">function fitness(genome){
   var score = 0;
 
   for(var item in set){
@@ -171,62 +238,79 @@ function fitness(genome){
   score -= genome.nodes.length * Math.abs(-5 - score) / (PER_COLOR * COLORS.length * 10);
   return score;
 }
-            </pre>
-            <p class="article-text">
-              The fitness function is the most vital part of the algorithm. It basically
-              calculates the <a href="https://en.wikipedia.org/wiki/Mean_squared_error"> Mean Squared Error</a>
-              of the entire set. However, the small line beneath it gives a tiny penalty when
-              networks get bigger. This makes sure the network won't overfit the data. The penalty
-              is still small enough to allow small improvements.
-            </p>
-            <p class="article-text">
-              Last but not least, we define the loop. This loop is very simple:
-            </p>
-            <pre>
-function loop(){
+</code></pre>
+
+<p>The fitness function is the most vital part of the algorithm. It basically
+calculates the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">Mean Squared Error</a>
+of the entire set. However, the small line beneath it gives a tiny penalty when
+networks get bigger. This makes sure the network won't overfit the data. The penalty
+is still small enough to allow small improvements.</p>
+<p>Last but not least, we define the loop. This loop is very simple:</p>
+<pre><code class="javascript">function loop(){
   neat.evolve();
   if(running) setTimeout(loop, 1);
-}</pre>
-            <p class="article-text">
-              And puting together all this code will create a color classifier. There are some slight issues though:
-              <ul>
-                <li><strike>It seems like some colors from the <a href="https://github.com/davidmerfield/randomColor"> randomColor library</a>
-                  overlap, thus colors like purple and pink can't be classified seperately very well.</strike>  Woops, seems to be fine, read
-                  about it <a href="https://github.com/davidmerfield/randomColor/issues/88">here</a>.
-                <li>The networks tend to stay way too small and they hate forming
-                  new connections. Something I may change in the fitness function in the future!</i>
-              </ul>
-            </p>
-            <div class="article-footer article-text">
-              <hr>
-              Thanks for reading this article! If you found any mistakes, or want to make any
-              remarks, please mail me at <a> wagenaartje@protonmail.com</a>! Want to
-              post your own article here? Send me your article! (must be about neataptic)!
-            </div>
-          </div>
-          <div class="col-md-3">
-          </div>
-        </div>
-        <div class="row lightblue">
-          <div class="col-md-1 col-sm-1">
-            <a class="chevron-cont" href="#">
-              <p class="chevron lefts"><i class="fa fa-chevron-left fa-5x"></i></p>
-            </a>
-          </div>
-          <div class="col-md-10 col-sm-10 articles">
-          </div>
-          <div class="col-md-1 col-sm-1">
-            <a class="chevron-cont" href="#">
-              <p class="chevron rights"><i class="fa fa-chevron-right fa-5x"></i></p>
-            </a>
-          </div>
-        </div>
-      </div>
+}
+</code></pre>
 
-      <!-- Scripts -->
-      <script src="events.js"></script>
-      <script src="randomColor.js"></script>
-      <script src="neural.js"></script>
-      <script src="../../assets/js/articles.js"></script>
+<p>And putting together all this code will create a color classifier. There are some slight issues though:</p>
+<ul>
+<li>The networks tend to stay way too small and they hate forming
+  new connections. Something I may change in the fitness function in the future!</li>
+</ul>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+            <script src="../../js/articles/classifycolors/import.js"></script>
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
   </body>
-</html>

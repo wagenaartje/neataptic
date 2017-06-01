@@ -1,0 +1,454 @@
+<html>
+  <head>
+    <title>Neataptic.js - Mutation</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="List of mutation methods in Neataptic">
+    
+
+    
+    <meta name="keywords" content="genetic-algorithm, mutation, modify, add, substract, genome, neural-network">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../gating/">Gating</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>Mutation</h1>
+          <hr>
+          <p><a href="https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)">Mutation</a> is an important aspect of genetic algorithms. Without any mutation, there is low probability of improvement. Mutating will change the bias or weights in neural networks, changing the output of the neural network. It can have a positive, but also a negative effect on the outcome of the neural network. However, one of the <a href="https://en.wikipedia.org/wiki/Genetic_algorithm#Selection">guidelines</a> of genetic algorithms is too make sure that only the positive effects will be carried on.</p>
+<h3 id="methods">Methods</h3>
+<p>At the moment, there are 7 built-in mutation methods (all for networks):</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Action</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADD_NODE</td>
+<td>Adds a node</td>
+<td></td>
+</tr>
+<tr>
+<td>SUB_NODE</td>
+<td>Removes node</td>
+<td></td>
+</tr>
+<tr>
+<td>ADD_CONN</td>
+<td>Adds a connection between two nodes</td>
+<td></td>
+</tr>
+<tr>
+<td>SUB_CONN</td>
+<td>Removes a connection between two nodes</td>
+<td></td>
+</tr>
+<tr>
+<td>MOD_WEIGHT</td>
+<td>Modifies the weight of a connection</td>
+<td></td>
+</tr>
+<tr>
+<td>MOD_BIAS</td>
+<td>Modifies the bias of a node</td>
+<td></td>
+</tr>
+<tr>
+<td>MOD_ACTIVATION</td>
+<td>Modifies the activation function of a node</td>
+<td></td>
+</tr>
+<tr>
+<td>ADD_SELF_CONN</td>
+<td>Adds a self-connection to a node</td>
+<td></td>
+</tr>
+<tr>
+<td>SUB_SELF_CONN</td>
+<td>Removes a self-connection from a node</td>
+<td></td>
+</tr>
+<tr>
+<td>ADD_GATE</td>
+<td>Makes a node gate a connection</td>
+<td></td>
+</tr>
+<tr>
+<td>SUB_GATE</td>
+<td>Removes a gate from a connection</td>
+<td></td>
+</tr>
+<tr>
+<td>ADD_BACK_CONN</td>
+<td>Adds a recurrent connection</td>
+<td></td>
+</tr>
+<tr>
+<td>SUB_BACK_CONN</td>
+<td>Removes a recurrent connection</td>
+<td></td>
+</tr>
+<tr>
+<td>SWAP_NODES</td>
+<td>Swaps the bias and squash function between two nodes</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="usage">Usage</h3>
+<p>All of these mutation functions can be executed on any kind of network:</p>
+<pre><code class="javascript">myNetwork.mutate(Methods.Mutation.&lt;MUTATION_METHOD&gt;);
+
+// eg.
+myNetwork.mutate(Methods.Mutation.ADD_NODE);
+</code></pre>
+
+<p>And some on them on nodes (<code>MOD_BIAS</code> and <code>MOD_ACTIVATION</code>):</p>
+<pre><code class="javascript">myNode.mutate(Methods.Mutation.&lt;MUTATION_METHOD&gt;);
+
+// eg.
+myNode.mutate(Methods.Mutation.MOD_BIAS);
+</code></pre>
+
+<p>For <code>network.evolve()</code> and <code>neat()</code> options, specify a list of mutation methods as follows in the options (example):</p>
+<pre><code class="js">network.evolve(trainingset, {
+  mutation: [Methods.Mutation.MOD_BIAS, Methods.Mutation.ADD_NODE]
+}
+</code></pre>
+
+<p>You can also specify groups of methods:</p>
+<pre><code class="js">network.evolve(trainingset, {
+  mutation: Methods.Mutation.ALL // all mutation methods
+}
+
+network.evolve(trainingset, {
+  mutation: Methods.Mutation.FFW// all feedforward mutation methods
+}
+</code></pre>
+
+<h1 id="config">Config</h1>
+<p>Some methods are configurable! You can change these config values as follows:</p>
+<pre><code class="js">option = value;
+
+// eg.
+Methods.Mutation.MOD_ACTIVATION.mutateOutput = false;
+</code></pre>
+
+<p>Or you can edit the <code>methods/mutation.js</code> file to change the default values.</p>
+<p>&zwnj;</p>
+<pre><code class="js">Methods.Mutation.SUB_NODE.keep_gates // default: true
+</code></pre>
+
+<p>When removing a node, you remove the connections and intialise new ones. Setting this option to true will make sure if the removed connections were gated, so will the new ones be.</p>
+<p>&zwnj;</p>
+<pre><code class="js">Methods.Mutation.MOD_WEIGHT.min // default: -1
+Methods.Mutation.MOD_WEIGHT.max // default: 1
+</code></pre>
+
+<p>Sets the upper and lower bounds of the modifcation of connection weights.</p>
+<p>&zwnj;</p>
+<pre><code class="js">Methods.Mutation.MOD_BIAS.min // default: -1
+Methods.Mutation.MOD_BIAS.max // default: 1
+</code></pre>
+
+<p>Sets the upper and lower bounds of the modifcation of neuron biases.</p>
+<p>&zwnj;</p>
+<pre><code class="js">Methods.Mutation.MOD_ACTIVATION.mutateOutput // default: true
+</code></pre>
+
+<p>Disable this option if you want the have the activation function of the output neurons unchanged. Useful if you want to keep the output of your neural network normalized.</p>
+<p>&zwnj;</p>
+<pre><code class="js">Methods.Mutation.MOD_ACTIVATION.allowed
+
+// default:
+[
+  Activation.LOGISTIC,
+  Activation.TANH,
+  Activation.RELU,
+  Activation.IDENTITY,
+  Activation.STEP,
+  Activation.SOFTSIGN,
+  Activation.SINUSOID,
+  Activation.GAUSSIAN,
+  Activation.BENT_IDENTITY,
+  Activation.BIPOLAR,
+  Activation.BIPOLAR_SIGMOID,
+  Activation.HARD_TANH,
+  Activation.ABSOLUTE
+]
+</code></pre>
+
+<p>This option allows you to specify which <a href="../activation/">activation functions</a> you want to allow in your neural network.</p>
+<p>&zwnj;</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

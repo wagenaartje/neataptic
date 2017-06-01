@@ -1,0 +1,298 @@
+<html>
+  <head>
+    <title>Neataptic.js - Selection</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="List of selection methods in Neataptic">
+    
+
+    
+    <meta name="keywords" content="genetic-algorithm, fitness, elitisim, selection">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../gating/">Gating</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>Selection</h1>
+          <hr>
+          <p><a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">Selection</a> is the way in which a genetic algorithm decides which neural networks will be parents for the new generation. There are a couple of selection methods, however only a few have been integrated until now.</p>
+<p>At the moment, there is 1 built-in selection method:</p>
+<pre><code class="javascript">Methods.Selection.FITNESS_PROPORTIONATE; // gives networks with a higher fitness a higher chance of selection
+</code></pre>
+
+<p>However, next to selection methods, <code>ELITISM</code> is also built in. <a href="https://en.wikipedia.org/wiki/Genetic_algorithm#Elitism">Elitism</a> allows a genetic algorithm to pass on <code>n</code> neural networks with the highest fitness from the previous generation to the new generation, without any crossover steps in between. At the moment, selection is only possible inside a <code>Neat</code> object. They can be passed on as follows:</p>
+<pre><code class="javascript">var evolution = new Neat({
+  selection: [Methods.Selection.FITNESS_PROPORTIONATE],
+  elitism: 5 // amount of neural networks to keep from generation to generation
+});
+</code></pre>
+
+<p><code>Methods.Selection.FITNESS_PROPORTIONATE</code> default is <code>function(r){ return Math.pow(r,2); }</code>, which means that fitter neural networks are quadratically more likely to be select as parents. The steepness of this curve can be modified easily by changing the <code>2</code>.</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

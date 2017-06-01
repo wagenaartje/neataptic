@@ -1,0 +1,352 @@
+<html>
+  <head>
+    <title>Neataptic.js - Visualization</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="A simple tutorial on how to visualize neural-networks in Neataptic">
+    
+
+    
+    <meta name="keywords" content="graph, model, neural-network, visualize, nodes, connections">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../methods/regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/gating/">Gating</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1>Visualization</h1>
+          <hr>
+          <p>This is a step-by-step tutorial aimed to teach you how to create and visualise neural networks using Neataptic.</p>
+<p><strong>Step 1</strong>
+Create a javascript file. Name it anything you want. But make sure to start it off with the following:</p>
+<pre><code class="javascript">var Node = neataptic.Node;
+var Neat = neataptic.Neat;
+var Network = neataptic.Network;
+var Methods = neataptic.Methods;
+var Architect = neataptic.Architect;
+</code></pre>
+
+<p>This makes the whole developing a whole lot easier</p>
+<p><strong>Step 2</strong>
+Create a html file. Copy and paste this template if you want:</p>
+<pre><code class="html">&lt;html&gt;
+  &lt;head&gt;
+    &lt;script src=&quot;http://d3js.org/d3.v3.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;http://marvl.infotech.monash.edu/webcola/cola.v3.min.js&quot;&gt;&lt;/script&gt;
+
+    &lt;script src=&quot;https://rawgit.com/wagenaartje/neataptic/master/dist/neataptic.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://rawgit.com/wagenaartje/neataptic/master/graph/graph.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;https://rawgit.com/wagenaartje/neataptic/master/graph/graph.css&quot;&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;div class=&quot;container&quot;&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;svg class=&quot;draw&quot; width=&quot;1000px&quot; height=&quot;1000px&quot;/&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;script src=&quot;yourscript.js&quot;&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<p><strong>Step 3</strong> Create a network. You can do that in any of the following ways:</p>
+<pre><code class="javascript">var network = Architect.Random(2, 20, 2, 2);
+</code></pre>
+
+<pre><code class="javascript">var network = Architect.Perceptron(2, 10, 10, 2);
+</code></pre>
+
+<p>Or if you want to be more advanced, construct your own:</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+var C = new Node();
+var D = new Node();
+var E = new Node();
+var F = new Node();
+
+var nodes = [A, B, C, D, E, F];
+
+for(var i = 0; i &lt; nodes.length-1; i++){
+  node = nodes[i];
+  for(var j = 0; j &lt; 2; j++){
+    var connectTo = nodes[Math.floor(Math.random() * (nodes.length - i) + i)];
+    node.connect(connectTo);
+  }
+}
+
+var network = Architect.Construct(nodes);
+</code></pre>
+
+<p><strong>Step 4</strong> Retrieve data and draw a graph</p>
+<pre><code class="javascript">drawGraph(network.graph(1000, 1000), '.draw');
+</code></pre>
+
+<p>See a working example <a href="https://jsfiddle.net/wagenaartje/ch8s9d3e/23/">here</a>!
+See more info on graphs <a href="https://github.com/wagenaartje/neataptic/tree/master/graph">here</a>!</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

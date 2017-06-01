@@ -4,9 +4,9 @@ module.exports = {
   context: __dirname,
   entry: {
     'dist/neataptic': './src/neataptic.js',
-    'docs/cdn/neataptic': './src/neataptic.js',
+    'mkdocs/theme/cdn/neataptic': './src/neataptic.js',
     'dist/neataptic.min': './src/neataptic.js',
-    'docs/cdn/neataptic.min': './src/neataptic.js'
+    'mkdocs/theme/cdn/neataptic.min': './src/neataptic.js'
   },
   output: {
     path: './',

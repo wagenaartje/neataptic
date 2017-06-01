@@ -8,6 +8,7 @@
     "test:dist" : "mocha test/dist.js test",
     "build:dist": "webpack",
     "build:docs" : "cd mkdocs && mkdocs build --site-dir ../docs && cd ../",
+    "build": "npm run build:dist && npm run build:docs",
     "test:travis": "npm run build:dist && npm run test:dist"
   },
   "devDependencies": {

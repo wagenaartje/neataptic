@@ -1,6 +1,6 @@
 var scripts = [
   { type: 'script', url: "https://cdn.rawgit.com/wagenaartje/neataptic/a7610e38/dist/neataptic.js"},
-  { type: 'script', url: "https://wagenaartje.github.io/neataptic/articles/agario/libs/p5.js"},
+  { type: 'script', url: "https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.10/p5.js"},
   { type: 'script', url: "../../js/articles/agar.ioai/main.js"},
   { type: 'script', url: "../../js/articles/agar.ioai/population.js"},
   { type: 'script', url: "../../js/articles/agar.ioai/player.js"},

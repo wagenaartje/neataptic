@@ -226,7 +226,8 @@
         <!-- Content -->
         
         <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1>Hopfield</h1>
+          <h1 style="margin-bottom: 0px;">Hopfield</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\builtins\hopfield.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
           <p>The hopfield architecture is excellent for remembering patterns. Given an input, it will output the most similar pattern it was trained. The output will always be binary, due to the usage of the <code>Activation.STEP</code> function.</p>
 <pre><code class="javascript">var network = Architect.Hopfield(10);

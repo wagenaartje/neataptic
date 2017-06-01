@@ -226,7 +226,8 @@
         <!-- Content -->
         
         <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1>Normalization</h1>
+          <h1 style="margin-bottom: 0px;">Normalization</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\tutorials\normalization.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
           <p>Although Neataptic networks accepts non-normalized values as input, normalizing your input makes your network converge faster. I see a lot of questions where people ask how to normalize their data correctly, so I decided to make a guide.</p>
 <h3 id="example-data">Example data</h3>
@@ -257,7 +258,7 @@ stock: 23
 <p>So we need to choose a value that is <code>&gt;=933</code>, but also <code>&gt;= future values</code> and it shouldn't be a too big number. We could make the assumption that the <code>stock</code> will never get larger than <code>2000</code>, so we choose <code>2000</code> as our maximum value. We now normalize our data with this maximum value:</p>
 <pre><code class="javascript">// Normalize the data with a maximum value (=2000)
 stock: 933 -&gt; 933/2000 -&gt; 0.4665
-stock: 154 -&gt; 154/2000 -&gt; 0.77
+stock: 154 -&gt; 154/2000 -&gt; 0.077
 stock: 23  -&gt;  23/2000 -&gt; 0.0115
 </code></pre>
 
@@ -298,14 +299,16 @@ stock: 23  -&gt;  23/2000 -&gt; 0.0115
 <h3 id="normalized-data">Normalized data</h3>
 <p>So applying what I have explained above creates our normalized data, note that the relativity between inputs has not been changed. Also note that some values may be rounded in the table below.</p>
 <pre><code class="javascript">{ stock: 0.4665, sold: 0.352, price: 0.00317, drinks: 1, foods: 0, electronics: 0, id40: 1, id67: 0, id150: 0 }
-{ stock: 0.77,   sold: 0.103, price: 0.01733, drinks: 0, foods: 1, electronics: 0, id40: 0, id67: 1, id150: 0 }
+{ stock: 0.077,  sold: 0.103, price: 0.01733, drinks: 0, foods: 1, electronics: 0, id40: 0, id67: 1, id150: 0 }
 { stock: 0.0115, sold: 0.005, price: 0.40433, drinks: 0, foods: 0, electronics: 1, id40: 0, id67: 0, id150: 1 }
 </code></pre>
 
-<p>Max values:
-<em> <code>stock</code>: 2000
-</em> <code>sold</code>: 1000
-* <code>price</code> : 300</p>
+<p>Max values:</p>
+<ul>
+<li><code>stock</code>: 2000</li>
+<li><code>sold</code>: 1000</li>
+<li><code>price</code> : 300</li>
+</ul>
 <p>Please note, that these inputs should be provided in arrays for neural networks in Neataptic:</p>
 <pre><code class="javascript">[ 0.4665, 0.352, 0.00317, 1, 0, 0, 1, 0, 0 ]
 [ 0.77,   0.103, 0.01733, 0, 1, 0, 0, 1, 0 ]

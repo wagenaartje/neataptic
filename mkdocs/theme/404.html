@@ -1,21 +1,9 @@
 <html>
   <head>
-    <title>{{ config.site_name }} - {{ page.title }}</title>
+    <title>{{ config.site_name }} - 404</title>
 
     <!-- Meta data -->
     <meta charset="UTF-8">
-
-    {% for description in page.meta.description %}
-    <meta name="description" content="{{ description }}">
-    {% endfor %}
-
-    {% for keyword in page.meta.keywords %}
-    <meta name="keywords" content="{{ keyword }}">
-    {% endfor %}
-
-    {% for author in page.meta.authors %}
-    <meta name="author" content="{{ author }}">
-    {% endfor %}
 
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -74,64 +62,14 @@
 
     <div class="container">
       <div class="row">
-        <!-- Sidebar -->
-        <div class="col-sm-2 col-md-2 col-lg-2">
-          {% if nav|length>1 %}
-            <ul id="sidebar" class="nav nav-stacked affix">
-              {% for parent in nav %}
-                {% if parent.children and not (parent.children[0].url.isupper() or parent.children[0].url.islower()) %}
-                  {% for nav_item in parent.children %}
-                    {% if nav_item.children %}
-                      <li><a href="{{ nav_item.children[0].url}}">{{ nav_item.title }}</a></li>
-                      <ul>
-                      {% for nav_item in nav_item.children[1:] %}
-                          <li class="{% if nav_item.active%}active{%endif%}">
-                              <a href="{{ nav_item.url }}">{{ nav_item.title }}</a>
-                          </li>
-                      {% endfor %}
-                      </ul>
-                      {% else %}
-                        {% if parent.title != nav_item.title %}
-                        <li class="{% if nav_item.active%}active{%endif%}">
-                            <a href="{{ nav_item.url }}">{{ nav_item.title }}</a>
-                        </li>
-                      {% endif %}
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
-            {% endfor %}
-          {% endif %}
-          </ul>
-        </div>
-
         <!-- Content -->
-        {% if page.title != 'Home' %}
-        <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1 style="margin-bottom: 0px;">{{ page.title }}</h1>
-          <p><a style="text-decoration: none" href="{{ page.edit_url }}"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
-          <hr>
-          {{ page.content }}
-        </div>
-        {% else %}
         <div class="col-sm-12 col-md-12 col-lg-12 content">
-          {{ page.content }}
+          <h1>404: Page not found</h1>
+          <p>If something is wrong, please create an issue <a href="https://github.com/wagenaartje/neataptic/issues">here</a>!</p>
         </div>
-        {% endif %}
       </div>
     </div>
 
-    <!-- Javascript (only for blogs) -->
-    {% if page.title != 'Articles' %}
-      {% for nav_item in nav %}
-        {% for nav_item in nav_item.children %}
-          {% if nav_item.title=='Articles' %}
-            {% if not (nav_item.url.isupper() or nav_item.url.islower()) %}
-            <script src="{{ base_url }}/js/articles/{{ page.title.replace(' ', '').lower() }}/import.js"></script>
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-    {% endif %}
 
     <script>
       $("table").each(function(){

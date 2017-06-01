@@ -6,6 +6,7 @@ site_url: https://wagenaartje.github.io/neataptic/
 site_author: 'Thomas Wagenaar'
 site_description: 'Documentation for Neataptic, the Javascript neural network library'
 docs_dir: templates
+edit_uri: edit/master/mkdocs/templates/
 
 google_analytics: ['UA-51480408-2', 'wagenaartje.github.io']
 extra_css:

@@ -44,7 +44,7 @@ So we need to choose a value that is `>=933`, but also `>= future values` and it
 ```javascript
 // Normalize the data with a maximum value (=2000)
 stock: 933 -> 933/2000 -> 0.4665
-stock: 154 -> 154/2000 -> 0.77
+stock: 154 -> 154/2000 -> 0.077
 stock: 23  ->  23/2000 -> 0.0115
 ```
 
@@ -89,11 +89,12 @@ So applying what I have explained above creates our normalized data, note that t
 
 ```javascript
 { stock: 0.4665, sold: 0.352, price: 0.00317, drinks: 1, foods: 0, electronics: 0, id40: 1, id67: 0, id150: 0 }
-{ stock: 0.77,   sold: 0.103, price: 0.01733, drinks: 0, foods: 1, electronics: 0, id40: 0, id67: 1, id150: 0 }
+{ stock: 0.077,  sold: 0.103, price: 0.01733, drinks: 0, foods: 1, electronics: 0, id40: 0, id67: 1, id150: 0 }
 { stock: 0.0115, sold: 0.005, price: 0.40433, drinks: 0, foods: 0, electronics: 1, id40: 0, id67: 0, id150: 1 }
 ```
 
 Max values:
+
 * `stock`: 2000
 * `sold`: 1000
 * `price` : 300

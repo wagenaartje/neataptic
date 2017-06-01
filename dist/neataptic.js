@@ -1699,7 +1699,7 @@ Network.prototype = {
 
     // Configure given options
     var log           = options.log           || false;
-    var targetError   = options.error         || 0.005;
+    var targetError   = options.error         || -1;
     var cost          = options.cost          || Methods.Cost.MSE;
     var rate          = options.rate          || 0.3;
     var shuffle       = options.shuffle       || false;
@@ -1708,6 +1708,10 @@ Network.prototype = {
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
     var schedule      = options.schedule;
+
+    if(iterations == 0 && targetError == -1){
+      throw new Error('At least one of the following options must be specified: error, iterations')
+    }
 
     // Save to network
     this.dropout = dropout;

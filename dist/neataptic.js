@@ -1767,6 +1767,8 @@ Network.prototype = {
 
     if(typeof options.iterations == 'undefined' && typeof options.error == 'undefined'){
       if(Config.warnings) console.warn('At least one of the following options must be specified: error, iterations');
+    } else if(typeof options.error == 'undefined'){
+      targetError = -1; // run until iterations
     }
 
     // Save to network

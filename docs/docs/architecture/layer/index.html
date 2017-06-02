@@ -229,14 +229,20 @@
           <h1 style="margin-bottom: 0px;">Layer</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\architecture\layer.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>Layers are pre-built architectures that allow you to combine different network architectures into óne network. At this moment, there are 3 layers (more to come soon!):</p>
+          <p>Layers are pre-built architectures that allow you to combine different network
+architectures into óne network. At this moment, there are 3 layers (more to come soon!):</p>
 <pre><code class="javascript">Layer.Dense
 Layer.LSTM
 Layer.GRU
+Layer.Memory
 </code></pre>
 
+<p>Check out the options and details for each layer below.</p>
 <h3 id="constructing-your-own-network-with-layers">Constructing your own network with layers</h3>
-<p>You should always start your network with a <code>Dense</code> layer and always end it with a <code>Dense</code> layer. You can connect layers with each other just like you can connect nodes and groups with each other. This is an example of a custom architecture built with layers:</p>
+<p>You should always start your network with a <code>Dense</code> layer and always end it with
+a <code>Dense</code> layer. You can connect layers with each other just like you can connect
+nodes and groups with each other. This is an example of a custom architecture
+built with layers:</p>
 <pre><code class="javascript">var input = new Layer.Dense(1);
 var hidden1 = new Layer.LSTM(5);
 var hidden2 = new Layer.GRU(1);
@@ -249,6 +255,34 @@ hidden2.connect(output);
 
 var network = Architect.Construct([input, hidden1, hidden2, output]);
 </code></pre>
+
+<h3 id="layerdense">Layer.Dense</h3>
+<p>The dense layer is a regular layer.</p>
+<pre><code class="javascript">var layer = new Layer.Dense(size);
+</code></pre>
+
+<h3 id="layerlstm">Layer.LSTM</h3>
+<p>The LSTM layer is very useful for detecting and predicting patterns over long
+time lags. This is a recurrent layer. More info? Check out the <a href="../../builtins/lstm/">LSTM</a> page.</p>
+<pre><code class="javascript">var layer = new Layer.LSTM(size);
+</code></pre>
+
+<h3 id="layergru">Layer.GRU</h3>
+<p>The GRU layer is similar to the LSTM layer, however it has no memory cell and only
+two gates. It is also a recurrent layer that is excellent for timeseries prediction.
+More info? Check out the <a href="../../builtins/gru/">GRU</a> page.</p>
+<pre><code class="javascript">var layer = new Layer.GRU(size);
+</code></pre>
+
+<h3 id="layermemory">Layer.Memory</h3>
+<p>The Memory layer is very useful if you want your network to remember a number of
+previous inputs in an absolute way. For example, if you set the <code>memory</code> option to
+3, it will remember the last 3 inputs in the same state as they were inputted.</p>
+<pre><code class="javascript">var layer = new Layer.Memory(size, memory);
+</code></pre>
+
+<p>The input layer to the memory layer should always have the same size as the memory size.
+The memory layer will output a total of <code>size * memory</code> values.</p>
         </div>
         
       </div>

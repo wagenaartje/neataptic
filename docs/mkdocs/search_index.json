@@ -162,13 +162,33 @@
         },
         {
             "location": "/docs/architecture/layer/",
-            "text": "Layers are pre-built architectures that allow you to combine different network architectures into \u00f3ne network. At this moment, there are 3 layers (more to come soon!):\n\n\nLayer.Dense\nLayer.LSTM\nLayer.GRU\n\n\n\n\nConstructing your own network with layers\n\n\nYou should always start your network with a \nDense\n layer and always end it with a \nDense\n layer. You can connect layers with each other just like you can connect nodes and groups with each other. This is an example of a custom architecture built with layers:\n\n\nvar input = new Layer.Dense(1);\nvar hidden1 = new Layer.LSTM(5);\nvar hidden2 = new Layer.GRU(1);\nvar output = new Layer.Dense(1);\n\n// connect however you want\ninput.connect(hidden1);\nhidden1.connect(hidden2);\nhidden2.connect(output);\n\nvar network = Architect.Construct([input, hidden1, hidden2, output]);",
+            "text": "Layers are pre-built architectures that allow you to combine different network\narchitectures into \u00f3ne network. At this moment, there are 3 layers (more to come soon!):\n\n\nLayer.Dense\nLayer.LSTM\nLayer.GRU\nLayer.Memory\n\n\n\n\nCheck out the options and details for each layer below.\n\n\nConstructing your own network with layers\n\n\nYou should always start your network with a \nDense\n layer and always end it with\na \nDense\n layer. You can connect layers with each other just like you can connect\nnodes and groups with each other. This is an example of a custom architecture\nbuilt with layers:\n\n\nvar input = new Layer.Dense(1);\nvar hidden1 = new Layer.LSTM(5);\nvar hidden2 = new Layer.GRU(1);\nvar output = new Layer.Dense(1);\n\n// connect however you want\ninput.connect(hidden1);\nhidden1.connect(hidden2);\nhidden2.connect(output);\n\nvar network = Architect.Construct([input, hidden1, hidden2, output]);\n\n\n\n\nLayer.Dense\n\n\nThe dense layer is a regular layer.\n\n\nvar layer = new Layer.Dense(size);\n\n\n\n\nLayer.LSTM\n\n\nThe LSTM layer is very useful for detecting and predicting patterns over long\ntime lags. This is a recurrent layer. More info? Check out the \nLSTM\n page.\n\n\nvar layer = new Layer.LSTM(size);\n\n\n\n\nLayer.GRU\n\n\nThe GRU layer is similar to the LSTM layer, however it has no memory cell and only\ntwo gates. It is also a recurrent layer that is excellent for timeseries prediction.\nMore info? Check out the \nGRU\n page.\n\n\nvar layer = new Layer.GRU(size);\n\n\n\n\nLayer.Memory\n\n\nThe Memory layer is very useful if you want your network to remember a number of\nprevious inputs in an absolute way. For example, if you set the \nmemory\n option to\n3, it will remember the last 3 inputs in the same state as they were inputted.\n\n\nvar layer = new Layer.Memory(size, memory);\n\n\n\n\nThe input layer to the memory layer should always have the same size as the memory size.\nThe memory layer will output a total of \nsize * memory\n values.",
             "title": "Layer"
         },
         {
             "location": "/docs/architecture/layer/#constructing-your-own-network-with-layers",
-            "text": "You should always start your network with a  Dense  layer and always end it with a  Dense  layer. You can connect layers with each other just like you can connect nodes and groups with each other. This is an example of a custom architecture built with layers:  var input = new Layer.Dense(1);\nvar hidden1 = new Layer.LSTM(5);\nvar hidden2 = new Layer.GRU(1);\nvar output = new Layer.Dense(1);\n\n// connect however you want\ninput.connect(hidden1);\nhidden1.connect(hidden2);\nhidden2.connect(output);\n\nvar network = Architect.Construct([input, hidden1, hidden2, output]);",
+            "text": "You should always start your network with a  Dense  layer and always end it with\na  Dense  layer. You can connect layers with each other just like you can connect\nnodes and groups with each other. This is an example of a custom architecture\nbuilt with layers:  var input = new Layer.Dense(1);\nvar hidden1 = new Layer.LSTM(5);\nvar hidden2 = new Layer.GRU(1);\nvar output = new Layer.Dense(1);\n\n// connect however you want\ninput.connect(hidden1);\nhidden1.connect(hidden2);\nhidden2.connect(output);\n\nvar network = Architect.Construct([input, hidden1, hidden2, output]);",
             "title": "Constructing your own network with layers"
+        },
+        {
+            "location": "/docs/architecture/layer/#layerdense",
+            "text": "The dense layer is a regular layer.  var layer = new Layer.Dense(size);",
+            "title": "Layer.Dense"
+        },
+        {
+            "location": "/docs/architecture/layer/#layerlstm",
+            "text": "The LSTM layer is very useful for detecting and predicting patterns over long\ntime lags. This is a recurrent layer. More info? Check out the  LSTM  page.  var layer = new Layer.LSTM(size);",
+            "title": "Layer.LSTM"
+        },
+        {
+            "location": "/docs/architecture/layer/#layergru",
+            "text": "The GRU layer is similar to the LSTM layer, however it has no memory cell and only\ntwo gates. It is also a recurrent layer that is excellent for timeseries prediction.\nMore info? Check out the  GRU  page.  var layer = new Layer.GRU(size);",
+            "title": "Layer.GRU"
+        },
+        {
+            "location": "/docs/architecture/layer/#layermemory",
+            "text": "The Memory layer is very useful if you want your network to remember a number of\nprevious inputs in an absolute way. For example, if you set the  memory  option to\n3, it will remember the last 3 inputs in the same state as they were inputted.  var layer = new Layer.Memory(size, memory);  The input layer to the memory layer should always have the same size as the memory size.\nThe memory layer will output a total of  size * memory  values.",
+            "title": "Layer.Memory"
         },
         {
             "location": "/docs/architecture/group/",

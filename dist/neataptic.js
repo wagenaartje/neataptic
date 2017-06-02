@@ -993,12 +993,18 @@ Layer.prototype = {
    */
   set: function(values){
     for(var node in this.nodes){
-      if(typeof values.bias != 'undefined'){
-        this.nodes[node].bias = values.bias;
-      }
+      node = this.nodes[node];
 
-      this.nodes[node].squash = values.squash || this.nodes[node].squash;
-      this.nodes[node].type = values.type || this.nodes[node].type;
+      if(node instanceof Node){
+        if(typeof values.bias != 'undefined'){
+          node.bias = values.bias;
+        }
+
+        node.squash = values.squash || node.squash;
+        node.type   = values.type   || node.type;
+      } else if(node instanceof Group){
+        node.set(values);
+      }
     }
   },
 
@@ -1199,6 +1205,56 @@ Layer.GRU = function(size){
     connections.concat(from.connect(memoryCell, method, weight));
 
     return connections;
+  }
+
+  return layer;
+}
+
+Layer.Memory = function(size, memory){
+  // Create the layer
+  var layer = new Layer();
+  // Because the output can only be one group, we have to put the nodes all in óne group
+
+  var previous = null;
+  for(var i = 0; i < memory; i++){
+    var block = new Group(size);
+
+    block.set({
+      squash: Methods.Activation.IDENTITY,
+      bias: 0,
+      type: 'constant'
+    });
+
+    if(previous != null){
+      previous.connect(block, Methods.Connection.ONE_TO_ONE, 1);
+    }
+
+    layer.nodes.push(block);
+    previous = block;
+  }
+
+  layer.nodes.reverse();
+
+  for(var group in layer.nodes){
+    layer.nodes[group].nodes.reverse();
+  }
+
+  // Because output can only be óne group, fit all memory nodes in óne group
+  var outputGroup = new Group(0);
+  for(var group in layer.nodes){
+    outputGroup.nodes = outputGroup.nodes.concat(layer.nodes[group].nodes);
+  }
+  layer.output = outputGroup;
+
+  layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
+    method = method || Methods.Connection.ALL_TO_ALL;
+
+    if(from.nodes.length != layer.nodes[layer.nodes.length-1].nodes.length){
+      throw new Error('Previous layer size must be same as memory size');
+    }
+
+    return from.connect(layer.nodes[layer.nodes.length-1], Methods.Connection.ONE_TO_ONE, 1);
   }
 
   return layer;
@@ -2600,77 +2656,37 @@ var Architect = {
 
     var nodes = [];
 
-    // Create input
-    var input = new Group(inputSize);
-    input.set({type: 'input'});
-
-    // Create output
-    var output = new Group(outputSize);
-    output.set({type: 'output'});
-
-    // Create hidden layers
+    var input = new Layer.Dense(inputSize);
+    var inputMemory = new Layer.Memory(inputSize, previousInput);
     var hidden = [];
-    var previous = new Group(hiddenLayers[0]);
-    hidden.push(previous);
+    var output = new Layer.Dense(outputSize);
+    var outputMemory = new Layer.Memory(outputSize, previousOutput);
 
-    for(var i = 1; i < hiddenLayers.length; i++){
-      var next = new Group(hiddenLayers[i]);
-      previous.connect(next, Methods.Connection.ALL_TO_ALL);
-      hidden.push(next);
+    nodes.push(input);
+    nodes.push(outputMemory);
 
-      previous = next;
+    for(var i = 0; i < hiddenLayers.length; i++){
+      var hiddenLayer = new Layer.Dense(hiddenLayers[i]);
+      hidden.push(hiddenLayer);
+      nodes.push(hiddenLayer)
+      if(typeof hidden[i-1] != 'undefined'){
+        hidden[i-1].connect(hiddenLayer, Methods.Connection.ALL_TO_ALL);
+      }
     }
 
-    input.connect(hidden[0]);
-    hidden[hiddenLayers.length - 1].connect(output);
+    nodes.push(inputMemory);
+    nodes.push(output);
 
-    // Create previous outputs
-    var pOutputs = [];
-    var previous = output;
-    for(var i = 0; i < previousOutput; i++){
-      var next = new Group(outputSize);
 
-      next.set({
-        squash: Methods.Activation.IDENTITY,
-        bias: 0,
-        type: 'constant'
-      });
+    input.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
+    input.connect(inputMemory, Methods.Connection.ONE_TO_ONE, 1);
+    inputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
+    hidden[hidden.length-1].connect(output, Methods.Connection.ALL_TO_ALL);
+    output.connect(outputMemory, Methods.Connection.ONE_TO_ONE, 1);
+    outputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
 
-      previous.connect(next, Methods.Connection.ONE_TO_ONE, 1);
-      next.connect(hidden[0]);
-
-      pOutputs.push(next);
-
-      previous = next;
-    }
-    pOutputs.reverse();
-
-    // Create previous inputs
-    var pInputs = [];
-    var previous = input;
-    for(var i = 0; i < previousInput; i++){
-      var next = new Group(inputSize);
-      next.set({
-        squash: Methods.Activation.IDENTITY,
-        bias: 0,
-        type: 'constant'
-      });
-
-      previous.connect(next, Methods.Connection.ONE_TO_ONE, 1);
-      next.connect(hidden[0]);
-
-      pInputs.push(next);
-
-      previous = next;
-    }
-    pInputs.reverse();
-
-    // INPUT > SHIFT OUTPUT > HIDDEN > SHIFT INPUT > OUTPUT (activation order)
-    nodes = nodes.concat(input);
-    nodes = nodes.concat(pOutputs);
-    nodes = nodes.concat(hidden);
-    nodes = nodes.concat(pInputs);
-    nodes = nodes.concat(output);
+    input.set({ type: 'input' });
+    output.set({ type: 'output' });
 
     return Architect.Construct(nodes);
   }

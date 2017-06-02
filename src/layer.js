@@ -90,12 +90,18 @@ Layer.prototype = {
    */
   set: function(values){
     for(var node in this.nodes){
-      if(typeof values.bias != 'undefined'){
-        this.nodes[node].bias = values.bias;
-      }
+      node = this.nodes[node];
 
-      this.nodes[node].squash = values.squash || this.nodes[node].squash;
-      this.nodes[node].type = values.type || this.nodes[node].type;
+      if(node instanceof Node){
+        if(typeof values.bias != 'undefined'){
+          node.bias = values.bias;
+        }
+
+        node.squash = values.squash || node.squash;
+        node.type   = values.type   || node.type;
+      } else if(node instanceof Group){
+        node.set(values);
+      }
     }
   },
 
@@ -296,6 +302,56 @@ Layer.GRU = function(size){
     connections.concat(from.connect(memoryCell, method, weight));
 
     return connections;
+  }
+
+  return layer;
+}
+
+Layer.Memory = function(size, memory){
+  // Create the layer
+  var layer = new Layer();
+  // Because the output can only be one group, we have to put the nodes all in óne group
+
+  var previous = null;
+  for(var i = 0; i < memory; i++){
+    var block = new Group(size);
+
+    block.set({
+      squash: Methods.Activation.IDENTITY,
+      bias: 0,
+      type: 'constant'
+    });
+
+    if(previous != null){
+      previous.connect(block, Methods.Connection.ONE_TO_ONE, 1);
+    }
+
+    layer.nodes.push(block);
+    previous = block;
+  }
+
+  layer.nodes.reverse();
+
+  for(var group in layer.nodes){
+    layer.nodes[group].nodes.reverse();
+  }
+
+  // Because output can only be óne group, fit all memory nodes in óne group
+  var outputGroup = new Group(0);
+  for(var group in layer.nodes){
+    outputGroup.nodes = outputGroup.nodes.concat(layer.nodes[group].nodes);
+  }
+  layer.output = outputGroup;
+
+  layer.input = function(from, method, weight){
+    if(from instanceof Layer) from = from.output;
+    method = method || Methods.Connection.ALL_TO_ALL;
+
+    if(from.nodes.length != layer.nodes[layer.nodes.length-1].nodes.length){
+      throw new Error('Previous layer size must be same as memory size');
+    }
+
+    return from.connect(layer.nodes[layer.nodes.length-1], Methods.Connection.ONE_TO_ONE, 1);
   }
 
   return layer;

@@ -1,12 +1,12 @@
 var webpack = require('webpack')
 var license = require('./prebuild.js')
-module.exports = {
+var version = require('./package.json').version
+
+var data = {
   context: __dirname,
   entry: {
     'dist/neataptic': './src/neataptic.js',
-    'mkdocs/theme/cdn/neataptic': './src/neataptic.js',
     'dist/neataptic.min': './src/neataptic.js',
-    'mkdocs/theme/cdn/neataptic.min': './src/neataptic.js'
   },
   output: {
     path: './',
@@ -23,3 +23,8 @@ module.exports = {
     })
   ]
 }
+
+data.entry[`mkdocs/theme/cdn/${version}/neataptic`] = './src/neataptic.js'
+data.entry[`mkdocs/theme/cdn/${version}/neataptic.min`] = './src/neataptic.js'
+
+module.exports = data;

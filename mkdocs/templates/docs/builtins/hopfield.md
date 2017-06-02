@@ -2,6 +2,8 @@ description: How to use the Hopfield network in Neataptic
 authors: Thomas Wagenaar
 keywords: feed-forward, neural-network, hopfield, architecture
 
+> This network might be removed soon
+
 The hopfield architecture is excellent for remembering patterns. Given an input, it will output the most similar pattern it was trained. The output will always be binary, due to the usage of the `Activation.STEP` function.
 
 ```javascript

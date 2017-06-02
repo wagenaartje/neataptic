@@ -132,7 +132,7 @@
         },
         {
             "location": "/docs/builtins/hopfield/",
-            "text": "The hopfield architecture is excellent for remembering patterns. Given an input, it will output the most similar pattern it was trained. The output will always be binary, due to the usage of the \nActivation.STEP\n function.\n\n\nvar network = Architect.Hopfield(10);\nvar trainingSet = [\n  { input: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1], output: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1] },\n  { input: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0], output: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0] }\n];\n\nnetwork.train(trainingSet);\n\nnetwork.activate([0,1,0,1,0,1,0,1,1,1]); // [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]\nnetwork.activate([1,1,1,1,1,0,0,1,0,0]); // [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]\n\n\n\n\nThe input for the training set must always be the same as the output.",
+            "text": "This network might be removed soon\n\n\n\n\nThe hopfield architecture is excellent for remembering patterns. Given an input, it will output the most similar pattern it was trained. The output will always be binary, due to the usage of the \nActivation.STEP\n function.\n\n\nvar network = Architect.Hopfield(10);\nvar trainingSet = [\n  { input: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1], output: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1] },\n  { input: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0], output: [1, 1, 1, 1, 1, 0, 0, 0, 0, 0] }\n];\n\nnetwork.train(trainingSet);\n\nnetwork.activate([0,1,0,1,0,1,0,1,1,1]); // [0, 1, 0, 1, 0, 1, 0, 1, 0, 1]\nnetwork.activate([1,1,1,1,1,0,0,1,0,0]); // [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]\n\n\n\n\nThe input for the training set must always be the same as the output.",
             "title": "Hopfield"
         },
         {

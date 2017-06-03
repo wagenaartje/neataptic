@@ -29,7 +29,7 @@ function Neat(input, output, fitness, options){
   this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
 
-  this.selection      = options.selection || [Methods.Selection.FITNESS_PROPORTIONATE];
+  this.selection      = options.selection ||  Methods.Selection.POWER;
   this.crossover      = options.crossover || [Methods.Crossover.SINGLE_POINT,
                                               Methods.Crossover.TWO_POINT,
                                               Methods.Crossover.UNIFORM,
@@ -180,12 +180,64 @@ Neat.prototype = {
    * @return {Network} genome
    */
   getParent: function(){
-    var selectionMethod = this.selection[Math.floor(Math.random() * this.selection.length)];
-    switch(selectionMethod){
-      case Selection.FITNESS_PROPORTIONATE:
-        var r = Math.floor(Selection.FITNESS_PROPORTIONATE.config(Math.random()) * this.popsize);
-        return this.population[r];
+    switch(this.selection){
+      case Selection.POWER:
+        if(this.population[0].score < this.population[1].score) this.sort();
+
+        var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.popsize);
+        return this.population[index];
         break;
+      case Selection.FITNESS_PROPORTIONATE:
+        // As negative fitnesses are possible
+        // https://stackoverflow.com/questions/16186686/genetic-algorithm-handling-negative-fitness-values
+
+        var totalFitness = 0;
+        var minimalFitness = 0;
+        for(var genome in this.population){
+          var score = this.population[genome].score;
+          minimalFitness = score < minimalFitness ? score : minimalFitness;
+          totalFitness += score
+        }
+
+        minimalFitness = Math.abs(minimalFitness);
+        totalFitness += minimalFitness * this.popsize;
+
+        var random = Math.random() * totalFitness
+        var value = 0;
+
+        for(var genome in this.population){
+          genome = this.population[genome];
+          value += genome.score + minimalFitness;
+          if(random < value) return genome;
+        }
+
+        // if all scores equal, return random genome
+        return this.population[Math.floor(Math.random() * this.population.length)];
+        break;
+      case Selection.TOURNAMENT:
+        if(this.selection.size > this.popsize){
+          throw new Error('Your tournament size should be lower than the population size, please change Methods.Selection.TOURNAMENT.size');
+        }
+
+        // Create a tournament
+        var individuals = [];
+        for(var i = 0; i < this.selection.size; i++){
+          var random = this.population[Math.floor(Math.random() * this.population.length)];
+          individuals.push(random);
+        }
+
+        // Sort the tournament individuals by score
+        individuals.sort(function(a,b){
+          return b.score - a.score;
+        });
+
+        // Select an individual
+        for(var i = 0; i < this.selection.size; i++){
+          if(Math.random() < this.selection.probability || i == this.selection.size - 1){
+            return individuals[i];
+
+          }
+        }
     }
   },
 

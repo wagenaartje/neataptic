@@ -10,7 +10,7 @@
     
 
     
-    <meta name="keywords" content="genetic-algorithm, fitness, elitisim, selection">
+    <meta name="keywords" content="genetic-algorithm, fitness, elitism, selection">
     
 
     
@@ -229,19 +229,85 @@
           <h1 style="margin-bottom: 0px;">Selection</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\selection.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p><a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">Selection</a> is the way in which a genetic algorithm decides which neural networks will be parents for the new generation. There are a couple of selection methods, however only a few have been integrated until now.</p>
-<p>At the moment, there is 1 built-in selection method:</p>
-<pre><code class="javascript">Methods.Selection.FITNESS_PROPORTIONATE; // gives networks with a higher fitness a higher chance of selection
+          <p><a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">Selection</a> is the
+way in which a genetic algorithm decides which neural networks will be parents
+for the new generation. There are a couple of selection methods, however only a
+few have been integrated until now.</p>
+<p>At the moment, there are 3 built-in selection methods:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Selection.POWER</td>
+<td></td>
+</tr>
+<tr>
+<td>Selection.FITNESS_PROPORTIONATE</td>
+<td></td>
+</tr>
+<tr>
+<td>Selection.TOURNAMENT</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><em>A description on how each of these work is given below</em></p>
+<h3 id="usage">Usage</h3>
+<p>You can specify your selection method while calling the <code>evolve()</code> function on a
+network or when constructing a new instance of the <code>NEAT</code> algorithm:</p>
+<pre><code class="javascript">var myNetwork = new Architect.Perceptron(1,1,1);
+var myTrainingSet = [{ input:[0], output:[1]}, { input:[1], output:[0]}];
+
+myNetwork.evolve(myTrainingSet, {
+  generations: 10,
+  selection: Methods.Selection.POWER // eg.
+});
 </code></pre>
 
-<p>However, next to selection methods, <code>ELITISM</code> is also built in. <a href="https://en.wikipedia.org/wiki/Genetic_algorithm#Elitism">Elitism</a> allows a genetic algorithm to pass on <code>n</code> neural networks with the highest fitness from the previous generation to the new generation, without any crossover steps in between. At the moment, selection is only possible inside a <code>Neat</code> object. They can be passed on as follows:</p>
+<p>Next to selection methods, <code>elitism</code> is also built in the <code>NEAT</code> constructor.
+<a href="https://en.wikipedia.org/wiki/Genetic_algorithm#Elitism">Elitism</a> allows a
+genetic algorithm to pass on <code>n</code> neural networks with the highest fitness from
+the previous generation to the new generation, without any crossover steps in
+between. At the moment, elitism is only possible inside a <code>Neat</code> object. They
+can be passed on as follows:</p>
 <pre><code class="javascript">var evolution = new Neat({
-  selection: [Methods.Selection.FITNESS_PROPORTIONATE],
+  selection: Methods.Selection.FITNESS_PROPORTIONATE,
   elitism: 5 // amount of neural networks to keep from generation to generation
 });
 </code></pre>
 
-<p><code>Methods.Selection.FITNESS_PROPORTIONATE</code> default is <code>function(r){ return Math.pow(r,2); }</code>, which means that fitter neural networks are quadratically more likely to be select as parents. The steepness of this curve can be modified easily by changing the <code>2</code>.</p>
+<h4 id="selectionpower">Selection.POWER</h4>
+<p>When using this selection method, a random decimal value between 0 and 1 will
+be generated. E.g. <code>0.5</code>, then this value will get an exponential value, the
+default power is <code>4</code>. So <code>0.5**4 = 0.0625</code>. This will be converted into an index
+for the array of the current population, which is sorted from fittest to worst.</p>
+<p><strong>Config:</strong></p>
+<ul>
+<li><em>Selection.POWER.power</em> : default is <code>4</code>. Increasing this value will increase the
+chance fitter genomes are chosen.</li>
+</ul>
+<h4 id="selectionfitness_proportionate">Selection.FITNESS_PROPORTIONATE</h4>
+<p>This selection method will select genomes with a probability proportionate to their fitness:</p>
+<p><img alt="Formula" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/89d0cb75150cdb5ad94ba7b168f217f9c290ee09" /></p>
+<p>Read more about roulette selection <a href="https://en.wikipedia.org/wiki/Fitness_proportionate_selection">here</a>.</p>
+<h4 id="selectiontournament">Selection.TOURNAMENT</h4>
+<p>This selection method will select a group of genomes from the population randomly,
+sort them by score, and choose the fittest individual with probability <code>p</code>, the
+second fittest with probability <code>p*(1-p)</code>, the third fittest with probability
+ <code>p*((1-p)^2)</code>and so on. Read more <a href="https://en.wikipedia.org/wiki/Tournament_selection">here</a>.</p>
+<p><strong>Config:</strong></p>
+<ul>
+<li><em>Selection.TOURNAMENT.size</em> : default is <code>5</code>. Must always be lower than
+the population size.
+A higher value will result in a population that has more equal, but fitter, parents.</li>
+<li><em>Selection.TOURNAMENT.probability</em> : default is <code>0.5</code>. See the explanation above
+on how it is implemented.</li>
+</ul>
         </div>
         
       </div>

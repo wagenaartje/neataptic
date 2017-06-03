@@ -267,6 +267,7 @@ time lags. This is a recurrent layer. More info? Check out the <a href="../../bu
 <pre><code class="javascript">var layer = new Layer.LSTM(size);
 </code></pre>
 
+<p>Be aware that using <code>Layer.LSTM</code> is worse than using <code>Architect.LSTM</code>. See issue <a href="https://github.com/wagenaartje/neataptic/issues/25">#25</a>.</p>
 <h3 id="layergru">Layer.GRU</h3>
 <p>The GRU layer is similar to the LSTM layer, however it has no memory cell and only
 two gates. It is also a recurrent layer that is excellent for timeseries prediction.

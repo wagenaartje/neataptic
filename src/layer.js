@@ -232,11 +232,11 @@ Layer.LSTM = function(size){
     var connections = [];
 
     var input = from.connect(memoryCell, method, weight);
-    connections.concat(input);
+    connections = connections.concat(input);
 
-    connections.concat(from.connect(inputGate,  method, weight));
-    connections.concat(from.connect(outputGate, method, weight));
-    connections.concat(from.connect(forgetGate, method, weight));
+    connections = connections.concat(from.connect(inputGate,  method, weight));
+    connections = connections.concat(from.connect(outputGate, method, weight));
+    connections = connections.concat(from.connect(forgetGate, method, weight));
 
     inputGate.gate(input, Methods.Gating.INPUT);
 
@@ -297,9 +297,9 @@ Layer.GRU = function(size){
     method = method || Methods.Connection.ALL_TO_ALL;
     var connections = [];
 
-    connections.concat(from.connect(updateGate, method, weight));
-    connections.concat(from.connect(resetGate,  method, weight));
-    connections.concat(from.connect(memoryCell, method, weight));
+    connections = connections.concat(from.connect(updateGate, method, weight));
+    connections = connections.concat(from.connect(resetGate,  method, weight));
+    connections = connections.concat(from.connect(memoryCell, method, weight));
 
     return connections;
   }

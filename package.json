@@ -1,6 +1,6 @@
 {
   "name": "neataptic",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
@@ -9,6 +9,7 @@
     "build:dist": "webpack",
     "build:docs" : "cd mkdocs && mkdocs build --site-dir ../docs && cd ../",
     "build": "npm run build:dist && npm run build:docs",
+    "deploy": "npm run build && npm run test:dist && npm publish",
     "test:travis": "npm run build:dist && npm run test:dist"
   },
   "devDependencies": {

@@ -72,3 +72,6 @@ var layer = new Layer.Memory(size, memory);
 
 The input layer to the memory layer should always have the same size as the memory size.
 The memory layer will output a total of `size * memory` values.
+
+> This page is incomplete. There is no description on the functions you can use
+on this instance yet. Feel free to add the info (check out src/layer.js)

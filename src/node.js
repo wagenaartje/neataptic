@@ -25,6 +25,7 @@ function Node(type) {
   this.old = 0;
 
   this.mask = 1;
+  this.previousDeltaWeight = 0;
 
   this.connections = {
     in   : [],
@@ -123,9 +124,11 @@ Node.prototype = {
   /**
    * Back-propagate the error, aka learn
    */
-  propagate: function(rate, target) {
+  propagate: function(rate, momentum, target) {
     // Error accumulator
     var error = 0;
+
+    momentum = momentum || 0;
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
@@ -178,9 +181,11 @@ Node.prototype = {
         gradient += node.error.responsibility * value;
       }
 
-      gradient *= this.mask;
+      var deltaWeight = rate * gradient * this.mask;
 
-      connection.weight += rate * gradient; // Adjust weights
+      connection.weight += deltaWeight + momentum * this.previousDeltaWeight;
+
+      this.previousDeltaWeight = deltaWeight;
     }
 
     // Adjust bias

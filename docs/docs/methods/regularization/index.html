@@ -10,7 +10,7 @@
     
 
     
-    <meta name="keywords" content="regularization, dropout, neural-network, training, backpropagation">
+    <meta name="keywords" content="regularization, dropout, neural-network, training, backpropagation, momentum">
     
 
     
@@ -105,6 +105,21 @@
                       
                           <li class="">
                               <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
                           </li>
                       
                       </ul>
@@ -229,11 +244,16 @@
           <h1 style="margin-bottom: 0px;">Regularization</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\regularization.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>As of the 24st of may, the first regularization method has been implemented: <strong>dropout</strong>. Please note that dropout is still <em>experimental</em> and should not be used for full scale projects. It is not even sure that the implementation is 100% correct, but it should be close to correct.</p>
+          <p>Regularization helps to keep weights and/or biases small in your network. Some
+regularization methods also make sure that you are not overfitting your data.</p>
+<h3 id="dropout">Dropout</h3>
+<p>Enabling dropout will randomly set the activation of a neuron in a network to <code>0</code>
+with a given probability.</p>
 <p><img alt="" src="http://cs231n.github.io/assets/nn2/dropout.jpeg" /></p>
-<p><em>Visualisation of dropout</em></p>
-<h3 id="how-to-use">How to use</h3>
-<p>Only use dropout when you are working with large datasets that may show some noise. Dropout is a method that prevents overfitting, but it shouldn't work on datasets like XOR or SINUS, as they don't have any noise. Dropout can only be used during training:</p>
+<p>Only use dropout when you are working with large datasets that may show some noise.
+Dropout is a method that prevents overfitting, but it shouldn't work on datasets
+like XOR or SINUS, as they don't have any noise. Dropout can only be used during
+training:</p>
 <pre><code class="javascript">myNetwork.train(myTrainingSet, {
   error: 0.03,
   iterations: 1000,
@@ -243,6 +263,25 @@
 </code></pre>
 
 <p>Setting the dropout to <code>0.4</code> means that 40% of the neurons will be dropped out every training iteration. Please note that Neataptic has no layered network architecture, so dropout applies to the complete hidden area.</p>
+<h3 id="momentum">Momentum</h3>
+<p>Momentum simply adds a fraction m of the previous weight update to the current one.
+When the gradient keeps pointing in the same direction, this will increase the size
+of the steps taken towards the minimum. It is therefore often necessary to reduce
+the global learning rate µ when using a lot of momentum (m close to 1).
+If you combine a high learning rate with a lot of momentum, you will rush past the
+minimum with huge steps! Read more about it <a href="https://www.willamette.edu/~gorr/classes/cs449/momrate.html">here</a>.</p>
+<p><img alt="Momentum weight update equation" src="https://www.willamette.edu/~gorr/classes/cs449/equations/momentum.gif" /></p>
+<p>you can use this option during training:</p>
+<pre><code class="javascript">myNetwork.train(myTrainingSet, {
+  error: 0.03,
+  iterations: 1000,
+  rate: 0.3,
+  momentum: 0.9
+});
+</code></pre>
+
+<p>Setting the momentum to <code>0.9</code> will mean that 90% of the previous weight change
+will be included in the current weight change.</p>
         </div>
         
       </div>
@@ -253,6 +292,8 @@
       
         
       
+        
+          
         
           
         

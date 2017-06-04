@@ -71,7 +71,7 @@ The constructor comes with various options. The constructor works as follows:
 
 ```javascript
 new Neat(input, output, fitnessFunction, options); // options should be an object
-````
+```
 
 <details>
   <summary>popsize</summary>

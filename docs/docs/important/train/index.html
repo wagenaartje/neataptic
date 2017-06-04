@@ -1,20 +1,14 @@
 <html>
   <head>
-    <title>Neataptic.js - Layer</title>
+    <title>Neataptic.js - Train</title>
 
     <!-- Meta data -->
     <meta charset="UTF-8">
 
     
-    <meta name="description" content="Documentation of the Layer instance in Neataptic">
-    
 
     
-    <meta name="keywords" content="LSTM, GRU, architecture, neural-network, recurrent">
-    
 
-    
-    <meta name="author" content="Thomas Wagenaar">
     
 
     <!-- CSS -->
@@ -111,15 +105,15 @@
                       
                   
                     
-                      <li><a href="../../important/important/">Important functions</a></li>
+                      <li><a href="../important/">Important functions</a></li>
                       <ul>
                       
-                          <li class="">
-                              <a href="../../important/train/">Train</a>
+                          <li class="active">
+                              <a href="./">Train</a>
                           </li>
                       
                           <li class="">
-                              <a href="../../important/evolve/">Evolve</a>
+                              <a href="../evolve/">Evolve</a>
                           </li>
                       
                       </ul>
@@ -157,31 +151,31 @@
                       
                   
                     
-                      <li><a href="../architecture/">Architecture</a></li>
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
                       <ul>
                       
                           <li class="">
-                              <a href="../construct/">Construct</a>
+                              <a href="../../architecture/construct/">Construct</a>
                           </li>
                       
                           <li class="">
-                              <a href="../network/">Network</a>
-                          </li>
-                      
-                          <li class="active">
-                              <a href="./">Layer</a>
+                              <a href="../../architecture/network/">Network</a>
                           </li>
                       
                           <li class="">
-                              <a href="../group/">Group</a>
+                              <a href="../../architecture/layer/">Layer</a>
                           </li>
                       
                           <li class="">
-                              <a href="../node/">Node</a>
+                              <a href="../../architecture/group/">Group</a>
                           </li>
                       
                           <li class="">
-                              <a href="../connection/">Connection</a>
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
                           </li>
                       
                       </ul>
@@ -212,7 +206,7 @@
                           </li>
                       
                           <li class="">
-                              <a href="../connection/">Connection</a>
+                              <a href="../../architecture/connection/">Connection</a>
                           </li>
                       
                           <li class="">
@@ -241,68 +235,87 @@
         <!-- Content -->
         
         <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1 style="margin-bottom: 0px;">Layer</h1>
-          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\architecture\layer.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <h1 style="margin-bottom: 0px;">Train</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\important\train.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>Layers are pre-built architectures that allow you to combine different network
-architectures into óne network. At this moment, there are 3 layers (more to come soon!):</p>
-<pre><code class="javascript">Layer.Dense
-Layer.LSTM
-Layer.GRU
-Layer.Memory
+          <p>The train method allows you to train your network with given parameters. If this
+documentation is too complicated, I recommend to check out the
+<a href="../../tutorials/training/">training tutorial</a>! Main usage:</p>
+<pre>
+myNetwork.train(set, options)
+</pre>
+
+<p>Where set is an error containing objects in the following way: <code>{ input: [input(s)], output: [output(s)] }</code>. So for example, this is how you would train an XOR:</p>
+<pre>
+var network = new Architect.Perceptron(2,4,1);
+
+// Train the XOR gate
+network.train([{ input: [0,0], output: [0] },
+               { input: [0,1], output: [1] },
+               { input: [1,0], output: [1] },
+               { input: [1,1], output: [0] }]);
+
+network.activate([0,1]); // 0.9824...
+</pre>
+
+<p>However, options allow you to finetune the training process:</p>
+<ul>
+<li><code>log</code> - If set to <em>n</em>, will output the training status every <em>n</em> iterations (<em>log : 1</em> will log every iteration)</li>
+<li><code>error</code> - The target error to reach, once the network falls below this error, the process is stopped. Default: <em>0.03</em></li>
+<li><code>cost</code> - The cost function to use. See <a href="../../methods/cost/">cost methods</a>. Default: <em>Methods.Cost.MSE</em></li>
+<li><code>rate</code> - Sets the learning rate of the backpropagation process. Default: <em>0.3</em>.</li>
+<li><code>dropout</code> - Sets the dropout of the hidden network nodes. Read more about it on the <a href="../../methods/regularization/">regularization</a> page. Default: <em>0</em>.</li>
+<li><code>shuffle</code> - When set to <em>true</em>, will shuffle the training data every iteration. A good option to use if your network is performing less in cross validation than in the real training set. Default: <em>false</em></li>
+<li><code>iterations</code> - Sets the amount of iterations the process will maximally run, even when the target error has not been reached. Default: <em>NaN</em></li>
+<li><code>schedule</code> - You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(){console.log(Date.now)}, iterations: 5}</em>. This will log the time every 5 iterations. This option allows for complex scheduled tasks during training.</li>
+<li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for training <a href="../../builtins/lstm/">LSTM</a>'s, more importantly for timeseries prediction. Default: <em>false</em></li>
+<li><code>momentum</code> - Sets the momentum of the weight change. More info <a href="https://www.willamette.edu/~gorr/classes/cs449/momrate.html">here</a>. Default: <em>0</em></li>
+</ul>
+<p>So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.</p>
+<pre><code class="javascript">var network = new Architect.Perceptron(2,4,1);
+
+var trainingSet = [
+  { input: [0,0], output: [1] },
+  { input: [0,1], output: [0] },
+  { input: [1,0], output: [0] },
+  { input: [1,1], output: [1] }
+];
+
+// Train the XNOR gate
+network.train(trainingSet, {
+  log: 1,
+  iterations: 1000,
+  error: 0.0001,
+  rate: 0.2
+});
 </code></pre>
 
-<p>Check out the options and details for each layer below.</p>
-<h3 id="constructing-your-own-network-with-layers">Constructing your own network with layers</h3>
-<p>You should always start your network with a <code>Dense</code> layer and always end it with
-a <code>Dense</code> layer. You can connect layers with each other just like you can connect
-nodes and groups with each other. This is an example of a custom architecture
-built with layers:</p>
-<pre><code class="javascript">var input = new Layer.Dense(1);
-var hidden1 = new Layer.LSTM(5);
-var hidden2 = new Layer.GRU(1);
-var output = new Layer.Dense(1);
+<p>The last option is the <strong>crossValidate</strong> option, which will validate if the network also performs well enough on a non-trained part of the given set. Options:</p>
+<ul>
+<li><code>crossValidate.testSize</code> - Sets the amount of test cases that should be assigned to cross validation. If set to <em>0.4</em>, 40% of the given set will be used for cross validation.</li>
+<li><code>crossValidate.testError</code> - Sets the target error of the validation set.</li>
+</ul>
+<p>So an example of cross validation would be:</p>
+<pre><code class="javascript">var network = new Architect.Perceptron(2,4,1);
 
-// connect however you want
-input.connect(hidden1);
-hidden1.connect(hidden2);
-hidden2.connect(output);
+var trainingSet = [
+  { input: [0,0], output: [1] },
+  { input: [0,1], output: [0] },
+  { input: [1,0], output: [0] },
+  { input: [1,1], output: [1] }
+];
 
-var network = Architect.Construct([input, hidden1, hidden2, output]);
+// Train the XNOR gate
+network.train(trainingSet, {
+  crossValidate :
+    {
+      testSize: 0.4,
+      testError: 0.02
+    }
+});
 </code></pre>
 
-<h3 id="layerdense">Layer.Dense</h3>
-<p>The dense layer is a regular layer.</p>
-<pre><code class="javascript">var layer = new Layer.Dense(size);
-</code></pre>
-
-<h3 id="layerlstm">Layer.LSTM</h3>
-<p>The LSTM layer is very useful for detecting and predicting patterns over long
-time lags. This is a recurrent layer. More info? Check out the <a href="../../builtins/lstm/">LSTM</a> page.</p>
-<pre><code class="javascript">var layer = new Layer.LSTM(size);
-</code></pre>
-
-<p>Be aware that using <code>Layer.LSTM</code> is worse than using <code>Architect.LSTM</code>. See issue <a href="https://github.com/wagenaartje/neataptic/issues/25">#25</a>.</p>
-<h3 id="layergru">Layer.GRU</h3>
-<p>The GRU layer is similar to the LSTM layer, however it has no memory cell and only
-two gates. It is also a recurrent layer that is excellent for timeseries prediction.
-More info? Check out the <a href="../../builtins/gru/">GRU</a> page.</p>
-<pre><code class="javascript">var layer = new Layer.GRU(size);
-</code></pre>
-
-<h3 id="layermemory">Layer.Memory</h3>
-<p>The Memory layer is very useful if you want your network to remember a number of
-previous inputs in an absolute way. For example, if you set the <code>memory</code> option to
-3, it will remember the last 3 inputs in the same state as they were inputted.</p>
-<pre><code class="javascript">var layer = new Layer.Memory(size, memory);
-</code></pre>
-
-<p>The input layer to the memory layer should always have the same size as the memory size.
-The memory layer will output a total of <code>size * memory</code> values.</p>
-<blockquote>
-<p>This page is incomplete. There is no description on the functions you can use
-on this instance yet. Feel free to add the info (check out src/layer.js)</p>
-</blockquote>
+<p>PS: don't use cross validation for small sets, this is just an example!</p>
         </div>
         
       </div>

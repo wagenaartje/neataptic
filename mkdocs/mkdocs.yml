@@ -25,6 +25,10 @@ pages:
       - Evolution: docs/tutorials/evolution.md
       - Normalization: docs/tutorials/normalization.md
       - Visualization: docs/tutorials/visualization.md
+    - Important functions:
+      - Important functions: docs/important/important.md
+      - Train: docs/important/train.md
+      - Evolve: docs/important/evolve.md
     - Built-in networks:
       - Built-in networks: docs/builtins/builtins.md
       - Perceptron: docs/builtins/perceptron.md

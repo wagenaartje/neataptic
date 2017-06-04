@@ -71,7 +71,7 @@ Network.prototype = {
   /**
    * Backpropagate the network
    */
-  propagate: function(rate, target){
+  propagate: function(rate, momentum, target){
     this.nodes.reverse();
     target.reverse();
 
@@ -79,10 +79,10 @@ Network.prototype = {
     for(node in this.nodes){
       switch(this.nodes[node].type){
         case('hidden'):
-          this.nodes[node].propagate(rate);
+          this.nodes[node].propagate(rate, momentum);
           break;
         case('output'):
-          this.nodes[node].propagate(rate, target[node]);
+          this.nodes[node].propagate(rate, momentum, target[node]);
           break;
       }
     }
@@ -495,6 +495,7 @@ Network.prototype = {
     var crossValidate = options.crossValidate || false;
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
+    var momentum      = options.momentum      || 0;
     var schedule      = options.schedule;
 
     if(typeof options.iterations == 'undefined' && typeof options.error == 'undefined'){
@@ -546,12 +547,12 @@ Network.prototype = {
 
       // Checks if cross validation is enabled
       if (crossValidate) {
-        this._trainSet(trainSet, currentRate, cost);
+        this._trainSet(trainSet, currentRate, momentum, cost);
         if(clear) this.clear();
         error += this.test(testSet, cost).error;
         if(clear) this.clear();
       } else {
-        error += this._trainSet(set, currentRate, cost);
+        error += this._trainSet(set, currentRate, momentum, cost);
         if(clear) this.clear();
         error /= set.length;
       }
@@ -594,14 +595,14 @@ Network.prototype = {
    * Performs one training epoch and returns the error
    * private function used in this.train
    */
-  _trainSet: function(set, currentRate, costFunction) {
+  _trainSet: function(set, currentRate, momentum, costFunction) {
     var errorSum = 0;
     for (var train in set) {
       var input = set[train].input;
       var target = set[train].output;
 
       var output = this.activate(input, true);
-      this.propagate(currentRate, target);
+      this.propagate(currentRate, momentum, target);
 
       errorSum += costFunction(target, output);
     }

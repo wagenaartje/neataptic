@@ -31,6 +31,12 @@ myGroup.activate([1, 0, 1]);
 Will backpropagate all nodes in the group, make sure the group receives input from another group or node!
 
 ```javascript
+myGroup.propagate(rate, momentum, target);
+```
+
+The target argument is optional. An example would be:
+
+```javascript
 var A = new Group(2);
 var B = new Group(3);
 
@@ -40,8 +46,11 @@ A.activate([1,0]); // set the input
 B.activate(); // get the output
 
 // Then teach the network with learning rate and wanted output
-B.propagate(0.3, [0,1]);
+B.propagate(0.3, 0.9, [0,1]);
 ```
+
+The default value for momentum is `0`. Read more about momentum on the
+[regularization page](../methods/regularization.md).
 
 ### connect
 Creates connections between this group and another group or node. There are different connection methods for groups, check them out [here](connection.md).

@@ -1,20 +1,14 @@
 <html>
   <head>
-    <title>Neataptic.js - Layer</title>
+    <title>Neataptic.js - Evolve</title>
 
     <!-- Meta data -->
     <meta charset="UTF-8">
 
     
-    <meta name="description" content="Documentation of the Layer instance in Neataptic">
-    
 
     
-    <meta name="keywords" content="LSTM, GRU, architecture, neural-network, recurrent">
-    
 
-    
-    <meta name="author" content="Thomas Wagenaar">
     
 
     <!-- CSS -->
@@ -111,15 +105,15 @@
                       
                   
                     
-                      <li><a href="../../important/important/">Important functions</a></li>
+                      <li><a href="../important/">Important functions</a></li>
                       <ul>
                       
                           <li class="">
-                              <a href="../../important/train/">Train</a>
+                              <a href="../train/">Train</a>
                           </li>
                       
-                          <li class="">
-                              <a href="../../important/evolve/">Evolve</a>
+                          <li class="active">
+                              <a href="./">Evolve</a>
                           </li>
                       
                       </ul>
@@ -157,31 +151,31 @@
                       
                   
                     
-                      <li><a href="../architecture/">Architecture</a></li>
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
                       <ul>
                       
                           <li class="">
-                              <a href="../construct/">Construct</a>
+                              <a href="../../architecture/construct/">Construct</a>
                           </li>
                       
                           <li class="">
-                              <a href="../network/">Network</a>
-                          </li>
-                      
-                          <li class="active">
-                              <a href="./">Layer</a>
+                              <a href="../../architecture/network/">Network</a>
                           </li>
                       
                           <li class="">
-                              <a href="../group/">Group</a>
+                              <a href="../../architecture/layer/">Layer</a>
                           </li>
                       
                           <li class="">
-                              <a href="../node/">Node</a>
+                              <a href="../../architecture/group/">Group</a>
                           </li>
                       
                           <li class="">
-                              <a href="../connection/">Connection</a>
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
                           </li>
                       
                       </ul>
@@ -212,7 +206,7 @@
                           </li>
                       
                           <li class="">
-                              <a href="../connection/">Connection</a>
+                              <a href="../../architecture/connection/">Connection</a>
                           </li>
                       
                           <li class="">
@@ -241,68 +235,61 @@
         <!-- Content -->
         
         <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1 style="margin-bottom: 0px;">Layer</h1>
-          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\architecture\layer.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <h1 style="margin-bottom: 0px;">Evolve</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\important\evolve.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>Layers are pre-built architectures that allow you to combine different network
-architectures into óne network. At this moment, there are 3 layers (more to come soon!):</p>
-<pre><code class="javascript">Layer.Dense
-Layer.LSTM
-Layer.GRU
-Layer.Memory
+          <p>The evolve function will evolve the network to conform the given training set. If you want to perform neuro-evolution on problems without a training set, check out the <a href="../../neat/">NEAT</a> wiki page. This function may not always be successful, so always specify a number of iterations for it too maximally run.</p>
+<p><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a></p>
+<p>The constructor:</p>
+<pre><code class="javascript">myNetwork.evolve(set, options);
 </code></pre>
 
-<p>Check out the options and details for each layer below.</p>
-<h3 id="constructing-your-own-network-with-layers">Constructing your own network with layers</h3>
-<p>You should always start your network with a <code>Dense</code> layer and always end it with
-a <code>Dense</code> layer. You can connect layers with each other just like you can connect
-nodes and groups with each other. This is an example of a custom architecture
-built with layers:</p>
-<pre><code class="javascript">var input = new Layer.Dense(1);
-var hidden1 = new Layer.LSTM(5);
-var hidden2 = new Layer.GRU(1);
-var output = new Layer.Dense(1);
-
-// connect however you want
-input.connect(hidden1);
-hidden1.connect(hidden2);
-hidden2.connect(output);
-
-var network = Architect.Construct([input, hidden1, hidden2, output]);
+<p>Where <code>set</code> is your training set. An example is coming up ahead. Please note that there are <strong>a lot</strong> of options, here are the basic options:</p>
+<ul>
+<li><code>cost</code> - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: <em>Methods.Cost.MSE</em> (recommended).</li>
+<li><code>amount</code>- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is <em>1</em>.</li>
+<li>
+<p><code>growth</code> - Set the penalty you want to give for large networks. The penalty get's calculated as follows: <em>penalty = (genome.nodes.length + genome.connectoins.length + genome.gates.length) * growth;</em>
+This penalty will get added on top of the error. Your growth should be a very small number, the default value is <em>0.0001</em></p>
+</li>
+<li>
+<p><code>iterations</code> - Set the maximum amount of iterations/generations for the algorithm to run. Always specify this, as the algorithm will not always converge.</p>
+</li>
+<li><code>error</code> - Set the target error. The algorithm will stop once this target error has been reached. The default value is <em>0.005</em>.</li>
+<li><code>log</code> - If set to <em>n</em>, will output every <em>n</em> iterations (<em>log : 1</em> will log every iteration)</li>
+<li><code>schedule</code> -  You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(){console.log(Date.now)}, iterations: 5}</em>. This will log the time every 5 iterations. This option allows for complex scheduled tasks during evolution.</li>
+<li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for evolving recurrent networks, more importantly for timeseries prediction. Default: <em>false</em></li>
+</ul>
+<p>Please note that you can also specify <em>any</em> of the options that are specified on
+the <a href="../../neat/">neat page</a>.</p>
+<p>This function will output an object containing the final error, amount of iterations, time and the evolved network:</p>
+<pre><code class="javascript">return results = {
+  error: mse,
+  generations: neat.generation,
+  time: Date.now() - start,
+  evolved: fittest
+};
 </code></pre>
 
-<h3 id="layerdense">Layer.Dense</h3>
-<p>The dense layer is a regular layer.</p>
-<pre><code class="javascript">var layer = new Layer.Dense(size);
-</code></pre>
-
-<h3 id="layerlstm">Layer.LSTM</h3>
-<p>The LSTM layer is very useful for detecting and predicting patterns over long
-time lags. This is a recurrent layer. More info? Check out the <a href="../../builtins/lstm/">LSTM</a> page.</p>
-<pre><code class="javascript">var layer = new Layer.LSTM(size);
-</code></pre>
-
-<p>Be aware that using <code>Layer.LSTM</code> is worse than using <code>Architect.LSTM</code>. See issue <a href="https://github.com/wagenaartje/neataptic/issues/25">#25</a>.</p>
-<h3 id="layergru">Layer.GRU</h3>
-<p>The GRU layer is similar to the LSTM layer, however it has no memory cell and only
-two gates. It is also a recurrent layer that is excellent for timeseries prediction.
-More info? Check out the <a href="../../builtins/gru/">GRU</a> page.</p>
-<pre><code class="javascript">var layer = new Layer.GRU(size);
-</code></pre>
-
-<h3 id="layermemory">Layer.Memory</h3>
-<p>The Memory layer is very useful if you want your network to remember a number of
-previous inputs in an absolute way. For example, if you set the <code>memory</code> option to
-3, it will remember the last 3 inputs in the same state as they were inputted.</p>
-<pre><code class="javascript">var layer = new Layer.Memory(size, memory);
-</code></pre>
-
-<p>The input layer to the memory layer should always have the same size as the memory size.
-The memory layer will output a total of <code>size * memory</code> values.</p>
-<blockquote>
-<p>This page is incomplete. There is no description on the functions you can use
-on this instance yet. Feel free to add the info (check out src/layer.js)</p>
-</blockquote>
+<p>Here are some evolution examples:</p>
+<p><details>
+  <summary>XOR</summary>
+   Activates the network. It will activate all the nodes in activation order and produce an output.
+<pre>
+var network = new Network(2,1);</p>
+<p>// trainingSet is the same as in the previous example
+network.evolve(trainingSet, {
+  mutation: Methods.Mutation.FFW,
+  equal: true,
+  elitism: 5,
+  mutationRate: 0.5
+});</p>
+<p>network.activate([0,0]); // 0.2413
+network.activate([0,1]); // 1.0000
+network.activate([1,0]); // 0.7663
+network.activate([1,1]); // -0.008
+</pre>
+</details></p>
         </div>
         
       </div>

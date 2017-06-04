@@ -51,16 +51,16 @@ Layer.prototype = {
   /**
    * Propagates all the node in the group
    */
-  propagate: function(rate, target){
+  propagate: function(rate, momentum, target){
     if(typeof target != 'undefined' && target.length != this.nodes.length){
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for(var i = this.nodes.length - 1; i >= 0; i--){
       if(typeof target == 'undefined'){
-        this.nodes[i].propagate(rate);
+        this.nodes[i].propagate(rate, momentum);
       } else {
-        this.nodes[i].propagate(rate, target[i]);
+        this.nodes[i].propagate(rate, momentum, target[i]);
       }
     }
   },

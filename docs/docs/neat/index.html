@@ -111,6 +111,21 @@
                       
                   
                     
+                      <li><a href="../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../important/evolve/">Evolve</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
                       <li><a href="../builtins/builtins/">Built-in networks</a></li>
                       <ul>
                       
@@ -292,9 +307,9 @@ function endEvaluation(){
 <p>You might also want to check out the <a href="https://github.com/wagenaartje/target-seeking-ai">target-seeking project</a> built with Neataptic.</p>
 <h2 id="options">Options</h2>
 <p>The constructor comes with various options. The constructor works as follows:</p>
-<p>```javascript
-new Neat(input, output, fitnessFunction, options); // options should be an object
-````</p>
+<pre><code class="javascript">new Neat(input, output, fitnessFunction, options); // options should be an object
+</code></pre>
+
 <p><details>
   <summary>popsize</summary>
    Sets the population size of each generation. Default is 50.
@@ -409,6 +424,8 @@ If you want to start the algorithm from a specific network, specify your network
       
         
       
+        
+          
         
           
         

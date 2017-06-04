@@ -111,6 +111,21 @@
                       
                   
                     
+                      <li><a href="../../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
                       <li><a href="../../builtins/builtins/">Built-in networks</a></li>
                       <ul>
                       
@@ -263,6 +278,10 @@ myGroup.activate([1, 0, 1]);
 
 <h3 id="propagate">propagate</h3>
 <p>Will backpropagate all nodes in the group, make sure the group receives input from another group or node!</p>
+<pre><code class="javascript">myGroup.propagate(rate, momentum, target);
+</code></pre>
+
+<p>The target argument is optional. An example would be:</p>
 <pre><code class="javascript">var A = new Group(2);
 var B = new Group(3);
 
@@ -272,9 +291,11 @@ A.activate([1,0]); // set the input
 B.activate(); // get the output
 
 // Then teach the network with learning rate and wanted output
-B.propagate(0.3, [0,1]);
+B.propagate(0.3, 0.9, [0,1]);
 </code></pre>
 
+<p>The default value for momentum is <code>0</code>. Read more about momentum on the
+<a href="../../methods/regularization/">regularization page</a>.</p>
 <h3 id="connect">connect</h3>
 <p>Creates connections between this group and another group or node. There are different connection methods for groups, check them out <a href="../connection/">here</a>.</p>
 <pre><code class="javascript">var A = new Group(4);
@@ -337,6 +358,8 @@ A.disconnect(B, true);
       
         
       
+        
+          
         
           
         

@@ -30,15 +30,28 @@ node.activate(); // 0.4923128591923
 ```
 
 ### propagate
-After an activation, you can teach the node what should have been the correct output (a.k.a. train). This is done by backpropagating the error. To use the propagate method you have to provide a learning rate, and a target value (float between 0 and 1).
+After an activation, you can teach the node what should have been the correct
+output (a.k.a. train). This is done by backpropagating the error. To use the
+propagate method you have to provide a learning rate, and a target value
+(float between 0 and 1).
 
-For example, this is how you can train node B to activate 0 when node A activates 1:
+The arguments you can pass on are as follows:
+
+```javascript
+myNode.propage(learningRate, momentum, target);
+```
+
+The target argument is optional. The default value of momentum is `0`. Read more
+about momentum on the [regularization page](../methods/regularization.md). For
+example, this is how you can train node B to activate 0 when node A activates 1:
+
 ```javascript
 var A = new Node();
 var B = new Node();
 A.connect(B);
 
 var learningRate = .3;
+var momentum = 0;
 
 for(var i = 0; i < 20000; i++)
 {
@@ -47,13 +60,14 @@ for(var i = 0; i < 20000; i++)
 
   // train B to activate 0
   B.activate();
-  B.propagate(learningRate, 0);
+  B.propagate(learningRate, momentum, 0);
 }
 
 // test it
 A.activate(1);
 B.activate(); // 0.006540565760853365
 ```
+
 
 ### connect
 A node can project a connection to another node or group (i.e. connect node A with node B). Here is how it's done:

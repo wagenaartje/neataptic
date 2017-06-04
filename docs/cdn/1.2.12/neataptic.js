@@ -201,6 +201,7 @@ function Node(type) {
   this.old = 0;
 
   this.mask = 1;
+  this.previousDeltaWeight = 0;
 
   this.connections = {
     in   : [],
@@ -299,9 +300,11 @@ Node.prototype = {
   /**
    * Back-propagate the error, aka learn
    */
-  propagate: function(rate, target) {
+  propagate: function(rate, momentum, target) {
     // Error accumulator
     var error = 0;
+
+    momentum = momentum || 0;
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
@@ -354,9 +357,11 @@ Node.prototype = {
         gradient += node.error.responsibility * value;
       }
 
-      gradient *= this.mask;
+      var deltaWeight = rate * gradient * this.mask;
 
-      connection.weight += rate * gradient; // Adjust weights
+      connection.weight += deltaWeight + momentum * this.previousDeltaWeight;
+
+      this.previousDeltaWeight = deltaWeight;
     }
 
     // Adjust bias
@@ -688,16 +693,16 @@ Group.prototype = {
   /**
    * Propagates all the node in the group
    */
-  propagate: function(rate, target){
+  propagate: function(rate, momentum, target){
     if(typeof target != 'undefined' && target.length != this.nodes.length){
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for(var i = this.nodes.length - 1; i >= 0; i--){
       if(typeof target == 'undefined'){
-        this.nodes[i].propagate(rate);
+        this.nodes[i].propagate(rate, momentum);
       } else {
-        this.nodes[i].propagate(rate, target[i]);
+        this.nodes[i].propagate(rate, momentum, target[i]);
       }
     }
   },
@@ -954,16 +959,16 @@ Layer.prototype = {
   /**
    * Propagates all the node in the group
    */
-  propagate: function(rate, target){
+  propagate: function(rate, momentum, target){
     if(typeof target != 'undefined' && target.length != this.nodes.length){
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for(var i = this.nodes.length - 1; i >= 0; i--){
       if(typeof target == 'undefined'){
-        this.nodes[i].propagate(rate);
+        this.nodes[i].propagate(rate, momentum);
       } else {
-        this.nodes[i].propagate(rate, target[i]);
+        this.nodes[i].propagate(rate, momentum, target[i]);
       }
     }
   },
@@ -1339,7 +1344,7 @@ Network.prototype = {
   /**
    * Backpropagate the network
    */
-  propagate: function(rate, target){
+  propagate: function(rate, momentum, target){
     this.nodes.reverse();
     target.reverse();
 
@@ -1347,10 +1352,10 @@ Network.prototype = {
     for(node in this.nodes){
       switch(this.nodes[node].type){
         case('hidden'):
-          this.nodes[node].propagate(rate);
+          this.nodes[node].propagate(rate, momentum);
           break;
         case('output'):
-          this.nodes[node].propagate(rate, target[node]);
+          this.nodes[node].propagate(rate, momentum, target[node]);
           break;
       }
     }
@@ -1763,6 +1768,7 @@ Network.prototype = {
     var crossValidate = options.crossValidate || false;
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
+    var momentum      = options.momentum      || 0;
     var schedule      = options.schedule;
 
     if(typeof options.iterations == 'undefined' && typeof options.error == 'undefined'){
@@ -1814,12 +1820,12 @@ Network.prototype = {
 
       // Checks if cross validation is enabled
       if (crossValidate) {
-        this._trainSet(trainSet, currentRate, cost);
+        this._trainSet(trainSet, currentRate, momentum, cost);
         if(clear) this.clear();
         error += this.test(testSet, cost).error;
         if(clear) this.clear();
       } else {
-        error += this._trainSet(set, currentRate, cost);
+        error += this._trainSet(set, currentRate, momentum, cost);
         if(clear) this.clear();
         error /= set.length;
       }
@@ -1862,14 +1868,14 @@ Network.prototype = {
    * Performs one training epoch and returns the error
    * private function used in this.train
    */
-  _trainSet: function(set, currentRate, costFunction) {
+  _trainSet: function(set, currentRate, momentum, costFunction) {
     var errorSum = 0;
     for (var train in set) {
       var input = set[train].input;
       var target = set[train].output;
 
       var output = this.activate(input, true);
-      this.propagate(currentRate, target);
+      this.propagate(currentRate, momentum, target);
 
       errorSum += costFunction(target, output);
     }

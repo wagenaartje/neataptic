@@ -54,6 +54,7 @@ pages:
       - Cost: docs/methods/cost.md
       - Connection: docs/architecture/connection.md
       - Gating: docs/methods/gating.md
+      - Rate: docs/methods/rate.md
     - NEAT: docs/neat.md
   - Articles:
     - Articles: articles/index.md

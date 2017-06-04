@@ -25,7 +25,6 @@ function Node(type) {
   this.old = 0;
 
   this.mask = 1;
-  this.previousDeltaWeight = 0;
 
   this.connections = {
     in   : [],
@@ -167,7 +166,7 @@ Node.prototype = {
     if(this.type == 'constant') return;
 
     // Learning rate
-    rate = rate || .1;
+    rate = rate || .3;
 
     // Adjust all the node's incoming connections
     for (var connection in this.connections.in) {
@@ -183,9 +182,9 @@ Node.prototype = {
 
       var deltaWeight = rate * gradient * this.mask;
 
-      connection.weight += deltaWeight + momentum * this.previousDeltaWeight;
+      connection.weight += deltaWeight + momentum * connection.previousDeltaWeight;
 
-      this.previousDeltaWeight = deltaWeight;
+      connection.previousDeltaWeight = deltaWeight;
     }
 
     // Adjust bias

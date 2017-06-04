@@ -5,7 +5,8 @@ var Methods = {
   Crossover  : require('./crossover'),
   Cost       : require('./cost'),
   Gating     : require('./gating'),
-  Connection : require('./connection')
+  Connection : require('./connection'),
+  Rate       : require('./rate')
 };
 
 // CommonJS & AMD

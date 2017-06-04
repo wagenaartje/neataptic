@@ -139,7 +139,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
   Crossover  : __webpack_require__(13),
   Cost       : __webpack_require__(12),
   Gating     : __webpack_require__(14),
-  Connection : __webpack_require__(11)
+  Connection : __webpack_require__(11),
 };
 
 // CommonJS & AMD

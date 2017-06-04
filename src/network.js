@@ -489,13 +489,14 @@ Network.prototype = {
     var log           = options.log           || false;
     var targetError   = options.error         || 0.05;
     var cost          = options.cost          || Methods.Cost.MSE;
-    var rate          = options.rate          || 0.3;
+    var baseRate      = options.rate          || 0.3;
     var shuffle       = options.shuffle       || false;
     var iterations    = options.iterations    || 0;
     var crossValidate = options.crossValidate || false;
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
     var momentum      = options.momentum      || 0;
+    var ratePolicy    = options.ratePolicy    || Methods.Rate.FIXED();
     var schedule      = options.schedule;
 
     if(typeof options.iterations == 'undefined' && typeof options.error == 'undefined'){
@@ -515,35 +516,22 @@ Network.prototype = {
       var testSet = set.slice(numTrain);
     }
 
-    var currentRate = rate;
-
-    // Splits the given rates, assigns it to chunks of iteration
-    var bucketSize = 0;
-    if(Array.isArray(rate)){
-      bucketSize = Math.floor(iterations / rate.length);
-    }
 
     // Loops the training process
+    var currentRate = baseRate;
     var iteration = 0;
     var error = 1;
 
     while (error > targetError && ( iterations == 0 || iteration < iterations)) {
       if (crossValidate && error <= testError) break;
 
+
       iteration++;
 
-      // If the rate is a function, calculate the new rate
-      if(typeof rate === 'function'){
-        currentRate = rate(iterations, error);
-      }
-
+      // Update the rate
+      currentRate = ratePolicy(baseRate, iteration);
+      
       error = 0;
-
-      // Changes the rate depending on the iteration (if enabled)
-      if(bucketSize > 0) {
-        var currentBucket = Math.floor(iterations / bucketSize);
-        currentRate = rate[currentBucket] || currentRate;
-      }
 
       // Checks if cross validation is enabled
       if (crossValidate) {

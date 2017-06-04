@@ -1,16 +1,16 @@
 <html>
   <head>
-    <title>Neataptic.js - Evolve</title>
+    <title>Neataptic.js - Rate</title>
 
     <!-- Meta data -->
     <meta charset="UTF-8">
 
     
-    <meta name="description" content="Documentation of the evolve function, which allows you to evolve neural networks">
+    <meta name="description" content="A list of rate policies that can be used during the training of neural networks.">
     
 
     
-    <meta name="keywords" content="neat, neuro-evolution, neataptic, neural-network, javascript">
+    <meta name="keywords" content="learning rate, policy, exponential, step, neural-network">
     
 
     
@@ -111,15 +111,15 @@
                       
                   
                     
-                      <li><a href="../important/">Important functions</a></li>
+                      <li><a href="../../important/important/">Important functions</a></li>
                       <ul>
                       
                           <li class="">
-                              <a href="../train/">Train</a>
+                              <a href="../../important/train/">Train</a>
                           </li>
                       
-                          <li class="active">
-                              <a href="./">Evolve</a>
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
                           </li>
                       
                       </ul>
@@ -188,27 +188,27 @@
                       
                   
                     
-                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <li><a href="../methods/">Methods</a></li>
                       <ul>
                       
                           <li class="">
-                              <a href="../../methods/regularization/">Regularization</a>
+                              <a href="../regularization/">Regularization</a>
                           </li>
                       
                           <li class="">
-                              <a href="../../methods/mutation/">Mutation</a>
+                              <a href="../mutation/">Mutation</a>
                           </li>
                       
                           <li class="">
-                              <a href="../../methods/selection/">Selection</a>
+                              <a href="../selection/">Selection</a>
                           </li>
                       
                           <li class="">
-                              <a href="../../methods/activation/">Activation</a>
+                              <a href="../activation/">Activation</a>
                           </li>
                       
                           <li class="">
-                              <a href="../../methods/cost/">Cost</a>
+                              <a href="../cost/">Cost</a>
                           </li>
                       
                           <li class="">
@@ -216,11 +216,11 @@
                           </li>
                       
                           <li class="">
-                              <a href="../../methods/gating/">Gating</a>
+                              <a href="../gating/">Gating</a>
                           </li>
                       
-                          <li class="">
-                              <a href="../../methods/rate/">Rate</a>
+                          <li class="active">
+                              <a href="./">Rate</a>
                           </li>
                       
                       </ul>
@@ -245,61 +245,60 @@
         <!-- Content -->
         
         <div class="col-sm-10 col-md-10 col-lg-10 content">
-          <h1 style="margin-bottom: 0px;">Evolve</h1>
-          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\important\evolve.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <h1 style="margin-bottom: 0px;">Rate</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\rate.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>The evolve function will evolve the network to conform the given training set. If you want to perform neuro-evolution on problems without a training set, check out the <a href="../../neat/">NEAT</a> wiki page. This function may not always be successful, so always specify a number of iterations for it too maximally run.</p>
-<p><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a></p>
-<p>The constructor:</p>
-<pre><code class="javascript">myNetwork.evolve(set, options);
+          <p>Rate policies allow the rate to be dynamic during the training of neural networks.
+A few rate policies have been built-in, but it is very easy to create your own
+as well. A detailed description of each rate policy is given below.</p>
+<p>You can enable a rate policy during training like this:</p>
+<pre><code class="javascript">network.train(trainingSet, {
+  rate: 0.3,
+  ratePolicy: Methods.Rate.METHOD(options),
+});
 </code></pre>
 
-<p>Where <code>set</code> is your training set. An example is coming up ahead. Please note that there are <strong>a lot</strong> of options, here are the basic options:</p>
-<ul>
-<li><code>cost</code> - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: <em>Methods.Cost.MSE</em> (recommended).</li>
-<li><code>amount</code>- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is <em>1</em>.</li>
-<li>
-<p><code>growth</code> - Set the penalty you want to give for large networks. The penalty get's calculated as follows: <em>penalty = (genome.nodes.length + genome.connectoins.length + genome.gates.length) * growth;</em>
-This penalty will get added on top of the error. Your growth should be a very small number, the default value is <em>0.0001</em></p>
-</li>
-<li>
-<p><code>iterations</code> - Set the maximum amount of iterations/generations for the algorithm to run. Always specify this, as the algorithm will not always converge.</p>
-</li>
-<li><code>error</code> - Set the target error. The algorithm will stop once this target error has been reached. The default value is <em>0.005</em>.</li>
-<li><code>log</code> - If set to <em>n</em>, will output every <em>n</em> iterations (<em>log : 1</em> will log every iteration)</li>
-<li><code>schedule</code> -  You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(){console.log(Date.now)}, iterations: 5}</em>. This will log the time every 5 iterations. This option allows for complex scheduled tasks during evolution.</li>
-<li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for evolving recurrent networks, more importantly for timeseries prediction. Default: <em>false</em></li>
-</ul>
-<p>Please note that you can also specify <em>any</em> of the options that are specified on
-the <a href="../../neat/">neat page</a>.</p>
-<p>This function will output an object containing the final error, amount of iterations, time and the evolved network:</p>
-<pre><code class="javascript">return results = {
-  error: mse,
-  generations: neat.generation,
-  time: Date.now() - start,
-  evolved: fittest
-};
+<h4 id="methodsratefixed">Methods.Rate.FIXED</h4>
+<p>The default rate policy. Using this policy will make your rate static (it won't
+change). You do not have to specify this rate policy during training per se.</p>
+<h4 id="methodsratestep">Methods.Rate.STEP</h4>
+<p>The rate will 'step down' every <code>n</code> iterations.</p>
+<p><img alt="step down rate" src="https://i.gyazo.com/4096f7093153d3512b28c35719aef688.png" /></p>
+<p>The main usage of this policy is:</p>
+<pre><code class="javascript">Methods.Rate.STEP(gamma, stepSize)
+
+// default gamma: 0.9
+// default stepSize: 100
 </code></pre>
 
-<p>Here are some evolution examples:</p>
-<p><details>
-  <summary>XOR</summary>
-   Activates the network. It will activate all the nodes in activation order and produce an output.
-<pre>
-var network = new Network(2,1);</p>
-<p>// trainingSet is the same as in the previous example
-network.evolve(trainingSet, {
-  mutation: Methods.Mutation.FFW,
-  equal: true,
-  elitism: 5,
-  mutationRate: 0.5
-});</p>
-<p>network.activate([0,0]); // 0.2413
-network.activate([0,1]); // 1.0000
-network.activate([1,0]); // 0.7663
-network.activate([1,1]); // -0.008
-</pre>
-</details></p>
+<p>A gamma of <code>0.9</code> means that every <code>stepSize</code> iterations, your current rate will
+be reduced by 10%.</p>
+<h4 id="methodsrateexp">Methods.Rate.EXP</h4>
+<p>The rate will exponentially decrease.</p>
+<p><img alt="exponential decrease" src="http://systems-sciences.uni-graz.at/etextbook/assets/img/img_sw2/decline.JPG" /></p>
+<p>The main usage of this policy is:</p>
+<pre><code class="javascript">Methods.Rate.EXP(gamma)
+
+// default gamma: 0.999
+</code></pre>
+
+<p>The rate at a certain iteration is calculated as:</p>
+<pre><code class="javascript">rate = baseRate * Math.pow(gamma, iteration)
+</code></pre>
+
+<p>So a gamma of <code>0.999</code> will decrease the current rate by 0.1% every iteration</p>
+<h4 id="methodsrateinv">Methods.Rate.INV</h4>
+<p><img alt="reverse decay" src="https://i.gyazo.com/7c7a1d76f1cf3d565e20cc9b44c899a8.png" /></p>
+<p>The main usage of this policy is:</p>
+<pre><code class="javascript">Methods.Rate.INV(gamma, power)
+
+// default gamma: 0.001
+// default power: 2
+</code></pre>
+
+<p>The rate at a certain iteration is calculated as:</p>
+<pre><code class="javascript">rate = baseRate * Math.pow(1 + gamma * iteration, -power)
+</code></pre>
         </div>
         
       </div>

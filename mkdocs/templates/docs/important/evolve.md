@@ -1,3 +1,7 @@
+description: Documentation of the evolve function, which allows you to evolve neural networks
+authors: Thomas Wagenaar
+keywords: neat, neuro-evolution, neataptic, neural-network, javascript
+
 The evolve function will evolve the network to conform the given training set. If you want to perform neuro-evolution on problems without a training set, check out the [NEAT](../neat.md) wiki page. This function may not always be successful, so always specify a number of iterations for it too maximally run.
 
 <a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a>

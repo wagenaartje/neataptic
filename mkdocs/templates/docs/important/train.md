@@ -1,3 +1,7 @@
+description: Documentation of the train function, used to train neural networks in Neataptic.
+authors: Thomas Wagenaar
+keywords: train, backpropagation, neural-network, dropout, momentum, learning rate
+
 The train method allows you to train your network with given parameters. If this
 documentation is too complicated, I recommend to check out the
 [training tutorial](../tutorials/training.md)! Main usage:
@@ -32,6 +36,7 @@ However, options allow you to finetune the training process:
 * `schedule` - You can schedule tasks to happen every _n_ iterations. An example of usage is _schedule : { function: function(){console.log(Date.now)}, iterations: 5}_. This will log the time every 5 iterations. This option allows for complex scheduled tasks during training.
 * `clear` - If set to _true_, will clear the network after every activation. This is useful for training [LSTM](../builtins/lstm.md)'s, more importantly for timeseries prediction. Default: _false_
 * `momentum` - Sets the momentum of the weight change. More info [here](https://www.willamette.edu/~gorr/classes/cs449/momrate.html). Default: _0_
+* `ratePolicy` - Sets the rate policy for your training. This allows your rate to be dynamic, see the [rate policies page](../methods/rate.md). Default: _Methods.Rate.FIXED()_
 
 So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.
 

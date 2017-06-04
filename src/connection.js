@@ -15,6 +15,9 @@ function Connection(from, to, weight) {
   this.gater = null;
   this.elegibility = 0;
 
+  // For tracking momentum
+  this.previousDeltaWeight = 0;
+
   this.xtrace = {
     nodes: [],
     values : []

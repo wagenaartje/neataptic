@@ -154,6 +154,10 @@ Installing with node is also possible:
 npm install neataptic
 ```
 
+## Further notices
+Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop
+Neataptic. 
+
 <hr>
 
 You made it all the way down! If you appreciate this repo and want to support the development of it, please consider donating :thumbsup:

@@ -48,7 +48,8 @@ function learnSet(set, iterations, error){
     iterations: iterations,
     error: error,
     shuffle: true,
-    rate: 0.3
+    rate: 0.3,
+    momentum: 0.9
   };
 
   var results = network.train(set, options);

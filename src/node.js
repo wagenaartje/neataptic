@@ -180,9 +180,9 @@ Node.prototype = {
         gradient += node.error.responsibility * value;
       }
 
-      var deltaWeight = rate * gradient * this.mask;
+      var deltaWeight = rate * gradient * this.mask + momentum * connection.previousDeltaWeight;
 
-      connection.weight += deltaWeight + momentum * connection.previousDeltaWeight;
+      connection.weight += deltaWeight;
 
       connection.previousDeltaWeight = deltaWeight;
     }

@@ -10,6 +10,7 @@ var iteration = 0;
 var PER_COLOR = 50;
 // Possible colors: red, orange, yellow, green, blue, purple, pink and monochrome
 var COLORS = ['red', 'green', 'blue'];
+var network;
 
 $( document ).ready(function(){
   set = createSet();
@@ -17,7 +18,8 @@ $( document ).ready(function(){
 });
 
 function createNeat(){
-  neat = new Neat(3, 1, fitness, {
+  network = new Network(3, COLORS.length);
+  /*neat = new Neat(3, COLORS.length, fitness, {
     mutation: [
       Methods.Mutation.ADD_NODE,
       Methods.Mutation.ADD_CONN,
@@ -29,7 +31,7 @@ function createNeat(){
     mutationRate: 0.6,
     elitism: 5,
     popsize: 100,
-  });
+  });*/
 }
 
 function visualiseSet(){
@@ -52,38 +54,31 @@ function visualiseGenomeSet(genome){
 
   for(var item in set){
     item = set[item];
-    var color = COLORS[Math.round(genome.activate(item.input) * (COLORS.length-1))];
+    var output = genome.activate(item.input);
+    var max = Math.max.apply(null, output);
+    var color = COLORS[output.indexOf(max)];
 
     $('.fittest'+ color).append('<div id="circle" style="background-color:' + item.rgb + '"></div>');
   }
 }
 
 function loop(){
-  neat.evolve();
-
-  var network = neat.getFittest();
+  network.evolve(set, {
+    iterations: 1,
+    mutationRate: 0.6,
+    elisitm: 5,
+    popSize: 100,
+    mutation: Methods.Mutation.FFW,
+    cost: Methods.Cost.MSE
+  });
 
   visualiseGenomeSet(network);
 
   $('.iteration').text(iteration);
-  $('.bestfitness').text(network.score);
-  $('.averagefitness').text(neat.getAverage());
+  $('.bestfitness').text(network.test(set).error);
 
   iteration++;
   if(running) setTimeout(loop, 1);
-}
-
-function fitness(genome){
-  var score = 0;
-
-  for(var item in set){
-    item = set[item];
-    score -= Methods.Cost.MSE(item.output, genome.activate(item.input));
-  }
-
-  score -= genome.nodes.length * Math.abs(-5 - score) / (PER_COLOR * COLORS.length * 10);
-
-  return score;
 }
 
 // Thanks to https://github.com/davidmerfield/randomColor !!
@@ -100,7 +95,10 @@ function createSet(){
       random = rgb.substring(4, rgb.length-1).replace(/ /g, '').split(',');
       for(var y in random) random[y] = random[y]/255;
 
-      set.push({ input: random, output: [index / (COLORS.length - 1)], color: color, rgb:rgb});
+      var output = Array.apply(null, Array(COLORS.length)).map(Number.prototype.valueOf, 0);
+      output[index] = 1;
+
+      set.push({ input: random, output: output, color: color, rgb: rgb});
     }
   }
 

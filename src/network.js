@@ -72,23 +72,21 @@ Network.prototype = {
    * Backpropagate the network
    */
   propagate: function(rate, momentum, target){
-    this.nodes.reverse();
-    target.reverse();
-
-    // Propagate nodes from end to start
-    for(node in this.nodes){
-      switch(this.nodes[node].type){
-        case('hidden'):
-          this.nodes[node].propagate(rate, momentum);
-          break;
-        case('output'):
-          this.nodes[node].propagate(rate, momentum, target[node]);
-          break;
-      }
+    if(typeof target != 'undefined' && target.length != this.output){
+      throw new Error('Output target length should match network output length');
     }
 
-    target.reverse();
-    this.nodes.reverse();
+    var targetIndex = target.length;
+
+    // Propagate output nodes
+    for(var i = this.nodes.length - 1; i >= this.nodes.length - this.output; i--){
+      this.nodes[i].propagate(rate, momentum, target[--targetIndex]);
+    }
+
+    // Propagate hidden and input nodes
+    for(var i = this.nodes.length - this.output - 1; i >= 0; i--){
+      this.nodes[i].propagate(rate, momentum);
+    }
   },
 
   /**
@@ -530,7 +528,7 @@ Network.prototype = {
 
       // Update the rate
       currentRate = ratePolicy(baseRate, iteration);
-      
+
       error = 0;
 
       // Checks if cross validation is enabled

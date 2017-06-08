@@ -22,6 +22,8 @@
 
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
 
+Neataptic trains 10x faster than competitors. [Run the tests yourself](https://jsfiddle.net/tuet004f/).
+
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript

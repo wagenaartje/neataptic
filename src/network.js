@@ -781,7 +781,7 @@ Network.prototype = {
 
        score -= (genome.nodes.length + genome.connections.length + genome.gates.length) * growth;
 
-       score = isNaN(score) ? -Infinity : score;
+       score = isNaN(score) ? -Infinity : score; // this can cause problems with fitness proportionate selection
        return score/amount;
      }
 
@@ -809,14 +809,14 @@ Network.prototype = {
        }
 
        if(schedule && iteration % schedule.iterations == 0){
-         schedule.function();
+         schedule.function({ error: error, iteration: iterations });
        }
      }
 
      if(clear) bestGenome.clear();
 
      var results = {
-       error: error,
+       error: bestError,
        generations: neat.generation,
        time: Date.now() - start
      };
@@ -882,12 +882,17 @@ Network.prototype = {
      }
    }
 
+   // Delete input nodes of network2
+   for(var i = network2.input - 1; i >= 0; i--){
+     network2.nodes.splice(i, 1);
+   }
+
    // Change the node type of network1's output nodes (now hidden)
-   for(var i = network1.nodes.length - 1 - network1.output; i < network1.nodes.length; i++){
+   for(var i = network1.nodes.length - network1.output; i < network1.nodes.length; i++){
      network1.nodes[i].type = 'hidden';
    }
 
-   // Create one network of both networks
+   // Create one network from both networks
    network1.connections = network1.connections.concat(network2.connections);
    network1.nodes = network1.nodes.concat(network2.nodes);
 
@@ -928,42 +933,29 @@ Network.prototype = {
      var size = network2.nodes.length;
    }
 
+   // Rename some variables for easier reading
+   var outputSize = network1.output;
+
    // Assign nodes from parents to offspring
    for(var i = 0; i < size; i++){
-     if(i < network1.nodes.length && i < network2.nodes.length){
-       var node = null;
-       if(i >= size-network1.output){
-         while(node == null || node.type != 'output'){
-           if(Math.random() >= 0.5){
-             node = network1.nodes[i];
-           } else {
-             node = network2.nodes[i];
-           }
-         }
-       } else {
-         while(node == null || (i < size-network1.output && node.type == 'output')){
-           if(Math.random() >= 0.5){
-             node = network1.nodes[i];
-           } else {
-             node = network2.nodes[i];
-           }
-         }
-       }
+     // Determine if an output node is needed
+     if(i < size - outputSize){
+       var random = Math.random();
+       var node = random >= 0.5 ? network1.nodes[i] : network2.nodes[i];
+       var other = random < 0.5 ? network1.nodes[i] : network2.nodes[i];
 
-       offspring.nodes.push(node);
-     } else if(i < network1.nodes.length){
-       if(i >= size-network1.output){
-         offspring.nodes.push(network1.nodes[network1.nodes.length - (i - (size-network1.output - 1))]);
-       } else {
-         offspring.nodes.push(network1.nodes[i]);
+       if(typeof node == 'undefined' || node.type == 'output'){
+         node = other;
        }
-     } else if(i < network2.nodes.length){
-       if(i >= size-network1.output){
-         offspring.nodes.push(network2.nodes[network2.nodes.length - (i - (size-network1.output - 1))]);
+     } else {
+       if(Math.random() >= 0.5){
+         var node = network1.nodes[network1.nodes.length + i - size];
        } else {
-         offspring.nodes.push(network2.nodes[i]);
+         var node = network2.nodes[network2.nodes.length + i - size];
        }
      }
+
+     offspring.nodes.push(node);
    }
 
    // Clear the node connections, make a copy
@@ -984,13 +976,6 @@ Network.prototype = {
        to    : network1.nodes.indexOf(conn.to),
        gater : network1.nodes.indexOf(conn.gater)
      };
-     if(data.to == network1.nodes.length - 1){
-       if(data.from < size - 1){
-         data.to = size - 1;
-       } else {
-         continue;
-       }
-     }
      var id = Connection.innovationID(data.from, data.to);
      n1conns[id] = data;
    }
@@ -1004,13 +989,6 @@ Network.prototype = {
        to    : network2.nodes.indexOf(conn.to),
        gater : network2.nodes.indexOf(conn.gater)
      };
-     if(data.to == network2.nodes.length - 1){
-       if(data.from < size - 1){
-         data.to = size - 1;
-       } else {
-         continue;
-       }
-     }
      var id = Connection.innovationID(data.from, data.to);
      n2conns[id] = data;
    }

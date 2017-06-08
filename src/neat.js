@@ -34,13 +34,7 @@ function Neat(input, output, fitness, options){
                                               Methods.Crossover.TWO_POINT,
                                               Methods.Crossover.UNIFORM,
                                               Methods.Crossover.AVERAGE];
-  this.mutation       = options.mutation  || [Methods.Mutation.ADD_CONN,
-                                              Methods.Mutation.SUB_CONN,
-                                              Methods.Mutation.ADD_NODE,
-                                              Methods.Mutation.SUB_NODE,
-                                              Methods.Mutation.MOD_BIAS,
-                                              Methods.Mutation.MOD_WEIGHT,
-                                              Methods.Mutation.MOD_ACTIVATION];
+  this.mutation       = options.mutation  ||  Methods.Mutation.FFW;
 
   // Generation counter
   this.generation = 0;
@@ -101,16 +95,16 @@ Neat.prototype = {
    * Breeds two parents into an offspring, population MUST be surted
    */
    getOffspring: function(){
-     parent1 = this.getParent();
-     parent2 = this.getParent();
+     var parent1 = this.getParent();
+     var parent2 = this.getParent();
 
      if(this.equal == true){
        parent1.score = 0;
        parent2.score = 0;
      }
 
-     var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-     return Network.crossOver(parent1, parent2, crossoverMethod);
+     //var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
+     return Network.crossOver(parent1, parent2);
    },
 
   /**
@@ -190,6 +184,7 @@ Neat.prototype = {
       case Selection.FITNESS_PROPORTIONATE:
         // As negative fitnesses are possible
         // https://stackoverflow.com/questions/16186686/genetic-algorithm-handling-negative-fitness-values
+        // this is unnecessarily run for every individual, should be changed
 
         var totalFitness = 0;
         var minimalFitness = 0;
@@ -202,7 +197,7 @@ Neat.prototype = {
         minimalFitness = Math.abs(minimalFitness);
         totalFitness += minimalFitness * this.popsize;
 
-        var random = Math.random() * totalFitness
+        var random = Math.random() * totalFitness;
         var value = 0;
 
         for(var genome in this.population){

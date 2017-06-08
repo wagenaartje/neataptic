@@ -42,7 +42,9 @@ function Network(input, output){
   // Connect input nodes with output nodes directly
   for(var i = 0; i < this.input; i++){
     for(var j = this.input; j < this.output + this.input; j++){
-      this.connect(this.nodes[i], this.nodes[j]);
+      // https://stats.stackexchange.com/a/248040/147931
+      var weight = Math.random() * this.input * Math.sqrt(2 / this.input);
+      this.connect(this.nodes[i], this.nodes[j], weight);
     }
   }
 }
@@ -101,8 +103,8 @@ Network.prototype = {
   /**
    * Connects the from node to the to node
    */
-  connect: function(from, to){
-    var connections = from.connect(to);
+  connect: function(from, to, weight){
+    var connections = from.connect(to, weight);
 
     for(var connection in connections){
       connection = connections[connection];

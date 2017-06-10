@@ -20,19 +20,19 @@ var Architect = {
     // Transform all groups into nodes
     var nodes = [];
 
-    for(item in list){
-      if(list[item] instanceof Group){
-        for(var node in list[item].nodes){
-          nodes.push(list[item].nodes[node]);
+    for(var i = 0; i < list.length; i++){
+      if(list[i] instanceof Group){
+        for(var j = 0; j < list[i].nodes.length; j++){
+          nodes.push(list[i].nodes[j]);
         }
-      } else if(list[item] instanceof Layer){
-        for(var group in list[item].nodes){
-          for(var node in list[item].nodes[group].nodes){
-            nodes.push(list[item].nodes[group].nodes[node]);
+      } else if(list[i] instanceof Layer){
+        for(var j = 0; j < list[i].nodes.length; j++){
+          for(var k = 0; k < list[i].nodes[j].nodes.length; k++){
+            nodes.push(list[i].nodes[j].nodes[k]);
           }
         }
-      } else if(list[item] instanceof Node){
-        nodes.push(list[item]);
+      } else if(list[i] instanceof Node){
+        nodes.push(list[i]);
       }
     }
 
@@ -60,15 +60,15 @@ var Architect = {
       throw new Error('Given nodes have no clear input/output node!');
     }
 
-    for(var node in nodes){
-      for(var conn in nodes[node].connections.out){
-        network.connections.push(nodes[node].connections.out[conn]);
+    for(var i = 0; i < nodes.length; i++){
+      for(var j = 0; j < nodes[i].connections.out.length; j++){
+        network.connections.push(nodes[i].connections.out[j]);
       }
-      for(var conn in nodes[node].connections.gated){
-        network.gates.push(nodes[node].connections.gated[conn]);
+      for(var j = 0; j < nodes[i].connections.gated.length; j++){
+        network.gates.push(nodes[i].connections.gated[j]);
       }
-      if(nodes[node].connections.self.weight != 0){
-        network.selfconns.push(nodes[node].connections.self);
+      if(nodes[i].connections.self.weight != 0){
+        network.selfconns.push(nodes[i].connections.self);
       }
     }
 

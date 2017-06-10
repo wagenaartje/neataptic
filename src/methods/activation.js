@@ -6,14 +6,14 @@
 // https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
 var Activation = {
   LOGISTIC : function(x, derivate){
+    var fx = 1 / (1 + Math.exp(-x));
     if (!derivate)
-      return 1 / (1 + Math.exp(-x));
-    var fx = Activation.LOGISTIC(x);
+      return fx;
     return fx * (1 - fx);
   },
   TANH : function(x, derivate){
-    if (derivate)
-      return 1 - Math.pow(Activation.TANH(x), 2);
+    if(derivate)
+      return 1 - Math.pow(Math.tanh(x), 2);
     return Math.tanh(x);
   },
   IDENTITY : function(x, derivate){

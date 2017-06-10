@@ -226,10 +226,9 @@ Node.prototype = {
    */
   activate: function(input){
     // Check if an input is given
+    var t0 = performance.now();
     if (typeof input != 'undefined') {
       this.activation = input;
-      this.derivative = 0;
-      this.bias = 0;
       return this.activation;
     }
 
@@ -239,8 +238,8 @@ Node.prototype = {
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections
-    for(var connection in this.connections.in){
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++){
+      var connection = this.connections.in[i];
       this.state += connection.from.activation * connection.weight * connection.gain;
     }
 
@@ -252,8 +251,8 @@ Node.prototype = {
     var nodes = [];
     var influences = [];
 
-    for(var conn in this.connections.gated){
-      conn = this.connections.gated[conn];
+    for(var i = 0; i < this.connections.gated.length; i++){
+      var conn = this.connections.gated[i];
       var node = conn.to;
 
       var index = nodes.indexOf(node);
@@ -264,21 +263,25 @@ Node.prototype = {
         influences.push(node.connections.self.gater == this ? node.old : 0);
         influences[influences.length - 1] += conn.weight * conn.from.activation;
       }
+
+      // Adjust the gain to this nodes' activation
+      conn.gain = this.activation;
     }
 
-    for (var connection in this.connections.in) {
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       // Elegibility trace
       connection.elegibility = this.connections.self.gain * this.connections.self.weight *
       connection.elegibility + connection.from.activation * connection.gain;
 
       // Extended trace
-      for(var i = 0; i < nodes.length; i++){
-        var node = nodes[i];
-        var influence = influences[i];
+      for(var j = 0; j < nodes.length; j++){
+        var node = nodes[j];
+        var influence = influences[j];
 
         var index = connection.xtrace.nodes.indexOf(node);
+
         if(index >-1){
           connection.xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
           connection.xtrace.values[index] + this.derivative * connection.elegibility * influence;
@@ -289,12 +292,8 @@ Node.prototype = {
         }
       }
     }
-
-
-    // Update the gains of the gates
-    for(var connection in this.connections.gated){
-      this.connections.gated[connection].gain = this.activation;
-    }
+    var t1 = performance.now();
+    t_activate += t1 - t0;
 
     return this.activation;
   },
@@ -303,18 +302,21 @@ Node.prototype = {
    * Back-propagate the error, aka learn
    */
   propagate: function(rate, momentum, target) {
-    // Error accumulator
-    var error = 0;
+    var t0 = performance.now();
 
     momentum = momentum || 0;
+    rate = rate || .3;
+
+    // Error accumulator
+    var error = 0;
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
       this.error.responsibility = this.error.projected = target - this.activation;
     } else { // the rest of the nodes compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this node
-      for (var connection in this.connections.out) {
-        var connection = this.connections.out[connection];
+      for(var i = 0; i < this.connections.out.length; i++) {
+        var connection = this.connections.out[i];
         var node = connection.to;
         // Eq. 21
         error += node.error.responsibility * connection.weight * connection.gain;
@@ -326,8 +328,8 @@ Node.prototype = {
       // Error responsibilities from all connections gated by this neuron
       error = 0;
 
-      for(var conn in this.connections.gated){
-        conn = this.connections.gated[conn];
+      for(var i = 0; i < this.connections.gated.length; i++){
+        var conn = this.connections.gated[i];
         var node = conn.to;
         var influence = node.connections.self.gater == this ? node.old : 0;
 
@@ -344,18 +346,15 @@ Node.prototype = {
 
     if(this.type == 'constant') return;
 
-    // Learning rate
-    rate = rate || .3;
-
     // Adjust all the node's incoming connections
-    for (var connection in this.connections.in) {
-      var connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       var gradient = this.error.projected * connection.elegibility;
 
-      for(var i = 0; i < connection.xtrace.nodes.length; i++){
-        var node = connection.xtrace.nodes[i];
-        var value = connection.xtrace.values[i];
+      for(var j = 0; j < connection.xtrace.nodes.length; j++){
+        var node = connection.xtrace.nodes[j];
+        var value = connection.xtrace.values[j];
         gradient += node.error.responsibility * value;
       }
 
@@ -368,6 +367,9 @@ Node.prototype = {
 
     // Adjust bias
     this.bias += rate * this.error.responsibility;
+
+    var t1 = performance.now();
+    t_propagate += t1 - t0;
   },
 
   /**
@@ -415,7 +417,7 @@ Node.prototype = {
        return;
      }
 
-     for(var i in this.connections.out){
+     for(var i = 0; i < this.connections.out.length; i++){
        var conn = this.connections.out[i];
        if(conn.to == node){
          this.connections.out.splice(i, 1);
@@ -439,8 +441,8 @@ Node.prototype = {
        connections = [connections];
      }
 
-     for(var connection in connections){
-       connection = connections[connection];
+     for(var i = 0; i < connections.length; i++){
+       var connection = connections[i];
 
        this.connections.gated.push(connection);
        connection.gater = this;
@@ -469,8 +471,8 @@ Node.prototype = {
    * Clear the context of the node
    */
   clear: function(){
-    for (var connection in this.connections.in) {
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       connection.elegibility = 0;
       connection.xtrace = {
@@ -510,8 +512,8 @@ Node.prototype = {
    * Checks if this node is projecting to the given node
    */
    isProjectingTo: function(node){
-     for(conn in this.connections.out){
-       conn = this.connections.out[conn];
+     for(var i = 0; i < this.connections.out.length; i++){
+       var conn = this.connections.out[i];
        if(conn.to == node){
          return true;
        }
@@ -523,8 +525,8 @@ Node.prototype = {
     * Checks if the given node is projecting to this node
     */
     isProjectedBy: function(node){
-      for(conn in this.connections.in){
-        conn = this.connections.in[conn];
+      for(var i = 0; i < this.connections.in.length; i++){
+        var conn = this.connections.in[i];
         if(conn.from == node){
           return true;
         }
@@ -1334,15 +1336,15 @@ Network.prototype = {
   activate: function(input, training){
     var output = [];
     // Activate nodes chronologically
-    for(node in this.nodes){
-      if(this.nodes[node].type == 'input'){
-        this.nodes[node].activate(input[node]);
-      } else if (this.nodes[node].type == 'output'){
-        var activation = this.nodes[node].activate();
+    for(var i = 0; i < this.nodes.length; i++){
+      if(this.nodes[i].type == 'input'){
+        this.nodes[i].activate(input[i]);
+      } else if (this.nodes[i].type == 'output'){
+        var activation = this.nodes[i].activate();
         output.push(activation);
       } else {
-        if(training) this.nodes[node].mask = Math.random() < this.dropout ? 0 : 1;
-        this.nodes[node].activate();
+        if(training) this.nodes[i].mask = Math.random() < this.dropout ? 0 : 1;
+        this.nodes[i].activate();
       }
     }
     return output;
@@ -1364,7 +1366,7 @@ Network.prototype = {
     }
 
     // Propagate hidden and input nodes
-    for(var i = this.nodes.length - this.output - 1; i >= 0; i--){
+    for(var i = this.nodes.length - this.output - 1; i >= this.input; i--){
       this.nodes[i].propagate(rate, momentum);
     }
   },
@@ -1373,8 +1375,8 @@ Network.prototype = {
    * Clear the context of the network
    */
   clear: function(){
-    for(var node in this.nodes){
-      this.nodes[node].clear();
+    for(var i = 0; i < this.nodes.length; i++){
+      this.nodes[i].clear();
     }
   },
 
@@ -1794,7 +1796,6 @@ Network.prototype = {
       var testSet = set.slice(numTrain);
     }
 
-
     // Loops the training process
     var currentRate = baseRate;
     var iteration = 0;
@@ -1863,9 +1864,9 @@ Network.prototype = {
    */
   _trainSet: function(set, currentRate, momentum, costFunction) {
     var errorSum = 0;
-    for (var train in set) {
-      var input = set[train].input;
-      var target = set[train].output;
+    for (var i = 0; i < set.length; i++) {
+      var input = set[i].input;
+      var target = set[i].output;
 
       var output = this.activate(input, true);
       this.propagate(currentRate, momentum, target);
@@ -1885,9 +1886,9 @@ Network.prototype = {
 
     var start = Date.now();
 
-    for (var test in set) {
-      input = set[test].input;
-      target = set[test].output;
+    for (var i = 0; i < set.length; i++) {
+      input = set[i].input;
+      target = set[i].output;
       output = this.activate(input);
       error += cost(target, output);
     }
@@ -1918,8 +1919,8 @@ Network.prototype = {
        ]
      };
 
-     for(index in this.nodes){
-       var node = this.nodes[index];
+     for(var i = 0; i < this.nodes.length; i++){
+       var node = this.nodes[i];
 
        if(node.type == 'input'){
          if(this.input == 1){
@@ -2031,9 +2032,9 @@ Network.prototype = {
    * Sets the value of a property for every node in this network
    */
     set: function(values){
-      for(var node in this.nodes){
-        this.nodes[node].bias = values.bias || this.nodes[node].bias;
-        this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      for(var i = 0; i < this.nodes.length; i++){
+        this.nodes[i].bias = values.bias || this.nodes[i].bias;
+        this.nodes[i].squash = values.squash || this.nodes[i].squash;
       }
     },
 
@@ -3083,7 +3084,7 @@ var Cost = {
   // Cross entropy error
   CROSS_ENTROPY: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       // Avoid negative and zero numbers, use 1e-15 http://bit.ly/2p5W29A
       error -= target[i] * Math.log(Math.max(output[i],1e-15)) + (1-target[i]) * Math.log(1 - Math.max(output[i],1e-15));
     }
@@ -3092,7 +3093,7 @@ var Cost = {
   // Mean Squared Error
   MSE: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       error += Math.pow(target[i] - output[i], 2);
     }
 
@@ -3101,7 +3102,7 @@ var Cost = {
   // Binary error
   BINARY: function(target, output){
     var misses = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       misses += Math.round(target[i] * 2) != Math.round(output[i] * 2);
     }
 
@@ -3110,7 +3111,7 @@ var Cost = {
   // Mean Absolute Error
   MAE: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       error += Math.abs(target[i] - output[i]);
     }
 
@@ -3119,7 +3120,7 @@ var Cost = {
   // Mean Absolute Percentage Error
   MAPE: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       error += Math.abs((output[i] - target[i]) / Math.max(target[i], 1e-15));
     }
 
@@ -3128,7 +3129,7 @@ var Cost = {
   // Mean Squared Logarithmic Error
   MSLE: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       error += Math.log(Math.max(target[i], 1e-15)) - Math.log(Math.max(output[i], 1e-15));
     }
 
@@ -3137,7 +3138,7 @@ var Cost = {
   // Hinge loss, for classifiers
   HINGE: function(target, output){
     var error = 0;
-    for(var i in output){
+    for(var i = 0; i < output.length; i++){
       error += Math.max(0, 1 - target[i] * output[i]);
     }
 

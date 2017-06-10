@@ -56,15 +56,15 @@ Network.prototype = {
   activate: function(input, training){
     var output = [];
     // Activate nodes chronologically
-    for(node in this.nodes){
-      if(this.nodes[node].type == 'input'){
-        this.nodes[node].activate(input[node]);
-      } else if (this.nodes[node].type == 'output'){
-        var activation = this.nodes[node].activate();
+    for(var i = 0; i < this.nodes.length; i++){
+      if(this.nodes[i].type == 'input'){
+        this.nodes[i].activate(input[i]);
+      } else if (this.nodes[i].type == 'output'){
+        var activation = this.nodes[i].activate();
         output.push(activation);
       } else {
-        if(training) this.nodes[node].mask = Math.random() < this.dropout ? 0 : 1;
-        this.nodes[node].activate();
+        if(training) this.nodes[i].mask = Math.random() < this.dropout ? 0 : 1;
+        this.nodes[i].activate();
       }
     }
     return output;
@@ -86,7 +86,7 @@ Network.prototype = {
     }
 
     // Propagate hidden and input nodes
-    for(var i = this.nodes.length - this.output - 1; i >= 0; i--){
+    for(var i = this.nodes.length - this.output - 1; i >= this.input; i--){
       this.nodes[i].propagate(rate, momentum);
     }
   },
@@ -95,8 +95,8 @@ Network.prototype = {
    * Clear the context of the network
    */
   clear: function(){
-    for(var node in this.nodes){
-      this.nodes[node].clear();
+    for(var i = 0; i < this.nodes.length; i++){
+      this.nodes[i].clear();
     }
   },
 
@@ -516,7 +516,6 @@ Network.prototype = {
       var testSet = set.slice(numTrain);
     }
 
-
     // Loops the training process
     var currentRate = baseRate;
     var iteration = 0;
@@ -585,9 +584,9 @@ Network.prototype = {
    */
   _trainSet: function(set, currentRate, momentum, costFunction) {
     var errorSum = 0;
-    for (var train in set) {
-      var input = set[train].input;
-      var target = set[train].output;
+    for (var i = 0; i < set.length; i++) {
+      var input = set[i].input;
+      var target = set[i].output;
 
       var output = this.activate(input, true);
       this.propagate(currentRate, momentum, target);
@@ -607,9 +606,9 @@ Network.prototype = {
 
     var start = Date.now();
 
-    for (var test in set) {
-      input = set[test].input;
-      target = set[test].output;
+    for (var i = 0; i < set.length; i++) {
+      input = set[i].input;
+      target = set[i].output;
       output = this.activate(input);
       error += cost(target, output);
     }
@@ -640,8 +639,8 @@ Network.prototype = {
        ]
      };
 
-     for(index in this.nodes){
-       var node = this.nodes[index];
+     for(var i = 0; i < this.nodes.length; i++){
+       var node = this.nodes[i];
 
        if(node.type == 'input'){
          if(this.input == 1){
@@ -753,9 +752,9 @@ Network.prototype = {
    * Sets the value of a property for every node in this network
    */
     set: function(values){
-      for(var node in this.nodes){
-        this.nodes[node].bias = values.bias || this.nodes[node].bias;
-        this.nodes[node].squash = values.squash || this.nodes[node].squash;
+      for(var i = 0; i < this.nodes.length; i++){
+        this.nodes[i].bias = values.bias || this.nodes[i].bias;
+        this.nodes[i].squash = values.squash || this.nodes[i].squash;
       }
     },
 

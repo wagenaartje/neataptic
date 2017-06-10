@@ -49,8 +49,6 @@ Node.prototype = {
     // Check if an input is given
     if (typeof input != 'undefined') {
       this.activation = input;
-      this.derivative = 0;
-      this.bias = 0;
       return this.activation;
     }
 
@@ -60,8 +58,8 @@ Node.prototype = {
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
     // Activation sources coming from connections
-    for(var connection in this.connections.in){
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++){
+      var connection = this.connections.in[i];
       this.state += connection.from.activation * connection.weight * connection.gain;
     }
 
@@ -73,8 +71,8 @@ Node.prototype = {
     var nodes = [];
     var influences = [];
 
-    for(var conn in this.connections.gated){
-      conn = this.connections.gated[conn];
+    for(var i = 0; i < this.connections.gated.length; i++){
+      var conn = this.connections.gated[i];
       var node = conn.to;
 
       var index = nodes.indexOf(node);
@@ -82,24 +80,28 @@ Node.prototype = {
         influences[index] += conn.weight * conn.from.activation;
       } else {
         nodes.push(node);
-        influences.push(node.connections.self.gater == this ? node.old : 0);
-        influences[influences.length - 1] += conn.weight * conn.from.activation;
+        influences.push(conn.weight * conn.from.activation +
+        (node.connections.self.gater == this ? node.old : 0));
       }
+
+      // Adjust the gain to this nodes' activation
+      conn.gain = this.activation;
     }
 
-    for (var connection in this.connections.in) {
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       // Elegibility trace
       connection.elegibility = this.connections.self.gain * this.connections.self.weight *
       connection.elegibility + connection.from.activation * connection.gain;
 
       // Extended trace
-      for(var i = 0; i < nodes.length; i++){
-        var node = nodes[i];
-        var influence = influences[i];
+      for(var j = 0; j < nodes.length; j++){
+        var node = nodes[j];
+        var influence = influences[j];
 
         var index = connection.xtrace.nodes.indexOf(node);
+
         if(index >-1){
           connection.xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
           connection.xtrace.values[index] + this.derivative * connection.elegibility * influence;
@@ -111,12 +113,6 @@ Node.prototype = {
       }
     }
 
-
-    // Update the gains of the gates
-    for(var connection in this.connections.gated){
-      this.connections.gated[connection].gain = this.activation;
-    }
-
     return this.activation;
   },
 
@@ -124,18 +120,19 @@ Node.prototype = {
    * Back-propagate the error, aka learn
    */
   propagate: function(rate, momentum, target) {
+    momentum = momentum || 0;
+    rate = rate || .3;
+
     // Error accumulator
     var error = 0;
-
-    momentum = momentum || 0;
 
     // Output nodes get their error from the enviroment
     if (this.type == 'output'){
       this.error.responsibility = this.error.projected = target - this.activation;
     } else { // the rest of the nodes compute their error responsibilities by backpropagation
       // error responsibilities from all the connections projected from this node
-      for (var connection in this.connections.out) {
-        var connection = this.connections.out[connection];
+      for(var i = 0; i < this.connections.out.length; i++) {
+        var connection = this.connections.out[i];
         var node = connection.to;
         // Eq. 21
         error += node.error.responsibility * connection.weight * connection.gain;
@@ -147,8 +144,8 @@ Node.prototype = {
       // Error responsibilities from all connections gated by this neuron
       error = 0;
 
-      for(var conn in this.connections.gated){
-        conn = this.connections.gated[conn];
+      for(var i = 0; i < this.connections.gated.length; i++){
+        var conn = this.connections.gated[i];
         var node = conn.to;
         var influence = node.connections.self.gater == this ? node.old : 0;
 
@@ -165,18 +162,15 @@ Node.prototype = {
 
     if(this.type == 'constant') return;
 
-    // Learning rate
-    rate = rate || .3;
-
     // Adjust all the node's incoming connections
-    for (var connection in this.connections.in) {
-      var connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       var gradient = this.error.projected * connection.elegibility;
 
-      for(var i = 0; i < connection.xtrace.nodes.length; i++){
-        var node = connection.xtrace.nodes[i];
-        var value = connection.xtrace.values[i];
+      for(var j = 0; j < connection.xtrace.nodes.length; j++){
+        var node = connection.xtrace.nodes[j];
+        var value = connection.xtrace.values[j];
         gradient += node.error.responsibility * value;
       }
 
@@ -236,7 +230,7 @@ Node.prototype = {
        return;
      }
 
-     for(var i in this.connections.out){
+     for(var i = 0; i < this.connections.out.length; i++){
        var conn = this.connections.out[i];
        if(conn.to == node){
          this.connections.out.splice(i, 1);
@@ -260,8 +254,8 @@ Node.prototype = {
        connections = [connections];
      }
 
-     for(var connection in connections){
-       connection = connections[connection];
+     for(var i = 0; i < connections.length; i++){
+       var connection = connections[i];
 
        this.connections.gated.push(connection);
        connection.gater = this;
@@ -290,8 +284,8 @@ Node.prototype = {
    * Clear the context of the node
    */
   clear: function(){
-    for (var connection in this.connections.in) {
-      connection = this.connections.in[connection];
+    for(var i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
 
       connection.elegibility = 0;
       connection.xtrace = {
@@ -331,8 +325,8 @@ Node.prototype = {
    * Checks if this node is projecting to the given node
    */
    isProjectingTo: function(node){
-     for(conn in this.connections.out){
-       conn = this.connections.out[conn];
+     for(var i = 0; i < this.connections.out.length; i++){
+       var conn = this.connections.out[i];
        if(conn.to == node){
          return true;
        }
@@ -344,8 +338,8 @@ Node.prototype = {
     * Checks if the given node is projecting to this node
     */
     isProjectedBy: function(node){
-      for(conn in this.connections.in){
-        conn = this.connections.in[conn];
+      for(var i = 0; i < this.connections.in.length; i++){
+        var conn = this.connections.in[i];
         if(conn.from == node){
           return true;
         }

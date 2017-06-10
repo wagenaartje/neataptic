@@ -106,8 +106,8 @@ Network.prototype = {
   connect: function(from, to, weight){
     var connections = from.connect(to, weight);
 
-    for(var connection in connections){
-      connection = connections[connection];
+    for(var i = 0; i < connections.length; i++){
+      var connection = connections[i];
       if(from != to){
         this.connections.push(connection);
       } else {
@@ -125,11 +125,11 @@ Network.prototype = {
     // Delete the connection in the network's connection array
     var connections = from == to ? this.selfconns : this.connections;
 
-    for(conn in connections){
-      var connection = connections[conn];
+    for(var i = 0; i < connections.length; i++){
+      var connection = connections[i];
       if(connection.from == from && connection.to == to){
         if(connection.gater != null) this.ungate(connection);
-        connections.splice(conn, 1);
+        connections.splice(i, 1);
         break;
       }
     }
@@ -920,8 +920,6 @@ Network.prototype = {
    // Save scores and create a copy
    var score1 = network1.score || 0;
    var score2 = network2.score || 0;
-   network1 = Network.fromJSON(network1.toJSON());
-   network2 = Network.fromJSON(network2.toJSON());
 
    // Determine offspring node size
    if(score1 == score2){
@@ -956,21 +954,21 @@ Network.prototype = {
        }
      }
 
-     offspring.nodes.push(node);
-   }
+     var newNode = new Node();
+     newNode.bias = node.bias;
+     newNode.squash = node.squash;
+     newNode.type = node.type;
 
-   // Clear the node connections, make a copy
-   for(node in offspring.nodes){
-     offspring.nodes[node] = Node.fromJSON(offspring.nodes[node].toJSON());
+     offspring.nodes.push(newNode);
    }
 
    // Create arrays of connection genes
-   var n1conns = {};
-   var n2conns = {};
+   var n1conns = [];
+   var n2conns = [];
 
-   var n1connections = network1.connections.concat(network1.selfconns);
-   for(conn in n1connections){
-     var conn = n1connections[conn];
+   // Normal connections
+   for(var i = 0; i < network1.connections.length; i++){
+     var conn = network1.connections[i];
      var data = {
        weight: conn.weight,
        from  : network1.nodes.indexOf(conn.from),
@@ -978,12 +976,25 @@ Network.prototype = {
        gater : network1.nodes.indexOf(conn.gater)
      };
      var id = Connection.innovationID(data.from, data.to);
-     n1conns[id] = data;
+     n1conns.push(data);
    }
 
-   var n2connections = network2.connections.concat(network2.selfconns);
-   for(conn in n2connections){
-     var conn = n2connections[conn];
+   // Selfconnections
+   for(var i = 0; i < network1.selfconns.length; i++){
+     var conn = network1.selfconns[i];
+     var data = {
+       weight: conn.weight,
+       from  : network1.nodes.indexOf(conn.from),
+       to    : network1.nodes.indexOf(conn.to),
+       gater : network1.nodes.indexOf(conn.gater)
+     };
+     var id = Connection.innovationID(data.from, data.to);
+     n1conns.push(data);
+   }
+
+   // Normal connections
+   for(var i = 0; i < network2.connections.length; i++){
+     var conn = network2.connections[i];
      var data = {
        weight: conn.weight,
        from  : network2.nodes.indexOf(conn.from),
@@ -991,40 +1002,57 @@ Network.prototype = {
        gater : network2.nodes.indexOf(conn.gater)
      };
      var id = Connection.innovationID(data.from, data.to);
-     n2conns[id] = data;
+     n2conns.push(data);
    }
 
+   // Selfconnections
+   for(var i = 0; i < network2.selfconns.length; i++){
+     var conn = network2.selfconns[i];
+     var data = {
+       weight: conn.weight,
+       from  : network2.nodes.indexOf(conn.from),
+       to    : network2.nodes.indexOf(conn.to),
+       gater : network2.nodes.indexOf(conn.gater)
+     };
+     var id = Connection.innovationID(data.from, data.to);
+     n2conns.push(data);
+   }
 
    // Split common conn genes from disjoint or excess conn genes
-   var commongenes = {};
-   for(var id in n1conns) {
-     if(id in n2conns) {
-       commongenes[id] = [n1conns[id], n2conns[id]];
-       delete n1conns[id];
-       delete n2conns[id];
+   var connections = [];
+   for(var i = n1conns.length - 1; i >= 0; i--){
+     var found = false;
+     for(var j = n2conns.length - 1; j >= 0; j--){
+       // Common gene
+       if(n1conns[i].from == n2conns[j].from && n1conns[i].to == n2conns[j].to){
+         var conn = Math.random() >= 0.5 ? n1conns[i] : n2conns[j];
+         connections.push(conn);
+
+         // Because splicing is expensive, we set to -1 -1
+         n2conns[j] = [-1, -1];
+         var found = true;
+         break;
+       }
+     }
+     // Excess/disjoint gene
+     if(!found && score1 >= score2){
+       connections.push(n1conns[i]);
      }
    }
 
-   // Create a list of conn genes for the offspring
-   var connections = [];
-   for(conn in commongenes){
-     var conn = Math.random() >= 0.5 ? commongenes[conn][0] : commongenes[conn][1];
-     connections.push(conn);
+   // Excess/disjoint gene
+   if(score2 >= score1){
+     for(var i = 0; i < n2conns.length; i++){
+       if(n2conns[i][0] != -1 && n2conns[i][1] != -1){
+         connections.push(n2conns[i]);
+       }
+     }
    }
 
-   // Now add conn genes from the fittest parent (or both)
-   if(score1 == score2){
-     for(conn in n1conns) connections.push(n1conns[conn]);
-     for(conn in n2conns) connections.push(n2conns[conn]);
-   } else if(score1 > score2){
-     for(conn in n1conns) connections.push(n1conns[conn]);
-   } else {
-     for(conn in n2conns) connections.push(n2conns[conn]);
-   }
 
    // Add common conn genes uniformly
-   for(conn in connections){
-     var connData = connections[conn];
+   for(var i = 0; i < connections.length; i++){
+     var connData = connections[i];
      if(connData.to < size && connData.from < size){
        var from = offspring.nodes[connData.from];
        var to   = offspring.nodes[connData.to];

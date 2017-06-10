@@ -190,16 +190,7 @@ Node.prototype = {
    */
    connect: function(target, weight){
      var connections = [];
-     if(target instanceof Group){
-       for(var i = 0; i < target.nodes.length; i++){
-         var connection = new Connection(this, target.nodes[i], weight);
-         target.nodes[i].connections.in.push(connection);
-         this.connections.out.push(connection);
-         target.connections.in.push(connection);
-
-         connections.push(connection);
-       }
-     } else if(target instanceof Node){
+     if(typeof target.bias != 'undefined'){ // must be a node!
        if(target == this){
          // Turn on the self connection by setting the weight
          if(this.connections.self.weight != 0){
@@ -214,6 +205,15 @@ Node.prototype = {
          var connection = new Connection(this, target, weight);
          target.connections.in.push(connection);
          this.connections.out.push(connection);
+
+         connections.push(connection);
+       }
+     } else { // should be a group
+       for(var i = 0; i < target.nodes.length; i++){
+         var connection = new Connection(this, target.nodes[i], weight);
+         target.nodes[i].connections.in.push(connection);
+         this.connections.out.push(connection);
+         target.connections.in.push(connection);
 
          connections.push(connection);
        }

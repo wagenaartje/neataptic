@@ -331,6 +331,7 @@ Node.prototype = {
          return true;
        }
      }
+     if(node == this && this.connections.self.weight != 0) return true;
      return false;
    },
 
@@ -344,6 +345,7 @@ Node.prototype = {
           return true;
         }
       }
+      if(node == this && this.connections.self.weight != 0) return true;
       return false;
     },
 

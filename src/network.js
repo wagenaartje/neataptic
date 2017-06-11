@@ -178,6 +178,9 @@ Network.prototype = {
     // Keep track of gaters
     var gaters = [];
 
+    // Remove selfconnections from this.selfconns
+    this.disconnect(node, node);
+
     // Get all its inputting nodes
     var inputs = [];
     for(var i = node.connections.in.length - 1; i >= 0; i--){
@@ -351,7 +354,7 @@ Network.prototype = {
         var possible = [];
         for(var i = this.input; i < this.nodes.length; i++){
           var node = this.nodes[i];
-          if(node.connections.self.weight == 0){
+          if(this.selfconns.indexOf(node.connections.self) == -1){
             possible.push(node);
           }
         }
@@ -541,7 +544,6 @@ Network.prototype = {
       } else {
         error += this._trainSet(set, currentRate, momentum, cost);
         if(clear) this.clear();
-        error /= set.length;
       }
 
       // Checks for options such as scheduled logs and shuffling
@@ -593,7 +595,7 @@ Network.prototype = {
 
       errorSum += costFunction(target, output);
     }
-    return errorSum;
+    return errorSum / i;
   },
 
   /**

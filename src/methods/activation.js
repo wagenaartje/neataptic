@@ -73,6 +73,15 @@ var Activation = {
     if(derivate)
       return -1;
     return 1 - x;
+  },
+  // https://arxiv.org/pdf/1706.02515.pdf
+  SELU: function(x, derivate){
+    var alpha = 1.6732632423543772848170429916717;
+    var scale = 1.0507009873554804934193349852946;
+    var fx = (x > 0 ? x : alpha * Math.exp(x) - alpha) * scale;
+    if(derivate)
+      return x > 0 ? scale : fx + alpha;
+    return fx;
   }
 };
 

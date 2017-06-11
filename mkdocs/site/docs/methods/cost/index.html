@@ -1,0 +1,366 @@
+<html>
+  <head>
+    <title>Neataptic.js - Cost</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="List of cost functions in Neataptic">
+    
+
+    
+    <meta name="keywords" content="cost function, loss function, mse, cross entropy, optimize">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../activation/">Activation</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../gating/">Gating</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../rate/">Rate</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1 style="margin-bottom: 0px;">Cost</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\cost.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <hr>
+          <p><a href="https://en.wikipedia.org/wiki/Loss_functions_for_classification">Cost functions</a> play an important role in neural networks. They give neural networks an indication of 'how wrong' they are; a.k.a. how far they are from the desired output. But also in fitness functions, cost functions play an imporant role. Without the help of the MSE function, the <a href="https://wagenaartje.github.io/neataptic/articles/evolvexor/">Evolve XOR</a> example would never have worked.</p>
+<h3 id="methods">Methods</h3>
+<p>At the moment, there are 7 built-in mutation methods (all for networks):</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Function</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function">Methods.Cost.CROSS_ENTROPY</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/106c195cc961bd026ad949ad5ff89f3cde845e2c" /></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://en.wikipedia.org/wiki/Mean_squared_error">Methods.Cost.MSE</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/67b9ac7353c6a2710e35180238efe54faf4d9c15" /></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-30164-8_884">Methods.Cost.BINARY</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/aa1123a619eb4566439c92655d3f6331aa69c1d1" /></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_error">Methods.Cost.MAE</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/3ef87b78a9af65e308cf4aa9acf6f203efbdeded" /></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_percentage_error">Methods.Cost.MAPE</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/b2557e2cbee5f1cbf3c9b474878df86d1e74189a" /></td>
+<td></td>
+</tr>
+<tr>
+<td><a href="../none">Methods.Cost.MSLE</a></td>
+<td>none</td>
+<td></td>
+</tr>
+<tr>
+<td><a href="https://en.wikipedia.org/wiki/Hinge_loss">Methods.Cost.HINGE</a></td>
+<td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/a5f42d461f1a28b27438e8f1641e042ff2e40102" /></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="usage">Usage</h3>
+<p>Before experimenting with any of the loss functions, note that not every loss function might 'work' for your network. Some networks have nodes with activation functions that can have negative values; this will create some weird error values with some cost methods. So if you don't know what you're doing: stick to any of the first three cost methods!</p>
+<pre><code class="javascript">myNetwork.train(trainingData, {
+  log: 1,
+  iterations: 500,
+  error: 0.03,
+  rate: 0.05,
+  cost: Methods.Cost.METHOD
+});
+</code></pre>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

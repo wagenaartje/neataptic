@@ -9,9 +9,10 @@ docs_dir: templates
 edit_uri: edit/master/mkdocs/templates/
 
 google_analytics: ['UA-51480408-2', 'wagenaartje.github.io']
+
 extra_css:
     - css/extra.css
-
+    
 markdown_extensions:
   - meta
 

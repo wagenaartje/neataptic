@@ -1,0 +1,488 @@
+<html>
+  <head>
+    <title>Neataptic.js - Node</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="Documentation of the Node instance in Neataptic">
+    
+
+    
+    <meta name="keywords" content="node, neuron, neural-network, activation, bias">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../tutorials/training/">Training</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/evolution/">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../tutorials/visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../group/">Group</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../methods/regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/gating/">Gating</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/rate/">Rate</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1 style="margin-bottom: 0px;">Node</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\architecture\node.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <hr>
+          <p>Nodes are the key to neural networks. They provide the non-linearity in the output. A node can be created as follows:</p>
+<pre><code class="javascript">var node = new Node();
+</code></pre>
+
+<p>Node properties:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bias</td>
+<td>the bias when calculating state</td>
+</tr>
+<tr>
+<td>squash</td>
+<td>activation function</td>
+</tr>
+<tr>
+<td>type</td>
+<td>'input', 'hidden' or 'output', should not be used manually (setting to 'constant' will disable bias/weight changes)</td>
+</tr>
+<tr>
+<td>activation</td>
+<td>activation value</td>
+</tr>
+<tr>
+<td>connections</td>
+<td>dictionary of in and out connections</td>
+</tr>
+<tr>
+<td>old</td>
+<td>stores the previous activation</td>
+</tr>
+<tr>
+<td>state</td>
+<td>stores the state (before being squashed)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="activate">activate</h3>
+<p>Actives the node. Calculates the state from all the input connections, adds the bias, and 'squashes' it.</p>
+<pre><code class="javascript">var node = new Node();
+node.activate(); // 0.4923128591923
+</code></pre>
+
+<h3 id="propagate">propagate</h3>
+<p>After an activation, you can teach the node what should have been the correct
+output (a.k.a. train). This is done by backpropagating the error. To use the
+propagate method you have to provide a learning rate, and a target value
+(float between 0 and 1).</p>
+<p>The arguments you can pass on are as follows:</p>
+<pre><code class="javascript">myNode.propage(learningRate, momentum, target);
+</code></pre>
+
+<p>The target argument is optional. The default value of momentum is <code>0</code>. Read more
+about momentum on the <a href="../../methods/regularization/">regularization page</a>. For
+example, this is how you can train node B to activate 0 when node A activates 1:</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+A.connect(B);
+
+var learningRate = .3;
+var momentum = 0;
+
+for(var i = 0; i &lt; 20000; i++)
+{
+  // when A activates 1
+  A.activate(1);
+
+  // train B to activate 0
+  B.activate();
+  B.propagate(learningRate, momentum, 0);
+}
+
+// test it
+A.activate(1);
+B.activate(); // 0.006540565760853365
+</code></pre>
+
+<h3 id="connect">connect</h3>
+<p>A node can project a connection to another node or group (i.e. connect node A with node B). Here is how it's done:</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+A.connect(B); // A now projects a connection to B
+
+// But you can also connect nodes to groups
+var C = new Group(4);
+
+B.connect(C); // B now projects a connection to all nodes in C
+</code></pre>
+
+<p>A neuron can also connect to itself, creating a selfconnection:</p>
+<pre><code class="javascript">var A = new Node();
+A.connect(A); // A now connects to itself
+</code></pre>
+
+<h3 id="disconnect">disconnect</h3>
+<p>Removes the projected connection from this node to the given node.</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+A.connect(B); // A now projects a connection to B
+
+A.disconnect(B); // no connection between A and B anymore
+</code></pre>
+
+<p>If the nodes project a connection to each other, you can also disconnect both connections at once:</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+A.connect(B); // A now projects a connection to B
+B.connect(A); // B now projects a connection to A
+
+
+// A.disconnect(B)  only disconnects A to B, so use
+A.disconnect(B, true); // or B.disconnect(A, true)
+</code></pre>
+
+<h3 id="gate">gate</h3>
+<p>Neurons can gate connections. This means that the activation value of a neuron has influence on the value transported through a connection. You can either give an array of connections or just a connection as an argument.</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+var C = new Node();
+
+var connections = A.connect(B);
+
+// Now gate the connection(s)
+C.gate(connections);
+</code></pre>
+
+<p>Now the weight of the connection from A to B will always be multiplied by the activation of node C.</p>
+<h3 id="ungate">ungate</h3>
+<p>You can also remove a gate from a connection.</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+var C = new Node();
+
+var connections = A.connect(B);
+
+// Now gate the connection(s)
+C.gate(connections);
+
+// Now ungate those connections
+C.ungate(connections);
+</code></pre>
+
+<h3 id="isprojectingto">isProjectingTo</h3>
+<p>Checks if the node is projecting a connection to another neuron.</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+var C = new Node();
+A.connect(B);
+B.connect(C);
+
+A.isProjectingTo(B); // true
+A.isProjectingTo(C); // false
+</code></pre>
+
+<h3 id="isprojectedby">isProjectedBy</h3>
+<p>Checks if the node is projected by another node.</p>
+<pre><code class="javascript">var A = new Node();
+var B = new Node();
+var C = new Node();
+A.connect(B);
+B.connect(C);
+
+A.isProjectedBy(C); // false
+B.isProjectedBy(A); // true
+</code></pre>
+
+<h3 id="tojsonfromjson">toJSON/fromJSON</h3>
+<p>Nodes can be stored as JSON's and then restored back:</p>
+<pre><code class="javascript">var exported = myNode.toJSON();
+var imported = Network.fromJSON(exported);
+</code></pre>
+
+<p>imported will be a new instance of Node that is an exact clone of myNode.</p>
+<h3 id="clear">clear</h3>
+<p>Clears the context of the node. Useful for predicting timeseries with LSTM's.</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

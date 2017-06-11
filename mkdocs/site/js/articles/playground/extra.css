@@ -1,0 +1,92 @@
+.btn-group, .input-group, pre{
+  margin-top: 10px;
+}
+.node {
+  cursor: move;
+  stroke-width: 1.5px;
+}
+.link {
+  fill: none;
+  stroke: #BDBDBD;
+  stroke-width: 1.5px;
+  opacity: 0.4;
+  marker-end: url(#end-arrow);
+}
+.label {
+  fill: #CCCCCC;
+  font-size: 9px;
+  text-anchor: middle;
+  cursor: move;
+  font-family: Arial;
+}
+#end-arrow{
+  opacity: 0.4;
+}
+.INPUT{
+  fill: #ff6666;
+  stroke:  #ff4d4d;
+}
+.OUTPUT{
+  fill : #ff8c66;
+  stroke: #ff794d;
+}
+.LOGISTIC{
+  fill: #ffb366;
+  stroke: #ffa64d;
+}
+.TANH{
+  fill: #ffd966;
+  stroke: #ffd24d;
+}
+.IDENTITY{
+  fill: #ffff66;
+  stroke: #ffff4d;
+}
+.STEP{
+  fill: #d9ff66;
+  stroke: #d2ff4d;
+}
+.RELU{
+  fill: #b3ff66;
+  stroke: #a6ff4d;
+}
+.SOFTSIGN{
+  fill: #8cff66;
+  stroke: #79ff4d;
+}
+.SINUSOID{
+  fill: #66ff66;
+  stroke: #4dff4d;
+}
+.GAUSSIAN{
+  fill: #66ff8c;
+  stroke: #4dff79;
+}
+.BENT_IDENTITY{
+  fill: #66ffd9;
+  stroke: #4dffd2;
+}
+.BIPOLAR{
+  fill: #66d9ff;
+  stroke: #4dd2ff;
+}
+.BIPOLAR_SIGMOID{
+  fill: #66b3ff;
+  stroke: #4da6ff;
+}
+.HARD_TANH{
+  fill: #668cff;
+  stroke: #4d79ff;
+}
+.ABSOLUTE{
+  fill: #6666ff;
+  stroke: #4d4dff;
+}
+.GATE{
+  fill: #003300;
+  stroke: #001a00;
+}
+.CONSTANT{
+  fill: #ff00ff;
+  stroke: #e600e6;
+}

@@ -87,3 +87,11 @@
   fill: #ff00ff;
   stroke: #e600e6;
 }
+.INVERSE{
+  fill: #ff0080;
+  stroke: #e60073;
+}
+.SELU{
+  fill: #ff0040;
+  stroke: #e60039;
+}

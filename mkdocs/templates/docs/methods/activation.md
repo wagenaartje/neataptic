@@ -17,12 +17,14 @@ SOFTSIGN | ![](https://upload.wikimedia.org/wikipedia/commons/3/38/Activation_so
 SINUSOID | ![](https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Activation_sinusoid.svg/120px-Activation_sinusoid.svg.png) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/5fb1266b7f7718442e31e45eef3d81bef6a8b9af) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/8cba0d31b2482c08dda6ec9adfd04fa7e3d9372f)
 GAUSSIAN | ![](https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Activation_gaussian.svg/120px-Activation_gaussian.svg.png) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/1bed0b77b34cab03996deb42d464becab2f05636) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/70a7b3d396a5e9e1fc5395a0017733abba868169)
 BENT_IDENTITY | ![](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Activation_bent_identity.svg/120px-Activation_bent_identity.svg.png) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/c4365ebef6b1e8e4521ab1df8b640e27edf9557c) | ![](https://wikimedia.org/api/rest_v1/media/math/render/svg/81d4ca91d2f4e2c53745ec90a7d6cc34dde33978)
-BIPOLAR | <img src="https://i.stack.imgur.com/5tQJ9.png" width="120px"/> | <img src="https://i.gyazo.com/47e224f7b2c3b84720f58ce1e2277392.png" width="280px"/>
-BIPOLAR_SIGMOID | <img src="https://i.stack.imgur.com/HK3VY.png" width="120px"/> | <img src="https://i.gyazo.com/b5910df22dc18ffa3ee41f0f729a83a1.png" width="280px"/>
-HARD_TANH | <img src="https://i.stack.imgur.com/CJnMI.png" width="120px"/> | <img src="https://i.gyazo.com/f976fa1e37c766da0a76e0360382b2ae.png" width="280px"/>
-ABSOLUTE :warning: | <img src="https://i.stack.imgur.com/BADmK.png" width="120px"/> | <img src="https://i.gyazo.com/c0689fbd94c4f4db460f67a8b9d505c9.png" width="280px"/>
+BIPOLAR | <img src="http://i.imgur.com/v4cf68M.png" width="120px"/> | <img src="https://i.gyazo.com/47e224f7b2c3b84720f58ce1e2277392.png" width="280px"/>
+BIPOLAR_SIGMOID | <img src="http://i.imgur.com/NPpcsYa.png" width="120px"/> | <img src="https://i.gyazo.com/b5910df22dc18ffa3ee41f0f729a83a1.png" width="280px"/>
+HARD_TANH | <img src="http://i.imgur.com/GIOOhq9.png" width="120px"/> | <img src="https://i.gyazo.com/f976fa1e37c766da0a76e0360382b2ae.png" width="280px"/>
+ABSOLUTE<sup>1</sup> | <img src="http://i.imgur.com/OPsnSDt.png" width="120px"/> | <img src="https://i.gyazo.com/c0689fbd94c4f4db460f67a8b9d505c9.png" width="280px"/>
+SELU | <img src="http://i.imgur.com/YninNA4.png" width="120px"/> | <img src="https://i.gyazo.com/12f9265ba7a28d5d12c4f2322e7d0857.png" width="280px"/>
+INVERSE | <img src="http://i.imgur.com/YzJSu9V.png" width="120px"/> | $$ f(x) = 1 - x $$ | $$ f'(x) = -1 $$
 
-:warning: avoid using this activation function on a node with a selfconnection
+<sup>1</sup> avoid using this activation function on a node with a selfconnection
 
 ### Usage
 By default, a neuron uses a [Logistic Sigmoid](http://en.wikipedia.org/wiki/Logistic_function) as its squashing/activation function. You can change that property the following way:

@@ -6,8 +6,6 @@ var LINK_DISTANCE = 100;
 var WIDTH = 1000;
 var HEIGHT = 500;
 
-
-
 var drawGraph = function(graph, panel) {
     var d3cola = cola.d3adaptor()
           .avoidOverlaps(true)

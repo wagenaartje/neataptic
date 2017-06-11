@@ -1,5 +1,5 @@
 var scripts = [
-  { type: 'script', url: "https://cdn.rawgit.com/wagenaartje/neataptic/c6359ee1/dist/neataptic.js"},
+  { type: 'script', url: "https://wagenaartje.github.io/neataptic/cdn/1.2.22/neataptic.js"},
   { type: 'script', url: "https://cdnjs.cloudflare.com/ajax/libs/d3/3.0.0/d3.js"},
   { type: 'script', url: "../../js/articles/neuroevolution/webcola.js"},
   { type: 'script', url: "../../js/articles/neuroevolution/events.js"},

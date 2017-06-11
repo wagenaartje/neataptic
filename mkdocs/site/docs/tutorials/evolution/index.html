@@ -1,0 +1,374 @@
+<html>
+  <head>
+    <title>Neataptic.js - Evolution</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="A simple tutorial on how to get started on evolving neural networks with Neataptic">
+    
+
+    
+    <meta name="keywords" content="evolution, machine-learning, neural-network, neuro-evolution, neat">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../../..">Home</a></li>
+            <li class="current"><a href="../../">Docs</a></li>
+            <li class="current"><a href="../../../articles/">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                      <li><a href="../tutorials/">Tutorials</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../training/">Training</a>
+                          </li>
+                      
+                          <li class="active">
+                              <a href="./">Evolution</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../normalization/">Normalization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../visualization/">Visualization</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../important/important/">Important functions</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../important/train/">Train</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../important/evolve/">Evolve</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../builtins/builtins/">Built-in networks</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../builtins/perceptron/">Perceptron</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/lstm/">LSTM</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/gru/">GRU</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/narx/">NARX</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/random/">Random</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../builtins/hopfield/">Hopfield</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../architecture/architecture/">Architecture</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../architecture/construct/">Construct</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/network/">Network</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/layer/">Layer</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/group/">Group</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/node/">Node</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                      <li><a href="../../methods/methods/">Methods</a></li>
+                      <ul>
+                      
+                          <li class="">
+                              <a href="../../methods/regularization/">Regularization</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/mutation/">Mutation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/selection/">Selection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/activation/">Activation</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/cost/">Cost</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../architecture/connection/">Connection</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/gating/">Gating</a>
+                          </li>
+                      
+                          <li class="">
+                              <a href="../../methods/rate/">Rate</a>
+                          </li>
+                      
+                      </ul>
+                      
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../../neat/">NEAT</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1 style="margin-bottom: 0px;">Evolution</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\tutorials\evolution.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <hr>
+          <p>Neuro-evolution is something that is fairly underused in the machine learning community. It is quite interesting to see new architectures develop for complicated problems. In this guide I will tell you how to set up a simple supervised neuro-evolution process. If you want to do an unsupervised neuro-evolution process, head over to the <a href="../../neat/">NEAT</a> page.</p>
+<h3 id="the-training-set">The training set</h3>
+<p>You always have to supply a training set for supervised learning. First of all, you should normalize your data. That means you have to convert all your input and output data to values within a range of <code>0</code> to <code>1</code>. If you are unsure how to do this, visit the <a href="../normalization/">Normalization</a> tutorial. Each training sample in your training set should be an object that looks as follows:</p>
+<pre><code class="javascript">{ input: [], output: [] }
+</code></pre>
+
+<p>So an example of a training set would be (XOR):</p>
+<pre><code class="javascript">var myTrainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];
+</code></pre>
+
+<h3 id="the-network-architecture">The network architecture</h3>
+<p>You can start off with <em>any</em> architecture. You can even use the evolution process to optimize already trained networks. However, I advise you to start with an empty network, as originally described in the <a href="http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf">NEAT</a> paper. The constructor of an empty network is as follows:</p>
+<pre><code class="javascript">var myNetwork = new Network(inputSize, outputSize);
+</code></pre>
+
+<p>So for the training set I made above, the network can be constructed as follows:</p>
+<pre><code class="javascript">var myNetwork = new Network(2, 1); // 2 inputs, 1 output
+</code></pre>
+
+<p>Now we have our network. We don't have to tinker around anymore; the evolution process will do that <em>for</em> us.</p>
+<h3 id="evolving-the-network">Evolving the network</h3>
+<p>Be warned: there are <em>a lot</em> of options involved in the evolution of a process. It's a matter of trial and error before you reach options that work really well. Please note that most options are optional, as default values have been configured. The evolve function is as follows:</p>
+<pre><code class="javascript">yourNetwork.evolve(yourData, yourOptions);
+</code></pre>
+
+<p>Check out the evolution options <a href="../../architecture/network/">here</a> and <a href="../../neat/">here</a>. I'm going to use the following options to evolve the network:</p>
+<ul>
+<li><code>mutation: Methods.Mutation.FFW</code> - I want to solve a feed forward problem, so I supply all feed forward mutation methods. More info <a href="../../methods/mutation/">here</a>.</li>
+<li><code>equal: true</code> - During the crossover process, parent networks will be equal. This allows the spawning of new network architectures more easily.</li>
+<li><code>popsize: 100</code> - The default population size is 50, but 100 worked better for me.</li>
+<li><code>elitism: 10</code> - I want to keep the fittest 10% of the population to the next generation without breeding them.</li>
+<li><code>log: 10</code> - I want to log the status every 10 iterations.</li>
+<li><code>error: 0.03</code> - I want the evolution process when the error is below 0.03;</li>
+<li><code>iterations: 1000</code> - I want the evolution process to stop after 1000 iterations if the target error hasn't been reached yet.</li>
+<li><code>mutationRate: 0.5</code> - I want to increase the mutation rate to surpass possible local optima.</li>
+</ul>
+<p>So let's put it all together:</p>
+<pre><code class="javascript">myNetwork.evolve(myTrainingSet, {
+  mutation: Methods.Mutation.FFW,
+  equal: true,
+  popsize: 100,
+  elitism: 10,
+  log: 10,
+  error: 0.03,
+  iterations: 1000,
+  mutationRate: 0.5
+});
+
+// results: {error: 0.0009000000000000001, generations: 255, time: 1078}
+// please note that there is a hard local optima that has to be beaten
+</code></pre>
+
+<p>Now let us check if it <em>actually</em> works:</p>
+<pre><code class="javascript">myNetwork.activate([0,0]); // [0]
+myNetwork.activate([0,1]); // [1]
+myNetwork.activate([1,0]); // [1]
+myNetwork.activate([1,1]); // [0]
+</code></pre>
+
+<p>Notice how precise the results are. That is because the evolution process makes full use of the diverse activation functions. It actually uses the <a href="../../methods/activation/">Activation.STEP</a> function to get a binary <code>0</code> and <code>1</code> output.</p>
+<h3 id="help">Help</h3>
+<p>If you need more help, feel free to create an issue <a href="https://github.com/wagenaartje/neataptic/issues">here</a>!</p>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

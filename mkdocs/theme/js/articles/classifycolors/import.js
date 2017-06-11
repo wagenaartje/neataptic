@@ -1,5 +1,5 @@
 var scripts = [
-  { type: 'script', url: "https://wagenaartje.github.io/neataptic/cdn/1.2.14/neataptic.js" },
+  { type: 'script', url: "https://wagenaartje.github.io/neataptic/cdn/1.2.22/neataptic.js" },
   { type: 'script', url: "../../js/articles/classifycolors/events.js" },
   { type: 'script', url: "../../js/articles/classifycolors/randomColor.js" },
   { type: 'script', url: "../../js/articles/classifycolors/neural.js" },

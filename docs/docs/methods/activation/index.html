@@ -44,6 +44,7 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
   </head>
   <body>
     <!-- Fixed navbar -->
@@ -316,31 +317,43 @@
 </tr>
 <tr>
 <td>BIPOLAR</td>
-<td><img src="https://i.stack.imgur.com/5tQJ9.png" width="120px"/></td>
+<td><img src="http://i.imgur.com/v4cf68M.png" width="120px"/></td>
 <td><img src="https://i.gyazo.com/47e224f7b2c3b84720f58ce1e2277392.png" width="280px"/></td>
 <td></td>
 </tr>
 <tr>
 <td>BIPOLAR_SIGMOID</td>
-<td><img src="https://i.stack.imgur.com/HK3VY.png" width="120px"/></td>
+<td><img src="http://i.imgur.com/NPpcsYa.png" width="120px"/></td>
 <td><img src="https://i.gyazo.com/b5910df22dc18ffa3ee41f0f729a83a1.png" width="280px"/></td>
 <td></td>
 </tr>
 <tr>
 <td>HARD_TANH</td>
-<td><img src="https://i.stack.imgur.com/CJnMI.png" width="120px"/></td>
+<td><img src="http://i.imgur.com/GIOOhq9.png" width="120px"/></td>
 <td><img src="https://i.gyazo.com/f976fa1e37c766da0a76e0360382b2ae.png" width="280px"/></td>
 <td></td>
 </tr>
 <tr>
-<td>ABSOLUTE :warning:</td>
-<td><img src="https://i.stack.imgur.com/BADmK.png" width="120px"/></td>
+<td>ABSOLUTE<sup>1</sup></td>
+<td><img src="http://i.imgur.com/OPsnSDt.png" width="120px"/></td>
 <td><img src="https://i.gyazo.com/c0689fbd94c4f4db460f67a8b9d505c9.png" width="280px"/></td>
 <td></td>
 </tr>
+<tr>
+<td>SELU</td>
+<td><img src="http://i.imgur.com/YninNA4.png" width="120px"/></td>
+<td><img src="https://i.gyazo.com/12f9265ba7a28d5d12c4f2322e7d0857.png" width="280px"/></td>
+<td></td>
+</tr>
+<tr>
+<td>INVERSE</td>
+<td><img src="http://i.imgur.com/YzJSu9V.png" width="120px"/></td>
+<td>$$ f(x) = 1 - x $$</td>
+<td>$$ f'(x) = -1 $$</td>
+</tr>
 </tbody>
 </table>
-<p>:warning: avoid using this activation function on a node with a selfconnection</p>
+<p><sup>1</sup> avoid using this activation function on a node with a selfconnection</p>
 <h3 id="usage">Usage</h3>
 <p>By default, a neuron uses a <a href="http://en.wikipedia.org/wiki/Logistic_function">Logistic Sigmoid</a> as its squashing/activation function. You can change that property the following way:</p>
 <pre><code class="javascript">var A = new Node();

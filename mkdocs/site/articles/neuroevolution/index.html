@@ -1,0 +1,268 @@
+<html>
+  <head>
+    <title>Neataptic.js - Neuroevolution</title>
+
+    <!-- Meta data -->
+    <meta charset="UTF-8">
+
+    
+    <meta name="description" content="A list of neuro-evolution algorithms set up with Neataptic">
+    
+
+    
+    <meta name="keywords" content="genetic-algorithm, Neat, JavaScript, Neataptic, neuro-evolution">
+    
+
+    
+    <meta name="author" content="Thomas Wagenaar">
+    
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="../../custom.css">
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-51480408-2', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-left"  href="../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
+          <a class="navbar-brand" href="../.."><p class="brand">Neataptic</p></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="current active"><a href="../..">Home</a></li>
+            <li class="current"><a href="../../docs/">Docs</a></li>
+            <li class="current"><a href="../">Articles</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="https://github.com/wagenaartje/neataptic" target="blank"><i class="fa fa-github fa-1x"></i><b> GITHUB</b></a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-sm-2 col-md-2 col-lg-2">
+          
+            <ul id="sidebar" class="nav nav-stacked affix">
+              
+                
+            
+                
+            
+                
+                  
+                    
+                        
+                    
+                  
+                    
+                        
+                        <li class="active">
+                            <a href="./">Neuroevolution</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../targetseeking/">Target-seeking AI</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../agario/">Agar.io AI</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../classifycolors/">Classify colors</a>
+                        </li>
+                      
+                    
+                  
+                    
+                        
+                        <li class="">
+                            <a href="../playground/">Playground</a>
+                        </li>
+                      
+                    
+                  
+                
+            
+          
+          </ul>
+        </div>
+
+        <!-- Content -->
+        
+        <div class="col-sm-10 col-md-10 col-lg-10 content">
+          <h1 style="margin-bottom: 0px;">Neuroevolution</h1>
+          <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/articles\neuroevolution.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
+          <hr>
+          <p>This page shows some neuro-evolution examples. Please note that not every example
+may always be successful. More may be added in the future!</p>
+<div class="panel panel-warning autocollapse">
+  <div class="panel-heading clickable">
+    1: Uphill and downhill
+  </div>
+  <div class="panel-body">
+    <p class="small">This neural network gets taught to increase the input by 0.2 until 1.0 is reached, then it must decrease the input by 2.0.</p>
+    <button type="button" class="btn btn-default" onclick="showModal(1, 0)">Training set</button>
+    <button type="button" class="btn btn-default" onclick="showModal(1, 1)">Evolve settings</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-warning" onclick="run(1)">Start</button>
+      <button type="button" class="btn btn-default status1" style="display: none" onclick="showModal(1, 2)">Status</button>
+      <button type="button" class="btn btn-danger error1" style="display: none">Error</button>
+    </div>
+    <svg class="example1" style="display: none"/>
+  </div>
+</div>
+
+<div class="panel panel-warning autocollapse">
+  <div class="panel-heading clickable">
+    2: Count to ten
+  </div>
+  <div class="panel-body">
+    <p class="small">This neural network gets taught to wait 9 inputs of 0, to output 1 at input number 10.</p>
+    <button type="button" class="btn btn-default" onclick="showModal(2, 0)">Training set</button>
+    <button type="button" class="btn btn-default" onclick="showModal(2, 1)">Evolve settings</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-warning" onclick="run(2)">Start</button>
+      <button type="button" class="btn btn-default status2" style="display: none" onclick="showModal(2, 2)">Status</button>
+      <button type="button" class="btn btn-danger error2" style="display: none">Error</button>
+    </div>
+    <svg class="example2" style="display: none"/>
+  </div>
+</div>
+
+<div class="panel panel-warning autocollapse">
+  <div class="panel-heading clickable">
+    3: Vowel vs. consonants classification
+  </div>
+  <div class="panel-body">
+    <p class="small">This neural network gets taught to classify if a letter of the alphabet is a vowel or not. The data is one-hot-encoded.</p>
+    <button type="button" class="btn btn-default" onclick="showModal(3, 0)">Training set</button>
+    <button type="button" class="btn btn-default" onclick="showModal(3, 1)">Evolve settings</button>
+    <div class="btn-group">
+      <button type="button" class="btn btn-warning" onclick="run(3)">Start</button>
+      <button type="button" class="btn btn-default status3" style="display: none" onclick="showModal(3, 2)">Status</button>
+      <button type="button" class="btn btn-danger error3" style="display: none">Error</button>
+    </div>
+    <svg class="example3" style="display: none"/>
+  </div>
+</div>
+
+<div class="modal fade" id="modal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <pre class="modalcontent"></pre>
+      </div>
+    </div>
+  </div>
+</div>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Javascript (only for blogs) -->
+    
+      
+        
+      
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+        
+          
+            
+            <script src="../../js/articles/neuroevolution/import.js"></script>
+            
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+      
+    
+
+    <script>
+      $("table").each(function(){
+          $(this).addClass('table table-striped');
+      });
+      $(".current").each(function(){
+        var text = $(this).text().toLowerCase();
+        if(window.location.pathname.indexOf(text) >= 0){
+          $('.active').removeClass('active');
+          $(this).addClass('active');
+        }
+      })
+    </script>
+  </body>

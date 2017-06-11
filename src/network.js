@@ -527,7 +527,6 @@ Network.prototype = {
     while (error > targetError && ( iterations == 0 || iteration < iterations)) {
       if (crossValidate && error <= testError) break;
 
-
       iteration++;
 
       // Update the rate
@@ -646,22 +645,22 @@ Network.prototype = {
 
        if(node.type == 'input'){
          if(this.input == 1){
-           json.constraints[0].offsets.push({node:index, offset: 0});
+           json.constraints[0].offsets.push({node:i, offset: 0});
          } else {
-           json.constraints[0].offsets.push({node:index, offset : 0.8 * width / (this.input-1) * input++});
+           json.constraints[0].offsets.push({node:i, offset : 0.8 * width / (this.input-1) * input++});
          }
-         json.constraints[1].offsets.push({node:index, offset : 0});
+         json.constraints[1].offsets.push({node:i, offset : 0});
        } else if (node.type == 'output'){
          if(this.output == 1){
-           json.constraints[0].offsets.push({node:index, offset: 0});
+           json.constraints[0].offsets.push({node:i, offset: 0});
          } else {
-           json.constraints[0].offsets.push({node:index, offset : 0.8 * width / (this.output-1) * output++});
+           json.constraints[0].offsets.push({node:i, offset : 0.8 * width / (this.output-1) * output++});
          }
-         json.constraints[1].offsets.push({node:index, offset : -0.8 * height});
+         json.constraints[1].offsets.push({node:i, offset : -0.8 * height});
        }
 
        json.nodes.push({
-         id: index,
+         id: i,
          name: node.type == 'hidden' ? node.squash.name : node.type.toUpperCase(),
          activation : node.activation,
          bias: node.bias

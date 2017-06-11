@@ -46,7 +46,9 @@ var Mutation = {
       Activation.BIPOLAR,
       Activation.BIPOLAR_SIGMOID,
       Activation.HARD_TANH,
-      Activation.ABSOLUTE
+      Activation.ABSOLUTE,
+      Activation.INVERSE,
+      Activation.SELU
     ]
   },
   ADD_SELF_CONN : {

@@ -24,7 +24,11 @@ function Node(type) {
   this.state = 0;
   this.old = 0;
 
+  // For dropout
   this.mask = 1;
+
+  // For tracking momentum
+  this.previousDeltaBias = 0;
 
   this.connections = {
     in   : [],
@@ -174,15 +178,17 @@ Node.prototype = {
         gradient += node.error.responsibility * value;
       }
 
+      // Adjust weight
       var deltaWeight = rate * gradient * this.mask + momentum * connection.previousDeltaWeight;
-
       connection.weight += deltaWeight;
-
       connection.previousDeltaWeight = deltaWeight;
     }
 
     // Adjust bias
-    this.bias += rate * this.error.responsibility;
+    var deltaBias = rate * this.error.responsibility + momentum * this.previousDeltaBias;
+    this.bias += deltaBias;
+
+    this.previousDeltabias = deltaBias;
   },
 
   /**

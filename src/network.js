@@ -499,6 +499,7 @@ Network.prototype = {
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
     var momentum      = options.momentum      || 0;
+    var batchSize     = options.batchSize     || 1; // online learning
     var ratePolicy    = options.ratePolicy    || Methods.Rate.FIXED();
     var schedule      = options.schedule;
 
@@ -536,12 +537,12 @@ Network.prototype = {
 
       // Checks if cross validation is enabled
       if (crossValidate) {
-        this._trainSet(trainSet, currentRate, momentum, cost);
+        this._trainSet(trainSet, batchSize, currentRate, momentum, cost);
         if(clear) this.clear();
         error += this.test(testSet, cost).error;
         if(clear) this.clear();
       } else {
-        error += this._trainSet(set, currentRate, momentum, cost);
+        error += this._trainSet(set, batchSize, currentRate, momentum, cost);
         if(clear) this.clear();
       }
 
@@ -555,7 +556,7 @@ Network.prototype = {
       }
 
       if(schedule && iteration % schedule.iterations == 0){
-        schedule.function();
+        schedule.function({ error: error, iteration: iteration });
       }
     }
 
@@ -583,7 +584,7 @@ Network.prototype = {
    * Performs one training epoch and returns the error
    * private function used in this.train
    */
-  _trainSet: function(set, currentRate, momentum, costFunction) {
+  _trainSet: function(set, batchSize, currentRate, momentum, costFunction) {
     var errorSum = 0;
     for (var i = 0; i < set.length; i++) {
       var input = set[i].input;
@@ -811,7 +812,7 @@ Network.prototype = {
        }
 
        if(schedule && iteration % schedule.iterations == 0){
-         schedule.function({ error: error, iteration: iterations });
+         schedule.function({ error: error, iteration: neat.generation });
        }
      }
 

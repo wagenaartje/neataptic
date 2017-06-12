@@ -203,7 +203,11 @@ function Node(type) {
   this.state = 0;
   this.old = 0;
 
+  // For dropout
   this.mask = 1;
+
+  // For tracking momentum
+  this.previousDeltaBias = 0;
 
   this.connections = {
     in   : [],
@@ -353,15 +357,17 @@ Node.prototype = {
         gradient += node.error.responsibility * value;
       }
 
+      // Adjust weight
       var deltaWeight = rate * gradient * this.mask + momentum * connection.previousDeltaWeight;
-
       connection.weight += deltaWeight;
-
       connection.previousDeltaWeight = deltaWeight;
     }
 
     // Adjust bias
-    this.bias += rate * this.error.responsibility;
+    var deltaBias = rate * this.error.responsibility + momentum * this.previousDeltaBias;
+    this.bias += deltaBias;
+
+    this.previousDeltabias = deltaBias;
   },
 
   /**
@@ -1773,6 +1779,7 @@ Network.prototype = {
     var clear         = options.clear         || false;
     var dropout       = options.dropout       || 0;
     var momentum      = options.momentum      || 0;
+    var batchSize     = options.batchSize     || 1; // online learning
     var ratePolicy    = options.ratePolicy    || Methods.Rate.FIXED();
     var schedule      = options.schedule;
 
@@ -1810,12 +1817,12 @@ Network.prototype = {
 
       // Checks if cross validation is enabled
       if (crossValidate) {
-        this._trainSet(trainSet, currentRate, momentum, cost);
+        this._trainSet(trainSet, batchSize, currentRate, momentum, cost);
         if(clear) this.clear();
         error += this.test(testSet, cost).error;
         if(clear) this.clear();
       } else {
-        error += this._trainSet(set, currentRate, momentum, cost);
+        error += this._trainSet(set, batchSize, currentRate, momentum, cost);
         if(clear) this.clear();
       }
 
@@ -1829,7 +1836,7 @@ Network.prototype = {
       }
 
       if(schedule && iteration % schedule.iterations == 0){
-        schedule.function();
+        schedule.function({ error: error, iteration: iteration });
       }
     }
 
@@ -1857,7 +1864,7 @@ Network.prototype = {
    * Performs one training epoch and returns the error
    * private function used in this.train
    */
-  _trainSet: function(set, currentRate, momentum, costFunction) {
+  _trainSet: function(set, batchSize, currentRate, momentum, costFunction) {
     var errorSum = 0;
     for (var i = 0; i < set.length; i++) {
       var input = set[i].input;
@@ -2085,7 +2092,7 @@ Network.prototype = {
        }
 
        if(schedule && iteration % schedule.iterations == 0){
-         schedule.function({ error: error, iteration: iterations });
+         schedule.function({ error: error, iteration: neat.generation });
        }
      }
 
@@ -2450,17 +2457,7 @@ var Architect = {
     }
 
     // Construct the network
-    var network = Architect.Construct(nodes);
-
-    // Initialise the weights
-    for(var conn in network.connections){
-      var conn = network.connections[conn];
-      // https://stats.stackexchange.com/a/248040/147931
-      conn.weight = Math.random() * layers[0] * Math.sqrt(2 / layers[0]);
-    }
-
-    // Return the network
-    return network;
+    return Architect.Construct(nodes);
   },
 
 

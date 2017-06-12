@@ -99,17 +99,7 @@ var Architect = {
     }
 
     // Construct the network
-    var network = Architect.Construct(nodes);
-
-    // Initialise the weights
-    for(var conn in network.connections){
-      var conn = network.connections[conn];
-      // https://stats.stackexchange.com/a/248040/147931
-      conn.weight = Math.random() * layers[0] * Math.sqrt(2 / layers[0]);
-    }
-
-    // Return the network
-    return network;
+    return Architect.Construct(nodes);
   },
 
 

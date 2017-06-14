@@ -84,7 +84,7 @@ Neat.prototype = {
     this.mutate();
 
     // Reset the scores
-    for(var i = 0; i < this.population.length; i++){
+    for(var i = 0; i < this.popsize; i++){
       this.population[i].score = null;
     }
 
@@ -98,7 +98,7 @@ Neat.prototype = {
      var parent1 = this.getParent();
      var parent2 = this.getParent();
 
-     if(this.equal == true){
+     if(this.equal){
        parent1.score = 0;
        parent2.score = 0;
      }
@@ -111,11 +111,12 @@ Neat.prototype = {
    * Mutates the given (or current) population
    */
   mutate: function(){
-    for(genome in this.population){
+    // Elitist genomes should not be included
+    for(var i = this.elitism; i < this.popsize; i++){
       if(Math.random() <= this.mutationRate){
-        for(var i = 0; i < this.mutationAmount; i++){
+        for(var j = 0; j < this.mutationAmount; j++){
           var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
-          this.population[genome].mutate(mutationMethod);
+          this.population[i].mutate(mutationMethod);
         }
       }
     }
@@ -125,9 +126,9 @@ Neat.prototype = {
    * Evaluates the current population
    */
   evaluate: function(){
-    for(genome in this.population){
-      var score = this.fitness(this.population[genome]);
-      this.population[genome].score = score;
+    for(var i = 0; i < this.popsize; i++){
+      var score = this.fitness(this.population[i]);
+      this.population[i].score = score;
     }
   },
 
@@ -145,7 +146,7 @@ Neat.prototype = {
    */
   getFittest: function(){
     // Check if evaluated
-    if(this.population[this.population.length-1].score == null){
+    if(this.population[this.popsize-1].score == null){
       this.evaluate();
     }
 
@@ -157,13 +158,13 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
-     if(this.population[this.population.length-1].score == null){
+     if(this.population[tthis.popsize-1].score == null){
        this.evaluate();
      }
 
      var score = 0;
-     for(genome in this.population){
-       score += this.population[genome].score;
+     for(var i = 0; i < this.popsize; i++){
+       score += this.population[i].score;
      }
 
      return score / this.popsize;
@@ -188,8 +189,8 @@ Neat.prototype = {
 
         var totalFitness = 0;
         var minimalFitness = 0;
-        for(var genome in this.population){
-          var score = this.population[genome].score;
+        for(var i = 0; i < this.popsize; i++){
+          var score = this.population[i].score;
           minimalFitness = score < minimalFitness ? score : minimalFitness;
           totalFitness += score
         }
@@ -200,8 +201,8 @@ Neat.prototype = {
         var random = Math.random() * totalFitness;
         var value = 0;
 
-        for(var genome in this.population){
-          genome = this.population[genome];
+        for(var i = 0; i < this.popsize; i++){
+          var genome = this.population[i];
           value += genome.score + minimalFitness;
           if(random < value) return genome;
         }
@@ -217,7 +218,7 @@ Neat.prototype = {
         // Create a tournament
         var individuals = [];
         for(var i = 0; i < this.selection.size; i++){
-          var random = this.population[Math.floor(Math.random() * this.population.length)];
+          var random = this.population[Math.floor(Math.random() * this.popsize)];
           individuals.push(random);
         }
 
@@ -241,8 +242,8 @@ Neat.prototype = {
    */
   export: function(){
     var json = [];
-    for(var genome in this.population){
-      genome = this.population[genome];
+    for(var i = 0; i < this.popsize; i++){
+      var genome = this.population[genome];
       json.push(genome.toJSON());
     }
 
@@ -254,8 +255,8 @@ Neat.prototype = {
    */
   import: function(json){
     var population = [];
-    for(var genome in json){
-      genome = json[genome];
+    for(var i = 0; i < json.length; i++){
+      var genome = json[i];
       population.push(Network.fromJSON(genome));
     }
     this.population = population;

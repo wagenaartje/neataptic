@@ -602,6 +602,15 @@ Network.prototype = {
    * Tests a set and returns the error and elapsed time
    */
   test: function(set, cost) {
+    // Check if dropout is enabled, set correct mask
+    if(this.dropout){
+      for(var i = 0; i < this.nodes.length; i++){
+        if(this.nodes[i].type == 'hidden' || this.nodes[i].type == 'constant'){
+          this.nodes[i].mask = 1 - this.dropout;
+        }
+      }
+    }
+
     cost = cost || Methods.Cost.MSE;
     var error = 0;
     var input, output, target;

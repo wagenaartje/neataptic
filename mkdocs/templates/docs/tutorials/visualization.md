@@ -78,5 +78,5 @@ var network = Architect.Construct(nodes);
 drawGraph(network.graph(1000, 1000), '.draw');
 ```
 
-See a working example [here](https://jsfiddle.net/wagenaartje/ch8s9d3e/23/)!
+See a working example [here](https://jsfiddle.net/ch8s9d3e/30/)!
 See more info on graphs [here](https://github.com/wagenaartje/neataptic/tree/master/graph)!

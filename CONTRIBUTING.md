@@ -46,8 +46,9 @@ features - anyone can add a new `Activation` method for example, but you have to
 yourself if it really improves the project. But _always_ feel free to create a pull 
 request with new featuers, as long as you incorperate the following:
 1. What feature you are adding (/improving)
-2. Why you think it adds something to Neataptic
-3. Possible side-effects of the new feature
+2. A usage example of the new feature (in code!)
+3. Why you think it adds something to Neataptic
+4. Possible side-effects of the new feature
 
 Afterwards, there will be quick response - but the pull request may take some time to
 be accepted, so we can give other contributors time to comment as well.

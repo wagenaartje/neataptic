@@ -158,7 +158,7 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
-     if(this.population[tthis.popsize-1].score == null){
+     if(this.population[this.popsize-1].score == null){
        this.evaluate();
      }
 

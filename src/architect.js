@@ -95,7 +95,7 @@ var Architect = {
       var layer = layers[i];
       var layer = new Group(layer);
       nodes.push(layer);
-      nodes[i-1].connect(nodes[i]);
+      nodes[i-1].connect(nodes[i], Methods.Connection.ALL_TO_ALL);
     }
 
     // Construct the network

@@ -205,10 +205,10 @@ Network.prototype = {
 
     // Connect the input nodes to the output nodes (if not already connected)
     var connections = [];
-    for(var input in inputs){
-      input = inputs[input];
-      for(var output in outputs){
-        output = outputs[output];
+    for(var i = 0; i < inputs.length; i++){
+      var input = inputs[i];
+      for(var j = 0; j < outputs.length; j++){
+        var output = outputs[j];
         if(!input.isProjectingTo(output)){
           var conn = this.connect(input, output);
           connections.push(conn[0]);
@@ -217,9 +217,9 @@ Network.prototype = {
     }
 
     // Gate random connections with gaters
-    for(var gater in gaters){
+    for(var i = 0; i < gaters.length; i++){
       if(connections.length == 0) break;
-      gater = gaters[gater];
+      var gater = gaters[i];
 
       var connIndex = Math.floor(Math.random() * connections.length);
       var conn = connections[connIndex];
@@ -310,8 +310,8 @@ Network.prototype = {
         // List of possible connections that can be removed
         var possible = [];
 
-        for(conn in this.connections){
-          conn = this.connections[conn];
+        for(var i = 0; i < this.connections.length; i++){
+          var conn = this.connections[i];
           // Check if it is not disabling a node
           if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1 && this.nodes.indexOf(conn.to) > this.nodes.indexOf(conn.from)){
             possible.push(conn);
@@ -383,8 +383,8 @@ Network.prototype = {
 
         // Create a list of all non-gated connections
         var possible = [];
-        for(var conn in allconnections){
-          conn = allconnections[conn];
+        for(var i = 0; i < allconnections.length; i++){
+          var conn = allconnections[i];
           if(conn.gater == null){
             possible.push(conn);
           }
@@ -437,8 +437,8 @@ Network.prototype = {
         // List of possible connections that can be removed
         var possible = [];
 
-        for(conn in this.connections){
-          conn = this.connections[conn];
+        for(var i = 0; i < this.connections.length; i++){
+          var conn = this.connections[i];
           // Check if it is not disabling a node
           if(conn.from.connections.out.length > 1 && conn.to.connections.in.length > 1 && this.nodes.indexOf(conn.from) > this.nodes.indexOf(conn.to)){
             possible.push(conn);
@@ -586,7 +586,7 @@ Network.prototype = {
    */
   _trainSet: function(set, batchSize, currentRate, momentum, costFunction) {
     var errorSum = 0;
-    for (var i = 0; i < set.length; i++) {
+    for(var i = 0; i < set.length; i++){
       var input = set[i].input;
       var target = set[i].output;
 
@@ -617,7 +617,7 @@ Network.prototype = {
 
     var start = Date.now();
 
-    for (var i = 0; i < set.length; i++) {
+    for(var i = 0; i < set.length; i++){
       input = set[i].input;
       target = set[i].output;
       output = this.activate(input);
@@ -678,8 +678,8 @@ Network.prototype = {
      }
 
      var connections = this.connections.concat(this.selfconns);
-     for(connection in connections){
-       connection = connections[connection];
+     for(var i = 0; i < connections.length; i++){
+       var connection = connections[i];
        if(connection.gater == null){
          json.links.push({
            source : this.nodes.indexOf(connection.from),
@@ -728,24 +728,24 @@ Network.prototype = {
         dropout: this.dropout
       };
 
-      for(index in this.nodes){
-        var node = this.nodes[index];
+      for(var i = 0; i < this.nodes.length; i++){
+        var node = this.nodes[i];
         var tojson = node.toJSON();
-        tojson.index = index;
+        tojson.index = i;
         json.nodes.push(tojson);
 
         if(node.connections.self.weight != 0){
           var tojson = node.connections.self.toJSON();
-          tojson.from = index;
-          tojson.to = index;
+          tojson.from = i;
+          tojson.to = i;
 
           tojson.gater = node.connections.self.gater != null ? this.nodes.indexOf(node.connections.self.gater) : null;
           json.connections.push(tojson);
         }
       }
 
-      for(conn in this.connections){
-        var conn = this.connections[conn];
+      for(var i = 0; i < this.connections.length; i++){
+        var conn = this.connections[i];
         var tojson = conn.toJSON();
         tojson.from = this.nodes.indexOf(conn.from);
         tojson.to = this.nodes.indexOf(conn.to);
@@ -851,12 +851,12 @@ Network.prototype = {
    network.nodes = [];
    network.connections = [];
 
-   for(node in json.nodes){
-     network.nodes.push(Node.fromJSON(json.nodes[node]));
+   for(var i = 0; i < json.nodes.length; i++){
+     network.nodes.push(Node.fromJSON(json.nodes[i]));
    }
 
-   for(conn in json.connections){
-     var conn = json.connections[conn];
+   for(var i = 0; i < json.connections.length; i++){
+     var conn = json.connections[i];
 
      var connection = network.connect(network.nodes[conn.from], network.nodes[conn.to])[0];
      connection.weight = conn.weight;
@@ -883,8 +883,8 @@ Network.prototype = {
    }
 
    // Redirect all connections from network2 input to network1 output
-   for(conn in network2.connections){
-     conn = network2.connections[conn];
+   for(var i = 0; i < network2.connections.length; i++){
+     var conn = network2.connections[i];
      if(conn.from.type == 'input'){
        var index = network2.nodes.indexOf(conn.from);
        var node = network2.nodes[index];

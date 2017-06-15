@@ -89,8 +89,8 @@ Layer.prototype = {
    * Sets the value of a property for every node
    */
   set: function(values){
-    for(var node in this.nodes){
-      node = this.nodes[node];
+    for(var i = 0; i < this.nodes.length; i++){
+      var node = this.nodes[i];
 
       if(node instanceof Node){
         if(typeof values.bias != 'undefined'){
@@ -117,21 +117,21 @@ Layer.prototype = {
         for(var j = 0; j < target.nodes.length; j++){
           this.nodes[i].disconnect(target.nodes[j], twosided);
 
-          for(index in this.connections.out){
-            var conn = this.connections.out[index];
+          for(var k = this.connections.out.length - 1; k >= 0; k--){
+            var conn = this.connections.out[k];
 
             if(conn.from == this.nodes[i] && conn.to == target.nodes[j]){
-              this.connections.out.splice(index, 1);
+              this.connections.out.splice(k, 1);
               break;
             }
           }
 
           if(twosided){
-            for(index in this.connections.in){
-              var conn = this.connections.in[index];
+            for(var k = this.connections.in.length - 1; k >= 0; k--){
+              var conn = this.connections.in[k];
 
               if(conn.from == target.nodes[j] && conn.to == this.nodes[i]){
-                this.connections.in.splice(index, 1);
+                this.connections.in.splice(k, 1);
                 break;
               }
             }
@@ -142,21 +142,21 @@ Layer.prototype = {
       for(var i = 0; i < this.nodes.length; i++){
         var connection = this.nodes[i].disconnect(target, twosided);
 
-        for(index in this.connections.out){
-          var conn = this.connections.out[index];
+        for(var j = this.connections.out.length - 1; j >= 0; j--){
+          var conn = this.connections.out[j];
 
           if(conn.from == this.nodes[i] && conn.to == target){
-            this.connections.out.splice(index, 1);
+            this.connections.out.splice(j, 1);
             break;
           }
         }
 
         if(twosided){
-          for(index in this.connections.in){
-            var conn = this.connections.in[index];
+          for(var k = this.connections.in.length - 1; k >= 0; k--){
+            var conn = this.connections.in[k];
 
             if(conn.from == target && conn.to == this.nodes[i]){
-              this.connections.in.splice(index, 1);
+              this.connections.in.splice(k, 1);
               break;
             }
           }
@@ -169,8 +169,8 @@ Layer.prototype = {
    * Clear the context of this group
    */
   clear: function(){
-    for(var node in this.nodes){
-      this.nodes[node].clear();
+    for(var i = 0; i < this.nodes.length; i++){
+      this.nodes[i].clear();
     }
   }
 }
@@ -332,8 +332,8 @@ Layer.Memory = function(size, memory){
 
   layer.nodes.reverse();
 
-  for(var group in layer.nodes){
-    layer.nodes[group].nodes.reverse();
+  for(var i = 0; i < layer.nodes.length; i++){
+    layer.nodes[i].nodes.reverse();
   }
 
   // Because output can only be óne group, fit all memory nodes in óne group

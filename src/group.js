@@ -130,8 +130,8 @@ Group.prototype = {
     var nodes1 = [];
     var nodes2 = [];
 
-    for(var connection in connections){
-      connection = connections[connection];
+    for(var i = 0; i < connections.length; i++){
+      var connection = connections[i];
       if(!nodes1.includes(connection.from)) nodes1.push(connection.from);
       if(!nodes2.includes(connection.to)) nodes2.push(connection.to);
     }
@@ -142,8 +142,8 @@ Group.prototype = {
           var node = nodes2[i];
           var gater = this.nodes[i % this.nodes.length];
 
-          for(var conn in node.connections.in){
-            conn = node.connections.in[conn];
+          for(var j = 0; j < node.connections.in.length; j++){
+            var conn = node.connections.in[j];
             if(connections.includes(conn)){
               gater.gate(conn);
             }
@@ -155,8 +155,8 @@ Group.prototype = {
           var node = nodes1[i];
           var gater = this.nodes[i % this.nodes.length];
 
-          for(var conn in node.connections.out){
-            conn = node.connections.out[conn];
+          for(var j = 0; j < node.connections.out.length; j++){
+            var conn = node.connections.out[j];
             if(connections.includes(conn)){
               gater.gate(conn);
             }
@@ -179,13 +179,13 @@ Group.prototype = {
    * Sets the value of a property for every node
    */
   set: function(values){
-    for(var node in this.nodes){
+    for(var i = 0; i < this.nodes.length; i++){
       if(typeof values.bias != 'undefined'){
-        this.nodes[node].bias = values.bias;
+        this.nodes[i].bias = values.bias;
       }
 
-      this.nodes[node].squash = values.squash || this.nodes[node].squash;
-      this.nodes[node].type = values.type || this.nodes[node].type;
+      this.nodes[i].squash = values.squash || this.nodes[i].squash;
+      this.nodes[i].type   = values.type   || this.nodes[i].type;
     }
   },
 
@@ -201,21 +201,21 @@ Group.prototype = {
         for(var j = 0; j < target.nodes.length; j++){
           this.nodes[i].disconnect(target.nodes[j], twosided);
 
-          for(index in this.connections.out){
-            var conn = this.connections.out[index];
+          for(var k = this.connections.out.length - 1; k >= 0; k--){
+            var conn = this.connections.out[k];
 
             if(conn.from == this.nodes[i] && conn.to == target.nodes[j]){
-              this.connections.out.splice(index, 1);
+              this.connections.out.splice(k, 1);
               break;
             }
           }
 
           if(twosided){
-            for(index in this.connections.in){
-              var conn = this.connections.in[index];
+            for(var k = this.connections.in.length - 1; k >= 0; k--){
+              var conn = this.connections.in[k];
 
               if(conn.from == target.nodes[j] && conn.to == this.nodes[i]){
-                this.connections.in.splice(index, 1);
+                this.connections.in.splice(k, 1);
                 break;
               }
             }
@@ -226,21 +226,21 @@ Group.prototype = {
       for(var i = 0; i < this.nodes.length; i++){
         var connection = this.nodes[i].disconnect(target, twosided);
 
-        for(index in this.connections.out){
-          var conn = this.connections.out[index];
+        for(var j = this.connections.out.length - 1; j >= 0; j--){
+          var conn = this.connections.out[j];
 
           if(conn.from == this.nodes[i] && conn.to == target){
-            this.connections.out.splice(index, 1);
+            this.connections.out.splice(j, 1);
             break;
           }
         }
 
         if(twosided){
-          for(index in this.connections.in){
-            var conn = this.connections.in[index];
+          for(var j = this.connections.in.length - 1; j >= 0; j--){
+            var conn = this.connections.in[j];
 
             if(conn.from == target && conn.to == this.nodes[i]){
-              this.connections.in.splice(index, 1);
+              this.connections.in.splice(j, 1);
               break;
             }
           }
@@ -253,8 +253,8 @@ Group.prototype = {
    * Clear the context of this group
    */
   clear: function(){
-    for(var node in this.nodes){
-      this.nodes[node].clear();
+    for(var i = 0; i < this.nodes.length; i++){
+      this.nodes[i].clear();
     }
   }
 }

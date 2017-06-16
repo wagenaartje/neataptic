@@ -313,12 +313,16 @@ output (a.k.a. train). This is done by backpropagating the error. To use the
 propagate method you have to provide a learning rate, and a target value
 (float between 0 and 1).</p>
 <p>The arguments you can pass on are as follows:</p>
-<pre><code class="javascript">myNode.propage(learningRate, momentum, target);
+<pre><code class="javascript">myNode.propagate(learningRate, momentum, update, target);
 </code></pre>
 
 <p>The target argument is optional. The default value of momentum is <code>0</code>. Read more
-about momentum on the <a href="../../methods/regularization/">regularization page</a>. For
-example, this is how you can train node B to activate 0 when node A activates 1:</p>
+about momentum on the <a href="../../methods/regularization/">regularization page</a>. If you run
+propagation without setting update to true, then the weights won't update. So if
+you run propagate 3x with <code>update: false</code>, and then 1x with <code>update: true</code> then
+the weights will be updated after the last propagation, but the deltaweights of
+the first 3 propagation will be included too. For example, this is how you can
+train node B to activate 0 when node A activates 1:</p>
 <pre><code class="javascript">var A = new Node();
 var B = new Node();
 A.connect(B);
@@ -333,7 +337,7 @@ for(var i = 0; i &lt; 20000; i++)
 
   // train B to activate 0
   B.activate();
-  B.propagate(learningRate, momentum, 0);
+  B.propagate(learningRate, momentum, true, 0);
 }
 
 // test it

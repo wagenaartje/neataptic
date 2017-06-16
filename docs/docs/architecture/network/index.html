@@ -286,28 +286,32 @@ myNetwork.activate([0.8, 1, 0.21]); // gives: [0.49, 0.51]
    training, use the <code>network.train()</code> function. The arguments for
    this function are:</p>
 <pre>
-myNetwork.propagate(rate, momentum, target);
+myNetwork.propagate(rate, momentum, update, target);
 </pre>
 
 <p>Where target is optional. The default value of momentum is <code>0</code>. Read more about
-momentum on the <a href="../../methods/regularization/">regularization page</a>.</p>
+momentum on the <a href="../../methods/regularization/">regularization page</a>. If you run
+propagation without setting update to true, then the weights won't update. So if
+you run propagate 3x with <code>update: false</code>, and then 1x with <code>update: true</code> then
+the weights will be updated after the last propagation, but the deltaweights of
+the first 3 propagation will be included too.</p>
 <pre>
 var myNetwork = new Network(1,1);
 
 // This trains the network to function as a NOT gate
 for(var i = 0; i < 1000; i++){
   network.activate([0]);  
-  network.propagate(0.2, 0, [1]);
+  network.propagate(0.2, 0, true, [1]);
 
   network.activate([1]);
-  network.propagate(0.3, 0, [0]);
+  network.propagate(0.3, 0, true, [0]);
 }
 </pre>
 
 <p>The above example teaches the network to output <code>[1]</code> when input <code>[0]</code> is given and the other way around. Main usage:</p>
 <pre>
 network.activate(input);
-network.propagate(learning_rate, momentum, desired_output);
+network.propagate(learning_rate, momentum, update_weights, desired_output);
 </pre>
 
 <p></details></p>

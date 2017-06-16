@@ -18,6 +18,9 @@ function Connection(from, to, weight) {
   // For tracking momentum
   this.previousDeltaWeight = 0;
 
+  // Batch training
+  this.totalDeltaWeight = 0;
+
   this.xtrace = {
     nodes: [],
     values : []

@@ -73,7 +73,7 @@ Network.prototype = {
   /**
    * Backpropagate the network
    */
-  propagate: function(rate, momentum, target){
+  propagate: function(rate, momentum, update, target){
     if(typeof target != 'undefined' && target.length != this.output){
       throw new Error('Output target length should match network output length');
     }
@@ -82,12 +82,12 @@ Network.prototype = {
 
     // Propagate output nodes
     for(var i = this.nodes.length - 1; i >= this.nodes.length - this.output; i--){
-      this.nodes[i].propagate(rate, momentum, target[--targetIndex]);
+      this.nodes[i].propagate(rate, momentum, update, target[--targetIndex]);
     }
 
     // Propagate hidden and input nodes
     for(var i = this.nodes.length - this.output - 1; i >= this.input; i--){
-      this.nodes[i].propagate(rate, momentum);
+      this.nodes[i].propagate(rate, momentum, update);
     }
   },
 
@@ -503,6 +503,8 @@ Network.prototype = {
     var ratePolicy    = options.ratePolicy    || Methods.Rate.FIXED();
     var schedule      = options.schedule;
 
+    if(batchSize > set.length) throw new Error("Batch size must be smaller or equal to dataset length!")
+
     if(typeof options.iterations == 'undefined' && typeof options.error == 'undefined'){
       if(Config.warnings) console.warn('At least one of the following options must be specified: error, iterations');
     } else if(typeof options.error == 'undefined'){
@@ -590,8 +592,10 @@ Network.prototype = {
       var input = set[i].input;
       var target = set[i].output;
 
+      var update = (i+1) % batchSize == 0 || (i+1) == set.length ? true : false;
+
       var output = this.activate(input, true);
-      this.propagate(currentRate, momentum, target);
+      this.propagate(currentRate, momentum, update, target);
 
       errorSum += costFunction(target, output);
     }
@@ -820,7 +824,7 @@ Network.prototype = {
          console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
        }
 
-       if(schedule && iteration % schedule.iterations == 0){
+       if(schedule && neat.generation % schedule.iterations == 0){
          schedule.function({ error: error, iteration: neat.generation });
        }
      }

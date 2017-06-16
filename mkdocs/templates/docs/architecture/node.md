@@ -38,12 +38,16 @@ propagate method you have to provide a learning rate, and a target value
 The arguments you can pass on are as follows:
 
 ```javascript
-myNode.propage(learningRate, momentum, target);
+myNode.propagate(learningRate, momentum, update, target);
 ```
 
 The target argument is optional. The default value of momentum is `0`. Read more
-about momentum on the [regularization page](../methods/regularization.md). For
-example, this is how you can train node B to activate 0 when node A activates 1:
+about momentum on the [regularization page](../methods/regularization.md). If you run
+propagation without setting update to true, then the weights won't update. So if
+you run propagate 3x with `update: false`, and then 1x with `update: true` then
+the weights will be updated after the last propagation, but the deltaweights of
+the first 3 propagation will be included too. For example, this is how you can
+train node B to activate 0 when node A activates 1:
 
 ```javascript
 var A = new Node();
@@ -60,7 +64,7 @@ for(var i = 0; i < 20000; i++)
 
   // train B to activate 0
   B.activate();
-  B.propagate(learningRate, momentum, 0);
+  B.propagate(learningRate, momentum, true, 0);
 }
 
 // test it

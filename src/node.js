@@ -30,6 +30,9 @@ function Node(type) {
   // For tracking momentum
   this.previousDeltaBias = 0;
 
+  // Batch training
+  this.totalDeltaBias = 0;
+
   this.connections = {
     in   : [],
     out  : [],
@@ -123,7 +126,7 @@ Node.prototype = {
   /**
    * Back-propagate the error, aka learn
    */
-  propagate: function(rate, momentum, target) {
+  propagate: function(rate, momentum, update, target) {
     momentum = momentum || 0;
     rate = rate || .3;
 
@@ -179,16 +182,27 @@ Node.prototype = {
       }
 
       // Adjust weight
-      var deltaWeight = rate * gradient * this.mask + momentum * connection.previousDeltaWeight;
-      connection.weight += deltaWeight;
-      connection.previousDeltaWeight = deltaWeight;
+      var deltaWeight = rate * gradient * this.mask;
+      connection.totalDeltaWeight += deltaWeight;
+      if(update){
+        connection.totalDeltaWeight += momentum * connection.previousDeltaWeight;
+        connection.weight += connection.totalDeltaWeight;
+        connection.previousDeltaWeight = connection.totalDeltaWeight;
+        connection.totalDeltaWeight = 0;
+      }
     }
 
-    // Adjust bias
-    var deltaBias = rate * this.error.responsibility + momentum * this.previousDeltaBias;
-    this.bias += deltaBias;
+    // note: MINI_BATCH SHALL BE OPTIMIZED SOON
 
-    this.previousDeltabias = deltaBias;
+    // Adjust bias
+    var deltaBias = rate * this.error.responsibility;
+    this.totalDeltaBias += deltaBias;
+    if(update){
+      this.totalDeltaBias += momentum * this.previousDeltaBias;
+      this.bias += this.totalDeltaBias;
+      this.previousDeltaBias = this.totalDeltaBias;
+      this.totalDeltaBias = 0;
+    }
   },
 
   /**

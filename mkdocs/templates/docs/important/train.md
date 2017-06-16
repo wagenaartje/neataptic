@@ -37,6 +37,7 @@ However, options allow you to finetune the training process:
 * `clear` - If set to _true_, will clear the network after every activation. This is useful for training [LSTM](../builtins/lstm.md)'s, more importantly for timeseries prediction. Default: _false_
 * `momentum` - Sets the momentum of the weight change. More info [here](https://www.willamette.edu/~gorr/classes/cs449/momrate.html). Default: _0_
 * `ratePolicy` - Sets the rate policy for your training. This allows your rate to be dynamic, see the [rate policies page](../methods/rate.md). Default: _Methods.Rate.FIXED()_
+* `batchSize` - Sets the (mini-) batch size of your training. Default: `1` (online training)
 
 So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.
 

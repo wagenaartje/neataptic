@@ -291,6 +291,7 @@ network.activate([0,1]); // 0.9824...
 <li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for training <a href="../../builtins/lstm/">LSTM</a>'s, more importantly for timeseries prediction. Default: <em>false</em></li>
 <li><code>momentum</code> - Sets the momentum of the weight change. More info <a href="https://www.willamette.edu/~gorr/classes/cs449/momrate.html">here</a>. Default: <em>0</em></li>
 <li><code>ratePolicy</code> - Sets the rate policy for your training. This allows your rate to be dynamic, see the <a href="../../methods/rate/">rate policies page</a>. Default: <em>Methods.Rate.FIXED()</em></li>
+<li><code>batchSize</code> - Sets the (mini-) batch size of your training. Default: <code>1</code> (online training)</li>
 </ul>
 <p>So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.</p>
 <pre><code class="javascript">var network = new Architect.Perceptron(2,4,1);

@@ -1,6 +1,6 @@
 {
   "name": "neataptic",
-  "version": "1.2.27",
+  "version": "1.2.28",
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {

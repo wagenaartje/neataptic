@@ -24,6 +24,7 @@ function Neat(input, output, fitness, options){
   // Configure options
   options = options || {};
   this.equal          = options.equal          || false;
+  this.clear          = options.clear          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;
   this.mutationRate   = options.mutationRate   || 0.3;
@@ -35,6 +36,7 @@ function Neat(input, output, fitness, options){
                                               Methods.Crossover.UNIFORM,
                                               Methods.Crossover.AVERAGE];
   this.mutation       = options.mutation  ||  Methods.Mutation.FFW;
+
 
   // Generation counter
   this.generation = 0;
@@ -127,7 +129,9 @@ Neat.prototype = {
    */
   evaluate: function(){
     for(var i = 0; i < this.popsize; i++){
-      var score = this.fitness(this.population[i]);
+      var genome = this.population[i];
+      if(this.clear) genome.clear();
+      var score = this.fitness(genome);
       this.population[i].score = score;
     }
   },
@@ -243,7 +247,7 @@ Neat.prototype = {
   export: function(){
     var json = [];
     for(var i = 0; i < this.popsize; i++){
-      var genome = this.population[genome];
+      var genome = this.population[i];
       json.push(genome.toJSON());
     }
 

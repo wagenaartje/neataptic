@@ -599,7 +599,7 @@ Network.prototype = {
 
       errorSum += costFunction(target, output);
     }
-    return errorSum / i;
+    return errorSum / set.length;
   },
 
   /**
@@ -791,7 +791,6 @@ Network.prototype = {
      function fitness(genome){
        var score = 0;
        for(var i = 0; i < amount; i++){
-         if(clear) genome.clear();
          score -= genome.test(set, cost).error;
        }
 
@@ -837,10 +836,12 @@ Network.prototype = {
        time: Date.now() - start
      };
 
-     this.nodes = bestGenome.nodes;
-     this.connections = bestGenome.connections;
-     this.gates = bestGenome.gates;
-     this.selfconns = bestGenome.selfconns;
+     if(bestGenome != null){
+       this.nodes = bestGenome.nodes;
+       this.connections = bestGenome.connections;
+       this.gates = bestGenome.gates;
+       this.selfconns = bestGenome.selfconns;
+     }
 
      return results;
    },

@@ -338,11 +338,11 @@ Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/m
 </details></p>
 <p><details>
   <summary>selection</summary>
-Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/selection/">selection methods</a> used in the evolutionary process. Must be an array. Must be an array (e.g. <code>[Selection.FITNESS_PROPORTIONATE]</code>). Default is <code>FITNESS_PROPORTIONATE</code>.
+Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/selection/">selection method</a> used in the evolutionary process. Must be a single method (e.g. <code>Selection.FITNESS_PROPORTIONATE</code>). Default is <code>FITNESS_PROPORTIONATE</code>.
 </details></p>
 <p><details>
   <summary>crossover</summary>
-Sets the all0wed crossover methods used in the evolutionary process. Must be an array. <b>disabled as of now</b>
+Sets the allowed crossover methods used in the evolutionary process. Must be an array. <b>disabled as of now</b>
 </details></p>
 <p><details>
   <summary>mutationRate</summary>
@@ -350,7 +350,7 @@ Sets the mutation rate. If set to <code>0.3</code>, 30% of the new population wi
 </details></p>
 <p><details>
   <summary>mutationAmount</summary>
-If mutation occurs (<code>randomNumber &lt; mutationRate</code>), sets the amount of times a mutation method will be applied to the network
+If mutation occurs (<code>randomNumber &lt; mutationRate</code>), sets the amount of times a mutation method will be applied to the network. Default is <code>1</code>.
 </details></p>
 <p><details>
   <summary>network</summary>
@@ -358,7 +358,11 @@ If you want to start the algorithm from a specific network, specify your network
 </details></p>
 <p><details>
   <summary>equal</summary>
-If you want to start the algorithm from a specific network, specify your network here.
+If set to true, all networks will be viewed equal during crossover. This stimulates more diverse network architectures. Default is <code>false</code>.
+</details></p>
+<p><details>
+  <summary>clear</summary>
+Clears the context of the network before activating the fitness function. Should be applied to get consistent outputs from recurrent networks. Default is <code>false</code>.
 </details></p>
 <h2 id="properties">Properties</h2>
 <p>There are only a few properties</p>

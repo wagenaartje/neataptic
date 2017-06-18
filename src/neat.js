@@ -72,8 +72,9 @@ Neat.prototype = {
     var newPopulation = [];
 
     // Elitism
+    var elitists = [];
     for(var i = 0; i < this.elitism; i++){
-      newPopulation.push(this.population[i]);
+      elitists.push(this.population[i]);
     }
 
     // Breed the next individuals
@@ -85,8 +86,12 @@ Neat.prototype = {
     this.population = newPopulation;
     this.mutate();
 
+    for(var i = 0; i < elitists.length; i++){
+      this.population.push(elitists[i]);
+    }
+
     // Reset the scores
-    for(var i = 0; i < this.popsize; i++){
+    for(var i = 0; i < this.population.length; i++){
       this.population[i].score = null;
     }
 
@@ -114,7 +119,7 @@ Neat.prototype = {
    */
   mutate: function(){
     // Elitist genomes should not be included
-    for(var i = this.elitism; i < this.popsize; i++){
+    for(var i = 0; i < this.population.length; i++){
       if(Math.random() <= this.mutationRate){
         for(var j = 0; j < this.mutationAmount; j++){
           var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
@@ -128,7 +133,7 @@ Neat.prototype = {
    * Evaluates the current population
    */
   evaluate: function(){
-    for(var i = 0; i < this.popsize; i++){
+    for(var i = 0; i < this.population.length; i++){
       var genome = this.population[i];
       if(this.clear) genome.clear();
       var score = this.fitness(genome);
@@ -150,7 +155,7 @@ Neat.prototype = {
    */
   getFittest: function(){
     // Check if evaluated
-    if(this.population[this.popsize-1].score == null){
+    if(this.population[this.population.length-1].score == null){
       this.evaluate();
     }
 
@@ -162,16 +167,16 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
    getAverage: function(){
-     if(this.population[this.popsize-1].score == null){
+     if(this.population[this.population.length-1].score == null){
        this.evaluate();
      }
 
      var score = 0;
-     for(var i = 0; i < this.popsize; i++){
+     for(var i = 0; i < this.population.length; i++){
        score += this.population[i].score;
      }
 
-     return score / this.popsize;
+     return score / this.population.length;
    },
 
   /**
@@ -183,7 +188,7 @@ Neat.prototype = {
       case Selection.POWER:
         if(this.population[0].score < this.population[1].score) this.sort();
 
-        var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.popsize);
+        var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.population.length);
         return this.population[index];
         break;
       case Selection.FITNESS_PROPORTIONATE:
@@ -193,19 +198,19 @@ Neat.prototype = {
 
         var totalFitness = 0;
         var minimalFitness = 0;
-        for(var i = 0; i < this.popsize; i++){
+        for(var i = 0; i < this.population.length; i++){
           var score = this.population[i].score;
           minimalFitness = score < minimalFitness ? score : minimalFitness;
           totalFitness += score
         }
 
         minimalFitness = Math.abs(minimalFitness);
-        totalFitness += minimalFitness * this.popsize;
+        totalFitness += minimalFitness * this.population.length;
 
         var random = Math.random() * totalFitness;
         var value = 0;
 
-        for(var i = 0; i < this.popsize; i++){
+        for(var i = 0; i < this.population.length; i++){
           var genome = this.population[i];
           value += genome.score + minimalFitness;
           if(random < value) return genome;
@@ -222,7 +227,7 @@ Neat.prototype = {
         // Create a tournament
         var individuals = [];
         for(var i = 0; i < this.selection.size; i++){
-          var random = this.population[Math.floor(Math.random() * this.popsize)];
+          var random = this.population[Math.floor(Math.random() * this.population.length)];
           individuals.push(random);
         }
 
@@ -246,7 +251,7 @@ Neat.prototype = {
    */
   export: function(){
     var json = [];
-    for(var i = 0; i < this.popsize; i++){
+    for(var i = 0; i < this.population.length; i++){
       var genome = this.population[i];
       json.push(genome.toJSON());
     }

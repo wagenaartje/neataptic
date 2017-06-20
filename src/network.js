@@ -919,12 +919,8 @@ Network.prototype = {
 /**
  * Create an offspring from two parent networks
  */
- Network.crossOver = function(network1, network2, method){
-   /*if(typeof method == 'undefined'){
-     throw new Error('No crossover method given!');
-   } else if(!method.name in Methods.Crossover){
-     throw new Error('This method does not exist!');
-   } else */if(network1.input != network2.input || network1.output != network2.output){
+ Network.crossOver = function(network1, network2, equal){
+   if(network1.input != network2.input || network1.output != network2.output){
      throw new Error("Networks don't have the same input/output size!");
    }
 
@@ -938,7 +934,7 @@ Network.prototype = {
    var score2 = network2.score || 0;
 
    // Determine offspring node size
-   if(score1 == score2){
+   if(equal || score1 == score2){
      var max = Math.max(network1.nodes.length, network2.nodes.length);
      var min = Math.min(network1.nodes.length, network2.nodes.length);
      var size = Math.floor(Math.random() * (max - min + 1) + min);
@@ -1051,13 +1047,13 @@ Network.prototype = {
        }
      }
      // Excess/disjoint gene
-     if(!found && score1 >= score2){
+     if(!found && (score1 >= score2 || equal)){
        connections.push(n1conns[i]);
      }
    }
 
    // Excess/disjoint gene
-   if(score2 >= score1){
+   if(score2 >= score1 || equal){
      for(var i = 0; i < n2conns.length; i++){
        if(n2conns[i][0] != -1 && n2conns[i][1] != -1){
          connections.push(n2conns[i]);
@@ -1081,5 +1077,6 @@ Network.prototype = {
        }
      }
    }
+
    return offspring;
  }

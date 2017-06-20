@@ -105,13 +105,7 @@ Neat.prototype = {
      var parent1 = this.getParent();
      var parent2 = this.getParent();
 
-     if(this.equal){
-       parent1.score = 0;
-       parent2.score = 0;
-     }
-
-     //var crossoverMethod = this.crossover[Math.floor(Math.random()*this.crossover.length)];
-     return Network.crossOver(parent1, parent2);
+     return Network.crossOver(parent1, parent2, this.equal);
    },
 
   /**

@@ -4,13 +4,18 @@ keywords: train, backpropagation, neural-network, dropout, momentum, learning ra
 
 The train method allows you to train your network with given parameters. If this
 documentation is too complicated, I recommend to check out the
-[training tutorial](../tutorials/training.md)! Main usage:
+[training tutorial](../tutorials/training.md)!
+
+### Constructor
+Initiating the training process is similar to initiating the evolution process:
 
 <pre>
-myNetwork.train(set, options)
+myNetwork.train(trainingSet, options)
 </pre>
 
-Where set is an error containing objects in the following way: <code>{ input: [input(s)], output: [output(s)] }</code>. So for example, this is how you would train an XOR:
+#### Training set
+
+Where set is an array containing objects in the following way: <code>{ input: [input(s)], output: [output(s)] }</code>. So for example, this is how you would train an XOR:
 
 <pre>
 var network = new Architect.Perceptron(2,4,1);
@@ -24,7 +29,9 @@ network.train([{ input: [0,0], output: [0] },
 network.activate([0,1]); // 0.9824...
 </pre>
 
-However, options allow you to finetune the training process:
+#### Options
+
+Options allow you to finetune the training process:
 
 * `log` - If set to _n_, will output the training status every _n_ iterations (_log : 1_ will log every iteration)
 * `error` - The target error to reach, once the network falls below this error, the process is stopped. Default: _0.03_
@@ -38,6 +45,22 @@ However, options allow you to finetune the training process:
 * `momentum` - Sets the momentum of the weight change. More info [here](https://www.willamette.edu/~gorr/classes/cs449/momrate.html). Default: _0_
 * `ratePolicy` - Sets the rate policy for your training. This allows your rate to be dynamic, see the [rate policies page](../methods/rate.md). Default: _Methods.Rate.FIXED()_
 * `batchSize` - Sets the (mini-) batch size of your training. Default: `1` (online training)
+
+If you want to use the default options, you can either pass an empty object or
+just dismiss the whole second argument:
+
+```javascript
+myNetwork.evolve(trainingSet, {});
+
+// or
+
+myNetwork.evolve(trainingSet);
+```
+
+The default value will be used for any option that is not explicitly provided
+in the options object.
+
+#### Example
 
 So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.
 
@@ -59,6 +82,8 @@ network.train(trainingSet, {
   rate: 0.2
 });
 ```
+
+#### Cross-validation
 
 The last option is the **crossValidate** option, which will validate if the network also performs well enough on a non-trained part of the given set. Options:
 

@@ -6,13 +6,29 @@ The evolve function will evolve the network to conform the given training set. I
 
 <a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a>
 
-The constructor:
+### Constructor
+Initiating the evolution of your neural network is easy:
 
 ```javascript
-myNetwork.evolve(set, options);
+myNetwork.evolve(trainingSet, options);
 ```
 
-Where `set` is your training set. An example is coming up ahead. Please note that there are **a lot** of options, here are the basic options:
+#### Training set
+Where `trainingSet` is your training set. An example is coming up ahead. An example
+of a training set would be:
+
+```javascript
+// XOR training set
+var trainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];
+```
+
+#### Options
+Please note that there are **a lot** of options, here are the basic options:
 
 * `cost` - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: _Methods.Cost.MSE_ (recommended).
 * `amount`- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is _1_.
@@ -28,6 +44,34 @@ This penalty will get added on top of the error. Your growth should be a very sm
 Please note that you can also specify _any_ of the options that are specified on
 the [neat page](../neat.md).
 
+An example of options would be:
+
+```javascript
+var options = {
+  mutation: Methods.Mutation.ALL,
+  mutationRate: 0.4,
+  clear: true,
+  cost: 0.03,
+  log: 1,
+  iterations: 1000
+};
+```
+
+If you want to use the default options, you can either pass an empty object or
+just dismiss the whole second argument:
+
+```javascript
+myNetwork.evolve(trainingSet, {});
+
+// or
+
+myNetwork.evolve(trainingSet);
+```
+
+The default value will be used for any option that is not explicitly provided
+in the options object.
+
+### Result
 This function will output an object containing the final error, amount of iterations, time and the evolved network:
 
 ```javascript
@@ -39,7 +83,7 @@ return results = {
 };
 ```
 
-Here are some evolution examples:
+### Examples
 
 <details>
   <summary>XOR</summary>
@@ -47,7 +91,14 @@ Here are some evolution examples:
 <pre>
 var network = new Network(2,1);
 
-// trainingSet is the same as in the previous example
+// XOR dataset
+var trainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];
+
 network.evolve(trainingSet, {
   mutation: Methods.Mutation.FFW,
   equal: true,

@@ -260,11 +260,25 @@
           <hr>
           <p>The evolve function will evolve the network to conform the given training set. If you want to perform neuro-evolution on problems without a training set, check out the <a href="../../neat/">NEAT</a> wiki page. This function may not always be successful, so always specify a number of iterations for it too maximally run.</p>
 <p><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a></p>
-<p>The constructor:</p>
-<pre><code class="javascript">myNetwork.evolve(set, options);
+<h3 id="constructor">Constructor</h3>
+<p>Initiating the evolution of your neural network is easy:</p>
+<pre><code class="javascript">myNetwork.evolve(trainingSet, options);
 </code></pre>
 
-<p>Where <code>set</code> is your training set. An example is coming up ahead. Please note that there are <strong>a lot</strong> of options, here are the basic options:</p>
+<h4 id="training-set">Training set</h4>
+<p>Where <code>trainingSet</code> is your training set. An example is coming up ahead. An example
+of a training set would be:</p>
+<pre><code class="javascript">// XOR training set
+var trainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];
+</code></pre>
+
+<h4 id="options">Options</h4>
+<p>Please note that there are <strong>a lot</strong> of options, here are the basic options:</p>
 <ul>
 <li><code>cost</code> - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: <em>Methods.Cost.MSE</em> (recommended).</li>
 <li><code>amount</code>- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is <em>1</em>.</li>
@@ -282,6 +296,29 @@ This penalty will get added on top of the error. Your growth should be a very sm
 </ul>
 <p>Please note that you can also specify <em>any</em> of the options that are specified on
 the <a href="../../neat/">neat page</a>.</p>
+<p>An example of options would be:</p>
+<pre><code class="javascript">var options = {
+  mutation: Methods.Mutation.ALL,
+  mutationRate: 0.4,
+  clear: true,
+  cost: 0.03,
+  log: 1,
+  iterations: 1000
+};
+</code></pre>
+
+<p>If you want to use the default options, you can either pass an empty object or
+just dismiss the whole second argument:</p>
+<pre><code class="javascript">myNetwork.evolve(trainingSet, {});
+
+// or
+
+myNetwork.evolve(trainingSet);
+</code></pre>
+
+<p>The default value will be used for any option that is not explicitly provided
+in the options object.</p>
+<h3 id="result">Result</h3>
 <p>This function will output an object containing the final error, amount of iterations, time and the evolved network:</p>
 <pre><code class="javascript">return results = {
   error: mse,
@@ -291,14 +328,20 @@ the <a href="../../neat/">neat page</a>.</p>
 };
 </code></pre>
 
-<p>Here are some evolution examples:</p>
+<h3 id="examples">Examples</h3>
 <p><details>
   <summary>XOR</summary>
    Activates the network. It will activate all the nodes in activation order and produce an output.
 <pre>
 var network = new Network(2,1);</p>
-<p>// trainingSet is the same as in the previous example
-network.evolve(trainingSet, {
+<p>// XOR dataset
+var trainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];</p>
+<p>network.evolve(trainingSet, {
   mutation: Methods.Mutation.FFW,
   equal: true,
   elitism: 5,

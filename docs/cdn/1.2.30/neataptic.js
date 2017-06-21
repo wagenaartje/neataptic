@@ -2074,6 +2074,7 @@ Network.prototype = {
    * Evolves the network to reach a lower error on a dataset
    */
    evolve: function(set, options){
+     options = options || {};
      var cost = options.cost             || Methods.Cost.MSE;
      var amount = options.amount         || 1;
      var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;

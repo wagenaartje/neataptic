@@ -260,12 +260,15 @@
           <hr>
           <p>The train method allows you to train your network with given parameters. If this
 documentation is too complicated, I recommend to check out the
-<a href="../../tutorials/training/">training tutorial</a>! Main usage:</p>
+<a href="../../tutorials/training/">training tutorial</a>!</p>
+<h3 id="constructor">Constructor</h3>
+<p>Initiating the training process is similar to initiating the evolution process:</p>
 <pre>
-myNetwork.train(set, options)
+myNetwork.train(trainingSet, options)
 </pre>
 
-<p>Where set is an error containing objects in the following way: <code>{ input: [input(s)], output: [output(s)] }</code>. So for example, this is how you would train an XOR:</p>
+<h4 id="training-set">Training set</h4>
+<p>Where set is an array containing objects in the following way: <code>{ input: [input(s)], output: [output(s)] }</code>. So for example, this is how you would train an XOR:</p>
 <pre>
 var network = new Architect.Perceptron(2,4,1);
 
@@ -278,7 +281,8 @@ network.train([{ input: [0,0], output: [0] },
 network.activate([0,1]); // 0.9824...
 </pre>
 
-<p>However, options allow you to finetune the training process:</p>
+<h4 id="options">Options</h4>
+<p>Options allow you to finetune the training process:</p>
 <ul>
 <li><code>log</code> - If set to <em>n</em>, will output the training status every <em>n</em> iterations (<em>log : 1</em> will log every iteration)</li>
 <li><code>error</code> - The target error to reach, once the network falls below this error, the process is stopped. Default: <em>0.03</em></li>
@@ -293,6 +297,18 @@ network.activate([0,1]); // 0.9824...
 <li><code>ratePolicy</code> - Sets the rate policy for your training. This allows your rate to be dynamic, see the <a href="../../methods/rate/">rate policies page</a>. Default: <em>Methods.Rate.FIXED()</em></li>
 <li><code>batchSize</code> - Sets the (mini-) batch size of your training. Default: <code>1</code> (online training)</li>
 </ul>
+<p>If you want to use the default options, you can either pass an empty object or
+just dismiss the whole second argument:</p>
+<pre><code class="javascript">myNetwork.evolve(trainingSet, {});
+
+// or
+
+myNetwork.evolve(trainingSet);
+</code></pre>
+
+<p>The default value will be used for any option that is not explicitly provided
+in the options object.</p>
+<h4 id="example">Example</h4>
 <p>So the following setup will train until the error of <code>0.0001</code> is reached or if the iterations hit <code>1000</code>. It will log the status every iteration as well. The rate has been lowered to <code>0.2</code>.</p>
 <pre><code class="javascript">var network = new Architect.Perceptron(2,4,1);
 
@@ -312,6 +328,7 @@ network.train(trainingSet, {
 });
 </code></pre>
 
+<h4 id="cross-validation">Cross-validation</h4>
 <p>The last option is the <strong>crossValidate</strong> option, which will validate if the network also performs well enough on a non-trained part of the given set. Options:</p>
 <ul>
 <li><code>crossValidate.testSize</code> - Sets the amount of test cases that should be assigned to cross validation. If set to <em>0.4</em>, 40% of the given set will be used for cross validation.</li>

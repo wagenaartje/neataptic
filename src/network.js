@@ -252,6 +252,10 @@ Network.prototype = {
     switch(method){
       case Mutation.ADD_NODE:
         // Look for an existing connection and place a node in between
+        if(this.connections.length == 0){
+          if(Config.warnings) console.warn('No connections to split!');
+          break;
+        }
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var gater = connection.gater;
         this.disconnect(connection.from, connection.to);
@@ -327,6 +331,10 @@ Network.prototype = {
         this.disconnect(randomConn.from, randomConn.to);
         break;
       case Mutation.MOD_WEIGHT:
+        if(this.connections.length == 0){
+          if(Config.warnings) console.warn('No connections to modify!');
+          break;
+        }
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;

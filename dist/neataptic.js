@@ -2127,7 +2127,7 @@ Network.prototype = {
        }
 
        if(schedule && neat.generation % schedule.iterations == 0){
-         schedule.function({ fitness: fitness, error: error, iteration: neat.generation });
+         schedule.function({ fitness: fitness, error: -error, iteration: neat.generation });
        }
      }
 

@@ -454,10 +454,16 @@ Network.prototype = {
         this.disconnect(randomConn.from, randomConn.to);
         break;
       case Mutation.SWAP_NODES:
-        // Input nodes are excluded
-        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        // Has no effect on input node, so they are excluded
+        if(( method.mutateOutput && this.nodes.length - this.input < 2) ||
+           (!method.mutateOutput && this.nodes.length - this.input - this.output < 2)){
+          if(Config.warnings) console.warn('No nodes that allow swapping of bias and activation function');
+          break;
+        }
+
+        var index = Math.floor(Math.random() * (this.nodes.length - (method.mutateOutput ? 0 : this.output) - this.input) + this.input);
         var node1 = this.nodes[index];
-        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var index = Math.floor(Math.random() * (this.nodes.length - (method.mutateOutput ? 0 : this.output) - this.input) + this.input);
         var node2 = this.nodes[index];
 
         var biasTemp = node1.bias;

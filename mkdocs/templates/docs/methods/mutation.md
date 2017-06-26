@@ -81,7 +81,7 @@ Or you can edit the `methods/mutation.js` file to change the default values.
 ```js
 Methods.Mutation.SUB_NODE.keep_gates // default: true
 ```
-When removing a node, you remove the connections and intialise new ones. Setting this option to true will make sure if the removed connections were gated, so will the new ones be.
+When removing a node, you remove the connections and initialize new ones. Setting this option to true will make sure if the removed connections were gated, so will the new ones be.
 
 &zwnj;
 
@@ -89,7 +89,7 @@ When removing a node, you remove the connections and intialise new ones. Setting
 Methods.Mutation.MOD_WEIGHT.min // default: -1
 Methods.Mutation.MOD_WEIGHT.max // default: 1
 ```
-Sets the upper and lower bounds of the modifcation of connection weights.
+Sets the upper and lower bounds of the modification of connection weights.
 
 &zwnj;
 
@@ -97,12 +97,13 @@ Sets the upper and lower bounds of the modifcation of connection weights.
 Methods.Mutation.MOD_BIAS.min // default: -1
 Methods.Mutation.MOD_BIAS.max // default: 1
 ```
-Sets the upper and lower bounds of the modifcation of neuron biases.
+Sets the upper and lower bounds of the modification of neuron biases.
 
 &zwnj;
 
 ```js
 Methods.Mutation.MOD_ACTIVATION.mutateOutput // default: true
+Methods.Mutation.SWAP_NODES.mutateOutput     // default: true
 ```
 Disable this option if you want the have the activation function of the output neurons unchanged. Useful if you want to keep the output of your neural network normalized.
 

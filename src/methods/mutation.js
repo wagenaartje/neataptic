@@ -70,7 +70,8 @@ var Mutation = {
     name: "SUB_BACK_CONN"
   },
   SWAP_NODES : {
-    name: "SWAP_NODES"
+    name: "SWAP_NODES",
+    mutateOutput: true
   }
 };
 

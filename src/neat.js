@@ -27,6 +27,7 @@ function Neat(input, output, fitness, options){
   this.clear          = options.clear          || false;
   this.popsize        = options.popsize        || 50;
   this.elitism        = options.elitism        || 0;
+  this.provenance     = options.provenance     || 0;
   this.mutationRate   = options.mutationRate   || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
 
@@ -36,13 +37,13 @@ function Neat(input, output, fitness, options){
                                               Methods.Crossover.UNIFORM,
                                               Methods.Crossover.AVERAGE];
   this.mutation       = options.mutation  ||  Methods.Mutation.FFW;
-
+  this.template       = options.network || new Network(this.input, this.output)
 
   // Generation counter
   this.generation = 0;
 
   // Initialise the genomes
-  this.createPool(options.network || new Network(this.input, this.output));
+  this.createPool(this.template);
 }
 
 Neat.prototype = {
@@ -77,8 +78,13 @@ Neat.prototype = {
       elitists.push(this.population[i]);
     }
 
+    // Provenance
+    for(var i = 0; i < this.provenance; i++){
+      newPopulation.push(Network.fromJSON(this.template.toJSON()))
+    }
+
     // Breed the next individuals
-    for(var i = 0; i < this.popsize - this.elitism; i++){
+    for(var i = 0; i < this.popsize - this.elitism - this.provenance; i++){
       newPopulation.push(this.getOffspring());
     }
 

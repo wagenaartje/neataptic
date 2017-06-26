@@ -789,50 +789,49 @@ Network.prototype = {
 
      var start = Date.now();
 
-     function fitness(genome){
+     function fitnessFunction(genome){
        var score = 0;
        for(var i = 0; i < amount; i++){
          score -= genome.test(set, cost).error;
        }
 
-       score -= (genome.nodes.length + genome.connections.length + genome.gates.length) * growth;
+       score -=  (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
 
        score = isNaN(score) ? -Infinity : score; // this can cause problems with fitness proportionate selection
        return score/amount;
      }
 
      options.network = this;
-     var neat = new Neat(0,0, fitness, options);
+     var neat = new Neat(0,0, fitnessFunction, options);
 
-     var error = -Infinity;
-     var bestError = -Infinity;
+     var fitness = -Infinity;
+     var bestFitness = -Infinity;
      var bestGenome = null;
 
-     while(error < -targetError && (iterations == 0 || neat.generation < iterations)){
+     while(fitness < -targetError && (iterations == 0 || neat.generation < iterations)){
        neat.evolve();
        var fittest = neat.getFittest();
+       var fitness = fittest.score;
+       var error = fitness + (fittest.nodes.length - fittest.input - fittest.output + fittest.connections.length + fittest.gates.length) * growth;
 
-       if(clear) fittest.clear();
-       error = -fittest.test(set).error - (fittest.nodes.length + fittest.connections.length + fittest.gates.length) * growth;
-
-       if(error > bestError){
-         bestError = error;
+       if(fitness > bestFitness){
+         bestFitness = fitness;
          bestGenome = fittest;
        }
 
        if(log && neat.generation % log == 0){
-         console.log('generation', neat.generation, 'error', fittest.score, 'cost error', error);
+         console.log('generation', neat.generation, 'fitness', fitness, 'error', error);
        }
 
        if(schedule && neat.generation % schedule.iterations == 0){
-         schedule.function({ error: error, iteration: neat.generation });
+         schedule.function({ fitness: fitness, error: error, iteration: neat.generation });
        }
      }
 
      if(clear) bestGenome.clear();
 
      var results = {
-       error: bestError,
+       error: bestFitness,
        generations: neat.generation,
        time: Date.now() - start
      };

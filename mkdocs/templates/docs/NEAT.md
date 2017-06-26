@@ -84,6 +84,12 @@ new Neat(input, output, fitnessFunction, options); // options should be an objec
 </details>
 
 <details>
+  <summary>provenance</summary>
+   Sets the provenance of the genetic algorithm. Provenance means that during every evolution, the given amount of genomes will be inserted which all have the original
+   network template (which is <code>Network(input,output)</code> when no <code>network</code> option is given). Default is 0.
+</details>
+
+<details>
   <summary>mutation</summary>
 Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/mutation/">mutation methods</a> used in the evolutionary process. Must be an array (e.g. <code>[Methods.Mutation.ADD_NODE, Methods.Mutation.SUB_NODE]</code>). Default mutation methods are all non-recurrent mutation methods. A random mutation method will be chosen from the array when mutation occrus.
 </details>

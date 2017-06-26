@@ -87,7 +87,8 @@ Mutation.ALL = [
   Mutation.ADD_SELF_CONN,
   Mutation.SUB_SELF_CONN,
   Mutation.ADD_BACK_CONN,
-  Mutation.SUB_BACK_CONN
+  Mutation.SUB_BACK_CONN,
+  Mutation.SWAP_NODES
 ];
 
 Mutation.FFW = [
@@ -97,7 +98,8 @@ Mutation.FFW = [
   Mutation.SUB_CONN,
   Mutation.MOD_WEIGHT,
   Mutation.MOD_BIAS,
-  Mutation.MOD_ACTIVATION
+  Mutation.MOD_ACTIVATION,
+  Mutation.SWAP_NODES
 ];
 
 /* Export */

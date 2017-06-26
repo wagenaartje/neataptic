@@ -37,7 +37,7 @@ function Neat(input, output, fitness, options){
                                               Methods.Crossover.UNIFORM,
                                               Methods.Crossover.AVERAGE];
   this.mutation       = options.mutation  ||  Methods.Mutation.FFW;
-  this.template       = options.network || new Network(this.input, this.output)
+  this.template       = options.network   || new Network(this.input, this.output)
 
   // Generation counter
   this.generation = 0;

@@ -2123,7 +2123,7 @@ Network.prototype = {
        }
 
        if(log && neat.generation % log == 0){
-         console.log('generation', neat.generation, 'fitness', fitness, 'error', error);
+         console.log('generation', neat.generation, 'fitness', fitness, 'error', -error);
        }
 
        if(schedule && neat.generation % schedule.iterations == 0){

@@ -17,10 +17,10 @@ var data = {
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.BannerPlugin(license()),
-    new webpack.optimize.UglifyJsPlugin({
+    /*new webpack.optimize.UglifyJsPlugin({
       include: /\.min\.js$/,
       minimize: true
-    })
+    })*/
   ]
 }
 

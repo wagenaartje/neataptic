@@ -157,6 +157,34 @@ var imported = Network.fromJSON(exported);
 </details>
 
 <details>
+  <summary>standalone</summary>
+   Networks can be used in Javascript without the need of the Neataptic library,
+   this function will transform your network into a function accompanied by arrays.
+
+<pre>
+var myNetwork = new Architect.Perceptron(2,4,1);
+myNetwork.activate([0,1]); // [0.24775789809]
+
+// a string
+var standalone = myNetwork.standalone();
+
+// turns your network into an 'activate' function
+eval(standalone);
+
+// calls the standalone function
+activate([0,1]);// [0.24775789809]
+</pre>
+
+The reason an `eval` is being called is because the standalone can't be a simply
+a function, it needs some kind of global memory. You can easily copy and paste the
+result of `standalone` in any JS file and run the `activate` function!
+
+Note that this is still in development, so for complex networks, it might not be
+precise.
+
+</details>
+
+<details>
   <summary>crossOver</summary>
    Creates a new 'baby' network from two parent networks. Networks are not required to have the same size, however input and output size should be the same!
 

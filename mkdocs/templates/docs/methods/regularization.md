@@ -25,7 +25,9 @@ myNetwork.train(myTrainingSet, {
 });
 ```
 
-Setting the dropout to `0.4` means that 40% of the neurons will be dropped out every training iteration. Please note that Neataptic has no layered network architecture, so dropout applies to the complete hidden area.
+Setting the dropout to `0.4` means that 40% of the neurons will be dropped out
+every training iteration. Please note that Neataptic has no layered network
+architecture, so dropout applies to the complete hidden area.
 
 ### Momentum
 Momentum simply adds a fraction m of the previous weight update to the current one.

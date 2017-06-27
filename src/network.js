@@ -851,6 +851,84 @@ Network.prototype = {
 
      return results;
    },
+
+   standalone: function(){
+     var present = [];
+     var activations = [];
+     var states = [];
+     var lines = [];
+     var functions = [];
+
+     for(var i = 0; i < this.input; i++){
+       var node = this.nodes[i];
+       activations.push(node.activation);
+       states.push(node.state);
+
+      var line = `A[${i}] = input[${i}];`;
+       lines.push(line);
+     }
+
+     for(var i = this.input; i < this.nodes.length; i++){
+       var node = this.nodes[i];
+       activations.push(node.activation);
+       states.push(node.state);
+
+       var functionIndex = present.indexOf(node.squash.name);
+
+       if(present.indexOf(node.squash.name) == -1){
+         functionIndex = present.length;
+         present.push(node.squash.name);
+         functions.push(node.squash.toString());
+       }
+
+       var incoming = [];
+       for(var j = 0; j < node.connections.in.length; j++){
+         var conn = node.connections.in[j];
+         var index = this.nodes.indexOf(conn.from);
+         var computation = `A[${index}] * ${conn.weight}`;
+
+         if(conn.gater != null){
+           var gaterIndex = this.nodes.indexOf(conn.gater)
+           computation += ` * A[${gaterIndex}]`;
+         }
+
+         incoming.push(computation);
+       }
+
+       if(node.connections.self.weight){
+         var conn = node.connections.self;
+         var computation = `S[${i}] * ${conn.weight}`;
+
+         if(conn.gater != null){
+           var gaterIndex = this.nodes.indexOf(conn.gater)
+           computation += ` * A[${gaterIndex}]`;
+         }
+
+         incoming.push(computation);
+       }
+
+       var line1 = `S[${i}] = ${incoming.join(' + ')} + ${node.bias};`;
+       var line2 = `A[${i}] = F[${functionIndex}](S[${i}])${!node.mask ? ' * ' + node.mask : ''};`;
+       lines.push(line1);
+       lines.push(line2);
+     }
+
+     var output = [];
+     for(var i = this.nodes.length - this.output; i < this.nodes.length; i++){
+       output.push(`A[${i}]`);
+     }
+
+     output = `return [${output.join(',')}];`;
+     lines.push(output);
+
+     var total = '';
+     total += `var F = [${functions.toString()}];\r\n`;
+     total += `var A = [${activations.toString()}];\r\n`;
+     total += `var S = [${states.toString()}];\r\n`;
+     total += `function activate(input){\r\n${lines.join("\r\n")}\r\n}`;
+
+     return total;
+   }
 };
 
 /**

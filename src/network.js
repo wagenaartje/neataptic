@@ -623,14 +623,12 @@ Network.prototype = {
 
     cost = cost || Methods.Cost.MSE;
     var error = 0;
-    var input, output, target;
-
     var start = Date.now();
 
     for(var i = 0; i < set.length; i++){
-      input = set[i].input;
-      target = set[i].output;
-      output = this.activate(input);
+      let input = set[i].input;
+      let target = set[i].output;
+      let output = this.activate(input);
       error += cost(target, output);
     }
 
@@ -738,6 +736,11 @@ Network.prototype = {
         dropout: this.dropout
       };
 
+      // So we don't have to use expensive .indexOf()
+      for(var i = 0; i < this.nodes.length; i++){
+        this.nodes[i].index = i;
+      }
+
       for(var i = 0; i < this.nodes.length; i++){
         var node = this.nodes[i];
         var tojson = node.toJSON();
@@ -749,7 +752,7 @@ Network.prototype = {
           tojson.from = i;
           tojson.to = i;
 
-          tojson.gater = node.connections.self.gater != null ? this.nodes.indexOf(node.connections.self.gater) : null;
+          tojson.gater = node.connections.self.gater != null ? node.connections.self.gater.index : null;
           json.connections.push(tojson);
         }
       }
@@ -757,10 +760,10 @@ Network.prototype = {
       for(var i = 0; i < this.connections.length; i++){
         var conn = this.connections[i];
         var tojson = conn.toJSON();
-        tojson.from = this.nodes.indexOf(conn.from);
-        tojson.to = this.nodes.indexOf(conn.to);
+        tojson.from = conn.from.index;
+        tojson.to = conn.to.index;
 
-        tojson.gater = conn.gater != null ? this.nodes.indexOf(conn.gater) : null;
+        tojson.gater = conn.gater != null ? conn.gater.index : null;
 
         json.connections.push(tojson);
       }
@@ -852,6 +855,10 @@ Network.prototype = {
      return results;
    },
 
+   /**
+    * Creates a standalone function of the network which can be run without the
+    * need of a library
+    */
    standalone: function(){
      var present = [];
      var activations = [];
@@ -863,9 +870,13 @@ Network.prototype = {
        var node = this.nodes[i];
        activations.push(node.activation);
        states.push(node.state);
+     }
 
-      var line = `A[${i}] = input[${i}];`;
-       lines.push(line);
+     lines.push('for(var i = 0; i < input.length; i++) A[i] = input[i];')
+
+     // So we don't have to use expensive .indexOf()
+     for(var i = 0; i < this.nodes.length; i++){
+       this.nodes[i].index = i;
      }
 
      for(var i = this.input; i < this.nodes.length; i++){
@@ -884,12 +895,10 @@ Network.prototype = {
        var incoming = [];
        for(var j = 0; j < node.connections.in.length; j++){
          var conn = node.connections.in[j];
-         var index = this.nodes.indexOf(conn.from);
-         var computation = `A[${index}] * ${conn.weight}`;
+         var computation = `A[${conn.from.index}] * ${conn.weight}`;
 
          if(conn.gater != null){
-           var gaterIndex = this.nodes.indexOf(conn.gater)
-           computation += ` * A[${gaterIndex}]`;
+           computation += ` * A[${conn.gater.index}]`;
          }
 
          incoming.push(computation);
@@ -900,8 +909,7 @@ Network.prototype = {
          var computation = `S[${i}] * ${conn.weight}`;
 
          if(conn.gater != null){
-           var gaterIndex = this.nodes.indexOf(conn.gater)
-           computation += ` * A[${gaterIndex}]`;
+           computation += ` * A[${conn.gater.index}]`;
          }
 
          incoming.push(computation);

@@ -37,7 +37,7 @@ function Neat(input, output, fitness, options){
                                               Methods.Crossover.UNIFORM,
                                               Methods.Crossover.AVERAGE];
   this.mutation       = options.mutation  ||  Methods.Mutation.FFW;
-  this.template       = options.network   || new Network(this.input, this.output)
+  this.template       = options.network   || false;
 
   // Generation counter
   this.generation = 0;
@@ -54,7 +54,11 @@ Neat.prototype = {
     this.population = [];
 
     for(var i = 0; i < this.popsize; i++){
-      var copy = Network.fromJSON(network.toJSON());
+      if(this.template){
+        var copy = Network.fromJSON(network.toJSON());
+      } else {
+        var copy = new Network(this.input, this.output);
+      }
       copy.score = null;
       this.population.push(copy);
     }

@@ -245,7 +245,7 @@ describe('Networks', function () {
       }, {
         input: [1, 1],
         output: [0]
-      }], 2000, 0.002);
+      }], 3000, 0.002);
     });
     it("NOT gate", function(){
       learnSet([{
@@ -269,7 +269,7 @@ describe('Networks', function () {
       }, {
         input: [1, 1],
         output: [1]
-      }], 2000, 0.002);
+      }], 3000, 0.002);
     });
     it("OR gate", function(){
       learnSet([{

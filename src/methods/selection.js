@@ -6,14 +6,14 @@
 
 var Selection = {
   FITNESS_PROPORTIONATE: {
-    name: "FITNESS_PROPORTIONATE"
+    name: 'FITNESS_PROPORTIONATE'
   },
   POWER: {
-    name: "POWER",
+    name: 'POWER',
     power: 4
   },
   TOURNAMENT: {
-    name: "TOURNAMENT",
+    name: 'TOURNAMENT',
     size: 5,
     probability: 0.5
   }

@@ -14,6 +14,8 @@ Setting up the developer environment is fairly easy:
 
 And you are good to go!
 
+**PS**: we use the [Javascript Semistandard Style](https://github.com/Flet/semistandard)!
+
 ## Bugs
 Nobody likes them, and we understand that you want to get rid of them as soon as
 possible, but to assure that the debugging proces runs smoothly we need to have
@@ -43,8 +45,8 @@ And the pull request will be merged in no-time!
 ## Features
 Neataptic gets extended all the time! However we prefer qualitative over quantitative
 features - anyone can add a new `Activation` method for example, but you have to ask
-yourself if it really improves the project. But _always_ feel free to create a pull 
-request with new featuers, as long as you incorperate the following:
+yourself if it really improves the project. But _always_ feel free to create a pull
+request with new features, as long as you incorporate the following:
 1. What feature you are adding (/improving)
 2. A usage example of the new feature (in code!)
 3. Why you think it adds something to Neataptic

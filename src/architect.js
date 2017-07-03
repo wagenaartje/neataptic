@@ -366,4 +366,4 @@ var Architect = {
 };
 
 /* Export */
-if (module) module.exports = Architect;
+module.exports = Architect;

@@ -1,5 +1,5 @@
 /* Export */
-if (module) module.exports = Group;
+module.exports = Group;
 
 /* Import */
 var Methods = require('./methods/methods');

@@ -8,4 +8,4 @@ var Config = {
 };
 
 /* Export */
-if (module) module.exports = Config;
+module.exports = Config;

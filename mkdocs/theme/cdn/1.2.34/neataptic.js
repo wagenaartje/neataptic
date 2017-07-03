@@ -99,50 +99,22 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			get: function() {
-				return module.l;
-			}
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			get: function() {
-				return module.i;
-			}
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-};
-
-
-/***/ }),
-/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation: __webpack_require__(9),
-  Mutation: __webpack_require__(15),
-  Selection: __webpack_require__(17),
-  Crossover: __webpack_require__(13),
-  Cost: __webpack_require__(12),
-  Gating: __webpack_require__(14),
-  Connection: __webpack_require__(11),
-  Rate: __webpack_require__(16)
+  Activation: __webpack_require__(8),
+  Mutation: __webpack_require__(14),
+  Selection: __webpack_require__(16),
+  Crossover: __webpack_require__(12),
+  Cost: __webpack_require__(11),
+  Gating: __webpack_require__(13),
+  Connection: __webpack_require__(10),
+  Rate: __webpack_require__(15)
 };
 
 // CommonJS & AMD
@@ -171,16 +143,16 @@ if (typeof window === 'object') {
 
 
 /***/ }),
-/* 2 */
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Node;
+/* Export */
+module.exports = Node;
 
 /* Import */
-var Methods = __webpack_require__(1);
-var Connection = __webpack_require__(7);
-var Config = __webpack_require__(3);
+var Methods = __webpack_require__(0);
+var Connection = __webpack_require__(6);
+var Config = __webpack_require__(2);
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
@@ -578,13 +550,12 @@ Node.fromJSON = function (json) {
   return node;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 2 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                       CONFIG
 *******************************************************************************************/
 
@@ -594,22 +565,21 @@ var Config = {
 };
 
 /* Export */
-if (module) module.exports = Config;
+module.exports = Config;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Group;
+/* Export */
+module.exports = Group;
 
 /* Import */
-var Methods = __webpack_require__(1);
-var Config = __webpack_require__(3);
-var Layer = __webpack_require__(5);
-var Node = __webpack_require__(2);
+var Methods = __webpack_require__(0);
+var Config = __webpack_require__(2);
+var Layer = __webpack_require__(4);
+var Node = __webpack_require__(1);
 
 /******************************************************************************************
                                          Group
@@ -866,19 +836,18 @@ Group.prototype = {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Layer;
+/* Export */
+module.exports = Layer;
 
 /* Import */
-var Methods = __webpack_require__(1);
-var Group = __webpack_require__(4);
-var Node = __webpack_require__(2);
+var Methods = __webpack_require__(0);
+var Group = __webpack_require__(3);
+var Node = __webpack_require__(1);
 
 /******************************************************************************************
                                          Group
@@ -1251,20 +1220,19 @@ Layer.Memory = function (size, memory) {
   return layer;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Network;
+/* Export */
+module.exports = Network;
 
 /* Import */
-var Methods = __webpack_require__(1);
-var Config = __webpack_require__(3);
-var Neat = __webpack_require__(8);
-var Node = __webpack_require__(2);
+var Methods = __webpack_require__(0);
+var Config = __webpack_require__(2);
+var Neat = __webpack_require__(7);
+var Node = __webpack_require__(1);
 
 /* Easier variable naming */
 var Mutation = Methods.Mutation;
@@ -2466,14 +2434,13 @@ Network.crossOver = function (network1, network2, equal) {
   return offspring;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 6 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Connection;
+/* Export */
+module.exports = Connection;
 
 /******************************************************************************************
                                       CONNECTION
@@ -2522,18 +2489,17 @@ Connection.innovationID = function (a, b) {
   return 1 / 2 * (a + b) * (a + b + 1) + b;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Export */
-if (module) module.exports = Neat;
+/* Export */
+module.exports = Neat;
 
 /* Import */
-var Methods = __webpack_require__(1);
-var Network = __webpack_require__(6);
+var Methods = __webpack_require__(0);
+var Network = __webpack_require__(5);
 
 /* Easier variable naming */
 var Selection = Methods.Selection;
@@ -2804,13 +2770,12 @@ Neat.prototype = {
   }
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 8 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                   ACTIVATION FUNCTIONS
 *******************************************************************************************/
 
@@ -2886,20 +2851,19 @@ var Activation = {
 };
 
 /* Export */
-if (module) module.exports = Activation;
+module.exports = Activation;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Methods = __webpack_require__(1);
-var Network = __webpack_require__(6);
-var Group = __webpack_require__(4);
-var Layer = __webpack_require__(5);
-var Node = __webpack_require__(2);
+/* Import */
+var Methods = __webpack_require__(0);
+var Network = __webpack_require__(5);
+var Group = __webpack_require__(3);
+var Layer = __webpack_require__(4);
+var Node = __webpack_require__(1);
 
 /*******************************************************************************************
                                         ARCHITECT
@@ -3262,15 +3226,14 @@ var Architect = {
 };
 
 /* Export */
-if (module) module.exports = Architect;
+module.exports = Architect;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 10 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                     CONNECTION
 *******************************************************************************************/
 
@@ -3288,15 +3251,14 @@ var Connection = {
 };
 
 /* Export */
-if (module) module.exports = Connection;
+module.exports = Connection;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 11 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                     COST FUNCTIONS
 *******************************************************************************************/
 
@@ -3368,15 +3330,14 @@ var Cost = {
 };
 
 /* Export */
-if (module) module.exports = Cost;
+module.exports = Cost;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 12 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                       CROSSOVER
 *******************************************************************************************/
 
@@ -3399,15 +3360,14 @@ var Crossover = {
 };
 
 /* Export */
-if (module) module.exports = Crossover;
+module.exports = Crossover;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 13 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                     GATING
 *******************************************************************************************/
 
@@ -3425,16 +3385,15 @@ var Gating = {
 };
 
 /* Export */
-if (module) module.exports = Gating;
+module.exports = Gating;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/* Import */
-var Activation = __webpack_require__(9);
+/* Import */
+var Activation = __webpack_require__(8);
 
 /*******************************************************************************************
                                       MUTATION
@@ -3539,15 +3498,14 @@ Mutation.FFW = [
 ];
 
 /* Export */
-if (module) module.exports = Mutation;
+module.exports = Mutation;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 16 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 15 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                       RATE
 *******************************************************************************************/
 
@@ -3589,15 +3547,14 @@ var Rate = {
 };
 
 /* Export */
-if (module) module.exports = Rate;
+module.exports = Rate;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 16 */
+/***/ (function(module, exports) {
 
-/* WEBPACK VAR INJECTION */(function(module) {/*******************************************************************************************
+/*******************************************************************************************
                                       SELECTION
 *******************************************************************************************/
 
@@ -3619,24 +3576,23 @@ var Selection = {
 };
 
 /* Export */
-if (module) module.exports = Selection;
+module.exports = Selection;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)(module)))
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
-  Methods: __webpack_require__(1),
-  Connection: __webpack_require__(7),
-  Architect: __webpack_require__(10),
-  Network: __webpack_require__(6),
-  Config: __webpack_require__(3),
-  Group: __webpack_require__(4),
-  Layer: __webpack_require__(5),
-  Node: __webpack_require__(2),
-  Neat: __webpack_require__(8)
+  Methods: __webpack_require__(0),
+  Connection: __webpack_require__(6),
+  Architect: __webpack_require__(9),
+  Network: __webpack_require__(5),
+  Config: __webpack_require__(2),
+  Group: __webpack_require__(3),
+  Layer: __webpack_require__(4),
+  Node: __webpack_require__(1),
+  Neat: __webpack_require__(7)
 };
 
 // CommonJS & AMD

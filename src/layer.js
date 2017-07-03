@@ -1,5 +1,5 @@
 /* Export */
-if (module) module.exports = Layer;
+module.exports = Layer;
 
 /* Import */
 var Methods = require('./methods/methods');

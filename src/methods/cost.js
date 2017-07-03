@@ -70,4 +70,4 @@ var Cost = {
 };
 
 /* Export */
-if (module) module.exports = Cost;
+module.exports = Cost;

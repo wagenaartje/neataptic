@@ -21,4 +21,4 @@ var Crossover = {
 };
 
 /* Export */
-if (module) module.exports = Crossover;
+module.exports = Crossover;

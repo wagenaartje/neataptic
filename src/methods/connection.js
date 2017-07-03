@@ -16,4 +16,4 @@ var Connection = {
 };
 
 /* Export */
-if (module) module.exports = Connection;
+module.exports = Connection;

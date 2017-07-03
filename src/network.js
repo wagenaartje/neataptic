@@ -1,5 +1,5 @@
 /* Export */
-if (module) module.exports = Network;
+module.exports = Network;
 
 /* Import */
 var Methods = require('./methods/methods');

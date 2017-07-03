@@ -20,4 +20,4 @@ var Selection = {
 };
 
 /* Export */
-if (module) module.exports = Selection;
+module.exports = Selection;

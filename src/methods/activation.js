@@ -74,4 +74,4 @@ var Activation = {
 };
 
 /* Export */
-if (module) module.exports = Activation;
+module.exports = Activation;

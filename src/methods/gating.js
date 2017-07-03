@@ -16,4 +16,4 @@ var Gating = {
 };
 
 /* Export */
-if (module) module.exports = Gating;
+module.exports = Gating;

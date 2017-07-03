@@ -1,5 +1,5 @@
 /* Export */
-if (module) module.exports = Node;
+module.exports = Node;
 
 /* Import */
 var Methods = require('./methods/methods');

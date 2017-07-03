@@ -1,5 +1,5 @@
 /* Export */
-if (module) module.exports = Neat;
+module.exports = Neat;
 
 /* Import */
 var Methods = require('./methods/methods');

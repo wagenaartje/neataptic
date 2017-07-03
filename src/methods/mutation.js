@@ -104,4 +104,4 @@ Mutation.FFW = [
 ];
 
 /* Export */
-if (module) module.exports = Mutation;
+module.exports = Mutation;

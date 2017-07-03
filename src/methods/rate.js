@@ -40,4 +40,4 @@ var Rate = {
 };
 
 /* Export */
-if (module) module.exports = Rate;
+module.exports = Rate;

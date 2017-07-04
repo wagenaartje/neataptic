@@ -2,17 +2,17 @@
 module.exports = Node;
 
 /* Import */
-var Methods = require('./methods/methods');
+var Methods = require('../methods/methods');
 var Connection = require('./connection');
-var Config = require('./config');
+var Config = require('../config');
 
 /* Easier variable naming */
 var Activation = Methods.Activation;
 var Mutation = Methods.Mutation;
 
-/******************************************************************************************
+/*******************************************************************************
                                          NODE
-*******************************************************************************************/
+*******************************************************************************/
 
 function Node (type) {
   this.bias = (type === 'input') ? 0 : Math.random() * 0.2 - 0.1;

@@ -2,14 +2,14 @@
 module.exports = Group;
 
 /* Import */
-var Methods = require('./methods/methods');
-var Config = require('./config');
+var Methods = require('../methods/methods');
+var Config = require('../config');
 var Layer = require('./layer');
 var Node = require('./node');
 
-/******************************************************************************************
+/*******************************************************************************
                                          Group
-*******************************************************************************************/
+*******************************************************************************/
 
 function Group (size) {
   this.nodes = [];

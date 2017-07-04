@@ -2,15 +2,16 @@
 module.exports = Neat;
 
 /* Import */
+var Network = require('./architecture/network');
 var Methods = require('./methods/methods');
-var Network = require('./network');
+var Multi = require('./multi');
 
 /* Easier variable naming */
 var Selection = Methods.Selection;
 
-/*******************************************************************************************
+/*******************************************************************************
                                          NEAT
-*******************************************************************************************/
+*******************************************************************************/
 
 function Neat (input, output, fitness, options) {
   this.input = input; // The input size of the networks
@@ -142,6 +143,54 @@ Neat.prototype = {
       var score = this.fitness(genome);
       this.population[i].score = score;
     }
+  },
+
+  /**
+   * Evaluates an entire population with given amount of threads
+   */
+  multiEvaluate: async function (dataSet, cost, threads) {
+    return new Promise((resolve, reject) => {
+      // Prepare the dataset to create a buffer
+      var converted = Multi.serializeDataSet(dataSet);
+
+      // Create a queue
+      var queue = this.population.slice();
+      var done = 0;
+
+      // Create [core] workers
+      for (var i = 0; i < threads; i++) {
+        let worker = Multi.testWorker(cost);
+        // Give the worker a set
+        var data = { set: new Float64Array(converted).buffer };
+        worker.worker.postMessage(data, [data.set]);
+        startWorker(worker);
+      }
+
+      // Start a worker on the next genome in queue
+      function startWorker (worker) {
+        if (!queue.length) {
+          worker.worker.terminate();
+          window.URL.revokeObjectURL(worker.url);
+          if (++done === threads) resolve();
+          return;
+        }
+
+        var genome = queue.shift();
+        var network = genome.serialize();
+        var data = {
+          activations: network[0].buffer,
+          states: network[1].buffer,
+          conns: network[2].buffer
+        };
+
+        worker.worker.onmessage = function (e) {
+          genome.score = -new Float64Array(e.data.buffer)[0];
+          startWorker(worker);
+        };
+
+        worker.worker.postMessage(data, [data.activations, data.states, data.conns]);
+      }
+    });
   },
 
   /**

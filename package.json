@@ -40,6 +40,6 @@
   },
   "homepage": "http://wagenaartje.github.io/neataptic/",
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   }
 }

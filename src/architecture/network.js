@@ -817,40 +817,105 @@ Network.prototype = {
   /**
    * Evolves the network to reach a lower error on a dataset
    */
-  evolve: function (set, options) {
-    options = options || {};
-    var cost = options.cost || Methods.Cost.MSE;
-    var amount = options.amount || 1;
-    var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
-    var iterations = options.iterations || 0;
-    var targetError = typeof options.error !== 'undefined' ? options.error : 0.005;
-    var log = options.log || 0;
-    var clear = options.clear || false;
-    var schedule = options.schedule;
-    var start = Date.now();
-
-    function fitnessFunction (genome) {
-      var score = 0;
-      for (var i = 0; i < amount; i++) {
-        score -= genome.test(set, cost).error;
-      }
-
-      score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
-
-      score = isNaN(score) ? -Infinity : score; // this can cause problems with fitness proportionate selection
-      return score / amount;
+  evolve: async function (set, options) {
+    if (set[0].input.length !== this.input || set[0].output.length !== this.output) {
+      throw new Error('Dataset input/output size should be same as network input/output size!');
     }
 
+    // Read the options
+    options = options || {};
+    var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
+    var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
+    var cost = options.cost || Methods.Cost.MSE;
+    var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
+    var amount = options.amount || 1;
+
+    var start = performance.now();
+
+    if (threads > 1 && typeof window === 'undefined') {
+      throw new Error('Using multiple threads is only possible in the browser!');
+    } else if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
+      throw new Error('At least one of the following options must be specified: error, iterations');
+    } else if (typeof options.error === 'undefined') {
+      targetError = -1; // run until iterations
+    }
+
+    var fitnessFunction;
+    if (threads === 1) {
+      // Create the fitness function
+      fitnessFunction = function (genome) {
+        var score = 0;
+        for (var i = 0; i < amount; i++) {
+          score -= genome.test(set, cost).error;
+        }
+
+        score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
+        score = isNaN(score) ? -Infinity : score; // this can cause problems with fitness proportionate selection
+
+        return score / amount;
+      };
+    } else {
+      // Serialize the dataset
+      var converted = Multi.serializeDataSet(set);
+
+      // Create workers, send datasets
+      var workers = [];
+      for (var i = 0; i < threads; i++) {
+        let worker = Multi.testWorker(cost);
+        let data = { set: new Float64Array(converted).buffer };
+        worker.worker.postMessage(data, [data.set]);
+        workers.push(worker);
+      }
+
+      fitnessFunction = function (population) {
+        return new Promise((resolve, reject) => {
+          // Create a queue
+          var queue = neat.population.slice();
+          var done = 0;
+
+          // Start worker function
+          var startWorker = function (worker) {
+            if (!queue.length) {
+              if (++done === threads) resolve();
+              return;
+            }
+
+            var genome = queue.shift();
+            var network = genome.serialize();
+            var data = {
+              activations: network[0].buffer,
+              states: network[1].buffer,
+              conns: network[2].buffer
+            };
+
+            worker.worker.onmessage = function (e) {
+              genome.score = -new Float64Array(e.data.buffer)[0];
+              genome.score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
+              startWorker(worker);
+            };
+
+            worker.worker.postMessage(data, [data.activations, data.states, data.conns]);
+          };
+
+          for (var i = 0; i < workers.length; i++) {
+            startWorker(workers[i]);
+          }
+        });
+      };
+
+      options.fitnessPopulation = true;
+    }
+
+    // Intialise the NEAT instance
     options.network = this;
     var neat = new Neat(0, 0, fitnessFunction, options);
 
     var error = -Infinity;
     var bestFitness = -Infinity;
-    var bestGenome = null;
+    var bestGenome;
 
-    while (error < -targetError && (iterations === 0 || neat.generation < iterations)) {
-      neat.evolve();
-      let fittest = neat.getFittest();
+    while (error < -targetError && (options.iterations === 0 || neat.generation < options.iterations)) {
+      let fittest = await neat.evolve();
       let fitness = fittest.score;
       error = fitness + (fittest.nodes.length - fittest.input - fittest.output + fittest.connections.length + fittest.gates.length) * growth;
 
@@ -859,192 +924,25 @@ Network.prototype = {
         bestGenome = fittest;
       }
 
-      if (log && neat.generation % log === 0) {
-        console.log('generation', neat.generation, 'fitness', fitness, 'error', -error);
+      if (options.log && neat.generation % options.log === 0) {
+        console.log('iteration', neat.generation, 'fitness', fitness, 'error', -error);
       }
 
-      if (schedule && neat.generation % schedule.iterations === 0) {
-        schedule.function({
-          fitness: fitness,
-          error: -error,
-          iteration: neat.generation
-        });
+      if (options.schedule && neat.generation % options.schedule.iterations === 0) {
+        options.schedule.function({ fitness: fitness, error: -error, iteration: neat.generation });
       }
     }
 
-    if (clear) bestGenome.clear();
-
-    var results = {
-      error: bestFitness,
-      generations: neat.generation,
-      time: Date.now() - start
-    };
-
-    if (bestGenome != null) {
-      this.nodes = bestGenome.nodes;
-      this.connections = bestGenome.connections;
-      this.gates = bestGenome.gates;
-      this.selfconns = bestGenome.selfconns;
+    if (typeof bestGenome !== 'undefined') {
+      for (i in bestGenome) this[i] = bestGenome[i];
+      if (options.clear) this.clear();
     }
 
-    return results;
-  },
-
-  multiEvolve: async function (set, options) {
-    // Check for node
-    if (typeof window === 'undefined') {
-      throw new Error('multiEvolve() works only for browsers, please switch to evolve()!');
-    } else if (set[0].input.length !== this.input || set[0].output.length !== this.output) {
-      throw new Error('Dataset input/output size should be same as network input/output size!');
-    }
-
-    // Options
-    options = options || {};
-    var cost = options.cost || Methods.Cost.MSE;
-    var amount = options.amount || 1;
-    var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
-    var iterations = options.iterations || 0;
-    var targetError = typeof options.error !== 'undefined' ? options.error : 0.005;
-    var log = options.log || 0;
-    var clear = options.clear || false;
-    var schedule = options.schedule;
-    var start = performance.now();
-    var threads = options.threads || navigator.hardwareConcurrency;
-
-    // Create the Neat instance
-    options.network = this;
-    var neat = new Neat(this.input, this.output, null, options);
-
-    var error = -Infinity;
-    var bestFitness = -Infinity;
-    var bestGenome = null;
-
-    // Set up the dataSet
-    var converted = Multi.serializeDataSet(set);
-
-    // Create workers, send sets
-    var workers = [];
-    for (var i = 0; i < threads; i++) {
-      let worker = Multi.testWorker(cost);
-      let data = { set: new Float64Array(converted).buffer };
-      worker.worker.postMessage(data, [data.set]);
-      workers.push(worker);
-    }
-
-    // Intialise worker variables
-    var queue;
-    var done;
-
-    // Loop the evolve process
-    while (error < -targetError && (iterations === 0 || neat.generation < iterations)) {
-      await new Promise((resolve, reject) => {
-        // Create a queue
-        queue = neat.population.slice();
-        done = 0;
-
-        // Start worker function
-        function startWorker (worker) {
-          if (!queue.length) {
-            if (++done === threads) resolve();
-            return;
-          }
-
-          var genome = queue.shift();
-          var network = genome.serialize();
-          var data = {
-            activations: network[0].buffer,
-            states: network[1].buffer,
-            conns: network[2].buffer
-          };
-
-          worker.worker.onmessage = function (e) {
-            genome.score = -new Float64Array(e.data.buffer)[0];
-            startWorker(worker);
-          };
-
-          worker.worker.postMessage(data, [data.activations, data.states, data.conns]);
-        }
-
-        for (var i = 0; i < workers.length; i++) {
-          startWorker(workers[i]);
-        }
-      });
-
-      neat.sort();
-
-      let fittest = neat.population[0];
-      let fitness = fittest.score;
-      error = fitness + (fittest.nodes.length - fittest.input - fittest.output + fittest.connections.length + fittest.gates.length) * growth;
-
-      if (fitness > bestFitness) {
-        bestFitness = fitness;
-        bestGenome = fittest;
-      }
-
-      var newPopulation = [];
-
-      // Elitism
-      var elitists = [];
-      for (i = 0; i < neat.elitism; i++) {
-        elitists.push(neat.population[i]);
-      }
-
-      // Provenance
-      for (i = 0; i < neat.provenance; i++) {
-        newPopulation.push(Network.fromJSON(neat.template.toJSON()));
-      }
-
-      // Breed the next individuals
-      for (i = 0; i < neat.popsize - neat.elitism - neat.provenance; i++) {
-        newPopulation.push(neat.getOffspring());
-      }
-
-      // Replace the old population with the new population
-      neat.population = newPopulation;
-      neat.mutate();
-
-      for (i = 0; i < elitists.length; i++) {
-        neat.population.push(elitists[i]);
-      }
-
-      // Reset the scores
-      for (i = 0; i < neat.population.length; i++) {
-        neat.population[i].score = null;
-      }
-
-      neat.generation++;
-
-      if (log && neat.generation % log === 0) {
-        console.log('generation', neat.generation, 'fitness', fitness, 'error', -error);
-      }
-
-      if (schedule && neat.generation % schedule.iterations === 0) {
-        schedule.function({ fitness: fitness, error: -error, iteration: neat.generation });
-      }
-    }
-
-    // Terminate and revoke workers
-    for (i = 0; i < workers.length; i++) {
-      workers[i].worker.terminate();
-      window.URL.revokeObjectURL(workers[i].url);
-    }
-
-    if (clear) bestGenome.clear();
-
-    var results = {
-      error: bestFitness,
+    return {
+      error: error,
       generations: neat.generation,
       time: performance.now() - start
     };
-
-    if (bestGenome != null) {
-      this.nodes = bestGenome.nodes;
-      this.connections = bestGenome.connections;
-      this.gates = bestGenome.gates;
-      this.selfconns = bestGenome.selfconns;
-    }
-
-    return results;
   },
 
   /**
@@ -1384,7 +1282,6 @@ Network.crossOver = function (network1, network2, equal) {
 
       // Because deleting is expensive, just set it to some value
       n2conns[keys1[i]] = undefined;
-      break;
     } else if (score1 >= score2 || equal) {
       connections.push(n1conns[keys1[i]]);
     }

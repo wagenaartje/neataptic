@@ -32,7 +32,8 @@ function Node (type) {
   // Batch training
   this.totalDeltaBias = 0;
 
-  this.connections = { in: [],
+  this.connections = {
+    in: [],
     out: [],
     gated: [],
     self: new Connection(this, this, 0)
@@ -191,8 +192,6 @@ Node.prototype = {
         connection.totalDeltaWeight = 0;
       }
     }
-
-    // note: MINI_BATCH SHALL BE OPTIMIZED SOON
 
     // Adjust bias
     var deltaBias = rate * this.error.responsibility;

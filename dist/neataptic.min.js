@@ -99,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 19);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -107,14 +107,14 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation: __webpack_require__(9),
-  Mutation: __webpack_require__(15),
-  Selection: __webpack_require__(17),
-  Crossover: __webpack_require__(13),
-  Cost: __webpack_require__(12),
-  Gating: __webpack_require__(14),
-  Connection: __webpack_require__(11),
-  Rate: __webpack_require__(16)
+  Activation: __webpack_require__(10),
+  Mutation: __webpack_require__(16),
+  Selection: __webpack_require__(18),
+  Crossover: __webpack_require__(14),
+  Cost: __webpack_require__(13),
+  Gating: __webpack_require__(15),
+  Connection: __webpack_require__(12),
+  Rate: __webpack_require__(17)
 };
 
 // CommonJS & AMD
@@ -180,7 +180,8 @@ function Node (type) {
   // Batch training
   this.totalDeltaBias = 0;
 
-  this.connections = { in: [],
+  this.connections = {
+    in: [],
     out: [],
     gated: [],
     self: new Connection(this, this, 0)
@@ -339,8 +340,6 @@ Node.prototype = {
         connection.totalDeltaWeight = 0;
       }
     }
-
-    // note: MINI_BATCH SHALL BE OPTIMIZED SOON
 
     // Adjust bias
     var deltaBias = rate * this.error.responsibility;
@@ -1284,8 +1283,9 @@ Layer.Memory = function (size, memory) {
 module.exports = Network;
 
 /* Import */
-var Connection = __webpack_require__(3);
 var Methods = __webpack_require__(0);
+var Connection = __webpack_require__(3);
+var WebWorker = __webpack_require__(9);
 var Config = __webpack_require__(2);
 var Multi = __webpack_require__(7);
 var Neat = __webpack_require__(8);
@@ -1295,7 +1295,7 @@ var Node = __webpack_require__(1);
 var Mutation = Methods.Mutation;
 
 /*******************************************************************************
-                                         NETWORK
+                                 NETWORK
 *******************************************************************************/
 
 function Network (input, output) {
@@ -1467,8 +1467,7 @@ Network.prototype = {
 
     // Get all its inputting nodes
     var inputs = [];
-    var i;
-    for (i = node.connections.in.length - 1; i >= 0; i--) {
+    for (var i = node.connections.in.length - 1; i >= 0; i--) {
       let connection = node.connections.in[i];
       if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
@@ -1766,38 +1765,35 @@ Network.prototype = {
    * Train the given set to this network
    */
   train: function (set, options) {
+    if (set[0].input.length !== this.input || set[0].output.length !== this.output) {
+      throw new Error('Dataset input/output size should be same as network input/output size!');
+    }
+
     options = options || {};
 
     // Warning messages
     if (typeof options.rate === 'undefined') {
       if (Config.warnings) console.warn('Using default learning rate, please define a rate!');
     }
-
     if (typeof options.iterations === 'undefined') {
       if (Config.warnings) console.warn('No target iterations given, running until error is reached!');
     }
 
-    var start = Date.now();
-
-    // Configure given options
-    var log = options.log || false;
+    // Read the options
     var targetError = options.error || 0.05;
     var cost = options.cost || Methods.Cost.MSE;
     var baseRate = options.rate || 0.3;
-    var shuffle = options.shuffle || false;
-    var iterations = options.iterations || 0;
-    var crossValidate = options.crossValidate || false;
-    var clear = options.clear || false;
     var dropout = options.dropout || 0;
     var momentum = options.momentum || 0;
     var batchSize = options.batchSize || 1; // online learning
     var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
-    var schedule = options.schedule;
 
-    if (batchSize > set.length) throw new Error('Batch size must be smaller or equal to dataset length!');
+    var start = performance.now();
 
-    if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
-      if (Config.warnings) console.warn('At least one of the following options must be specified: error, iterations');
+    if (batchSize > set.length) {
+      throw new Error('Batch size must be smaller or equal to dataset length!');
+    } else if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
+      throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
     }
@@ -1805,10 +1801,8 @@ Network.prototype = {
     // Save to network
     this.dropout = dropout;
 
-    if (crossValidate) {
-      var testSize = options.crossValidate.testSize;
-      var testError = options.crossValidate.testError;
-      var numTrain = Math.ceil((1 - testSize) * set.length);
+    if (options.crossValidate) {
+      let numTrain = Math.ceil((1 - options.crossValidate.testSize) * set.length);
       var trainSet = set.slice(0, numTrain);
       var testSet = set.slice(numTrain);
     }
@@ -1819,45 +1813,40 @@ Network.prototype = {
     var error = 1;
 
     var i, j, x;
-    while (error > targetError && (iterations === 0 || iteration < iterations)) {
-      if (crossValidate && error <= testError) break;
+    while (error > targetError && (options.iterations === 0 || iteration < options.iterations)) {
+      if (options.crossValidate && error <= options.crossValidate.testError) break;
 
       iteration++;
 
       // Update the rate
       currentRate = ratePolicy(baseRate, iteration);
 
-      error = 0;
-
       // Checks if cross validation is enabled
-      if (crossValidate) {
+      if (options.crossValidate) {
         this._trainSet(trainSet, batchSize, currentRate, momentum, cost);
-        if (clear) this.clear();
-        error += this.test(testSet, cost).error;
-        if (clear) this.clear();
+        if (options.clear) this.clear();
+        error = this.test(testSet, cost).error;
+        if (options.clear) this.clear();
       } else {
-        error += this._trainSet(set, batchSize, currentRate, momentum, cost);
-        if (clear) this.clear();
+        error = this._trainSet(set, batchSize, currentRate, momentum, cost);
+        if (options.clear) this.clear();
       }
 
       // Checks for options such as scheduled logs and shuffling
-      if (shuffle) {
+      if (options.shuffle) {
         for (j, x, i = set.length; i; j = Math.floor(Math.random() * i), x = set[--i], set[i] = set[j], set[j] = x);
       }
 
-      if (log && iteration % log === 0) {
+      if (options.log && iteration % options.log === 0) {
         console.log('iteration', iteration, 'error', error, 'rate', currentRate);
       }
 
-      if (schedule && iteration % schedule.iterations === 0) {
-        schedule.function({
-          error: error,
-          iteration: iteration
-        });
+      if (options.schedule && iteration % options.schedule.iterations === 0) {
+        options.schedule.function({ error: error, iteration: iteration });
       }
     }
 
-    if (clear) this.clear();
+    if (options.clear) this.clear();
 
     if (dropout) {
       for (i = 0; i < this.nodes.length; i++) {
@@ -1867,14 +1856,11 @@ Network.prototype = {
       }
     }
 
-    // Creates an object of the results
-    var results = {
+    return {
       error: error,
       iterations: iteration,
-      time: Date.now() - start
+      time: performance.now() - start
     };
-
-    return results;
   },
 
   /**
@@ -2114,9 +2100,7 @@ Network.prototype = {
 
     var start = performance.now();
 
-    if (threads > 1 && typeof window === 'undefined') {
-      throw new Error('Using multiple threads is only possible in the browser!');
-    } else if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
+    if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
@@ -2137,16 +2121,17 @@ Network.prototype = {
         return score / amount;
       };
     } else {
+      if (typeof window === 'undefined') {
+        throw new Error('Multithreading is not yet supported by Neataptic for Node.js');
+      }
+
       // Serialize the dataset
       var converted = Multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
       for (var i = 0; i < threads; i++) {
-        let worker = Multi.testWorker(cost);
-        let data = { set: new Float64Array(converted).buffer };
-        worker.worker.postMessage(data, [data.set]);
-        workers.push(worker);
+        workers.push(new WebWorker(converted, cost));
       }
 
       fitnessFunction = function (population) {
@@ -2163,20 +2148,7 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            var network = genome.serialize();
-            var data = {
-              activations: network[0].buffer,
-              states: network[1].buffer,
-              conns: network[2].buffer
-            };
-
-            worker.worker.onmessage = function (e) {
-              genome.score = -new Float64Array(e.data.buffer)[0];
-              genome.score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
-              startWorker(worker);
-            };
-
-            worker.worker.postMessage(data, [data.activations, data.states, data.conns]);
+            worker.evaluate(genome, growth, startWorker);
           };
 
           for (var i = 0; i < workers.length; i++) {
@@ -2215,6 +2187,10 @@ Network.prototype = {
       }
     }
 
+    if(threads > 1){
+      for(var i = 0; i < workers.length; i++) workers[i].terminate();
+    }
+
     if (typeof bestGenome !== 'undefined') {
       for (i in bestGenome) this[i] = bestGenome[i];
       if (options.clear) this.clear();
@@ -2222,7 +2198,7 @@ Network.prototype = {
 
     return {
       error: error,
-      generations: neat.generation,
+      iterations: neat.generation,
       time: performance.now() - start
     };
   },
@@ -2607,27 +2583,6 @@ Network.crossOver = function (network1, network2, equal) {
                         used to set up workers and such
 *******************************************************************************/
 
-var compiledActivations = [
-  function (x) { return 1 / (1 + Math.exp(-x)); },
-  function (x) { return Math.tanh(x); },
-  function (x) { return x; },
-  function (x) { return x > 0 ? 1 : 0; },
-  function (x) { return x > 0 ? x : 0; },
-  function (x) { return x / (1 + Math.abs(x)); },
-  function (x) { return Math.sin(x); },
-  function (x) { return Math.exp(-Math.pow(x, 2)); },
-  function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
-  function (x) { return x > 0 ? 1 : -1; },
-  function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
-  function (x) { return Math.max(-1, Math.min(1, x)); },
-  function (x) { return Math.abs(x); },
-  function (x) { return 1 - x; },
-  function (x) {
-    var a = 1.6732632423543772848170429916717;
-    return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
-  }
-];
-
 module.exports = {
   /**
    * Converts a dataset to a single array, which can be used to create Float64Array
@@ -2649,76 +2604,74 @@ module.exports = {
   },
 
   /**
-   * Returns a worker that tests networks on a dataset
+   * Snippets that can be used to construct workers
    */
-  testWorker: function (cost) {
-    var source = '';
-    source += `var F = [${compiledActivations.toString()}];`;
-    source += `var cost = ${cost.toString()};`;
-    source += 'var set;';
-
-    var onmessage = function (e) {
-      if(typeof e.data.set === 'undefined'){
-        var A = new Float64Array(e.data.activations);
-        var S = new Float64Array(e.data.states);
-        var data = new Float64Array(e.data.conns);
-
-        function activate (input) {
-          var i;
-          for (i = 0; i < data[0]; i++) A[i] = input[i];
-          for (i = 2; i < data.length; i++) {
-            let index = data[i++];
-            S[index] = data[i++]; // bias
-            let squash = data[i++];
-            while (data[i] !== -2) {
-              if (index === A[data[i]]) { // selfconn
-                S[index] += S[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
-              } else { // normal conn
-                S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
-              }
-            }
-            A[index] = F[squash](S[index]);
-          }
-
-          var output = [];
-          for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
-          return output;
-        }
-
-        var ins = set[0];
-        var out = set[1];
-
-        var error = 0;
-        // Calculate how much samples are in the set
-        for (var i = 0; i < (set.length - 2) / (ins + out); i++) {
-          let input = [];
-          var j;
-          for (j = 2 + i * (ins + out); j < 2 + i * (ins + out) + ins; j++) {
-            input.push(set[j]);
-          }
-          let target = [];
-          for (j = 2 + i * (ins + out) + ins; j < 2 + i * (ins + out) + ins + out; j++) {
-            target.push(set[j]);
-          }
-
-          let output = activate(input);
-          error += cost(target, output);
-        }
-
-        var answer = { buffer: new Float64Array([error / ((set.length - 2) / (ins + out))]).buffer };
-        postMessage(answer, [answer.buffer]);
-      } else {
-        set = new Float64Array(e.data.set);
+  snippets: {
+    activations: [
+      function (x) { return 1 / (1 + Math.exp(-x)); },
+      function (x) { return Math.tanh(x); },
+      function (x) { return x; },
+      function (x) { return x > 0 ? 1 : 0; },
+      function (x) { return x > 0 ? x : 0; },
+      function (x) { return x / (1 + Math.abs(x)); },
+      function (x) { return Math.sin(x); },
+      function (x) { return Math.exp(-Math.pow(x, 2)); },
+      function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
+      function (x) { return x > 0 ? 1 : -1; },
+      function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
+      function (x) { return Math.max(-1, Math.min(1, x)); },
+      function (x) { return Math.abs(x); },
+      function (x) { return 1 - x; },
+      function (x) {
+        var a = 1.6732632423543772848170429916717;
+        return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
       }
-    };
+    ],
 
-    source += `onmessage = ${onmessage.toString()}`;
+    activate: function (input) {
+      for (var i = 0; i < data[0]; i++) A[i] = input[i];
+      for (i = 2; i < data.length; i++) {
+        let index = data[i++];
+        S[index] = data[i++]; // bias
+        let squash = data[i++];
+        while (data[i] !== -2) {
+          if (index === A[data[i]]) { // selfconn
+            S[index] += S[data[i++]] * data[i++] *
+              (data[i++] === -1 ? 1 : A[data[i - 1]]);
+          } else { // normal conn
+            S[index] += A[data[i++]] * data[i++] *
+              (data[i++] === -1 ? 1 : A[data[i - 1]]);
+          }
+        }
+        A[index] = F[squash](S[index]);
+      }
 
-    var blob = new Blob([source]);
-    var blobURL = window.URL.createObjectURL(blob);
-    var worker = new Worker(blobURL);
+      var output = [];
+      for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
+      return output;
+    },
 
-    return { url: blobURL, worker: worker };
+    testSerializedSet: function (set) {
+      var inOut = set[0] + set[1];
+
+      // Calculate how much samples are in the set
+      var error = 0;
+      for (var i = 0; i < (set.length - 2) / inOut; i++) {
+        let input = [];
+        for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
+          input.push(set[j]);
+        }
+        let target = [];
+        for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
+          target.push(set[j]);
+        }
+
+        let output = activate(input);
+        error += cost(target, output);
+      }
+
+      return error / ((set.length - 2) / inOut);
+    }
   }
 };
 
@@ -3016,6 +2969,84 @@ Neat.prototype = {
 
 /***/ }),
 /* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* Export */
+module.exports = WebWorker;
+
+/* Import */
+var Multi = __webpack_require__(7);
+
+/*******************************************************************************
+                                WEBWORKER
+*******************************************************************************/
+
+function WebWorker (dataSet, cost) {
+  var blob = new Blob([this._createBlobString(cost)]);
+  this.url = window.URL.createObjectURL(blob);
+  this.worker = new Worker(this.url);
+
+  var data = { set: new Float64Array(dataSet).buffer };
+  this.worker.postMessage(data, [data.set]);
+}
+
+WebWorker.prototype = {
+  evaluate: async function (network, growth, callback) {
+    var serialzed = network.serialize();
+
+    var data = {
+      activations: serialzed[0].buffer,
+      states: serialzed[1].buffer,
+      conns: serialzed[2].buffer
+    };
+
+    var _this = this;
+    this.worker.onmessage = function (e) {
+      network.score = -new Float64Array(e.data.buffer)[0];
+      network.score -= (network.nodes.length - network.input - network.output +
+        network.connections.length + network.gates.length) * growth;
+      callback(_this);
+    };
+
+    this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+  },
+
+  terminate: async function () {
+    this.worker.terminate();
+    window.URL.revokeObjectURL(this.url);
+  },
+
+  _createBlobString: function (cost) {
+    var source = `
+      var A, S, data;
+      var F = [${Multi.snippets.activations.toString()}];
+      var cost = ${cost.toString()};
+      var test = ${Multi.snippets.testSerializedSet.toString()};
+      var activate = ${Multi.snippets.activate.toString()};
+      var set;
+
+      var onmessage = function (e) {
+        if(typeof e.data.set === 'undefined'){
+          A = new Float64Array(e.data.activations);
+          S = new Float64Array(e.data.states);
+          data = new Float64Array(e.data.conns);
+
+          var error = test(set);
+
+          var answer = { buffer: new Float64Array([error ]).buffer };
+          postMessage(answer, [answer.buffer]);
+        } else {
+          set = new Float64Array(e.data.set);
+        }
+      };`;
+
+    return source;
+  }
+};
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3098,7 +3129,7 @@ module.exports = Activation;
 
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
@@ -3473,7 +3504,7 @@ module.exports = Architect;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3498,7 +3529,7 @@ module.exports = Connection;
 
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3577,7 +3608,7 @@ module.exports = Cost;
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3607,7 +3638,7 @@ module.exports = Crossover;
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3632,11 +3663,11 @@ module.exports = Gating;
 
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
-var Activation = __webpack_require__(9);
+var Activation = __webpack_require__(10);
 
 /*******************************************************************************
                                       MUTATION
@@ -3745,7 +3776,7 @@ module.exports = Mutation;
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3794,7 +3825,7 @@ module.exports = Rate;
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3823,20 +3854,21 @@ module.exports = Selection;
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   Methods: __webpack_require__(0),
   Connection: __webpack_require__(3),
-  Architect: __webpack_require__(10),
+  Architect: __webpack_require__(11),
   Network: __webpack_require__(6),
   Config: __webpack_require__(2),
   Group: __webpack_require__(4),
   Layer: __webpack_require__(5),
   Node: __webpack_require__(1),
   Neat: __webpack_require__(8),
-  Multi: __webpack_require__(7)
+  Multi: __webpack_require__(7),
+  WebWorker: __webpack_require__(9)
 };
 
 // CommonJS & AMD

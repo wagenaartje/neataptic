@@ -8,7 +8,8 @@ var Neataptic = {
   Layer: require('./architecture/layer'),
   Node: require('./architecture/node'),
   Neat: require('./neat'),
-  Multi: require('./multi')
+  Multi: require('./multi'),
+  WebWorker: require('./webworker')
 };
 
 // CommonJS & AMD

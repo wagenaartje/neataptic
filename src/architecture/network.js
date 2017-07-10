@@ -2,8 +2,9 @@
 module.exports = Network;
 
 /* Import */
-var Connection = require('./connection');
 var Methods = require('../methods/methods');
+var Connection = require('./connection');
+var WebWorker = require('../webworker');
 var Config = require('../config');
 var Multi = require('../multi');
 var Neat = require('../neat');
@@ -13,7 +14,7 @@ var Node = require('./node');
 var Mutation = Methods.Mutation;
 
 /*******************************************************************************
-                                         NETWORK
+                                 NETWORK
 *******************************************************************************/
 
 function Network (input, output) {
@@ -185,8 +186,7 @@ Network.prototype = {
 
     // Get all its inputting nodes
     var inputs = [];
-    var i;
-    for (i = node.connections.in.length - 1; i >= 0; i--) {
+    for (var i = node.connections.in.length - 1; i >= 0; i--) {
       let connection = node.connections.in[i];
       if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
@@ -484,38 +484,35 @@ Network.prototype = {
    * Train the given set to this network
    */
   train: function (set, options) {
+    if (set[0].input.length !== this.input || set[0].output.length !== this.output) {
+      throw new Error('Dataset input/output size should be same as network input/output size!');
+    }
+
     options = options || {};
 
     // Warning messages
     if (typeof options.rate === 'undefined') {
       if (Config.warnings) console.warn('Using default learning rate, please define a rate!');
     }
-
     if (typeof options.iterations === 'undefined') {
       if (Config.warnings) console.warn('No target iterations given, running until error is reached!');
     }
 
-    var start = Date.now();
-
-    // Configure given options
-    var log = options.log || false;
+    // Read the options
     var targetError = options.error || 0.05;
     var cost = options.cost || Methods.Cost.MSE;
     var baseRate = options.rate || 0.3;
-    var shuffle = options.shuffle || false;
-    var iterations = options.iterations || 0;
-    var crossValidate = options.crossValidate || false;
-    var clear = options.clear || false;
     var dropout = options.dropout || 0;
     var momentum = options.momentum || 0;
     var batchSize = options.batchSize || 1; // online learning
     var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
-    var schedule = options.schedule;
 
-    if (batchSize > set.length) throw new Error('Batch size must be smaller or equal to dataset length!');
+    var start = performance.now();
 
-    if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
-      if (Config.warnings) console.warn('At least one of the following options must be specified: error, iterations');
+    if (batchSize > set.length) {
+      throw new Error('Batch size must be smaller or equal to dataset length!');
+    } else if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
+      throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
     }
@@ -523,10 +520,8 @@ Network.prototype = {
     // Save to network
     this.dropout = dropout;
 
-    if (crossValidate) {
-      var testSize = options.crossValidate.testSize;
-      var testError = options.crossValidate.testError;
-      var numTrain = Math.ceil((1 - testSize) * set.length);
+    if (options.crossValidate) {
+      let numTrain = Math.ceil((1 - options.crossValidate.testSize) * set.length);
       var trainSet = set.slice(0, numTrain);
       var testSet = set.slice(numTrain);
     }
@@ -537,45 +532,40 @@ Network.prototype = {
     var error = 1;
 
     var i, j, x;
-    while (error > targetError && (iterations === 0 || iteration < iterations)) {
-      if (crossValidate && error <= testError) break;
+    while (error > targetError && (options.iterations === 0 || iteration < options.iterations)) {
+      if (options.crossValidate && error <= options.crossValidate.testError) break;
 
       iteration++;
 
       // Update the rate
       currentRate = ratePolicy(baseRate, iteration);
 
-      error = 0;
-
       // Checks if cross validation is enabled
-      if (crossValidate) {
+      if (options.crossValidate) {
         this._trainSet(trainSet, batchSize, currentRate, momentum, cost);
-        if (clear) this.clear();
-        error += this.test(testSet, cost).error;
-        if (clear) this.clear();
+        if (options.clear) this.clear();
+        error = this.test(testSet, cost).error;
+        if (options.clear) this.clear();
       } else {
-        error += this._trainSet(set, batchSize, currentRate, momentum, cost);
-        if (clear) this.clear();
+        error = this._trainSet(set, batchSize, currentRate, momentum, cost);
+        if (options.clear) this.clear();
       }
 
       // Checks for options such as scheduled logs and shuffling
-      if (shuffle) {
+      if (options.shuffle) {
         for (j, x, i = set.length; i; j = Math.floor(Math.random() * i), x = set[--i], set[i] = set[j], set[j] = x);
       }
 
-      if (log && iteration % log === 0) {
+      if (options.log && iteration % options.log === 0) {
         console.log('iteration', iteration, 'error', error, 'rate', currentRate);
       }
 
-      if (schedule && iteration % schedule.iterations === 0) {
-        schedule.function({
-          error: error,
-          iteration: iteration
-        });
+      if (options.schedule && iteration % options.schedule.iterations === 0) {
+        options.schedule.function({ error: error, iteration: iteration });
       }
     }
 
-    if (clear) this.clear();
+    if (options.clear) this.clear();
 
     if (dropout) {
       for (i = 0; i < this.nodes.length; i++) {
@@ -585,14 +575,11 @@ Network.prototype = {
       }
     }
 
-    // Creates an object of the results
-    var results = {
+    return {
       error: error,
       iterations: iteration,
-      time: Date.now() - start
+      time: performance.now() - start
     };
-
-    return results;
   },
 
   /**
@@ -832,9 +819,7 @@ Network.prototype = {
 
     var start = performance.now();
 
-    if (threads > 1 && typeof window === 'undefined') {
-      throw new Error('Using multiple threads is only possible in the browser!');
-    } else if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
+    if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
@@ -855,16 +840,17 @@ Network.prototype = {
         return score / amount;
       };
     } else {
+      if (typeof window === 'undefined') {
+        throw new Error('Multithreading is not yet supported by Neataptic for Node.js');
+      }
+
       // Serialize the dataset
       var converted = Multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
       for (var i = 0; i < threads; i++) {
-        let worker = Multi.testWorker(cost);
-        let data = { set: new Float64Array(converted).buffer };
-        worker.worker.postMessage(data, [data.set]);
-        workers.push(worker);
+        workers.push(new WebWorker(converted, cost));
       }
 
       fitnessFunction = function (population) {
@@ -881,20 +867,7 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            var network = genome.serialize();
-            var data = {
-              activations: network[0].buffer,
-              states: network[1].buffer,
-              conns: network[2].buffer
-            };
-
-            worker.worker.onmessage = function (e) {
-              genome.score = -new Float64Array(e.data.buffer)[0];
-              genome.score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;
-              startWorker(worker);
-            };
-
-            worker.worker.postMessage(data, [data.activations, data.states, data.conns]);
+            worker.evaluate(genome, growth, startWorker);
           };
 
           for (var i = 0; i < workers.length; i++) {
@@ -933,6 +906,10 @@ Network.prototype = {
       }
     }
 
+    if(threads > 1){
+      for(var i = 0; i < workers.length; i++) workers[i].terminate();
+    }
+
     if (typeof bestGenome !== 'undefined') {
       for (i in bestGenome) this[i] = bestGenome[i];
       if (options.clear) this.clear();
@@ -940,7 +917,7 @@ Network.prototype = {
 
     return {
       error: error,
-      generations: neat.generation,
+      iterations: neat.generation,
       time: performance.now() - start
     };
   },

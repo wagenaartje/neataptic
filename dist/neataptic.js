@@ -1788,7 +1788,7 @@ Network.prototype = {
     var batchSize = options.batchSize || 1; // online learning
     var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
 
-    var start = performance.now();
+    var start = Date.now();
 
     if (batchSize > set.length) {
       throw new Error('Batch size must be smaller or equal to dataset length!');
@@ -1859,7 +1859,7 @@ Network.prototype = {
     return {
       error: error,
       iterations: iteration,
-      time: performance.now() - start
+      time: Date.now() - start
     };
   },
 
@@ -2098,7 +2098,7 @@ Network.prototype = {
     var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    var start = performance.now();
+    var start = Date.now();
 
     if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
       throw new Error('At least one of the following options must be specified: error, iterations');
@@ -2148,7 +2148,13 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            worker.evaluate(genome, growth, startWorker);
+
+            worker.evaluate(genome).then(function (result) {
+              genome.score = -result;
+              genome.score -= (genome.nodes.length - genome.input - genome.output +
+                genome.connections.length + genome.gates.length) * growth;
+              startWorker(worker);
+            });
           };
 
           for (var i = 0; i < workers.length; i++) {
@@ -2199,7 +2205,7 @@ Network.prototype = {
     return {
       error: error,
       iterations: neat.generation,
-      time: performance.now() - start
+      time: Date.now() - start
     };
   },
 
@@ -2830,8 +2836,7 @@ Neat.prototype = {
       for (var i = 0; i < this.population.length; i++) {
         var genome = this.population[i];
         if (this.clear) genome.clear();
-        var score = await this.fitness(genome);
-        this.population[i].score = score;
+        genome.score = await this.fitness(genome);
       }
     }
   },
@@ -2991,24 +2996,23 @@ function WebWorker (dataSet, cost) {
 }
 
 WebWorker.prototype = {
-  evaluate: async function (network, growth, callback) {
-    var serialzed = network.serialize();
+  evaluate: function (network) {
+    return new Promise((resolve, reject) => {
+      var serialzed = network.serialize();
 
-    var data = {
-      activations: serialzed[0].buffer,
-      states: serialzed[1].buffer,
-      conns: serialzed[2].buffer
-    };
+      var data = {
+        activations: serialzed[0].buffer,
+        states: serialzed[1].buffer,
+        conns: serialzed[2].buffer
+      };
 
-    var _this = this;
-    this.worker.onmessage = function (e) {
-      network.score = -new Float64Array(e.data.buffer)[0];
-      network.score -= (network.nodes.length - network.input - network.output +
-        network.connections.length + network.gates.length) * growth;
-      callback(_this);
-    };
+      this.worker.onmessage = function (e) {
+        var error = new Float64Array(e.data.buffer)[0];
+        resolve(error);
+      };
 
-    this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+      this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+    });
   },
 
   terminate: async function () {

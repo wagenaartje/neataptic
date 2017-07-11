@@ -507,7 +507,7 @@ Network.prototype = {
     var batchSize = options.batchSize || 1; // online learning
     var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
 
-    var start = performance.now();
+    var start = Date.now();
 
     if (batchSize > set.length) {
       throw new Error('Batch size must be smaller or equal to dataset length!');
@@ -578,7 +578,7 @@ Network.prototype = {
     return {
       error: error,
       iterations: iteration,
-      time: performance.now() - start
+      time: Date.now() - start
     };
   },
 
@@ -817,7 +817,7 @@ Network.prototype = {
     var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    var start = performance.now();
+    var start = Date.now();
 
     if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
       throw new Error('At least one of the following options must be specified: error, iterations');
@@ -867,7 +867,13 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            worker.evaluate(genome, growth, startWorker);
+
+            worker.evaluate(genome).then(function (result) {
+              genome.score = -result;
+              genome.score -= (genome.nodes.length - genome.input - genome.output +
+                genome.connections.length + genome.gates.length) * growth;
+              startWorker(worker);
+            });
           };
 
           for (var i = 0; i < workers.length; i++) {
@@ -918,7 +924,7 @@ Network.prototype = {
     return {
       error: error,
       iterations: neat.generation,
-      time: performance.now() - start
+      time: Date.now() - start
     };
   },
 

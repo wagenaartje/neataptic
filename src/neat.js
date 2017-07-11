@@ -148,8 +148,7 @@ Neat.prototype = {
       for (var i = 0; i < this.population.length; i++) {
         var genome = this.population[i];
         if (this.clear) genome.clear();
-        var score = await this.fitness(genome);
-        this.population[i].score = score;
+        genome.score = await this.fitness(genome);
       }
     }
   },

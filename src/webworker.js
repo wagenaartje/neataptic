@@ -18,24 +18,23 @@ function WebWorker (dataSet, cost) {
 }
 
 WebWorker.prototype = {
-  evaluate: async function (network, growth, callback) {
-    var serialzed = network.serialize();
+  evaluate: function (network) {
+    return new Promise((resolve, reject) => {
+      var serialzed = network.serialize();
 
-    var data = {
-      activations: serialzed[0].buffer,
-      states: serialzed[1].buffer,
-      conns: serialzed[2].buffer
-    };
+      var data = {
+        activations: serialzed[0].buffer,
+        states: serialzed[1].buffer,
+        conns: serialzed[2].buffer
+      };
 
-    var _this = this;
-    this.worker.onmessage = function (e) {
-      network.score = -new Float64Array(e.data.buffer)[0];
-      network.score -= (network.nodes.length - network.input - network.output +
-        network.connections.length + network.gates.length) * growth;
-      callback(_this);
-    };
+      this.worker.onmessage = function (e) {
+        var error = new Float64Array(e.data.buffer)[0];
+        resolve(error);
+      };
 
-    this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+      this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+    });
   },
 
   terminate: async function () {

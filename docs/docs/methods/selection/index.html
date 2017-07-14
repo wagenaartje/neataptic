@@ -272,15 +272,15 @@ few have been integrated until now.</p>
 </thead>
 <tbody>
 <tr>
-<td>Selection.POWER</td>
+<td>selection.POWER</td>
 <td></td>
 </tr>
 <tr>
-<td>Selection.FITNESS_PROPORTIONATE</td>
+<td>selection.FITNESS_PROPORTIONATE</td>
 <td></td>
 </tr>
 <tr>
-<td>Selection.TOURNAMENT</td>
+<td>selection.TOURNAMENT</td>
 <td></td>
 </tr>
 </tbody>
@@ -289,12 +289,12 @@ few have been integrated until now.</p>
 <h3 id="usage">Usage</h3>
 <p>You can specify your selection method while calling the <code>evolve()</code> function on a
 network or when constructing a new instance of the <code>NEAT</code> algorithm:</p>
-<pre><code class="javascript">var myNetwork = new Architect.Perceptron(1,1,1);
+<pre><code class="javascript">var myNetwork = new architect.Perceptron(1,1,1);
 var myTrainingSet = [{ input:[0], output:[1]}, { input:[1], output:[0]}];
 
 myNetwork.evolve(myTrainingSet, {
   generations: 10,
-  selection: Methods.Selection.POWER // eg.
+  selection: methods.selection.POWER // eg.
 });
 </code></pre>
 
@@ -305,37 +305,37 @@ the previous generation to the new generation, without any crossover steps in
 between. At the moment, elitism is only possible inside a <code>Neat</code> object. They
 can be passed on as follows:</p>
 <pre><code class="javascript">var evolution = new Neat({
-  selection: Methods.Selection.FITNESS_PROPORTIONATE,
+  selection: methods.selection.FITNESS_PROPORTIONATE,
   elitism: 5 // amount of neural networks to keep from generation to generation
 });
 </code></pre>
 
-<h4 id="selectionpower">Selection.POWER</h4>
+<h4 id="methodsselectionpower">methods.selection.POWER</h4>
 <p>When using this selection method, a random decimal value between 0 and 1 will
 be generated. E.g. <code>0.5</code>, then this value will get an exponential value, the
 default power is <code>4</code>. So <code>0.5**4 = 0.0625</code>. This will be converted into an index
 for the array of the current population, which is sorted from fittest to worst.</p>
 <p><strong>Config:</strong></p>
 <ul>
-<li><em>Selection.POWER.power</em> : default is <code>4</code>. Increasing this value will increase the
-chance fitter genomes are chosen.</li>
+<li><em>methods.selection.POWER.power</em> : default is <code>4</code>. Increasing this value will
+increase the chance fitter genomes are chosen.</li>
 </ul>
-<h4 id="selectionfitness_proportionate">Selection.FITNESS_PROPORTIONATE</h4>
+<h4 id="methodsselectionfitness_proportionate">methods.selection.FITNESS_PROPORTIONATE</h4>
 <p>This selection method will select genomes with a probability proportionate to their fitness:</p>
 <p><img alt="Formula" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/89d0cb75150cdb5ad94ba7b168f217f9c290ee09" /></p>
 <p>Read more about roulette selection <a href="https://en.wikipedia.org/wiki/Fitness_proportionate_selection">here</a>.</p>
-<h4 id="selectiontournament">Selection.TOURNAMENT</h4>
+<h4 id="methodsselectiontournament">methods.selection.TOURNAMENT</h4>
 <p>This selection method will select a group of genomes from the population randomly,
 sort them by score, and choose the fittest individual with probability <code>p</code>, the
 second fittest with probability <code>p*(1-p)</code>, the third fittest with probability
  <code>p*((1-p)^2)</code>and so on. Read more <a href="https://en.wikipedia.org/wiki/Tournament_selection">here</a>.</p>
 <p><strong>Config:</strong></p>
 <ul>
-<li><em>Selection.TOURNAMENT.size</em> : default is <code>5</code>. Must always be lower than
-the population size.
-A higher value will result in a population that has more equal, but fitter, parents.</li>
-<li><em>Selection.TOURNAMENT.probability</em> : default is <code>0.5</code>. See the explanation above
-on how it is implemented.</li>
+<li><em>methods.selection.TOURNAMENT.size</em> : default is <code>5</code>. Must always be lower than
+the population size. A higher value will result in a population that has more
+equal, but fitter, parents.</li>
+<li><em>methods.selection.TOURNAMENT.probability</em> : default is <code>0.5</code>. See the
+explanation above on how it is implemented.</li>
 </ul>
         </div>
         

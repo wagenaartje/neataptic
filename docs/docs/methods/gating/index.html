@@ -258,12 +258,15 @@
           <h1 style="margin-bottom: 0px;">Gating</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\gating.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>Gating is quite the interesting: it makes the weights in networks more dynamic, by adapting them to their gating node. Read more about it <a href="https://en.wikipedia.org/wiki/Synaptic_gating">here</a>. For specific implementation of gating, check out the <a href="../../architecture/node/">Node</a>, <a href="../../architecture/group/">Group</a> and <a href="../../architecture/network/">Network</a> wikis!</p>
+          <p>Gating is quite the interesting: it makes the weights in networks more dynamic,
+by adapting them to their gating node. Read more about it <a href="https://en.wikipedia.org/wiki/Synaptic_gating">here</a>.
+For specific implementation of gating, check out the <a href="../../architecture/node/">Node</a>,
+<a href="../../architecture/group/">Group</a> and <a href="../../architecture/network/">Network</a> wikis!</p>
 <p>There are 3 gating methods:</p>
 <ul>
-<li><strong>Methods.Gating.OUTPUT</strong> every node in the gating group will gate (at least) 1 node in the emitting group and all its connections to the other, receiving group</li>
-<li><strong>Methods.Gating.INPUT</strong> every node in the gating group will gate (at least) 1 node in the receiving group and all its connections from the other, emitting group</li>
-<li><strong>Methods.Gating.SELF</strong> every node in the gating group will gate (at least) 1 self connection in the emitting/receiving group</li>
+<li><strong>methods.gating.OUTPUT</strong> every node in the gating group will gate (at least) 1 node in the emitting group and all its connections to the other, receiving group</li>
+<li><strong>methods.gating.INPUT</strong> every node in the gating group will gate (at least) 1 node in the receiving group and all its connections from the other, emitting group</li>
+<li><strong>methods.gating.SELF</strong> every node in the gating group will gate (at least) 1 self connection in the emitting/receiving group</li>
 </ul>
         </div>
         

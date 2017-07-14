@@ -78,8 +78,8 @@ network.evolve(set, {
   mutationRate: 0.6,
   elisitm: 5,
   popSize: 100,
-  mutation: Methods.Mutation.FFW,
-  cost: Methods.Cost.MSE
+  mutation: methods.mutation.FFW,
+  cost: methods.cost.MSE
 });
 ```
 

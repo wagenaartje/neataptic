@@ -59,7 +59,7 @@ Creates connections between this group and another group or node. There are diff
 var A = new Group(4);
 var B = new Group(5);
 
-A.connect(B, Methods.Connection.ALL_TO_ALL); // specifying a method is optional
+A.connect(B, methods.connection.ALL_TO_ALL); // specifying a method is optional
 ```
 
 ### disconnect
@@ -77,7 +77,7 @@ var connections = A.connect(B);
 var C = new Group(2);
 
 // Gate the connections between groups A and B
-C.gate(connections, Methods.Gating.INPUT);
+C.gate(connections, methods.gating.INPUT);
 ```
 
 ### set

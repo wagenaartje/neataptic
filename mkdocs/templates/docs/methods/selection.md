@@ -11,9 +11,9 @@ At the moment, there are 3 built-in selection methods:
 
 Name |
 ---- |
-Selection.POWER |
-Selection.FITNESS_PROPORTIONATE |
-Selection.TOURNAMENT |
+selection.POWER |
+selection.FITNESS_PROPORTIONATE |
+selection.TOURNAMENT |
 
 _A description on how each of these work is given below_
 
@@ -22,12 +22,12 @@ You can specify your selection method while calling the `evolve()` function on a
 network or when constructing a new instance of the `NEAT` algorithm:
 
 ```javascript
-var myNetwork = new Architect.Perceptron(1,1,1);
+var myNetwork = new architect.Perceptron(1,1,1);
 var myTrainingSet = [{ input:[0], output:[1]}, { input:[1], output:[0]}];
 
 myNetwork.evolve(myTrainingSet, {
   generations: 10,
-  selection: Methods.Selection.POWER // eg.
+  selection: methods.selection.POWER // eg.
 });
 ```
 
@@ -40,12 +40,12 @@ can be passed on as follows:
 
 ```javascript
 var evolution = new Neat({
-  selection: Methods.Selection.FITNESS_PROPORTIONATE,
+  selection: methods.selection.FITNESS_PROPORTIONATE,
   elitism: 5 // amount of neural networks to keep from generation to generation
 });
 ```
 
-#### Selection.POWER
+#### methods.selection.POWER
 When using this selection method, a random decimal value between 0 and 1 will
 be generated. E.g. `0.5`, then this value will get an exponential value, the
 default power is `4`. So `0.5**4 = 0.0625`. This will be converted into an index
@@ -53,17 +53,17 @@ for the array of the current population, which is sorted from fittest to worst.
 
 **Config:**
 
-* _Selection.POWER.power_ : default is `4`. Increasing this value will increase the
-chance fitter genomes are chosen.
+* _methods.selection.POWER.power_ : default is `4`. Increasing this value will
+increase the chance fitter genomes are chosen.
 
-#### Selection.FITNESS_PROPORTIONATE
+#### methods.selection.FITNESS_PROPORTIONATE
 This selection method will select genomes with a probability proportionate to their fitness:
 
 ![Formula](https://wikimedia.org/api/rest_v1/media/math/render/svg/89d0cb75150cdb5ad94ba7b168f217f9c290ee09)
 
 Read more about roulette selection [here](https://en.wikipedia.org/wiki/Fitness_proportionate_selection).
 
-#### Selection.TOURNAMENT
+#### methods.selection.TOURNAMENT
 This selection method will select a group of genomes from the population randomly,
 sort them by score, and choose the fittest individual with probability `p`, the
 second fittest with probability `p*(1-p)`, the third fittest with probability
@@ -71,8 +71,8 @@ second fittest with probability `p*(1-p)`, the third fittest with probability
 
 **Config:**
 
-* _Selection.TOURNAMENT.size_ : default is `5`. Must always be lower than
-the population size.
-A higher value will result in a population that has more equal, but fitter, parents.
-* _Selection.TOURNAMENT.probability_ : default is `0.5`. See the explanation above
-on how it is implemented.
+* _methods.selection.TOURNAMENT.size_ : default is `5`. Must always be lower than
+the population size. A higher value will result in a population that has more
+equal, but fitter, parents.
+* _methods.selection.TOURNAMENT.probability_ : default is `0.5`. See the
+explanation above on how it is implemented.

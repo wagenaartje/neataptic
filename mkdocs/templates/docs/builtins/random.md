@@ -5,7 +5,7 @@ keywords: recurrent, feed-forward, gates, neural-network, random, architecture
 A random network is similar to a liquid network. This network will start of with a given pool of nodes, and will then create random connections between them. This network is really only useful for the initialization of the population for a genetic algorithm.
 
 ```javascript
-new Architect.Random(input_size, hidden_size, output_size, options);
+new architect.Random(input_size, hidden_size, output_size, options);
 ```
 
 * `input_size` : amount of input nodes
@@ -21,7 +21,7 @@ Options:
 For example:
 
 ```javascript
-var network = Architect.Random(1, 20, 2, {
+var network = architect.Random(1, 20, 2, {
   connections: 40,
   gates: 4,
   selfconnections: 4

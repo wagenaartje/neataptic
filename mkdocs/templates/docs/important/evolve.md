@@ -10,8 +10,11 @@ The evolve function will evolve the network to conform the given training set. I
 Initiating the evolution of your neural network is easy:
 
 ```javascript
-myNetwork.evolve(trainingSet, options);
+await myNetwork.evolve(trainingSet, options);
 ```
+
+Please note that `await` is used as `evolve` is an `async` function. Thus, you
+need to wrap these statements in an async function.
 
 #### Training set
 Where `trainingSet` is your training set. An example is coming up ahead. An example
@@ -28,9 +31,9 @@ var trainingSet = [
 ```
 
 #### Options
-Please note that there are **a lot** of options, here are the basic options:
+There are **a lot** of options, here are the basic options:
 
-* `cost` - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: _Methods.Cost.MSE_ (recommended).
+* `cost` - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: _methods.cost.MSE_ (recommended).
 * `amount`- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is _1_.
 * `growth` - Set the penalty you want to give for large networks. The penalty get's calculated as follows: _penalty = (genome.nodes.length + genome.connectoins.length + genome.gates.length) * growth;_
 This penalty will get added on top of the error. Your growth should be a very small number, the default value is _0.0001_
@@ -40,6 +43,7 @@ This penalty will get added on top of the error. Your growth should be a very sm
 * `log` - If set to _n_, will output every _n_ iterations (_log : 1_ will log every iteration)
 * `schedule` -  You can schedule tasks to happen every _n_ iterations. An example of usage is _schedule : { function: function(){console.log(Date.now)}, iterations: 5}_. This will log the time every 5 iterations. This option allows for complex scheduled tasks during evolution.
 * `clear` - If set to _true_, will clear the network after every activation. This is useful for evolving recurrent networks, more importantly for timeseries prediction. Default: _false_
+* `threads` - Specify the amount of threads to use. Not supported for Node.js. Default value for browsers is the amount of cores in your CPU.
 
 Please note that you can also specify _any_ of the options that are specified on
 the [neat page](../neat.md).
@@ -48,7 +52,7 @@ An example of options would be:
 
 ```javascript
 var options = {
-  mutation: Methods.Mutation.ALL,
+  mutation: methods.mutation.ALL,
   mutationRate: 0.4,
   clear: true,
   cost: 0.03,
@@ -61,11 +65,11 @@ If you want to use the default options, you can either pass an empty object or
 just dismiss the whole second argument:
 
 ```javascript
-myNetwork.evolve(trainingSet, {});
+await myNetwork.evolve(trainingSet, {});
 
 // or
 
-myNetwork.evolve(trainingSet);
+await myNetwork.evolve(trainingSet);
 ```
 
 The default value will be used for any option that is not explicitly provided
@@ -89,26 +93,29 @@ return results = {
   <summary>XOR</summary>
    Activates the network. It will activate all the nodes in activation order and produce an output.
 <pre>
-var network = new Network(2,1);
+async function execute () {
+  var network = new Network(2,1);
 
-// XOR dataset
-var trainingSet = [
-  { input: [0,0], output: [0] },
-  { input: [0,1], output: [1] },
-  { input: [1,0], output: [1] },
-  { input: [1,1], output: [0] }
-];
+  // XOR dataset
+  var trainingSet = [
+    { input: [0,0], output: [0] },
+    { input: [0,1], output: [1] },
+    { input: [1,0], output: [1] },
+    { input: [1,1], output: [0] }
+  ];
 
-network.evolve(trainingSet, {
-  mutation: Methods.Mutation.FFW,
-  equal: true,
-  elitism: 5,
-  mutationRate: 0.5
-});
+  await network.evolve(trainingSet, {
+    mutation: methods.mutation.FFW,
+    equal: true,
+    elitism: 5,
+    mutationRate: 0.5
+  });
 
-network.activate([0,0]); // 0.2413
-network.activate([0,1]); // 1.0000
-network.activate([1,0]); // 0.7663
-network.activate([1,1]); // -0.008
-</pre>
+  network.activate([0,0]); // 0.2413
+  network.activate([0,1]); // 1.0000
+  network.activate([1,0]); // 0.7663
+  network.activate([1,1]); // -0.008
+}
+
+execute();</pre>
 </details>

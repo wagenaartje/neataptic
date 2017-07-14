@@ -262,9 +262,11 @@
 <p><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">View a whole bunch of neuroevolution algorithms set up with Neataptic here.</a></p>
 <h3 id="constructor">Constructor</h3>
 <p>Initiating the evolution of your neural network is easy:</p>
-<pre><code class="javascript">myNetwork.evolve(trainingSet, options);
+<pre><code class="javascript">await myNetwork.evolve(trainingSet, options);
 </code></pre>
 
+<p>Please note that <code>await</code> is used as <code>evolve</code> is an <code>async</code> function. Thus, you
+need to wrap these statements in an async function.</p>
 <h4 id="training-set">Training set</h4>
 <p>Where <code>trainingSet</code> is your training set. An example is coming up ahead. An example
 of a training set would be:</p>
@@ -278,9 +280,9 @@ var trainingSet = [
 </code></pre>
 
 <h4 id="options">Options</h4>
-<p>Please note that there are <strong>a lot</strong> of options, here are the basic options:</p>
+<p>There are <strong>a lot</strong> of options, here are the basic options:</p>
 <ul>
-<li><code>cost</code> - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: <em>Methods.Cost.MSE</em> (recommended).</li>
+<li><code>cost</code> - Specify the cost function for the evolution, this tells a genome in the population how well it's performing. Default: <em>methods.cost.MSE</em> (recommended).</li>
 <li><code>amount</code>- Set the amount of times to test the trainingset on a genome each generation. Useful for timeseries. Do not use for regular feedfoward problems. Default is <em>1</em>.</li>
 <li>
 <p><code>growth</code> - Set the penalty you want to give for large networks. The penalty get's calculated as follows: <em>penalty = (genome.nodes.length + genome.connectoins.length + genome.gates.length) * growth;</em>
@@ -293,12 +295,13 @@ This penalty will get added on top of the error. Your growth should be a very sm
 <li><code>log</code> - If set to <em>n</em>, will output every <em>n</em> iterations (<em>log : 1</em> will log every iteration)</li>
 <li><code>schedule</code> -  You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(){console.log(Date.now)}, iterations: 5}</em>. This will log the time every 5 iterations. This option allows for complex scheduled tasks during evolution.</li>
 <li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for evolving recurrent networks, more importantly for timeseries prediction. Default: <em>false</em></li>
+<li><code>threads</code> - Specify the amount of threads to use. Not supported for Node.js. Default value for browsers is the amount of cores in your CPU.</li>
 </ul>
 <p>Please note that you can also specify <em>any</em> of the options that are specified on
 the <a href="../../neat/">neat page</a>.</p>
 <p>An example of options would be:</p>
 <pre><code class="javascript">var options = {
-  mutation: Methods.Mutation.ALL,
+  mutation: methods.mutation.ALL,
   mutationRate: 0.4,
   clear: true,
   cost: 0.03,
@@ -309,11 +312,11 @@ the <a href="../../neat/">neat page</a>.</p>
 
 <p>If you want to use the default options, you can either pass an empty object or
 just dismiss the whole second argument:</p>
-<pre><code class="javascript">myNetwork.evolve(trainingSet, {});
+<pre><code class="javascript">await myNetwork.evolve(trainingSet, {});
 
 // or
 
-myNetwork.evolve(trainingSet);
+await myNetwork.evolve(trainingSet);
 </code></pre>
 
 <p>The default value will be used for any option that is not explicitly provided
@@ -333,25 +336,27 @@ in the options object.</p>
   <summary>XOR</summary>
    Activates the network. It will activate all the nodes in activation order and produce an output.
 <pre>
-var network = new Network(2,1);</p>
+async function execute () {
+  var network = new Network(2,1);</p>
 <p>// XOR dataset
-var trainingSet = [
-  { input: [0,0], output: [0] },
-  { input: [0,1], output: [1] },
-  { input: [1,0], output: [1] },
-  { input: [1,1], output: [0] }
-];</p>
-<p>network.evolve(trainingSet, {
-  mutation: Methods.Mutation.FFW,
-  equal: true,
-  elitism: 5,
-  mutationRate: 0.5
-});</p>
+  var trainingSet = [
+    { input: [0,0], output: [0] },
+    { input: [0,1], output: [1] },
+    { input: [1,0], output: [1] },
+    { input: [1,1], output: [0] }
+  ];</p>
+<p>await network.evolve(trainingSet, {
+    mutation: methods.mutation.FFW,
+    equal: true,
+    elitism: 5,
+    mutationRate: 0.5
+  });</p>
 <p>network.activate([0,0]); // 0.2413
-network.activate([0,1]); // 1.0000
-network.activate([1,0]); // 0.7663
-network.activate([1,1]); // -0.008
-</pre>
+  network.activate([0,1]); // 1.0000
+  network.activate([1,0]); // 0.7663
+  network.activate([1,1]); // -0.008
+}</p>
+<p>execute();</pre>
 </details></p>
         </div>
         

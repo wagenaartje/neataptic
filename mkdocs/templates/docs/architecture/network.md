@@ -9,7 +9,7 @@ Networks are very easy to create. All you have to do is specify an `input` size 
 var myNetwork = new Network(2, 1);
 
 // If you want to create multi-layered networks
-var myNetwork = new Architect.Perceptron(5, 20, 10, 5, 1);
+var myNetwork = new architect.Perceptron(5, 20, 10, 5, 1);
 ```
 
 If you want to create more advanced networks, check out the 'Networks' tab on the left.
@@ -74,8 +74,8 @@ network.propagate(learning_rate, momentum, update_weights, desired_output);
    The merge functions takes two networks, the output size of <code>network1</code> should be the same size as the input of <code>network2</code>. Merging will always be one to one to conserve the purpose of the networks. Usage:
 
 <pre>
-var XOR = Architect.Perceptron(2,4,1); // assume this is a trained XOR
-var NOT = Architect.Perceptron(1,2,1); // assume this is a trained NOT
+var XOR = architect.Perceptron(2,4,1); // assume this is a trained XOR
+var NOT = architect.Perceptron(1,2,1); // assume this is a trained NOT
 
 // combining these will create an XNOR
 var XNOR = Network.merge(XOR, NOT);
@@ -96,7 +96,7 @@ myNetwork.connect(myNetwork.nodes[4], myNetwork.nodes[5]);
    Removes a node from a network, all its connections will be redirected. If it gates a connection, the gate will be removed.
 
 <pre>
-myNetwork = new Architect.Perceptron(1,4,1);
+myNetwork = new architect.Perceptron(1,4,1);
 
 // Remove a node
 myNetwork.remove(myNetwork.nodes[2]);
@@ -129,7 +129,7 @@ Now the weight of connection 5 is multiplied with the activation of node 1!
    Removes a gate from a connection:
 
 <pre>
-myNetwork = new Architect.Perceptron(1, 4, 2);
+myNetwork = new architect.Perceptron(1, 4, 2);
 
 // Gate a connection
 myNetwork.gate(myNetwork.nodes[2], myNetwork.connections[5]);
@@ -142,6 +142,12 @@ myNetwork.ungate(myNetwork.connections[5]);
 <details>
   <summary>mutate</summary>
    Mutates the network. See [mutation methods](../methods/mutation.md).
+</details>
+
+<details>
+  <summary>serialize</summary>
+  Serializes the network to 3 <code>Float64Arrays</code>. Used for transferring
+  networks to other threads fast.
 </details>
 
 <details>
@@ -162,7 +168,7 @@ var imported = Network.fromJSON(exported);
    this function will transform your network into a function accompanied by arrays.
 
 <pre>
-var myNetwork = new Architect.Perceptron(2,4,1);
+var myNetwork = new architect.Perceptron(2,4,1);
 myNetwork.activate([0,1]); // [0.24775789809]
 
 // a string
@@ -190,8 +196,8 @@ precise.
 
 <pre>
 // Initialise two parent networks
-var network1 = new Architect.Perceptron(2, 4, 3);
-var network2 = new Architect.Perceptron(2, 4, 5, 3);
+var network1 = new architect.Perceptron(2, 4, 3);
+var network2 = new architect.Perceptron(2, 4, 5, 3);
 
 // Produce an offspring
 var network3 = Network.crossOver(network1, network2);
@@ -203,7 +209,7 @@ var network3 = Network.crossOver(network1, network2);
    Sets the properties of all nodes in the network to the given values, e.g.:
 
 <pre>
-var network = new Architect.Random(4, 4, 1);
+var network = new architect.Random(4, 4, 1);
 
 // All nodes in 'network' now have a bias of 1
 network.set({bias: 1});

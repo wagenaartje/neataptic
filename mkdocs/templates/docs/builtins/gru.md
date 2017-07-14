@@ -11,13 +11,13 @@ The Gated Recurrent Unit network is very similar to the LSTM network. GRU networ
 To use this architecture you have to set at least one input node, one gated recurrent unit assembly, and an output node. The gated recurrent unit assembly consists of seven nodes: input, update gate, inverse update gate, reset gate, memorycell, output and previous output memory.
 
 ```javascript
-var myLSTM = new Architect.GRU(2,6,1);
+var myLSTM = new architect.GRU(2,6,1);
 ```
 
 Also you can set many layers of gated recurrent units:
 
 ```javascript
-var myLSTM = new Architect.GRU(2, 4, 4, 4, 1);
+var myLSTM = new architect.GRU(2, 4, 4, 4, 1);
 ```
 
 The above network has 3 hidden layers, with 4 GRU assemblies each. It has two inputs and óne output.
@@ -35,7 +35,7 @@ var trainingSet = [
   { input: [0], output: [0]}
 ];
 
-var network = new Architect.GRU(1,1,1);
+var network = new architect.GRU(1,1,1);
 
 // Train a sequence: 00100100..
 network.train(trainingSet, {

@@ -27,7 +27,7 @@ Neataptic trains more than 5x faster than competitors. [Run the tests yourself](
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript
-var myNetwork = new Architect.LSTM(1,10,5,1);
+var myNetwork = new architect.LSTM(1,10,5,1);
 ```
 
 Or built your <b>own</b> network with pre-built layers:
@@ -42,7 +42,7 @@ input.connect(hidden1);
 hidden1.connect(hidden2);
 hidden2.connect(output);
 
-var myNetwork = Architect.Construct([input, hidden1, hidden2, output]);
+var myNetwork = architect.Construct([input, hidden1, hidden2, output]);
 ```
 
 You can even built your network neuron-by-neuron using <b>nodes</b> and <b>groups</b>!
@@ -64,7 +64,7 @@ of Neataptic, feel free to create a pull request!
 Basic XOR example:
 
 ```js
-var network = new Architect.Perceptron(2,4,1);
+var network = new architect.Perceptron(2,4,1);
 
 // Train the XOR gate
 network.train([{ input: [0,0], output: [0] },
@@ -78,7 +78,7 @@ network.activate([0,1]); // 0.9824...
 Or predict timeseries with a NARX network ([run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)):
 
 ```javascript
-var narx = new Architect.NARX(1, 5, 1, 3, 3);
+var narx = new architect.NARX(1, 5, 1, 3, 3);
 
 // Train a sequence: 00100100..
 narx.train([
@@ -103,8 +103,8 @@ You can also evolve neural networks to perform as an XOR gate (in sequence):
 var network = new Network(1,1);
 
 // trainingSet = XOR sequence
-network.evolve(trainingSet, {
-  mutation: Methods.Mutation.ALL,
+await network.evolve(trainingSet, {
+  mutation: methods.mutation.ALL,
   equal: true,
   popSize: 100,
   elitism: 10,
@@ -158,7 +158,7 @@ npm install neataptic
 
 ## Further notices
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop
-Neataptic. 
+Neataptic.
 
 <hr>
 

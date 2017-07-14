@@ -31,8 +31,8 @@ By default, a neuron uses a [Logistic Sigmoid](http://en.wikipedia.org/wiki/Logi
 
 ```javascript
 var A = new Node();
-A.squash = Methods.Activation.<ACTIVATION_FUNCTION>;
+A.squash = methods.activation.<ACTIVATION_FUNCTION>;
 
 // eg.
-A.squash = Methods.Activation.SINUSOID;
+A.squash = methods.activation.SINUSOID;
 ```

@@ -12,11 +12,11 @@ function initNeat(){
     2,
     null,
     {
-      mutation: Methods.Mutation.ALL
+      mutation: methods.mutation.ALL
       popsize: PLAYER_AMOUNT,
       mutationRate: MUTATION_RATE,
       elitism: Math.round(ELITISM_PERCENT * PLAYER_AMOUNT),
-      network: new Architect.Random(
+      network: new architect.Random(
         1 + PLAYER_DETECTION * 3 + FOOD_DETECTION * 2,
         START_HIDDEN_SIZE,
         2
@@ -91,7 +91,7 @@ new Neat(input, output, fitnessFunction, options); // options should be an objec
 
 <details>
   <summary>mutation</summary>
-Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/mutation/">mutation methods</a> used in the evolutionary process. Must be an array (e.g. <code>[Methods.Mutation.ADD_NODE, Methods.Mutation.SUB_NODE]</code>). Default mutation methods are all non-recurrent mutation methods. A random mutation method will be chosen from the array when mutation occrus.
+Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/mutation/">mutation methods</a> used in the evolutionary process. Must be an array (e.g. <code>[methods.mutation.ADD_NODE, methods.mutation.SUB_NODE]</code>). Default mutation methods are all non-recurrent mutation methods. A random mutation method will be chosen from the array when mutation occrus.
 </details>
 
 <details>
@@ -102,6 +102,12 @@ Sets the allowed <a href="https://wagenaartje.github.io/neataptic/docs/methods/s
 <details>
   <summary>crossover</summary>
 Sets the allowed crossover methods used in the evolutionary process. Must be an array. <b>disabled as of now</b>
+</details>
+
+<details>
+  <summary>fitnessPopulation</summary>
+  If set to <code>true</code>, you will have to specify a fitness function that
+  takes an array of genomes as input and sets their <code>.score</code> property.
 </details>
 
 <details>
@@ -166,12 +172,12 @@ There are a few built-in functions. For the client, only `getFittest()` and `evo
 </details>
 
 <details>
-  <summary>evolve()</summary>
+  <summary><i>async</i> evolve()</summary>
    Loops the generation through a evaluation, selection, crossover and mutation process.
 </details>
 
 <details>
-  <summary>evaluate()</summary>
+  <summary><i>async</i> evaluate()</summary>
    Evaluates the entire population by passing on the genome to the fitness function and taking the score.
 </details>
 

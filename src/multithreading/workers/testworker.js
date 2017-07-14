@@ -37,7 +37,7 @@ TestWorker.prototype = {
     });
   },
 
-  terminate: async function () {
+  terminate: function () {
     this.worker.terminate();
     window.URL.revokeObjectURL(this.url);
   },

@@ -261,7 +261,7 @@
           <p>Just like LSTM's, <a href="https://en.wikipedia.org/wiki/Nonlinear_autoregressive_exogenous_model">NARX networks</a> are very good at timeseries prediction. That is because they use previous inputs and their corresponding output values as the next input to the hidden layer.</p>
 <p><img alt="" src="http://i.imgur.com/qcLyVcw.png" /></p>
 <p>The constructor looks like this:</p>
-<pre><code class="js">var network = new Architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
+<pre><code class="js">var network = new architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
 </code></pre>
 
 <p>A quick explanation of each argument:
@@ -271,7 +271,7 @@
 </em> <code>previousInput</code>: the amount of previous inputs you want it to remember
 * <code>previousOutput</code>: the amount of previous outputs you want it to remember</p>
 <p>Example:</p>
-<pre><code class="javascript">var narx = new Architect.NARX(1, 5, 1, 3, 3);
+<pre><code class="javascript">var narx = new architect.NARX(1, 5, 1, 3, 3);
 
 // Train the XOR gate (in sequence!)
 var trainingData = [

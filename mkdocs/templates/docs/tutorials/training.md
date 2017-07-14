@@ -34,7 +34,7 @@ But for most problems, a perceptron is sufficient. Now you only have to determin
 For the training set I provided above (XOR), there are only 2 inputs and one output. I use the rule of thumb: `input size + output size = hidden size`. So the creation of my network would like this:
 
 ```javascript
-myNetwork = Architect.Perceptron(2, 3, 1);
+myNetwork = architect.Perceptron(2, 3, 1);
 ```
 
 ### Training the network

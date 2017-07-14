@@ -259,7 +259,7 @@
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\builtins\random.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
           <p>A random network is similar to a liquid network. This network will start of with a given pool of nodes, and will then create random connections between them. This network is really only useful for the initialization of the population for a genetic algorithm.</p>
-<pre><code class="javascript">new Architect.Random(input_size, hidden_size, output_size, options);
+<pre><code class="javascript">new architect.Random(input_size, hidden_size, output_size, options);
 </code></pre>
 
 <ul>
@@ -273,7 +273,7 @@
 <em> <code>selfconnections</code> : amount of selfconnections (default is <code>0</code>)
 </em> <code>gates</code> : amount of gates (default is <code>0</code>)</p>
 <p>For example:</p>
-<pre><code class="javascript">var network = Architect.Random(1, 20, 2, {
+<pre><code class="javascript">var network = architect.Random(1, 20, 2, {
   connections: 40,
   gates: 4,
   selfconnections: 4

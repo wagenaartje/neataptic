@@ -29,7 +29,7 @@ Neataptic offers extremely flexible networks; neurons and synapses can be remove
 Use any of the **6** built-in networks with customizable sizes to create a network:
 
 ```javascript
-var myNetwork = new Architect.LSTM(1,10,5,1);
+var myNetwork = new architect.LSTM(1,10,5,1);
 ```
 
 Or built your **own** network with pre-built layers:
@@ -44,7 +44,7 @@ input.connect(hidden1);
 hidden1.connect(hidden2);
 hidden2.connect(output);
 
-var myNetwork = Architect.Construct([input, hidden1, hidden2, output]);
+var myNetwork = architect.Construct([input, hidden1, hidden2, output]);
 ```
 
 You can even built your network neuron-by-neuron using <b>nodes</b> and <b>groups</b>!

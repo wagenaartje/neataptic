@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 // Specifies in what manner two groups are connected
-var Connection = {
+var connection = {
   ALL_TO_ALL: {
     name: 'OUTPUT'
   },
@@ -16,4 +16,4 @@ var Connection = {
 };
 
 /* Export */
-module.exports = Connection;
+module.exports = connection;

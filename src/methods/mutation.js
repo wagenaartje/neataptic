@@ -1,12 +1,12 @@
 /* Import */
-var Activation = require('./activation');
+var activation = require('./activation');
 
 /*******************************************************************************
                                       MUTATION
 *******************************************************************************/
 
-// https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
-var Mutation = {
+// https://en.wikipedia.org/wiki/mutation_(genetic_algorithm)
+var mutation = {
   ADD_NODE: {
     name: 'ADD_NODE'
   },
@@ -34,21 +34,21 @@ var Mutation = {
     name: 'MOD_ACTIVATION',
     mutateOutput: true,
     allowed: [
-      Activation.LOGISTIC,
-      Activation.TANH,
-      Activation.RELU,
-      Activation.IDENTITY,
-      Activation.STEP,
-      Activation.SOFTSIGN,
-      Activation.SINUSOID,
-      Activation.GAUSSIAN,
-      Activation.BENT_IDENTITY,
-      Activation.BIPOLAR,
-      Activation.BIPOLAR_SIGMOID,
-      Activation.HARD_TANH,
-      Activation.ABSOLUTE,
-      Activation.INVERSE,
-      Activation.SELU
+      activation.LOGISTIC,
+      activation.TANH,
+      activation.RELU,
+      activation.IDENTITY,
+      activation.STEP,
+      activation.SOFTSIGN,
+      activation.SINUSOID,
+      activation.GAUSSIAN,
+      activation.BENT_IDENTITY,
+      activation.BIPOLAR,
+      activation.BIPOLAR_SIGMOID,
+      activation.HARD_TANH,
+      activation.ABSOLUTE,
+      activation.INVERSE,
+      activation.SELU
     ]
   },
   ADD_SELF_CONN: {
@@ -75,33 +75,33 @@ var Mutation = {
   }
 };
 
-Mutation.ALL = [
-  Mutation.ADD_NODE,
-  Mutation.SUB_NODE,
-  Mutation.ADD_CONN,
-  Mutation.SUB_CONN,
-  Mutation.MOD_WEIGHT,
-  Mutation.MOD_BIAS,
-  Mutation.MOD_ACTIVATION,
-  Mutation.ADD_GATE,
-  Mutation.SUB_GATE,
-  Mutation.ADD_SELF_CONN,
-  Mutation.SUB_SELF_CONN,
-  Mutation.ADD_BACK_CONN,
-  Mutation.SUB_BACK_CONN,
-  Mutation.SWAP_NODES
+mutation.ALL = [
+  mutation.ADD_NODE,
+  mutation.SUB_NODE,
+  mutation.ADD_CONN,
+  mutation.SUB_CONN,
+  mutation.MOD_WEIGHT,
+  mutation.MOD_BIAS,
+  mutation.MOD_ACTIVATION,
+  mutation.ADD_GATE,
+  mutation.SUB_GATE,
+  mutation.ADD_SELF_CONN,
+  mutation.SUB_SELF_CONN,
+  mutation.ADD_BACK_CONN,
+  mutation.SUB_BACK_CONN,
+  mutation.SWAP_NODES
 ];
 
-Mutation.FFW = [
-  Mutation.ADD_NODE,
-  Mutation.SUB_NODE,
-  Mutation.ADD_CONN,
-  Mutation.SUB_CONN,
-  Mutation.MOD_WEIGHT,
-  Mutation.MOD_BIAS,
-  Mutation.MOD_ACTIVATION,
-  Mutation.SWAP_NODES
+mutation.FFW = [
+  mutation.ADD_NODE,
+  mutation.SUB_NODE,
+  mutation.ADD_CONN,
+  mutation.SUB_CONN,
+  mutation.MOD_WEIGHT,
+  mutation.MOD_BIAS,
+  mutation.MOD_ACTIVATION,
+  mutation.SWAP_NODES
 ];
 
 /* Export */
-module.exports = Mutation;
+module.exports = mutation;

@@ -2,13 +2,9 @@
 module.exports = Node;
 
 /* Import */
-var Methods = require('../methods/methods');
+var methods = require('../methods/methods');
 var Connection = require('./connection');
-var Config = require('../config');
-
-/* Easier variable naming */
-var Activation = Methods.Activation;
-var Mutation = Methods.Mutation;
+var config = require('../config');
 
 /*******************************************************************************
                                          NODE
@@ -16,7 +12,7 @@ var Mutation = Methods.Mutation;
 
 function Node (type) {
   this.bias = (type === 'input') ? 0 : Math.random() * 0.2 - 0.1;
-  this.squash = Activation.LOGISTIC;
+  this.squash = methods.activation.LOGISTIC;
   this.type = type || 'hidden';
 
   this.activation = 0;
@@ -213,7 +209,7 @@ Node.prototype = {
       if (target === this) {
         // Turn on the self connection by setting the weight
         if (this.connections.self.weight !== 0) {
-          if (Config.warnings) console.warn('This connection already exists!');
+          if (config.warnings) console.warn('This connection already exists!');
         } else {
           this.connections.self.weight = weight || 1;
         }
@@ -322,17 +318,17 @@ Node.prototype = {
   mutate: function (method) {
     if (typeof method === 'undefined') {
       throw new Error('No mutate method given!');
-    } else if (!(method.name in Methods.Mutation)) {
+    } else if (!(method.name in methods.mutation)) {
       throw new Error('This method does not exist!');
     }
 
     switch (method) {
-      case Mutation.MOD_ACTIVATION:
+      case methods.mutation.MOD_ACTIVATION:
         // Can't be the same squash
         var squash = method.allowed[(method.allowed.indexOf(this.squash) + Math.floor(Math.random() * (method.allowed.length - 1)) + 1) % method.allowed.length];
         this.squash = squash;
         break;
-      case Mutation.MOD_BIAS:
+      case methods.mutation.MOD_BIAS:
         var modification = Math.random() * (method.max - method.min) + method.min;
         this.bias += modification;
         break;
@@ -391,9 +387,9 @@ Node.fromJSON = function (json) {
   node.type = json.type;
   node.mask = json.mask;
 
-  for (var squash in Activation) {
-    if (Activation[squash].name === json.squash) {
-      node.squash = Activation[squash];
+  for (var squash in methods.activation) {
+    if (methods.activation[squash].name === json.squash) {
+      node.squash = methods.activation[squash];
       break;
     }
   }

@@ -2,16 +2,15 @@
 module.exports = Network;
 
 /* Import */
-var Methods = require('../methods/methods');
+var multi = require('../multithreading/multi');
+var methods = require('../methods/methods');
 var Connection = require('./connection');
-var WebWorker = require('../webworker');
-var Config = require('../config');
-var Multi = require('../multi');
+var config = require('../config');
 var Neat = require('../neat');
 var Node = require('./node');
 
 /* Easier variable naming */
-var Mutation = Methods.Mutation;
+var mutation = methods.mutation;
 
 /*******************************************************************************
                                  NETWORK
@@ -148,7 +147,7 @@ Network.prototype = {
     if (this.nodes.indexOf(node) === -1) {
       throw new Error('This node is not part of the network!');
     } else if (connection.gater != null) {
-      if (Config.warnings) console.warn('This connection is already gated!');
+      if (config.warnings) console.warn('This connection is already gated!');
       return;
     }
     node.gate(connection);
@@ -188,7 +187,7 @@ Network.prototype = {
     var inputs = [];
     for (var i = node.connections.in.length - 1; i >= 0; i--) {
       let connection = node.connections.in[i];
-      if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
+      if (mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
       }
       inputs.push(connection.from);
@@ -199,7 +198,7 @@ Network.prototype = {
     var outputs = [];
     for (i = node.connections.out.length - 1; i >= 0; i--) {
       let connection = node.connections.out[i];
-      if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
+      if (mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
       }
       outputs.push(connection.to);
@@ -253,7 +252,7 @@ Network.prototype = {
 
     var i, j;
     switch (method) {
-      case Mutation.ADD_NODE:
+      case mutation.ADD_NODE:
         // Look for an existing connection and place a node in between
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var gater = connection.gater;
@@ -264,7 +263,7 @@ Network.prototype = {
         var node = new Node('hidden', this.nodes.length);
 
         // Random squash function
-        node.mutate(Mutation.MOD_ACTIVATION);
+        node.mutate(mutation.MOD_ACTIVATION);
 
         // Place it in this.nodes
         var minBound = Math.min(toIndex, this.nodes.length - this.output);
@@ -279,10 +278,10 @@ Network.prototype = {
           this.gate(gater, Math.random() >= 0.5 ? newConn1 : newConn2);
         }
         break;
-      case Mutation.SUB_NODE:
+      case mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if (this.nodes.length === this.input + this.output) {
-          if (Config.warnings) console.warn('No more nodes left to remove!');
+          if (config.warnings) console.warn('No more nodes left to remove!');
           break;
         }
 
@@ -290,7 +289,7 @@ Network.prototype = {
         var index = Math.floor(Math.random() * (this.nodes.length - this.output - this.input) + this.input);
         this.remove(this.nodes[index]);
         break;
-      case Mutation.ADD_CONN:
+      case mutation.ADD_CONN:
         // Create an array of all uncreated (feedforward) connections
         var available = [];
         for (i = 0; i < this.nodes.length - this.output; i++) {
@@ -302,14 +301,14 @@ Network.prototype = {
         }
 
         if (available.length === 0) {
-          if (Config.warnings) console.warn('No more connections to be made!');
+          if (config.warnings) console.warn('No more connections to be made!');
           break;
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
         this.connect(pair[0], pair[1]);
         break;
-      case Mutation.SUB_CONN:
+      case mutation.SUB_CONN:
         // List of possible connections that can be removed
         var possible = [];
 
@@ -322,28 +321,28 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No connections to remove!');
+          if (config.warnings) console.warn('No connections to remove!');
           break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
         this.disconnect(randomConn.from, randomConn.to);
         break;
-      case Mutation.MOD_WEIGHT:
+      case mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;
         break;
-      case Mutation.MOD_BIAS:
+      case mutation.MOD_BIAS:
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
         node.mutate(method);
         break;
-      case Mutation.MOD_ACTIVATION:
+      case mutation.MOD_ACTIVATION:
         // Has no effect on input node, so they are excluded
         if (!method.mutateOutput && this.input + this.output === this.nodes.length) {
-          if (Config.warnings) console.warn('No nodes that allow mutation of activation function');
+          if (config.warnings) console.warn('No nodes that allow mutation of activation function');
           break;
         }
 
@@ -352,7 +351,7 @@ Network.prototype = {
 
         node.mutate(method);
         break;
-      case Mutation.ADD_SELF_CONN:
+      case mutation.ADD_SELF_CONN:
         // Check which nodes aren't selfconnected yet
         var possible = [];
         for (i = this.input; i < this.nodes.length; i++) {
@@ -363,7 +362,7 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No more self-connections to add!');
+          if (config.warnings) console.warn('No more self-connections to add!');
           break;
         }
 
@@ -373,15 +372,15 @@ Network.prototype = {
         // Connect it to himself
         this.connect(node, node);
         break;
-      case Mutation.SUB_SELF_CONN:
+      case mutation.SUB_SELF_CONN:
         if (this.selfconns.length === 0) {
-          if (Config.warnings) console.warn('No more self-connections to remove!');
+          if (config.warnings) console.warn('No more self-connections to remove!');
           break;
         }
         var conn = this.selfconns[Math.floor(Math.random() * this.selfconns.length)];
         this.disconnect(conn.from, conn.to);
         break;
-      case Mutation.ADD_GATE:
+      case mutation.ADD_GATE:
         var allconnections = this.connections.concat(this.selfconns);
 
         // Create a list of all non-gated connections
@@ -394,7 +393,7 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No more connections to gate!');
+          if (config.warnings) console.warn('No more connections to gate!');
           break;
         }
 
@@ -405,10 +404,10 @@ Network.prototype = {
         // Gate the connection with the node
         this.gate(node, conn);
         break;
-      case Mutation.SUB_GATE:
+      case mutation.SUB_GATE:
         // Select a random gated connection
         if (this.gates.length === 0) {
-          if (Config.warnings) console.warn('No more connections to ungate!');
+          if (config.warnings) console.warn('No more connections to ungate!');
           break;
         }
 
@@ -417,7 +416,7 @@ Network.prototype = {
 
         this.ungate(gatedconn);
         break;
-      case Mutation.ADD_BACK_CONN:
+      case mutation.ADD_BACK_CONN:
         // Create an array of all uncreated (backfed) connections
         var available = [];
         for (i = this.input; i < this.nodes.length; i++) {
@@ -429,14 +428,14 @@ Network.prototype = {
         }
 
         if (available.length === 0) {
-          if (Config.warnings) console.warn('No more connections to be made!');
+          if (config.warnings) console.warn('No more connections to be made!');
           break;
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
         this.connect(pair[0], pair[1]);
         break;
-      case Mutation.SUB_BACK_CONN:
+      case mutation.SUB_BACK_CONN:
         // List of possible connections that can be removed
         var possible = [];
 
@@ -449,18 +448,18 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No connections to remove!');
+          if (config.warnings) console.warn('No connections to remove!');
           break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
         this.disconnect(randomConn.from, randomConn.to);
         break;
-      case Mutation.SWAP_NODES:
+      case mutation.SWAP_NODES:
         // Has no effect on input node, so they are excluded
         if ((method.mutateOutput && this.nodes.length - this.input < 2) ||
           (!method.mutateOutput && this.nodes.length - this.input - this.output < 2)) {
-          if (Config.warnings) console.warn('No nodes that allow swapping of bias and activation function');
+          if (config.warnings) console.warn('No nodes that allow swapping of bias and activation function');
           break;
         }
 
@@ -492,20 +491,20 @@ Network.prototype = {
 
     // Warning messages
     if (typeof options.rate === 'undefined') {
-      if (Config.warnings) console.warn('Using default learning rate, please define a rate!');
+      if (config.warnings) console.warn('Using default learning rate, please define a rate!');
     }
     if (typeof options.iterations === 'undefined') {
-      if (Config.warnings) console.warn('No target iterations given, running until error is reached!');
+      if (config.warnings) console.warn('No target iterations given, running until error is reached!');
     }
 
     // Read the options
     var targetError = options.error || 0.05;
-    var cost = options.cost || Methods.Cost.MSE;
+    var cost = options.cost || methods.cost.MSE;
     var baseRate = options.rate || 0.3;
     var dropout = options.dropout || 0;
     var momentum = options.momentum || 0;
     var batchSize = options.batchSize || 1; // online learning
-    var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
+    var ratePolicy = options.ratePolicy || methods.rate.FIXED();
 
     var start = Date.now();
 
@@ -515,6 +514,8 @@ Network.prototype = {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
+    } else if (typeof options.iterations === 'undefined') {
+      options.iterations = 0; // run until target error
     }
 
     // Save to network
@@ -616,7 +617,7 @@ Network.prototype = {
       }
     }
 
-    cost = cost || Methods.Cost.MSE;
+    cost = cost || methods.cost.MSE;
     var error = 0;
     var start = Date.now();
 
@@ -813,7 +814,7 @@ Network.prototype = {
     options = options || {};
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
-    var cost = options.cost || Methods.Cost.MSE;
+    var cost = options.cost || methods.cost.MSE;
     var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
@@ -823,6 +824,8 @@ Network.prototype = {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
+    } else if (typeof options.iterations === 'undefined') {
+      options.iterations = 0; // run until target error
     }
 
     var fitnessFunction;
@@ -845,12 +848,12 @@ Network.prototype = {
       }
 
       // Serialize the dataset
-      var converted = Multi.serializeDataSet(set);
+      var converted = multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
       for (var i = 0; i < threads; i++) {
-        workers.push(new WebWorker(converted, cost));
+        workers.push(new multi.workers.TestWorker(converted, cost));
       }
 
       fitnessFunction = function (population) {
@@ -887,7 +890,7 @@ Network.prototype = {
 
     // Intialise the NEAT instance
     options.network = this;
-    var neat = new Neat(0, 0, fitnessFunction, options);
+    var neat = new Neat(this.input, this.output, fitnessFunction, options);
 
     var error = -Infinity;
     var bestFitness = -Infinity;

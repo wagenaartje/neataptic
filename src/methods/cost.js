@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 // https://en.wikipedia.org/wiki/Loss_function
-var Cost = {
+var cost = {
   // Cross entropy error
   CROSS_ENTROPY: function (target, output) {
     var error = 0;
@@ -70,4 +70,4 @@ var Cost = {
 };
 
 /* Export */
-module.exports = Cost;
+module.exports = cost;

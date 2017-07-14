@@ -2,8 +2,8 @@
 module.exports = Group;
 
 /* Import */
-var Methods = require('../methods/methods');
-var Config = require('../config');
+var methods = require('../methods/methods');
+var config = require('../config');
 var Layer = require('./layer');
 var Node = require('./node');
 
@@ -75,24 +75,24 @@ Group.prototype = {
     if (target instanceof Group) {
       if (typeof method === 'undefined') {
         if (this !== target) {
-          if (Config.warnings) console.warn('No group connection specified, using ALL_TO_ALL');
-          method = Methods.Connection.ALL_TO_ALL;
+          if (config.warnings) console.warn('No group connection specified, using ALL_TO_ALL');
+          method = methods.connection.ALL_TO_ALL;
         } else {
-          if (Config.warnings) console.warn('No group connection specified, using ONE_TO_ONE');
-          method = Methods.Connection.ONE_TO_ONE;
+          if (config.warnings) console.warn('No group connection specified, using ONE_TO_ONE');
+          method = methods.connection.ONE_TO_ONE;
         }
       }
-      if (method === Methods.Connection.ALL_TO_ALL || method === Methods.Connection.ALL_TO_ELSE) {
+      if (method === methods.connection.ALL_TO_ALL || method === methods.connection.ALL_TO_ELSE) {
         for (i = 0; i < this.nodes.length; i++) {
           for (j = 0; j < target.nodes.length; j++) {
-            if (method === Methods.Connection.ALL_TO_ELSE && this.nodes[i] === target.nodes[j]) continue;
+            if (method === methods.connection.ALL_TO_ELSE && this.nodes[i] === target.nodes[j]) continue;
             let connection = this.nodes[i].connect(target.nodes[j], weight);
             this.connections.out.push(connection[0]);
             target.connections.in.push(connection[0]);
             connections.push(connection[0]);
           }
         }
-      } else if (method === Methods.Connection.ONE_TO_ONE) {
+      } else if (method === methods.connection.ONE_TO_ONE) {
         if (this.nodes.length !== target.nodes.length) {
           throw new Error('From and To group must be the same size!');
         }
@@ -139,7 +139,7 @@ Group.prototype = {
     }
 
     switch (method) {
-      case Methods.Gating.INPUT:
+      case methods.gating.INPUT:
         for (i = 0; i < nodes2.length; i++) {
           let node = nodes2[i];
           let gater = this.nodes[i % this.nodes.length];
@@ -152,7 +152,7 @@ Group.prototype = {
           }
         }
         break;
-      case Methods.Gating.OUTPUT:
+      case methods.gating.OUTPUT:
         for (i = 0; i < nodes1.length; i++) {
           let node = nodes1[i];
           let gater = this.nodes[i % this.nodes.length];
@@ -165,7 +165,7 @@ Group.prototype = {
           }
         }
         break;
-      case Methods.Gating.SELF:
+      case methods.gating.SELF:
         for (i = 0; i < nodes1.length; i++) {
           let node = nodes1[i];
           let gater = this.nodes[i % this.nodes.length];

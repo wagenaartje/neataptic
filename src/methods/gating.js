@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 // Specifies how to gate a connection between two groups of multiple neurons
-var Gating = {
+var gating = {
   OUTPUT: { // not yet implemented
     name: 'OUTPUT'
   },
@@ -16,4 +16,4 @@ var Gating = {
 };
 
 /* Export */
-module.exports = Gating;
+module.exports = gating;

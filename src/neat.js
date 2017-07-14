@@ -3,10 +3,10 @@ module.exports = Neat;
 
 /* Import */
 var Network = require('./architecture/network');
-var Methods = require('./methods/methods');
+var methods = require('./methods/methods');
 
 /* Easier variable naming */
-var Selection = Methods.Selection;
+var selection = methods.selection;
 
 /*******************************************************************************
                                          NEAT
@@ -29,14 +29,14 @@ function Neat (input, output, fitness, options) {
 
   this.fitnessPopulation = options.fitnessPopulation || false;
 
-  this.selection = options.selection || Methods.Selection.POWER;
+  this.selection = options.selection || methods.selection.POWER;
   this.crossover = options.crossover || [
-    Methods.Crossover.SINGLE_POINT,
-    Methods.Crossover.TWO_POINT,
-    Methods.Crossover.UNIFORM,
-    Methods.Crossover.AVERAGE
+    methods.crossover.SINGLE_POINT,
+    methods.crossover.TWO_POINT,
+    methods.crossover.UNIFORM,
+    methods.crossover.AVERAGE
   ];
-  this.mutation = options.mutation || Methods.Mutation.FFW;
+  this.mutation = options.mutation || methods.Mutation.FFW;
 
   this.template = options.network || false;
 
@@ -198,12 +198,12 @@ Neat.prototype = {
   getParent: function () {
     var i;
     switch (this.selection) {
-      case Selection.POWER:
+      case selection.POWER:
         if (this.population[0].score < this.population[1].score) this.sort();
 
         var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.population.length);
         return this.population[index];
-      case Selection.FITNESS_PROPORTIONATE:
+      case selection.FITNESS_PROPORTIONATE:
         // As negative fitnesses are possible
         // https://stackoverflow.com/questions/16186686/genetic-algorithm-handling-negative-fitness-values
         // this is unnecessarily run for every individual, should be changed
@@ -230,9 +230,9 @@ Neat.prototype = {
 
         // if all scores equal, return random genome
         return this.population[Math.floor(Math.random() * this.population.length)];
-      case Selection.TOURNAMENT:
+      case selection.TOURNAMENT:
         if (this.selection.size > this.popsize) {
-          throw new Error('Your tournament size should be lower than the population size, please change Methods.Selection.TOURNAMENT.size');
+          throw new Error('Your tournament size should be lower than the population size, please change methods.selection.TOURNAMENT.size');
         }
 
         // Create a tournament

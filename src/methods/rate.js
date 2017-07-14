@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 // https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe/30045244
-var Rate = {
+var rate = {
   FIXED: function () {
     var func = function (baseRate, iteration) { return baseRate; };
     return func;
@@ -40,4 +40,4 @@ var Rate = {
 };
 
 /* Export */
-module.exports = Rate;
+module.exports = rate;

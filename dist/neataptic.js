@@ -99,47 +99,30 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 19);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Methods = {
-  Activation: __webpack_require__(10),
-  Mutation: __webpack_require__(16),
-  Selection: __webpack_require__(18),
-  Crossover: __webpack_require__(14),
-  Cost: __webpack_require__(13),
-  Gating: __webpack_require__(15),
-  Connection: __webpack_require__(12),
-  Rate: __webpack_require__(17)
+/*******************************************************************************
+                                  METHODS
+*******************************************************************************/
+
+var methods = {
+  activation: __webpack_require__(9),
+  mutation: __webpack_require__(16),
+  selection: __webpack_require__(18),
+  crossover: __webpack_require__(14),
+  cost: __webpack_require__(13),
+  gating: __webpack_require__(15),
+  connection: __webpack_require__(12),
+  rate: __webpack_require__(17)
 };
 
-// CommonJS & AMD
-if (true) {
-  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () { return Methods; }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-}
-
-// Node.js
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Methods;
-}
-
-// Browser
-if (typeof window === 'object') {
-  (function () {
-    var oldMethods = window['methods'];
-    Methods.ninja = function () {
-      window['methods'] = oldMethods;
-      return Methods;
-    };
-  })();
-
-  window['methods'] = Methods;
-}
+/** Export */
+module.exports = methods;
 
 
 /***/ }),
@@ -150,13 +133,9 @@ if (typeof window === 'object') {
 module.exports = Node;
 
 /* Import */
-var Methods = __webpack_require__(0);
+var methods = __webpack_require__(0);
 var Connection = __webpack_require__(3);
-var Config = __webpack_require__(2);
-
-/* Easier variable naming */
-var Activation = Methods.Activation;
-var Mutation = Methods.Mutation;
+var config = __webpack_require__(2);
 
 /*******************************************************************************
                                          NODE
@@ -164,7 +143,7 @@ var Mutation = Methods.Mutation;
 
 function Node (type) {
   this.bias = (type === 'input') ? 0 : Math.random() * 0.2 - 0.1;
-  this.squash = Activation.LOGISTIC;
+  this.squash = methods.activation.LOGISTIC;
   this.type = type || 'hidden';
 
   this.activation = 0;
@@ -361,7 +340,7 @@ Node.prototype = {
       if (target === this) {
         // Turn on the self connection by setting the weight
         if (this.connections.self.weight !== 0) {
-          if (Config.warnings) console.warn('This connection already exists!');
+          if (config.warnings) console.warn('This connection already exists!');
         } else {
           this.connections.self.weight = weight || 1;
         }
@@ -470,17 +449,17 @@ Node.prototype = {
   mutate: function (method) {
     if (typeof method === 'undefined') {
       throw new Error('No mutate method given!');
-    } else if (!(method.name in Methods.Mutation)) {
+    } else if (!(method.name in methods.mutation)) {
       throw new Error('This method does not exist!');
     }
 
     switch (method) {
-      case Mutation.MOD_ACTIVATION:
+      case methods.mutation.MOD_ACTIVATION:
         // Can't be the same squash
         var squash = method.allowed[(method.allowed.indexOf(this.squash) + Math.floor(Math.random() * (method.allowed.length - 1)) + 1) % method.allowed.length];
         this.squash = squash;
         break;
-      case Mutation.MOD_BIAS:
+      case methods.mutation.MOD_BIAS:
         var modification = Math.random() * (method.max - method.min) + method.min;
         this.bias += modification;
         break;
@@ -539,9 +518,9 @@ Node.fromJSON = function (json) {
   node.type = json.type;
   node.mask = json.mask;
 
-  for (var squash in Activation) {
-    if (Activation[squash].name === json.squash) {
-      node.squash = Activation[squash];
+  for (var squash in methods.activation) {
+    if (methods.activation[squash].name === json.squash) {
+      node.squash = methods.activation[squash];
       break;
     }
   }
@@ -559,12 +538,12 @@ Node.fromJSON = function (json) {
 *******************************************************************************/
 
 // Config
-var Config = {
+var config = {
   warnings: false
 };
 
 /* Export */
-module.exports = Config;
+module.exports = config;
 
 
 /***/ }),
@@ -630,8 +609,8 @@ Connection.innovationID = function (a, b) {
 module.exports = Group;
 
 /* Import */
-var Methods = __webpack_require__(0);
-var Config = __webpack_require__(2);
+var methods = __webpack_require__(0);
+var config = __webpack_require__(2);
 var Layer = __webpack_require__(5);
 var Node = __webpack_require__(1);
 
@@ -703,24 +682,24 @@ Group.prototype = {
     if (target instanceof Group) {
       if (typeof method === 'undefined') {
         if (this !== target) {
-          if (Config.warnings) console.warn('No group connection specified, using ALL_TO_ALL');
-          method = Methods.Connection.ALL_TO_ALL;
+          if (config.warnings) console.warn('No group connection specified, using ALL_TO_ALL');
+          method = methods.connection.ALL_TO_ALL;
         } else {
-          if (Config.warnings) console.warn('No group connection specified, using ONE_TO_ONE');
-          method = Methods.Connection.ONE_TO_ONE;
+          if (config.warnings) console.warn('No group connection specified, using ONE_TO_ONE');
+          method = methods.connection.ONE_TO_ONE;
         }
       }
-      if (method === Methods.Connection.ALL_TO_ALL || method === Methods.Connection.ALL_TO_ELSE) {
+      if (method === methods.connection.ALL_TO_ALL || method === methods.connection.ALL_TO_ELSE) {
         for (i = 0; i < this.nodes.length; i++) {
           for (j = 0; j < target.nodes.length; j++) {
-            if (method === Methods.Connection.ALL_TO_ELSE && this.nodes[i] === target.nodes[j]) continue;
+            if (method === methods.connection.ALL_TO_ELSE && this.nodes[i] === target.nodes[j]) continue;
             let connection = this.nodes[i].connect(target.nodes[j], weight);
             this.connections.out.push(connection[0]);
             target.connections.in.push(connection[0]);
             connections.push(connection[0]);
           }
         }
-      } else if (method === Methods.Connection.ONE_TO_ONE) {
+      } else if (method === methods.connection.ONE_TO_ONE) {
         if (this.nodes.length !== target.nodes.length) {
           throw new Error('From and To group must be the same size!');
         }
@@ -767,7 +746,7 @@ Group.prototype = {
     }
 
     switch (method) {
-      case Methods.Gating.INPUT:
+      case methods.gating.INPUT:
         for (i = 0; i < nodes2.length; i++) {
           let node = nodes2[i];
           let gater = this.nodes[i % this.nodes.length];
@@ -780,7 +759,7 @@ Group.prototype = {
           }
         }
         break;
-      case Methods.Gating.OUTPUT:
+      case methods.gating.OUTPUT:
         for (i = 0; i < nodes1.length; i++) {
           let node = nodes1[i];
           let gater = this.nodes[i % this.nodes.length];
@@ -793,7 +772,7 @@ Group.prototype = {
           }
         }
         break;
-      case Methods.Gating.SELF:
+      case methods.gating.SELF:
         for (i = 0; i < nodes1.length; i++) {
           let node = nodes1[i];
           let gater = this.nodes[i % this.nodes.length];
@@ -899,7 +878,7 @@ Group.prototype = {
 module.exports = Layer;
 
 /* Import */
-var Methods = __webpack_require__(0);
+var methods = __webpack_require__(0);
 var Group = __webpack_require__(4);
 var Node = __webpack_require__(1);
 
@@ -1083,7 +1062,7 @@ Layer.Dense = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     return from.connect(block, method, weight);
   };
 
@@ -1112,15 +1091,15 @@ Layer.LSTM = function (size) {
   });
 
   // Set up internal connections
-  memoryCell.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-  var forget = memoryCell.connect(memoryCell, Methods.Connection.ONE_TO_ONE);
-  var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
+  memoryCell.connect(inputGate, methods.connection.ALL_TO_ALL);
+  memoryCell.connect(forgetGate, methods.connection.ALL_TO_ALL);
+  memoryCell.connect(outputGate, methods.connection.ALL_TO_ALL);
+  var forget = memoryCell.connect(memoryCell, methods.connection.ONE_TO_ONE);
+  var output = memoryCell.connect(outputBlock, methods.connection.ALL_TO_ALL);
 
   // Set up gates
-  forgetGate.gate(forget, Methods.Gating.SELF);
-  outputGate.gate(output, Methods.Gating.OUTPUT);
+  forgetGate.gate(forget, methods.gating.SELF);
+  outputGate.gate(output, methods.gating.OUTPUT);
 
   // Add to nodes array
   layer.nodes = [inputGate, forgetGate, memoryCell, outputGate, outputBlock];
@@ -1130,7 +1109,7 @@ Layer.LSTM = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     var connections = [];
 
     var input = from.connect(memoryCell, method, weight);
@@ -1140,7 +1119,7 @@ Layer.LSTM = function (size) {
     connections = connections.concat(from.connect(outputGate, method, weight));
     connections = connections.concat(from.connect(forgetGate, method, weight));
 
-    inputGate.gate(input, Methods.Gating.INPUT);
+    inputGate.gate(input, methods.gating.INPUT);
 
     return connections;
   };
@@ -1161,15 +1140,15 @@ Layer.GRU = function (size) {
 
   previousOutput.set({
     bias: 0,
-    squash: Methods.Activation.IDENTITY,
+    squash: methods.activation.IDENTITY,
     type: 'constant'
   });
   memoryCell.set({
-    squash: Methods.Activation.TANH
+    squash: methods.activation.TANH
   });
   inverseUpdateGate.set({
     bias: 0,
-    squash: Methods.Activation.INVERSE,
+    squash: methods.activation.INVERSE,
     type: 'constant'
   });
   updateGate.set({
@@ -1180,28 +1159,28 @@ Layer.GRU = function (size) {
   });
 
   // Update gate calculation
-  previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+  previousOutput.connect(updateGate, methods.connection.ALL_TO_ALL);
 
   // Inverse update gate calculation
-  updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
+  updateGate.connect(inverseUpdateGate, methods.connection.ONE_TO_ONE, 1);
 
   // Reset gate calculation
-  previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+  previousOutput.connect(resetGate, methods.connection.ALL_TO_ALL);
 
   // Memory calculation
-  var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+  var reset = previousOutput.connect(memoryCell, methods.connection.ALL_TO_ALL);
 
-  resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
+  resetGate.gate(reset, methods.gating.OUTPUT); // gate
 
   // Output calculation
-  var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
-  var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
+  var update1 = previousOutput.connect(output, methods.connection.ALL_TO_ALL);
+  var update2 = memoryCell.connect(output, methods.connection.ALL_TO_ALL);
 
-  updateGate.gate(update1, Methods.Gating.OUTPUT);
-  inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
+  updateGate.gate(update1, methods.gating.OUTPUT);
+  inverseUpdateGate.gate(update2, methods.gating.OUTPUT);
 
   // Previous output calculation
-  output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
+  output.connect(previousOutput, methods.connection.ONE_TO_ONE, 1);
 
   // Add to nodes array
   layer.nodes = [updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput];
@@ -1210,7 +1189,7 @@ Layer.GRU = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     var connections = [];
 
     connections = connections.concat(from.connect(updateGate, method, weight));
@@ -1234,13 +1213,13 @@ Layer.Memory = function (size, memory) {
     var block = new Group(size);
 
     block.set({
-      squash: Methods.Activation.IDENTITY,
+      squash: methods.activation.IDENTITY,
       bias: 0,
       type: 'constant'
     });
 
     if (previous != null) {
-      previous.connect(block, Methods.Connection.ONE_TO_ONE, 1);
+      previous.connect(block, methods.connection.ONE_TO_ONE, 1);
     }
 
     layer.nodes.push(block);
@@ -1262,13 +1241,13 @@ Layer.Memory = function (size, memory) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
 
     if (from.nodes.length !== layer.nodes[layer.nodes.length - 1].nodes.length) {
       throw new Error('Previous layer size must be same as memory size');
     }
 
-    return from.connect(layer.nodes[layer.nodes.length - 1], Methods.Connection.ONE_TO_ONE, 1);
+    return from.connect(layer.nodes[layer.nodes.length - 1], methods.connection.ONE_TO_ONE, 1);
   };
 
   return layer;
@@ -1283,16 +1262,15 @@ Layer.Memory = function (size, memory) {
 module.exports = Network;
 
 /* Import */
-var Methods = __webpack_require__(0);
+var multi = __webpack_require__(7);
+var methods = __webpack_require__(0);
 var Connection = __webpack_require__(3);
-var WebWorker = __webpack_require__(9);
-var Config = __webpack_require__(2);
-var Multi = __webpack_require__(7);
+var config = __webpack_require__(2);
 var Neat = __webpack_require__(8);
 var Node = __webpack_require__(1);
 
 /* Easier variable naming */
-var Mutation = Methods.Mutation;
+var mutation = methods.mutation;
 
 /*******************************************************************************
                                  NETWORK
@@ -1429,7 +1407,7 @@ Network.prototype = {
     if (this.nodes.indexOf(node) === -1) {
       throw new Error('This node is not part of the network!');
     } else if (connection.gater != null) {
-      if (Config.warnings) console.warn('This connection is already gated!');
+      if (config.warnings) console.warn('This connection is already gated!');
       return;
     }
     node.gate(connection);
@@ -1469,7 +1447,7 @@ Network.prototype = {
     var inputs = [];
     for (var i = node.connections.in.length - 1; i >= 0; i--) {
       let connection = node.connections.in[i];
-      if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
+      if (mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
       }
       inputs.push(connection.from);
@@ -1480,7 +1458,7 @@ Network.prototype = {
     var outputs = [];
     for (i = node.connections.out.length - 1; i >= 0; i--) {
       let connection = node.connections.out[i];
-      if (Methods.Mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
+      if (mutation.SUB_NODE.keep_gates && connection.gater !== null && connection.gater !== node) {
         gaters.push(connection.gater);
       }
       outputs.push(connection.to);
@@ -1534,7 +1512,7 @@ Network.prototype = {
 
     var i, j;
     switch (method) {
-      case Mutation.ADD_NODE:
+      case mutation.ADD_NODE:
         // Look for an existing connection and place a node in between
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var gater = connection.gater;
@@ -1545,7 +1523,7 @@ Network.prototype = {
         var node = new Node('hidden', this.nodes.length);
 
         // Random squash function
-        node.mutate(Mutation.MOD_ACTIVATION);
+        node.mutate(mutation.MOD_ACTIVATION);
 
         // Place it in this.nodes
         var minBound = Math.min(toIndex, this.nodes.length - this.output);
@@ -1560,10 +1538,10 @@ Network.prototype = {
           this.gate(gater, Math.random() >= 0.5 ? newConn1 : newConn2);
         }
         break;
-      case Mutation.SUB_NODE:
+      case mutation.SUB_NODE:
         // Check if there are nodes left to remove
         if (this.nodes.length === this.input + this.output) {
-          if (Config.warnings) console.warn('No more nodes left to remove!');
+          if (config.warnings) console.warn('No more nodes left to remove!');
           break;
         }
 
@@ -1571,7 +1549,7 @@ Network.prototype = {
         var index = Math.floor(Math.random() * (this.nodes.length - this.output - this.input) + this.input);
         this.remove(this.nodes[index]);
         break;
-      case Mutation.ADD_CONN:
+      case mutation.ADD_CONN:
         // Create an array of all uncreated (feedforward) connections
         var available = [];
         for (i = 0; i < this.nodes.length - this.output; i++) {
@@ -1583,14 +1561,14 @@ Network.prototype = {
         }
 
         if (available.length === 0) {
-          if (Config.warnings) console.warn('No more connections to be made!');
+          if (config.warnings) console.warn('No more connections to be made!');
           break;
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
         this.connect(pair[0], pair[1]);
         break;
-      case Mutation.SUB_CONN:
+      case mutation.SUB_CONN:
         // List of possible connections that can be removed
         var possible = [];
 
@@ -1603,28 +1581,28 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No connections to remove!');
+          if (config.warnings) console.warn('No connections to remove!');
           break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
         this.disconnect(randomConn.from, randomConn.to);
         break;
-      case Mutation.MOD_WEIGHT:
+      case mutation.MOD_WEIGHT:
         var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
         var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;
         break;
-      case Mutation.MOD_BIAS:
+      case mutation.MOD_BIAS:
         // Has no effect on input node, so they are excluded
         var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
         var node = this.nodes[index];
         node.mutate(method);
         break;
-      case Mutation.MOD_ACTIVATION:
+      case mutation.MOD_ACTIVATION:
         // Has no effect on input node, so they are excluded
         if (!method.mutateOutput && this.input + this.output === this.nodes.length) {
-          if (Config.warnings) console.warn('No nodes that allow mutation of activation function');
+          if (config.warnings) console.warn('No nodes that allow mutation of activation function');
           break;
         }
 
@@ -1633,7 +1611,7 @@ Network.prototype = {
 
         node.mutate(method);
         break;
-      case Mutation.ADD_SELF_CONN:
+      case mutation.ADD_SELF_CONN:
         // Check which nodes aren't selfconnected yet
         var possible = [];
         for (i = this.input; i < this.nodes.length; i++) {
@@ -1644,7 +1622,7 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No more self-connections to add!');
+          if (config.warnings) console.warn('No more self-connections to add!');
           break;
         }
 
@@ -1654,15 +1632,15 @@ Network.prototype = {
         // Connect it to himself
         this.connect(node, node);
         break;
-      case Mutation.SUB_SELF_CONN:
+      case mutation.SUB_SELF_CONN:
         if (this.selfconns.length === 0) {
-          if (Config.warnings) console.warn('No more self-connections to remove!');
+          if (config.warnings) console.warn('No more self-connections to remove!');
           break;
         }
         var conn = this.selfconns[Math.floor(Math.random() * this.selfconns.length)];
         this.disconnect(conn.from, conn.to);
         break;
-      case Mutation.ADD_GATE:
+      case mutation.ADD_GATE:
         var allconnections = this.connections.concat(this.selfconns);
 
         // Create a list of all non-gated connections
@@ -1675,7 +1653,7 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No more connections to gate!');
+          if (config.warnings) console.warn('No more connections to gate!');
           break;
         }
 
@@ -1686,10 +1664,10 @@ Network.prototype = {
         // Gate the connection with the node
         this.gate(node, conn);
         break;
-      case Mutation.SUB_GATE:
+      case mutation.SUB_GATE:
         // Select a random gated connection
         if (this.gates.length === 0) {
-          if (Config.warnings) console.warn('No more connections to ungate!');
+          if (config.warnings) console.warn('No more connections to ungate!');
           break;
         }
 
@@ -1698,7 +1676,7 @@ Network.prototype = {
 
         this.ungate(gatedconn);
         break;
-      case Mutation.ADD_BACK_CONN:
+      case mutation.ADD_BACK_CONN:
         // Create an array of all uncreated (backfed) connections
         var available = [];
         for (i = this.input; i < this.nodes.length; i++) {
@@ -1710,14 +1688,14 @@ Network.prototype = {
         }
 
         if (available.length === 0) {
-          if (Config.warnings) console.warn('No more connections to be made!');
+          if (config.warnings) console.warn('No more connections to be made!');
           break;
         }
 
         var pair = available[Math.floor(Math.random() * available.length)];
         this.connect(pair[0], pair[1]);
         break;
-      case Mutation.SUB_BACK_CONN:
+      case mutation.SUB_BACK_CONN:
         // List of possible connections that can be removed
         var possible = [];
 
@@ -1730,18 +1708,18 @@ Network.prototype = {
         }
 
         if (possible.length === 0) {
-          if (Config.warnings) console.warn('No connections to remove!');
+          if (config.warnings) console.warn('No connections to remove!');
           break;
         }
 
         var randomConn = possible[Math.floor(Math.random() * possible.length)];
         this.disconnect(randomConn.from, randomConn.to);
         break;
-      case Mutation.SWAP_NODES:
+      case mutation.SWAP_NODES:
         // Has no effect on input node, so they are excluded
         if ((method.mutateOutput && this.nodes.length - this.input < 2) ||
           (!method.mutateOutput && this.nodes.length - this.input - this.output < 2)) {
-          if (Config.warnings) console.warn('No nodes that allow swapping of bias and activation function');
+          if (config.warnings) console.warn('No nodes that allow swapping of bias and activation function');
           break;
         }
 
@@ -1773,20 +1751,20 @@ Network.prototype = {
 
     // Warning messages
     if (typeof options.rate === 'undefined') {
-      if (Config.warnings) console.warn('Using default learning rate, please define a rate!');
+      if (config.warnings) console.warn('Using default learning rate, please define a rate!');
     }
     if (typeof options.iterations === 'undefined') {
-      if (Config.warnings) console.warn('No target iterations given, running until error is reached!');
+      if (config.warnings) console.warn('No target iterations given, running until error is reached!');
     }
 
     // Read the options
     var targetError = options.error || 0.05;
-    var cost = options.cost || Methods.Cost.MSE;
+    var cost = options.cost || methods.cost.MSE;
     var baseRate = options.rate || 0.3;
     var dropout = options.dropout || 0;
     var momentum = options.momentum || 0;
     var batchSize = options.batchSize || 1; // online learning
-    var ratePolicy = options.ratePolicy || Methods.Rate.FIXED();
+    var ratePolicy = options.ratePolicy || methods.rate.FIXED();
 
     var start = Date.now();
 
@@ -1796,6 +1774,8 @@ Network.prototype = {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
+    } else if (typeof options.iterations === 'undefined') {
+      options.iterations = 0; // run until target error
     }
 
     // Save to network
@@ -1897,7 +1877,7 @@ Network.prototype = {
       }
     }
 
-    cost = cost || Methods.Cost.MSE;
+    cost = cost || methods.cost.MSE;
     var error = 0;
     var start = Date.now();
 
@@ -2094,7 +2074,7 @@ Network.prototype = {
     options = options || {};
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
-    var cost = options.cost || Methods.Cost.MSE;
+    var cost = options.cost || methods.cost.MSE;
     var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
@@ -2104,6 +2084,8 @@ Network.prototype = {
       throw new Error('At least one of the following options must be specified: error, iterations');
     } else if (typeof options.error === 'undefined') {
       targetError = -1; // run until iterations
+    } else if (typeof options.iterations === 'undefined') {
+      options.iterations = 0; // run until target error
     }
 
     var fitnessFunction;
@@ -2126,12 +2108,12 @@ Network.prototype = {
       }
 
       // Serialize the dataset
-      var converted = Multi.serializeDataSet(set);
+      var converted = multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
       for (var i = 0; i < threads; i++) {
-        workers.push(new WebWorker(converted, cost));
+        workers.push(new multi.workers.TestWorker(converted, cost));
       }
 
       fitnessFunction = function (population) {
@@ -2168,7 +2150,7 @@ Network.prototype = {
 
     // Intialise the NEAT instance
     options.network = this;
-    var neat = new Neat(0, 0, fitnessFunction, options);
+    var neat = new Neat(this.input, this.output, fitnessFunction, options);
 
     var error = -Infinity;
     var bestFitness = -Infinity;
@@ -2582,17 +2564,20 @@ Network.crossOver = function (network1, network2, equal) {
 
 /***/ }),
 /* 7 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 /*******************************************************************************
-                            MULTITHREADING FUNCTIONS
-                        used to set up workers and such
+                                MULTITHREADING
 *******************************************************************************/
 
-module.exports = {
-  /**
-   * Converts a dataset to a single array, which can be used to create Float64Array
-   */
+var multi = {
+  /** Workers */
+  workers: __webpack_require__(19),
+
+  /** Snippets */
+  snippets: __webpack_require__(10),
+
+  /** Serializes a dataset */
   serializeDataSet: function (dataSet) {
     var serialized = [dataSet[0].input.length, dataSet[0].output.length];
 
@@ -2607,79 +2592,11 @@ module.exports = {
     }
 
     return serialized;
-  },
-
-  /**
-   * Snippets that can be used to construct workers
-   */
-  snippets: {
-    activations: [
-      function (x) { return 1 / (1 + Math.exp(-x)); },
-      function (x) { return Math.tanh(x); },
-      function (x) { return x; },
-      function (x) { return x > 0 ? 1 : 0; },
-      function (x) { return x > 0 ? x : 0; },
-      function (x) { return x / (1 + Math.abs(x)); },
-      function (x) { return Math.sin(x); },
-      function (x) { return Math.exp(-Math.pow(x, 2)); },
-      function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
-      function (x) { return x > 0 ? 1 : -1; },
-      function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
-      function (x) { return Math.max(-1, Math.min(1, x)); },
-      function (x) { return Math.abs(x); },
-      function (x) { return 1 - x; },
-      function (x) {
-        var a = 1.6732632423543772848170429916717;
-        return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
-      }
-    ],
-
-    activate: function (input) {
-      for (var i = 0; i < data[0]; i++) A[i] = input[i];
-      for (i = 2; i < data.length; i++) {
-        let index = data[i++];
-        S[index] = data[i++]; // bias
-        let squash = data[i++];
-        while (data[i] !== -2) {
-          if (index === A[data[i]]) { // selfconn
-            S[index] += S[data[i++]] * data[i++] *
-              (data[i++] === -1 ? 1 : A[data[i - 1]]);
-          } else { // normal conn
-            S[index] += A[data[i++]] * data[i++] *
-              (data[i++] === -1 ? 1 : A[data[i - 1]]);
-          }
-        }
-        A[index] = F[squash](S[index]);
-      }
-
-      var output = [];
-      for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
-      return output;
-    },
-
-    testSerializedSet: function (set) {
-      var inOut = set[0] + set[1];
-
-      // Calculate how much samples are in the set
-      var error = 0;
-      for (var i = 0; i < (set.length - 2) / inOut; i++) {
-        let input = [];
-        for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
-          input.push(set[j]);
-        }
-        let target = [];
-        for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
-          target.push(set[j]);
-        }
-
-        let output = activate(input);
-        error += cost(target, output);
-      }
-
-      return error / ((set.length - 2) / inOut);
-    }
   }
 };
+
+/* Export */
+module.exports = multi;
 
 
 /***/ }),
@@ -2691,10 +2608,10 @@ module.exports = Neat;
 
 /* Import */
 var Network = __webpack_require__(6);
-var Methods = __webpack_require__(0);
+var methods = __webpack_require__(0);
 
 /* Easier variable naming */
-var Selection = Methods.Selection;
+var selection = methods.selection;
 
 /*******************************************************************************
                                          NEAT
@@ -2717,14 +2634,14 @@ function Neat (input, output, fitness, options) {
 
   this.fitnessPopulation = options.fitnessPopulation || false;
 
-  this.selection = options.selection || Methods.Selection.POWER;
+  this.selection = options.selection || methods.selection.POWER;
   this.crossover = options.crossover || [
-    Methods.Crossover.SINGLE_POINT,
-    Methods.Crossover.TWO_POINT,
-    Methods.Crossover.UNIFORM,
-    Methods.Crossover.AVERAGE
+    methods.crossover.SINGLE_POINT,
+    methods.crossover.TWO_POINT,
+    methods.crossover.UNIFORM,
+    methods.crossover.AVERAGE
   ];
-  this.mutation = options.mutation || Methods.Mutation.FFW;
+  this.mutation = options.mutation || methods.Mutation.FFW;
 
   this.template = options.network || false;
 
@@ -2886,12 +2803,12 @@ Neat.prototype = {
   getParent: function () {
     var i;
     switch (this.selection) {
-      case Selection.POWER:
+      case selection.POWER:
         if (this.population[0].score < this.population[1].score) this.sort();
 
         var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.population.length);
         return this.population[index];
-      case Selection.FITNESS_PROPORTIONATE:
+      case selection.FITNESS_PROPORTIONATE:
         // As negative fitnesses are possible
         // https://stackoverflow.com/questions/16186686/genetic-algorithm-handling-negative-fitness-values
         // this is unnecessarily run for every individual, should be changed
@@ -2918,9 +2835,9 @@ Neat.prototype = {
 
         // if all scores equal, return random genome
         return this.population[Math.floor(Math.random() * this.population.length)];
-      case Selection.TOURNAMENT:
+      case selection.TOURNAMENT:
         if (this.selection.size > this.popsize) {
-          throw new Error('Your tournament size should be lower than the population size, please change Methods.Selection.TOURNAMENT.size');
+          throw new Error('Your tournament size should be lower than the population size, please change methods.selection.TOURNAMENT.size');
         }
 
         // Create a tournament
@@ -2974,83 +2891,6 @@ Neat.prototype = {
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* Export */
-module.exports = WebWorker;
-
-/* Import */
-var Multi = __webpack_require__(7);
-
-/*******************************************************************************
-                                WEBWORKER
-*******************************************************************************/
-
-function WebWorker (dataSet, cost) {
-  var blob = new Blob([this._createBlobString(cost)]);
-  this.url = window.URL.createObjectURL(blob);
-  this.worker = new Worker(this.url);
-
-  var data = { set: new Float64Array(dataSet).buffer };
-  this.worker.postMessage(data, [data.set]);
-}
-
-WebWorker.prototype = {
-  evaluate: function (network) {
-    return new Promise((resolve, reject) => {
-      var serialzed = network.serialize();
-
-      var data = {
-        activations: serialzed[0].buffer,
-        states: serialzed[1].buffer,
-        conns: serialzed[2].buffer
-      };
-
-      this.worker.onmessage = function (e) {
-        var error = new Float64Array(e.data.buffer)[0];
-        resolve(error);
-      };
-
-      this.worker.postMessage(data, [data.activations, data.states, data.conns]);
-    });
-  },
-
-  terminate: async function () {
-    this.worker.terminate();
-    window.URL.revokeObjectURL(this.url);
-  },
-
-  _createBlobString: function (cost) {
-    var source = `
-      var A, S, data;
-      var F = [${Multi.snippets.activations.toString()}];
-      var cost = ${cost.toString()};
-      var test = ${Multi.snippets.testSerializedSet.toString()};
-      var activate = ${Multi.snippets.activate.toString()};
-      var set;
-
-      var onmessage = function (e) {
-        if(typeof e.data.set === 'undefined'){
-          A = new Float64Array(e.data.activations);
-          S = new Float64Array(e.data.states);
-          data = new Float64Array(e.data.conns);
-
-          var error = test(set);
-
-          var answer = { buffer: new Float64Array([error ]).buffer };
-          postMessage(answer, [answer.buffer]);
-        } else {
-          set = new Float64Array(e.data.set);
-        }
-      };`;
-
-    return source;
-  }
-};
-
-
-/***/ }),
-/* 10 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3059,7 +2899,7 @@ WebWorker.prototype = {
 
 // https://en.wikipedia.org/wiki/Activation_function
 // https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
-var Activation = {
+var activation = {
   LOGISTIC: function (x, derivate) {
     var fx = 1 / (1 + Math.exp(-x));
     if (!derivate) { return fx; }
@@ -3129,7 +2969,87 @@ var Activation = {
 };
 
 /* Export */
-module.exports = Activation;
+module.exports = activation;
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports) {
+
+/*******************************************************************************
+                                  SNIPPETS
+*******************************************************************************/
+
+var snippets = {
+  activations: [
+    function (x) { return 1 / (1 + Math.exp(-x)); },
+    function (x) { return Math.tanh(x); },
+    function (x) { return x; },
+    function (x) { return x > 0 ? 1 : 0; },
+    function (x) { return x > 0 ? x : 0; },
+    function (x) { return x / (1 + Math.abs(x)); },
+    function (x) { return Math.sin(x); },
+    function (x) { return Math.exp(-Math.pow(x, 2)); },
+    function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
+    function (x) { return x > 0 ? 1 : -1; },
+    function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
+    function (x) { return Math.max(-1, Math.min(1, x)); },
+    function (x) { return Math.abs(x); },
+    function (x) { return 1 - x; },
+    function (x) {
+      var a = 1.6732632423543772848170429916717;
+      return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
+    }
+  ],
+
+  activate: function (input) {
+    for (var i = 0; i < data[0]; i++) A[i] = input[i];
+    for (i = 2; i < data.length; i++) {
+      let index = data[i++];
+      S[index] = data[i++]; // bias
+      let squash = data[i++];
+      while (data[i] !== -2) {
+        if (index === A[data[i]]) { // selfconn
+          S[index] += S[data[i++]] * data[i++] *
+            (data[i++] === -1 ? 1 : A[data[i - 1]]);
+        } else { // normal conn
+          S[index] += A[data[i++]] * data[i++] *
+            (data[i++] === -1 ? 1 : A[data[i - 1]]);
+        }
+      }
+      A[index] = F[squash](S[index]);
+    }
+
+    var output = [];
+    for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
+    return output;
+  },
+
+  testSerializedSet: function (set) {
+    var inOut = set[0] + set[1];
+
+    // Calculate how much samples are in the set
+    var error = 0;
+    for (var i = 0; i < (set.length - 2) / inOut; i++) {
+      let input = [];
+      for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
+        input.push(set[j]);
+      }
+      let target = [];
+      for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
+        target.push(set[j]);
+      }
+
+      let output = activate(input);
+      error += cost(target, output);
+    }
+
+    return error / ((set.length - 2) / inOut);
+  }
+};
+
+/** Export */
+module.exports = snippets;
 
 
 /***/ }),
@@ -3137,17 +3057,17 @@ module.exports = Activation;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
-var Methods = __webpack_require__(0);
+var methods = __webpack_require__(0);
 var Network = __webpack_require__(6);
 var Group = __webpack_require__(4);
 var Layer = __webpack_require__(5);
 var Node = __webpack_require__(1);
 
 /*******************************************************************************
-                                        ARCHITECT
+                                        architect
 *******************************************************************************/
 
-var Architect = {
+var architect = {
   /**
    * Constructs a network from a given array of connected nodes
    */
@@ -3236,11 +3156,11 @@ var Architect = {
       var layer = layers[i];
       layer = new Group(layer);
       nodes.push(layer);
-      nodes[i - 1].connect(nodes[i], Methods.Connection.ALL_TO_ALL);
+      nodes[i - 1].connect(nodes[i], methods.connection.ALL_TO_ALL);
     }
 
     // Construct the network
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -3258,23 +3178,23 @@ var Architect = {
 
     var i;
     for (i = 0; i < hidden; i++) {
-      network.mutate(Methods.Mutation.ADD_NODE);
+      network.mutate(methods.mutation.ADD_NODE);
     }
 
     for (i = 0; i < connections - hidden; i++) {
-      network.mutate(Methods.Mutation.ADD_CONN);
+      network.mutate(methods.mutation.ADD_CONN);
     }
 
     for (i = 0; i < backconnections; i++) {
-      network.mutate(Methods.Mutation.ADD_BACK_CONN);
+      network.mutate(methods.mutation.ADD_BACK_CONN);
     }
 
     for (i = 0; i < selfconnections; i++) {
-      network.mutate(Methods.Mutation.ADD_SELF_CONN);
+      network.mutate(methods.mutation.ADD_SELF_CONN);
     }
 
     for (i = 0; i < gates; i++) {
-      network.mutate(Methods.Mutation.ADD_GATE);
+      network.mutate(methods.mutation.ADD_GATE);
     }
 
     return network;
@@ -3342,44 +3262,44 @@ var Architect = {
       });
 
       // Connect the input with all the nodes
-      var input = previous.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-      previous.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-      previous.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-      previous.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
+      var input = previous.connect(memoryCell, methods.connection.ALL_TO_ALL);
+      previous.connect(inputGate, methods.connection.ALL_TO_ALL);
+      previous.connect(outputGate, methods.connection.ALL_TO_ALL);
+      previous.connect(forgetGate, methods.connection.ALL_TO_ALL);
 
       // Set up internal connections
-      memoryCell.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-      memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-      memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-      var forget = memoryCell.connect(memoryCell, Methods.Connection.ONE_TO_ONE);
-      var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
+      memoryCell.connect(inputGate, methods.connection.ALL_TO_ALL);
+      memoryCell.connect(forgetGate, methods.connection.ALL_TO_ALL);
+      memoryCell.connect(outputGate, methods.connection.ALL_TO_ALL);
+      var forget = memoryCell.connect(memoryCell, methods.connection.ONE_TO_ONE);
+      var output = memoryCell.connect(outputBlock, methods.connection.ALL_TO_ALL);
 
       // Set up gates
-      inputGate.gate(input, Methods.Gating.INPUT);
-      forgetGate.gate(forget, Methods.Gating.SELF);
-      outputGate.gate(output, Methods.Gating.OUTPUT);
+      inputGate.gate(input, methods.gating.INPUT);
+      forgetGate.gate(forget, methods.gating.SELF);
+      outputGate.gate(output, methods.gating.OUTPUT);
 
       // Input to all memory cells
       if (options.inputToDeep && i > 0) {
-        let input = inputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = inputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       // Optional connections
       if (options.memoryToMemory) {
-        let input = memoryCell.connect(memoryCell, Methods.Connection.ALL_TO_ELSE);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = memoryCell.connect(memoryCell, methods.connection.ALL_TO_ELSE);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       if (options.outputToMemory) {
-        let input = outputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = outputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       if (options.outputToGates) {
-        outputLayer.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-        outputLayer.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-        outputLayer.connect(outputGate, Methods.Connection.ALL_TO_ALL);
+        outputLayer.connect(inputGate, methods.connection.ALL_TO_ALL);
+        outputLayer.connect(forgetGate, methods.connection.ALL_TO_ALL);
+        outputLayer.connect(outputGate, methods.connection.ALL_TO_ALL);
       }
 
       // Add to array
@@ -3394,11 +3314,11 @@ var Architect = {
 
     // input to output direct connection
     if (options.inputToOutput) {
-      inputLayer.connect(outputLayer, Methods.Connection.ALL_TO_ALL);
+      inputLayer.connect(outputLayer, methods.connection.ALL_TO_ALL);
     }
 
     nodes.push(outputLayer);
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -3429,7 +3349,7 @@ var Architect = {
     previous.connect(outputLayer);
     nodes.push(outputLayer);
 
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -3439,17 +3359,17 @@ var Architect = {
     var input = new Group(size);
     var output = new Group(size);
 
-    input.connect(output, Methods.Connection.ALL_TO_ALL);
+    input.connect(output, methods.connection.ALL_TO_ALL);
 
     input.set({
       type: 'input'
     });
     output.set({
-      squash: Methods.Activation.STEP,
+      squash: methods.activation.STEP,
       type: 'output'
     });
 
-    var network = new Architect.Construct([input, output]);
+    var network = new architect.Construct([input, output]);
 
     return network;
   },
@@ -3478,19 +3398,19 @@ var Architect = {
       hidden.push(hiddenLayer);
       nodes.push(hiddenLayer);
       if (typeof hidden[i - 1] !== 'undefined') {
-        hidden[i - 1].connect(hiddenLayer, Methods.Connection.ALL_TO_ALL);
+        hidden[i - 1].connect(hiddenLayer, methods.connection.ALL_TO_ALL);
       }
     }
 
     nodes.push(inputMemory);
     nodes.push(output);
 
-    input.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
-    input.connect(inputMemory, Methods.Connection.ONE_TO_ONE, 1);
-    inputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
-    hidden[hidden.length - 1].connect(output, Methods.Connection.ALL_TO_ALL);
-    output.connect(outputMemory, Methods.Connection.ONE_TO_ONE, 1);
-    outputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
+    input.connect(hidden[0], methods.connection.ALL_TO_ALL);
+    input.connect(inputMemory, methods.connection.ONE_TO_ONE, 1);
+    inputMemory.connect(hidden[0], methods.connection.ALL_TO_ALL);
+    hidden[hidden.length - 1].connect(output, methods.connection.ALL_TO_ALL);
+    output.connect(outputMemory, methods.connection.ONE_TO_ONE, 1);
+    outputMemory.connect(hidden[0], methods.connection.ALL_TO_ALL);
 
     input.set({
       type: 'input'
@@ -3499,12 +3419,12 @@ var Architect = {
       type: 'output'
     });
 
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   }
 };
 
 /* Export */
-module.exports = Architect;
+module.exports = architect;
 
 
 /***/ }),
@@ -3516,7 +3436,7 @@ module.exports = Architect;
 *******************************************************************************/
 
 // Specifies in what manner two groups are connected
-var Connection = {
+var connection = {
   ALL_TO_ALL: {
     name: 'OUTPUT'
   },
@@ -3529,7 +3449,7 @@ var Connection = {
 };
 
 /* Export */
-module.exports = Connection;
+module.exports = connection;
 
 
 /***/ }),
@@ -3541,7 +3461,7 @@ module.exports = Connection;
 *******************************************************************************/
 
 // https://en.wikipedia.org/wiki/Loss_function
-var Cost = {
+var cost = {
   // Cross entropy error
   CROSS_ENTROPY: function (target, output) {
     var error = 0;
@@ -3608,7 +3528,7 @@ var Cost = {
 };
 
 /* Export */
-module.exports = Cost;
+module.exports = cost;
 
 
 /***/ }),
@@ -3620,7 +3540,7 @@ module.exports = Cost;
 *******************************************************************************/
 
 // https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
-var Crossover = {
+var crossover = {
   SINGLE_POINT: {
     name: 'SINGLE_POINT',
     config: [0.4]
@@ -3638,7 +3558,7 @@ var Crossover = {
 };
 
 /* Export */
-module.exports = Crossover;
+module.exports = crossover;
 
 
 /***/ }),
@@ -3650,7 +3570,7 @@ module.exports = Crossover;
 *******************************************************************************/
 
 // Specifies how to gate a connection between two groups of multiple neurons
-var Gating = {
+var gating = {
   OUTPUT: { // not yet implemented
     name: 'OUTPUT'
   },
@@ -3663,7 +3583,7 @@ var Gating = {
 };
 
 /* Export */
-module.exports = Gating;
+module.exports = gating;
 
 
 /***/ }),
@@ -3671,14 +3591,14 @@ module.exports = Gating;
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
-var Activation = __webpack_require__(10);
+var activation = __webpack_require__(9);
 
 /*******************************************************************************
                                       MUTATION
 *******************************************************************************/
 
-// https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)
-var Mutation = {
+// https://en.wikipedia.org/wiki/mutation_(genetic_algorithm)
+var mutation = {
   ADD_NODE: {
     name: 'ADD_NODE'
   },
@@ -3706,21 +3626,21 @@ var Mutation = {
     name: 'MOD_ACTIVATION',
     mutateOutput: true,
     allowed: [
-      Activation.LOGISTIC,
-      Activation.TANH,
-      Activation.RELU,
-      Activation.IDENTITY,
-      Activation.STEP,
-      Activation.SOFTSIGN,
-      Activation.SINUSOID,
-      Activation.GAUSSIAN,
-      Activation.BENT_IDENTITY,
-      Activation.BIPOLAR,
-      Activation.BIPOLAR_SIGMOID,
-      Activation.HARD_TANH,
-      Activation.ABSOLUTE,
-      Activation.INVERSE,
-      Activation.SELU
+      activation.LOGISTIC,
+      activation.TANH,
+      activation.RELU,
+      activation.IDENTITY,
+      activation.STEP,
+      activation.SOFTSIGN,
+      activation.SINUSOID,
+      activation.GAUSSIAN,
+      activation.BENT_IDENTITY,
+      activation.BIPOLAR,
+      activation.BIPOLAR_SIGMOID,
+      activation.HARD_TANH,
+      activation.ABSOLUTE,
+      activation.INVERSE,
+      activation.SELU
     ]
   },
   ADD_SELF_CONN: {
@@ -3747,36 +3667,36 @@ var Mutation = {
   }
 };
 
-Mutation.ALL = [
-  Mutation.ADD_NODE,
-  Mutation.SUB_NODE,
-  Mutation.ADD_CONN,
-  Mutation.SUB_CONN,
-  Mutation.MOD_WEIGHT,
-  Mutation.MOD_BIAS,
-  Mutation.MOD_ACTIVATION,
-  Mutation.ADD_GATE,
-  Mutation.SUB_GATE,
-  Mutation.ADD_SELF_CONN,
-  Mutation.SUB_SELF_CONN,
-  Mutation.ADD_BACK_CONN,
-  Mutation.SUB_BACK_CONN,
-  Mutation.SWAP_NODES
+mutation.ALL = [
+  mutation.ADD_NODE,
+  mutation.SUB_NODE,
+  mutation.ADD_CONN,
+  mutation.SUB_CONN,
+  mutation.MOD_WEIGHT,
+  mutation.MOD_BIAS,
+  mutation.MOD_ACTIVATION,
+  mutation.ADD_GATE,
+  mutation.SUB_GATE,
+  mutation.ADD_SELF_CONN,
+  mutation.SUB_SELF_CONN,
+  mutation.ADD_BACK_CONN,
+  mutation.SUB_BACK_CONN,
+  mutation.SWAP_NODES
 ];
 
-Mutation.FFW = [
-  Mutation.ADD_NODE,
-  Mutation.SUB_NODE,
-  Mutation.ADD_CONN,
-  Mutation.SUB_CONN,
-  Mutation.MOD_WEIGHT,
-  Mutation.MOD_BIAS,
-  Mutation.MOD_ACTIVATION,
-  Mutation.SWAP_NODES
+mutation.FFW = [
+  mutation.ADD_NODE,
+  mutation.SUB_NODE,
+  mutation.ADD_CONN,
+  mutation.SUB_CONN,
+  mutation.MOD_WEIGHT,
+  mutation.MOD_BIAS,
+  mutation.MOD_ACTIVATION,
+  mutation.SWAP_NODES
 ];
 
 /* Export */
-module.exports = Mutation;
+module.exports = mutation;
 
 
 /***/ }),
@@ -3788,7 +3708,7 @@ module.exports = Mutation;
 *******************************************************************************/
 
 // https://stackoverflow.com/questions/30033096/what-is-lr-policy-in-caffe/30045244
-var Rate = {
+var rate = {
   FIXED: function () {
     var func = function (baseRate, iteration) { return baseRate; };
     return func;
@@ -3825,7 +3745,7 @@ var Rate = {
 };
 
 /* Export */
-module.exports = Rate;
+module.exports = rate;
 
 
 /***/ }),
@@ -3838,7 +3758,7 @@ module.exports = Rate;
 
 // https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
 
-var Selection = {
+var selection = {
   FITNESS_PROPORTIONATE: {
     name: 'FITNESS_PROPORTIONATE'
   },
@@ -3854,25 +3774,117 @@ var Selection = {
 };
 
 /* Export */
-module.exports = Selection;
+module.exports = selection;
 
 
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
+/*******************************************************************************
+                                  WORKERS
+*******************************************************************************/
+
+var workers = {
+  TestWorker: __webpack_require__(20)
+};
+
+/** Export */
+module.exports = workers;
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* Export */
+module.exports = TestWorker;
+
+/* Import */
+var snippets = __webpack_require__(10);
+
+/*******************************************************************************
+                                WEBWORKER
+*******************************************************************************/
+
+function TestWorker (dataSet, cost) {
+  var blob = new Blob([this._createBlobString(cost)]);
+  this.url = window.URL.createObjectURL(blob);
+  this.worker = new Worker(this.url);
+
+  var data = { set: new Float64Array(dataSet).buffer };
+  this.worker.postMessage(data, [data.set]);
+}
+
+TestWorker.prototype = {
+  evaluate: function (network) {
+    return new Promise((resolve, reject) => {
+      var serialzed = network.serialize();
+
+      var data = {
+        activations: serialzed[0].buffer,
+        states: serialzed[1].buffer,
+        conns: serialzed[2].buffer
+      };
+
+      this.worker.onmessage = function (e) {
+        var error = new Float64Array(e.data.buffer)[0];
+        resolve(error);
+      };
+
+      this.worker.postMessage(data, [data.activations, data.states, data.conns]);
+    });
+  },
+
+  terminate: async function () {
+    this.worker.terminate();
+    window.URL.revokeObjectURL(this.url);
+  },
+
+  _createBlobString: function (cost) {
+    var source = `
+      var A, S, data;
+      var F = [${snippets.activations.toString()}];
+      var cost = ${cost.toString()};
+      var test = ${snippets.testSerializedSet.toString()};
+      var activate = ${snippets.activate.toString()};
+      var set;
+
+      var onmessage = function (e) {
+        if(typeof e.data.set === 'undefined'){
+          A = new Float64Array(e.data.activations);
+          S = new Float64Array(e.data.states);
+          data = new Float64Array(e.data.conns);
+
+          var error = test(set);
+
+          var answer = { buffer: new Float64Array([error ]).buffer };
+          postMessage(answer, [answer.buffer]);
+        } else {
+          set = new Float64Array(e.data.set);
+        }
+      };`;
+
+    return source;
+  }
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
-  Methods: __webpack_require__(0),
+  methods: __webpack_require__(0),
   Connection: __webpack_require__(3),
-  Architect: __webpack_require__(11),
+  architect: __webpack_require__(11),
   Network: __webpack_require__(6),
-  Config: __webpack_require__(2),
+  config: __webpack_require__(2),
   Group: __webpack_require__(4),
   Layer: __webpack_require__(5),
   Node: __webpack_require__(1),
   Neat: __webpack_require__(8),
-  Multi: __webpack_require__(7),
-  WebWorker: __webpack_require__(9)
+  multi: __webpack_require__(7)
 };
 
 // CommonJS & AMD

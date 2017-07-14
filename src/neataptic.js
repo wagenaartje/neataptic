@@ -1,15 +1,14 @@
 var Neataptic = {
-  Methods: require('./methods/methods'),
+  methods: require('./methods/methods'),
   Connection: require('./architecture/connection'),
-  Architect: require('./architecture/architect'),
+  architect: require('./architecture/architect'),
   Network: require('./architecture/network'),
-  Config: require('./config'),
+  config: require('./config'),
   Group: require('./architecture/group'),
   Layer: require('./architecture/layer'),
   Node: require('./architecture/node'),
   Neat: require('./neat'),
-  Multi: require('./multi'),
-  WebWorker: require('./webworker')
+  multi: require('./multithreading/multi')
 };
 
 // CommonJS & AMD

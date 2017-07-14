@@ -1,14 +1,14 @@
 /* Export */
-module.exports = WebWorker;
+module.exports = TestWorker;
 
 /* Import */
-var Multi = require('./multi');
+var snippets = require('../snippets');
 
 /*******************************************************************************
                                 WEBWORKER
 *******************************************************************************/
 
-function WebWorker (dataSet, cost) {
+function TestWorker (dataSet, cost) {
   var blob = new Blob([this._createBlobString(cost)]);
   this.url = window.URL.createObjectURL(blob);
   this.worker = new Worker(this.url);
@@ -17,7 +17,7 @@ function WebWorker (dataSet, cost) {
   this.worker.postMessage(data, [data.set]);
 }
 
-WebWorker.prototype = {
+TestWorker.prototype = {
   evaluate: function (network) {
     return new Promise((resolve, reject) => {
       var serialzed = network.serialize();
@@ -45,10 +45,10 @@ WebWorker.prototype = {
   _createBlobString: function (cost) {
     var source = `
       var A, S, data;
-      var F = [${Multi.snippets.activations.toString()}];
+      var F = [${snippets.activations.toString()}];
       var cost = ${cost.toString()};
-      var test = ${Multi.snippets.testSerializedSet.toString()};
-      var activate = ${Multi.snippets.activate.toString()};
+      var test = ${snippets.testSerializedSet.toString()};
+      var activate = ${snippets.activate.toString()};
       var set;
 
       var onmessage = function (e) {

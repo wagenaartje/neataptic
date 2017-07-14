@@ -36,4 +36,4 @@ var myLSTM = new architect.LSTM(2, 4, 4, 4, 1, options);
 
 While training sequences or timeseries prediction to a LSTM, make sure you set the `clear` option to true while training. [See an example of sequence prediction here.](https://jsfiddle.net/9t2787k5/4/)
 
-This is an example of character-by-character typing by an LSTM: [JSFiddle](https://jsfiddle.net/wagenaartje/k23zbf0f/1/)
+This is an example of character-by-character typing by an LSTM: [JSFiddle](https://jsfiddle.net/k23zbf0f/8/)

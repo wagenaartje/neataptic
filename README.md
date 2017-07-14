@@ -20,7 +20,7 @@
 
 <hr>
 
-<i>Version 1.3.0 is a beta version, please use version 1.2.34 if you experience any issues!</i>
+_Version 1.3.0 is a beta version, please use version 1.2.34 if you experience any issues!_
 
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
 

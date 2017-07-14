@@ -4,10 +4,10 @@
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
-    "test:src" : "mocha test/src.js test",
-    "test:dist" : "mocha test/dist.js test",
+    "test:src": "mocha test/src.js test",
+    "test:dist": "mocha test/dist.js test",
     "build:dist": "webpack",
-    "build:docs" : "cd mkdocs && mkdocs build --site-dir ../docs && cd ../",
+    "build:docs": "cd mkdocs && mkdocs build --site-dir ../docs && cd ../",
     "build": "npm run build:dist && npm run build:docs",
     "deploy": "npm run build && npm run test:dist && npm publish",
     "test:travis": "npm run build:dist && npm run test:dist"

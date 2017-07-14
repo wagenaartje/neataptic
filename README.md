@@ -20,6 +20,8 @@
 
 <hr>
 
+<i>Version 1.3.0 is a beta version, please use version 1.2.34 if you experience any issues!</i>
+
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
 
 Neataptic trains more than 5x faster than competitors. [Run the tests yourself](https://jsfiddle.net/tuet004f/11/).
@@ -148,6 +150,11 @@ over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) 
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
 <script src="https://wagenaartje.github.io/neataptic/cdn/1.3.0/neataptic.js"></script>
+```
+
+If you are experiencing any issues, please use the older, stable version:
+```html
+<script src="https://wagenaartje.github.io/neataptic/cdn/1.2.34/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

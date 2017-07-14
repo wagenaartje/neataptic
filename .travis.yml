@@ -2,4 +2,3 @@
  script: "npm run test:travis"
  node_js:
     - "node"
-    - "6"

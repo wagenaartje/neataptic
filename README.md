@@ -155,8 +155,10 @@ Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 Installing with node is also possible:
 
 ```javascript
-npm install neataptic
+npm install neataptic 1.2.34
 ```
+
+Only use the latest version if you aren't afraid of bugs.
 
 ## Further notices
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop

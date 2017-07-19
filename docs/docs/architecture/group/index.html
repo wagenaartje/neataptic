@@ -315,7 +315,7 @@ B.propagate(0.3, 0.9, [0,1]);
 <pre><code class="javascript">var A = new Group(4);
 var B = new Group(5);
 
-A.connect(B, Methods.Connection.ALL_TO_ALL); // specifying a method is optional
+A.connect(B, methods.connection.ALL_TO_ALL); // specifying a method is optional
 </code></pre>
 
 <h3 id="disconnect">disconnect</h3>
@@ -330,7 +330,7 @@ var connections = A.connect(B);
 var C = new Group(2);
 
 // Gate the connections between groups A and B
-C.gate(connections, Methods.Gating.INPUT);
+C.gate(connections, methods.gating.INPUT);
 </code></pre>
 
 <h3 id="set">set</h3>

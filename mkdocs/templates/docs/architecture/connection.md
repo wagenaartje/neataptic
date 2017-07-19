@@ -23,8 +23,8 @@ gain | for gating, gets multiplied with weight
 ### Connection methods
 There are three connection methods:
 
-* **Methods.Connection.ALL_TO_ALL** connects all nodes from group `x` to all nodes from group `y`
-* **Methods.Connection.ALL_TO_ELSE** connects every node from group `x` to all nodes in the same group except itself
-* **Methods.Connection.ONE_TO_ONE** connects every node in group `x` to one node in group `y`
+* **methods.connection.ALL_TO_ALL** connects all nodes from group `x` to all nodes from group `y`
+* **methods.connection.ALL_TO_ELSE** connects every node from group `x` to all nodes in the same group except itself
+* **methods.connection.ONE_TO_ONE** connects every node in group `x` to one node in group `y`
 
 Every one of these connection methods can also be used on the group itself! (`x.connect(x, METHOD)`)

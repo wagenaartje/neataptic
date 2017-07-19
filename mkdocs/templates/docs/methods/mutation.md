@@ -29,26 +29,26 @@ SWAP_NODES | Swaps the bias and squash function between two nodes
 All of these mutation functions can be executed on any kind of network:
 
 ```javascript
-myNetwork.mutate(Methods.Mutation.<MUTATION_METHOD>);
+myNetwork.mutate(methods.mutation.<MUTATION_METHOD>);
 
 // eg.
-myNetwork.mutate(Methods.Mutation.ADD_NODE);
+myNetwork.mutate(methods.mutation.ADD_NODE);
 ```
 
 And some on them on nodes (`MOD_BIAS` and `MOD_ACTIVATION`):
 
 ```javascript
-myNode.mutate(Methods.Mutation.<MUTATION_METHOD>);
+myNode.mutate(methods.mutation.<MUTATION_METHOD>);
 
 // eg.
-myNode.mutate(Methods.Mutation.MOD_BIAS);
+myNode.mutate(methods.mutation.MOD_BIAS);
 ```
 
 For `network.evolve()` and `neat()` options, specify a list of mutation methods as follows in the options (example):
 
 ```js
 network.evolve(trainingset, {
-  mutation: [Methods.Mutation.MOD_BIAS, Methods.Mutation.ADD_NODE]
+  mutation: [methods.mutation.MOD_BIAS, methods.mutation.ADD_NODE]
 }
 ```
 
@@ -56,11 +56,11 @@ You can also specify groups of methods:
 
 ```js
 network.evolve(trainingset, {
-  mutation: Methods.Mutation.ALL // all mutation methods
+  mutation: methods.mutation.ALL // all mutation methods
 }
 
 network.evolve(trainingset, {
-  mutation: Methods.Mutation.FFW// all feedforward mutation methods
+  mutation: methods.mutation.FFW// all feedforward mutation methods
 }
 ```
 
@@ -71,7 +71,7 @@ Some methods are configurable! You can change these config values as follows:
 option = value;
 
 // eg.
-Methods.Mutation.MOD_ACTIVATION.mutateOutput = false;
+methods.mutation.MOD_ACTIVATION.mutateOutput = false;
 ```
 
 Or you can edit the `methods/mutation.js` file to change the default values.
@@ -79,54 +79,54 @@ Or you can edit the `methods/mutation.js` file to change the default values.
 &zwnj;
 
 ```js
-Methods.Mutation.SUB_NODE.keep_gates // default: true
+methods.mutation.SUB_NODE.keep_gates // default: true
 ```
 When removing a node, you remove the connections and initialize new ones. Setting this option to true will make sure if the removed connections were gated, so will the new ones be.
 
 &zwnj;
 
 ```js
-Methods.Mutation.MOD_WEIGHT.min // default: -1
-Methods.Mutation.MOD_WEIGHT.max // default: 1
+methods.mutation.MOD_WEIGHT.min // default: -1
+methods.mutation.MOD_WEIGHT.max // default: 1
 ```
 Sets the upper and lower bounds of the modification of connection weights.
 
 &zwnj;
 
 ```js
-Methods.Mutation.MOD_BIAS.min // default: -1
-Methods.Mutation.MOD_BIAS.max // default: 1
+methods.mutation.MOD_BIAS.min // default: -1
+methods.mutation.MOD_BIAS.max // default: 1
 ```
 Sets the upper and lower bounds of the modification of neuron biases.
 
 &zwnj;
 
 ```js
-Methods.Mutation.MOD_ACTIVATION.mutateOutput // default: true
-Methods.Mutation.SWAP_NODES.mutateOutput     // default: true
+methods.mutation.MOD_ACTIVATION.mutateOutput // default: true
+methods.mutation.SWAP_NODES.mutateOutput     // default: true
 ```
 Disable this option if you want the have the activation function of the output neurons unchanged. Useful if you want to keep the output of your neural network normalized.
 
 &zwnj;
 
 ```js
-Methods.Mutation.MOD_ACTIVATION.allowed
+methods.mutation.MOD_ACTIVATION.allowed
 
 // default:
 [
-  Activation.LOGISTIC,
-  Activation.TANH,
-  Activation.RELU,
-  Activation.IDENTITY,
-  Activation.STEP,
-  Activation.SOFTSIGN,
-  Activation.SINUSOID,
-  Activation.GAUSSIAN,
-  Activation.BENT_IDENTITY,
-  Activation.BIPOLAR,
-  Activation.BIPOLAR_SIGMOID,
-  Activation.HARD_TANH,
-  Activation.ABSOLUTE
+  activation.LOGISTIC,
+  activation.TANH,
+  activation.RELU,
+  activation.IDENTITY,
+  activation.STEP,
+  activation.SOFTSIGN,
+  activation.SINUSOID,
+  activation.GAUSSIAN,
+  activation.BENT_IDENTITY,
+  activation.BIPOLAR,
+  activation.BIPOLAR_SIGMOID,
+  activation.HARD_TANH,
+  activation.ABSOLUTE
 ]
 ```
 

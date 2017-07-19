@@ -32,7 +32,7 @@ input.connect(hidden1);
 hidden1.connect(hidden2);
 hidden2.connect(output);
 
-var network = Architect.Construct([input, hidden1, hidden2, output]);
+var network = architect.Construct([input, hidden1, hidden2, output]);
 ```
 
 ### Layer.Dense
@@ -50,7 +50,7 @@ time lags. This is a recurrent layer. More info? Check out the [LSTM](../builtin
 var layer = new Layer.LSTM(size);
 ```
 
-Be aware that using `Layer.LSTM` is worse than using `Architect.LSTM`. See issue [#25](https://github.com/wagenaartje/neataptic/issues/25).
+Be aware that using `Layer.LSTM` is worse than using `architect.LSTM`. See issue [#25](https://github.com/wagenaartje/neataptic/issues/25).
 
 ### Layer.GRU
 The GRU layer is similar to the LSTM layer, however it has no memory cell and only

@@ -9,7 +9,7 @@ Just like LSTM's, [NARX networks](https://en.wikipedia.org/wiki/Nonlinear_autore
 The constructor looks like this:
 
 ```js
-var network = new Architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
+var network = new architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
 ```
 
 A quick explanation of each argument:
@@ -22,7 +22,7 @@ A quick explanation of each argument:
 Example:
 
 ```javascript
-var narx = new Architect.NARX(1, 5, 1, 3, 3);
+var narx = new architect.NARX(1, 5, 1, 3, 3);
 
 // Train the XOR gate (in sequence!)
 var trainingData = [

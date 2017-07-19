@@ -271,7 +271,7 @@ B.connect(D);
 C.connect(D);
 
 // Construct a network
-var network = Architect.Construct([A, B, C, D]);
+var network = architect.Construct([A, B, C, D]);
 </code></pre>
 
 <p>And voila, basically a square, but stretched out, right?</p>
@@ -289,7 +289,7 @@ A.connect(C);
 B.connect(C);
 
 // Construct a network
-var network = Architect.Construct([A, B, C, D]);
+var network = architect.Construct([A, B, C, D]);
 </code></pre>
 
 <p>Keep in mind that you must always specify your input groups/nodes in <strong>activation order</strong>. Input and output nodes will automatically get sorted out, but all hidden nodes will be activated in the order that they were given.</p>

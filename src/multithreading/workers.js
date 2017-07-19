@@ -1,11 +1,10 @@
 /*******************************************************************************
-                                      CONFIG
+                                  WORKERS
 *******************************************************************************/
 
-// Config
-var config = {
-  warnings: false
+var workers = {
+  TestWorker: require('./workers/testworker')
 };
 
-/* Export */
-module.exports = config;
+/** Export */
+module.exports = workers;

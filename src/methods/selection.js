@@ -1,10 +1,10 @@
-/*******************************************************************************************
+/*******************************************************************************
                                       SELECTION
-*******************************************************************************************/
+*******************************************************************************/
 
 // https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
 
-var Selection = {
+var selection = {
   FITNESS_PROPORTIONATE: {
     name: 'FITNESS_PROPORTIONATE'
   },
@@ -20,4 +20,4 @@ var Selection = {
 };
 
 /* Export */
-module.exports = Selection;
+module.exports = selection;

@@ -264,18 +264,18 @@ as well. A detailed description of each rate policy is given below.</p>
 <p>You can enable a rate policy during training like this:</p>
 <pre><code class="javascript">network.train(trainingSet, {
   rate: 0.3,
-  ratePolicy: Methods.Rate.METHOD(options),
+  ratePolicy: methods.rate.METHOD(options),
 });
 </code></pre>
 
-<h4 id="methodsratefixed">Methods.Rate.FIXED</h4>
+<h4 id="methodsratefixed">methods.rate.FIXED</h4>
 <p>The default rate policy. Using this policy will make your rate static (it won't
 change). You do not have to specify this rate policy during training per se.</p>
-<h4 id="methodsratestep">Methods.Rate.STEP</h4>
+<h4 id="methodsratestep">methods.rate.STEP</h4>
 <p>The rate will 'step down' every <code>n</code> iterations.</p>
 <p><img alt="step down rate" src="https://i.gyazo.com/4096f7093153d3512b28c35719aef688.png" /></p>
 <p>The main usage of this policy is:</p>
-<pre><code class="javascript">Methods.Rate.STEP(gamma, stepSize)
+<pre><code class="javascript">methods.rate.STEP(gamma, stepSize)
 
 // default gamma: 0.9
 // default stepSize: 100
@@ -283,11 +283,11 @@ change). You do not have to specify this rate policy during training per se.</p>
 
 <p>A gamma of <code>0.9</code> means that every <code>stepSize</code> iterations, your current rate will
 be reduced by 10%.</p>
-<h4 id="methodsrateexp">Methods.Rate.EXP</h4>
+<h4 id="methodsrateexp">methods.rate.EXP</h4>
 <p>The rate will exponentially decrease.</p>
 <p><img alt="exponential decrease" src="http://systems-sciences.uni-graz.at/etextbook/assets/img/img_sw2/decline.JPG" /></p>
 <p>The main usage of this policy is:</p>
-<pre><code class="javascript">Methods.Rate.EXP(gamma)
+<pre><code class="javascript">methods.rate.EXP(gamma)
 
 // default gamma: 0.999
 </code></pre>
@@ -297,10 +297,10 @@ be reduced by 10%.</p>
 </code></pre>
 
 <p>So a gamma of <code>0.999</code> will decrease the current rate by 0.1% every iteration</p>
-<h4 id="methodsrateinv">Methods.Rate.INV</h4>
+<h4 id="methodsrateinv">methods.rate.INV</h4>
 <p><img alt="reverse decay" src="https://i.gyazo.com/7c7a1d76f1cf3d565e20cc9b44c899a8.png" /></p>
 <p>The main usage of this policy is:</p>
-<pre><code class="javascript">Methods.Rate.INV(gamma, power)
+<pre><code class="javascript">methods.rate.INV(gamma, power)
 
 // default gamma: 0.001
 // default power: 2

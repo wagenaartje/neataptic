@@ -20,7 +20,7 @@
 
 <hr>
 
-_Version [1.3.0](https://github.com/wagenaartje/neataptic/tree/async) is on its way, it will have drastic speed improvements!_
+_Version 1.3.0 is a beta version, please use version 1.2.34 if you experience any issues!_
 
 Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
 
@@ -29,7 +29,7 @@ Neataptic trains more than 5x faster than competitors. [Run the tests yourself](
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript
-var myNetwork = new Architect.LSTM(1,10,5,1);
+var myNetwork = new architect.LSTM(1,10,5,1);
 ```
 
 Or built your <b>own</b> network with pre-built layers:
@@ -44,7 +44,7 @@ input.connect(hidden1);
 hidden1.connect(hidden2);
 hidden2.connect(output);
 
-var myNetwork = Architect.Construct([input, hidden1, hidden2, output]);
+var myNetwork = architect.Construct([input, hidden1, hidden2, output]);
 ```
 
 You can even built your network neuron-by-neuron using <b>nodes</b> and <b>groups</b>!
@@ -66,7 +66,7 @@ of Neataptic, feel free to create a pull request!
 Basic XOR example:
 
 ```js
-var network = new Architect.Perceptron(2,4,1);
+var network = new architect.Perceptron(2,4,1);
 
 // Train the XOR gate
 network.train([{ input: [0,0], output: [0] },
@@ -80,7 +80,7 @@ network.activate([0,1]); // 0.9824...
 Or predict timeseries with a NARX network ([run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)):
 
 ```javascript
-var narx = new Architect.NARX(1, 5, 1, 3, 3);
+var narx = new architect.NARX(1, 5, 1, 3, 3);
 
 // Train a sequence: 00100100..
 narx.train([
@@ -105,8 +105,8 @@ You can also evolve neural networks to perform as an XOR gate (in sequence):
 var network = new Network(1,1);
 
 // trainingSet = XOR sequence
-network.evolve(trainingSet, {
-  mutation: Methods.Mutation.ALL,
+await network.evolve(trainingSet, {
+  mutation: methods.mutation.ALL,
   equal: true,
   popSize: 100,
   elitism: 10,
@@ -149,6 +149,11 @@ over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 ```html
+<script src="https://wagenaartje.github.io/neataptic/cdn/1.3.0/neataptic.js"></script>
+```
+
+If you are experiencing any issues, please use the older, stable version:
+```html
 <script src="https://wagenaartje.github.io/neataptic/cdn/1.2.34/neataptic.js"></script>
 ```
 
@@ -162,7 +167,7 @@ Only use the latest version if you aren't afraid of bugs.
 
 ## Further notices
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop
-Neataptic. 
+Neataptic.
 
 <hr>
 

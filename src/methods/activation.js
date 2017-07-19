@@ -1,10 +1,10 @@
-/*******************************************************************************************
+/*******************************************************************************
                                   ACTIVATION FUNCTIONS
-*******************************************************************************************/
+*******************************************************************************/
 
 // https://en.wikipedia.org/wiki/Activation_function
 // https://stats.stackexchange.com/questions/115258/comprehensive-list-of-activation-functions-in-neural-networks-with-pros-cons
-var Activation = {
+var activation = {
   LOGISTIC: function (x, derivate) {
     var fx = 1 / (1 + Math.exp(-x));
     if (!derivate) { return fx; }
@@ -74,4 +74,4 @@ var Activation = {
 };
 
 /* Export */
-module.exports = Activation;
+module.exports = activation;

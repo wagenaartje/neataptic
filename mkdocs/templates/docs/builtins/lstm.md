@@ -9,13 +9,13 @@ The [long short-term memory](http://en.wikipedia.org/wiki/Long_short_term_memory
 To use this architecture you have to set at least one input node, one memory block assembly (consisting of four nodes: input gate, memory cell, forget gate and output gate), and an output node.
 
 ```javascript
-var myLSTM = new Architect.LSTM(2,6,1);
+var myLSTM = new architect.LSTM(2,6,1);
 ```
 
 Also you can set many layers of memory blocks:
 
 ```javascript
-var myLSTM = new Architect.LSTM(2, 4, 4, 4, 1);
+var myLSTM = new architect.LSTM(2, 4, 4, 4, 1);
 ```
 
 That LSTM network has 3 memory block assemblies, with 4 memory cells each, and their own input gates, memory cells, forget gates and output gates.
@@ -31,7 +31,7 @@ var options = {
   inputToDeep: true         // default is true
 };
 
-var myLSTM = new Architect.LSTM(2, 4, 4, 4, 1, options);
+var myLSTM = new architect.LSTM(2, 4, 4, 4, 1, options);
 ```
 
 While training sequences or timeseries prediction to a LSTM, make sure you set the `clear` option to true while training. [See an example of sequence prediction here.](https://jsfiddle.net/9t2787k5/4/)

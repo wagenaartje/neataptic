@@ -282,7 +282,7 @@
 </ul>
 <p>But for most problems, a perceptron is sufficient. Now you only have to determine the size and amount of the network layers. I advise you to take a look at this <a href="https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw">StackExchange question</a> for more help on deciding the hidden size.</p>
 <p>For the training set I provided above (XOR), there are only 2 inputs and one output. I use the rule of thumb: <code>input size + output size = hidden size</code>. So the creation of my network would like this:</p>
-<pre><code class="javascript">myNetwork = Architect.Perceptron(2, 3, 1);
+<pre><code class="javascript">myNetwork = architect.Perceptron(2, 3, 1);
 </code></pre>
 
 <h3 id="training-the-network">Training the network</h3>

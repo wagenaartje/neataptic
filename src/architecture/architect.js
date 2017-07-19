@@ -1,15 +1,15 @@
 /* Import */
-var Methods = require('./methods/methods');
+var methods = require('../methods/methods');
 var Network = require('./network');
 var Group = require('./group');
 var Layer = require('./layer');
 var Node = require('./node');
 
-/*******************************************************************************************
-                                        ARCHITECT
-*******************************************************************************************/
+/*******************************************************************************
+                                        architect
+*******************************************************************************/
 
-var Architect = {
+var architect = {
   /**
    * Constructs a network from a given array of connected nodes
    */
@@ -98,11 +98,11 @@ var Architect = {
       var layer = layers[i];
       layer = new Group(layer);
       nodes.push(layer);
-      nodes[i - 1].connect(nodes[i], Methods.Connection.ALL_TO_ALL);
+      nodes[i - 1].connect(nodes[i], methods.connection.ALL_TO_ALL);
     }
 
     // Construct the network
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -120,23 +120,23 @@ var Architect = {
 
     var i;
     for (i = 0; i < hidden; i++) {
-      network.mutate(Methods.Mutation.ADD_NODE);
+      network.mutate(methods.mutation.ADD_NODE);
     }
 
     for (i = 0; i < connections - hidden; i++) {
-      network.mutate(Methods.Mutation.ADD_CONN);
+      network.mutate(methods.mutation.ADD_CONN);
     }
 
     for (i = 0; i < backconnections; i++) {
-      network.mutate(Methods.Mutation.ADD_BACK_CONN);
+      network.mutate(methods.mutation.ADD_BACK_CONN);
     }
 
     for (i = 0; i < selfconnections; i++) {
-      network.mutate(Methods.Mutation.ADD_SELF_CONN);
+      network.mutate(methods.mutation.ADD_SELF_CONN);
     }
 
     for (i = 0; i < gates; i++) {
-      network.mutate(Methods.Mutation.ADD_GATE);
+      network.mutate(methods.mutation.ADD_GATE);
     }
 
     return network;
@@ -204,44 +204,44 @@ var Architect = {
       });
 
       // Connect the input with all the nodes
-      var input = previous.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-      previous.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-      previous.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-      previous.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
+      var input = previous.connect(memoryCell, methods.connection.ALL_TO_ALL);
+      previous.connect(inputGate, methods.connection.ALL_TO_ALL);
+      previous.connect(outputGate, methods.connection.ALL_TO_ALL);
+      previous.connect(forgetGate, methods.connection.ALL_TO_ALL);
 
       // Set up internal connections
-      memoryCell.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-      memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-      memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-      var forget = memoryCell.connect(memoryCell, Methods.Connection.ONE_TO_ONE);
-      var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
+      memoryCell.connect(inputGate, methods.connection.ALL_TO_ALL);
+      memoryCell.connect(forgetGate, methods.connection.ALL_TO_ALL);
+      memoryCell.connect(outputGate, methods.connection.ALL_TO_ALL);
+      var forget = memoryCell.connect(memoryCell, methods.connection.ONE_TO_ONE);
+      var output = memoryCell.connect(outputBlock, methods.connection.ALL_TO_ALL);
 
       // Set up gates
-      inputGate.gate(input, Methods.Gating.INPUT);
-      forgetGate.gate(forget, Methods.Gating.SELF);
-      outputGate.gate(output, Methods.Gating.OUTPUT);
+      inputGate.gate(input, methods.gating.INPUT);
+      forgetGate.gate(forget, methods.gating.SELF);
+      outputGate.gate(output, methods.gating.OUTPUT);
 
       // Input to all memory cells
       if (options.inputToDeep && i > 0) {
-        let input = inputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = inputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       // Optional connections
       if (options.memoryToMemory) {
-        let input = memoryCell.connect(memoryCell, Methods.Connection.ALL_TO_ELSE);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = memoryCell.connect(memoryCell, methods.connection.ALL_TO_ELSE);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       if (options.outputToMemory) {
-        let input = outputLayer.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
-        inputGate.gate(input, Methods.Gating.INPUT);
+        let input = outputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
+        inputGate.gate(input, methods.Gating.INPUT);
       }
 
       if (options.outputToGates) {
-        outputLayer.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-        outputLayer.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-        outputLayer.connect(outputGate, Methods.Connection.ALL_TO_ALL);
+        outputLayer.connect(inputGate, methods.connection.ALL_TO_ALL);
+        outputLayer.connect(forgetGate, methods.connection.ALL_TO_ALL);
+        outputLayer.connect(outputGate, methods.connection.ALL_TO_ALL);
       }
 
       // Add to array
@@ -256,11 +256,11 @@ var Architect = {
 
     // input to output direct connection
     if (options.inputToOutput) {
-      inputLayer.connect(outputLayer, Methods.Connection.ALL_TO_ALL);
+      inputLayer.connect(outputLayer, methods.connection.ALL_TO_ALL);
     }
 
     nodes.push(outputLayer);
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -291,7 +291,7 @@ var Architect = {
     previous.connect(outputLayer);
     nodes.push(outputLayer);
 
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   },
 
   /**
@@ -301,17 +301,17 @@ var Architect = {
     var input = new Group(size);
     var output = new Group(size);
 
-    input.connect(output, Methods.Connection.ALL_TO_ALL);
+    input.connect(output, methods.connection.ALL_TO_ALL);
 
     input.set({
       type: 'input'
     });
     output.set({
-      squash: Methods.Activation.STEP,
+      squash: methods.activation.STEP,
       type: 'output'
     });
 
-    var network = new Architect.Construct([input, output]);
+    var network = new architect.Construct([input, output]);
 
     return network;
   },
@@ -340,19 +340,19 @@ var Architect = {
       hidden.push(hiddenLayer);
       nodes.push(hiddenLayer);
       if (typeof hidden[i - 1] !== 'undefined') {
-        hidden[i - 1].connect(hiddenLayer, Methods.Connection.ALL_TO_ALL);
+        hidden[i - 1].connect(hiddenLayer, methods.connection.ALL_TO_ALL);
       }
     }
 
     nodes.push(inputMemory);
     nodes.push(output);
 
-    input.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
-    input.connect(inputMemory, Methods.Connection.ONE_TO_ONE, 1);
-    inputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
-    hidden[hidden.length - 1].connect(output, Methods.Connection.ALL_TO_ALL);
-    output.connect(outputMemory, Methods.Connection.ONE_TO_ONE, 1);
-    outputMemory.connect(hidden[0], Methods.Connection.ALL_TO_ALL);
+    input.connect(hidden[0], methods.connection.ALL_TO_ALL);
+    input.connect(inputMemory, methods.connection.ONE_TO_ONE, 1);
+    inputMemory.connect(hidden[0], methods.connection.ALL_TO_ALL);
+    hidden[hidden.length - 1].connect(output, methods.connection.ALL_TO_ALL);
+    output.connect(outputMemory, methods.connection.ONE_TO_ONE, 1);
+    outputMemory.connect(hidden[0], methods.connection.ALL_TO_ALL);
 
     input.set({
       type: 'input'
@@ -361,9 +361,9 @@ var Architect = {
       type: 'output'
     });
 
-    return Architect.Construct(nodes);
+    return architect.Construct(nodes);
   }
 };
 
 /* Export */
-module.exports = Architect;
+module.exports = architect;

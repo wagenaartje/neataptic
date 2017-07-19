@@ -258,9 +258,17 @@
           <h1 style="margin-bottom: 0px;">Evolution</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\tutorials\evolution.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p>Neuro-evolution is something that is fairly underused in the machine learning community. It is quite interesting to see new architectures develop for complicated problems. In this guide I will tell you how to set up a simple supervised neuro-evolution process. If you want to do an unsupervised neuro-evolution process, head over to the <a href="../../neat/">NEAT</a> page.</p>
+          <p>Neuro-evolution is something that is fairly underused in the machine learning
+community. It is quite interesting to see new architectures develop for
+complicated problems. In this guide I will tell you how to set up a simple
+supervised neuro-evolution process. If you want to do an unsupervised
+neuro-evolution process, head over to the <a href="../../neat/">NEAT</a> page.</p>
 <h3 id="the-training-set">The training set</h3>
-<p>You always have to supply a training set for supervised learning. First of all, you should normalize your data. That means you have to convert all your input and output data to values within a range of <code>0</code> to <code>1</code>. If you are unsure how to do this, visit the <a href="../normalization/">Normalization</a> tutorial. Each training sample in your training set should be an object that looks as follows:</p>
+<p>You always have to supply a training set for supervised learning. First of all,
+you should normalize your data. That means you have to convert all your input and
+output data to values within a range of <code>0</code> to <code>1</code>. If you are unsure how to do
+this, visit the <a href="../normalization/">Normalization</a> tutorial. Each training sample
+in your training set should be an object that looks as follows:</p>
 <pre><code class="javascript">{ input: [], output: [] }
 </code></pre>
 
@@ -274,7 +282,10 @@
 </code></pre>
 
 <h3 id="the-network-architecture">The network architecture</h3>
-<p>You can start off with <em>any</em> architecture. You can even use the evolution process to optimize already trained networks. However, I advise you to start with an empty network, as originally described in the <a href="http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf">NEAT</a> paper. The constructor of an empty network is as follows:</p>
+<p>You can start off with <em>any</em> architecture. You can even use the evolution process
+to optimize already trained networks. However, I advise you to start with an empty
+network, as originally described in the <a href="http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf">NEAT</a>
+ paper. The constructor of an empty network is as follows:</p>
 <pre><code class="javascript">var myNetwork = new Network(inputSize, outputSize);
 </code></pre>
 
@@ -282,15 +293,21 @@
 <pre><code class="javascript">var myNetwork = new Network(2, 1); // 2 inputs, 1 output
 </code></pre>
 
-<p>Now we have our network. We don't have to tinker around anymore; the evolution process will do that <em>for</em> us.</p>
+<p>Now we have our network. We don't have to tinker around anymore; the evolution
+process will do that <em>for</em> us.</p>
 <h3 id="evolving-the-network">Evolving the network</h3>
-<p>Be warned: there are <em>a lot</em> of options involved in the evolution of a process. It's a matter of trial and error before you reach options that work really well. Please note that most options are optional, as default values have been configured. The evolve function is as follows:</p>
+<p>Be warned: there are <em>a lot</em> of options involved in the evolution of a process.
+It's a matter of trial and error before you reach options that work really well.
+Please note that most options are optional, as default values have been configured.</p>
+<p>Please note that the <code>evolve</code> function is an <code>async</code> function, so you need to wrap
+it in an async function to call <code>await</code>.</p>
+<p>The evolve function is as follows:</p>
 <pre><code class="javascript">yourNetwork.evolve(yourData, yourOptions);
 </code></pre>
 
 <p>Check out the evolution options <a href="../../architecture/network/">here</a> and <a href="../../neat/">here</a>. I'm going to use the following options to evolve the network:</p>
 <ul>
-<li><code>mutation: Methods.Mutation.FFW</code> - I want to solve a feed forward problem, so I supply all feed forward mutation methods. More info <a href="../../methods/mutation/">here</a>.</li>
+<li><code>mutation: methods.mutation.FFW</code> - I want to solve a feed forward problem, so I supply all feed forward mutation methods. More info <a href="../../methods/mutation/">here</a>.</li>
 <li><code>equal: true</code> - During the crossover process, parent networks will be equal. This allows the spawning of new network architectures more easily.</li>
 <li><code>popsize: 100</code> - The default population size is 50, but 100 worked better for me.</li>
 <li><code>elitism: 10</code> - I want to keep the fittest 10% of the population to the next generation without breeding them.</li>
@@ -300,8 +317,8 @@
 <li><code>mutationRate: 0.5</code> - I want to increase the mutation rate to surpass possible local optima.</li>
 </ul>
 <p>So let's put it all together:</p>
-<pre><code class="javascript">myNetwork.evolve(myTrainingSet, {
-  mutation: Methods.Mutation.FFW,
+<pre><code class="javascript">await myNetwork.evolve(myTrainingSet, {
+  mutation: methods.mutation.FFW,
   equal: true,
   popsize: 100,
   elitism: 10,
@@ -322,7 +339,9 @@ myNetwork.activate([1,0]); // [1]
 myNetwork.activate([1,1]); // [0]
 </code></pre>
 
-<p>Notice how precise the results are. That is because the evolution process makes full use of the diverse activation functions. It actually uses the <a href="../../methods/activation/">Activation.STEP</a> function to get a binary <code>0</code> and <code>1</code> output.</p>
+<p>Notice how precise the results are. That is because the evolution process makes
+full use of the diverse activation functions. It actually uses the <a href="../../methods/activation/">Activation.STEP</a>
+function to get a binary <code>0</code> and <code>1</code> output.</p>
 <h3 id="help">Help</h3>
 <p>If you need more help, feel free to create an issue <a href="https://github.com/wagenaartje/neataptic/issues">here</a>!</p>
         </div>

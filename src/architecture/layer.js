@@ -2,13 +2,13 @@
 module.exports = Layer;
 
 /* Import */
-var Methods = require('./methods/methods');
+var methods = require('../methods/methods');
 var Group = require('./group');
 var Node = require('./node');
 
-/******************************************************************************************
+/*******************************************************************************
                                          Group
-*******************************************************************************************/
+*******************************************************************************/
 
 function Layer () {
   this.output = null;
@@ -186,7 +186,7 @@ Layer.Dense = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     return from.connect(block, method, weight);
   };
 
@@ -215,15 +215,15 @@ Layer.LSTM = function (size) {
   });
 
   // Set up internal connections
-  memoryCell.connect(inputGate, Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(forgetGate, Methods.Connection.ALL_TO_ALL);
-  memoryCell.connect(outputGate, Methods.Connection.ALL_TO_ALL);
-  var forget = memoryCell.connect(memoryCell, Methods.Connection.ONE_TO_ONE);
-  var output = memoryCell.connect(outputBlock, Methods.Connection.ALL_TO_ALL);
+  memoryCell.connect(inputGate, methods.connection.ALL_TO_ALL);
+  memoryCell.connect(forgetGate, methods.connection.ALL_TO_ALL);
+  memoryCell.connect(outputGate, methods.connection.ALL_TO_ALL);
+  var forget = memoryCell.connect(memoryCell, methods.connection.ONE_TO_ONE);
+  var output = memoryCell.connect(outputBlock, methods.connection.ALL_TO_ALL);
 
   // Set up gates
-  forgetGate.gate(forget, Methods.Gating.SELF);
-  outputGate.gate(output, Methods.Gating.OUTPUT);
+  forgetGate.gate(forget, methods.gating.SELF);
+  outputGate.gate(output, methods.gating.OUTPUT);
 
   // Add to nodes array
   layer.nodes = [inputGate, forgetGate, memoryCell, outputGate, outputBlock];
@@ -233,7 +233,7 @@ Layer.LSTM = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     var connections = [];
 
     var input = from.connect(memoryCell, method, weight);
@@ -243,7 +243,7 @@ Layer.LSTM = function (size) {
     connections = connections.concat(from.connect(outputGate, method, weight));
     connections = connections.concat(from.connect(forgetGate, method, weight));
 
-    inputGate.gate(input, Methods.Gating.INPUT);
+    inputGate.gate(input, methods.gating.INPUT);
 
     return connections;
   };
@@ -264,15 +264,15 @@ Layer.GRU = function (size) {
 
   previousOutput.set({
     bias: 0,
-    squash: Methods.Activation.IDENTITY,
+    squash: methods.activation.IDENTITY,
     type: 'constant'
   });
   memoryCell.set({
-    squash: Methods.Activation.TANH
+    squash: methods.activation.TANH
   });
   inverseUpdateGate.set({
     bias: 0,
-    squash: Methods.Activation.INVERSE,
+    squash: methods.activation.INVERSE,
     type: 'constant'
   });
   updateGate.set({
@@ -283,28 +283,28 @@ Layer.GRU = function (size) {
   });
 
   // Update gate calculation
-  previousOutput.connect(updateGate, Methods.Connection.ALL_TO_ALL);
+  previousOutput.connect(updateGate, methods.connection.ALL_TO_ALL);
 
   // Inverse update gate calculation
-  updateGate.connect(inverseUpdateGate, Methods.Connection.ONE_TO_ONE, 1);
+  updateGate.connect(inverseUpdateGate, methods.connection.ONE_TO_ONE, 1);
 
   // Reset gate calculation
-  previousOutput.connect(resetGate, Methods.Connection.ALL_TO_ALL);
+  previousOutput.connect(resetGate, methods.connection.ALL_TO_ALL);
 
   // Memory calculation
-  var reset = previousOutput.connect(memoryCell, Methods.Connection.ALL_TO_ALL);
+  var reset = previousOutput.connect(memoryCell, methods.connection.ALL_TO_ALL);
 
-  resetGate.gate(reset, Methods.Gating.OUTPUT); // gate
+  resetGate.gate(reset, methods.gating.OUTPUT); // gate
 
   // Output calculation
-  var update1 = previousOutput.connect(output, Methods.Connection.ALL_TO_ALL);
-  var update2 = memoryCell.connect(output, Methods.Connection.ALL_TO_ALL);
+  var update1 = previousOutput.connect(output, methods.connection.ALL_TO_ALL);
+  var update2 = memoryCell.connect(output, methods.connection.ALL_TO_ALL);
 
-  updateGate.gate(update1, Methods.Gating.OUTPUT);
-  inverseUpdateGate.gate(update2, Methods.Gating.OUTPUT);
+  updateGate.gate(update1, methods.gating.OUTPUT);
+  inverseUpdateGate.gate(update2, methods.gating.OUTPUT);
 
   // Previous output calculation
-  output.connect(previousOutput, Methods.Connection.ONE_TO_ONE, 1);
+  output.connect(previousOutput, methods.connection.ONE_TO_ONE, 1);
 
   // Add to nodes array
   layer.nodes = [updateGate, inverseUpdateGate, resetGate, memoryCell, output, previousOutput];
@@ -313,7 +313,7 @@ Layer.GRU = function (size) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
     var connections = [];
 
     connections = connections.concat(from.connect(updateGate, method, weight));
@@ -337,13 +337,13 @@ Layer.Memory = function (size, memory) {
     var block = new Group(size);
 
     block.set({
-      squash: Methods.Activation.IDENTITY,
+      squash: methods.activation.IDENTITY,
       bias: 0,
       type: 'constant'
     });
 
     if (previous != null) {
-      previous.connect(block, Methods.Connection.ONE_TO_ONE, 1);
+      previous.connect(block, methods.connection.ONE_TO_ONE, 1);
     }
 
     layer.nodes.push(block);
@@ -365,13 +365,13 @@ Layer.Memory = function (size, memory) {
 
   layer.input = function (from, method, weight) {
     if (from instanceof Layer) from = from.output;
-    method = method || Methods.Connection.ALL_TO_ALL;
+    method = method || methods.connection.ALL_TO_ALL;
 
     if (from.nodes.length !== layer.nodes[layer.nodes.length - 1].nodes.length) {
       throw new Error('Previous layer size must be same as memory size');
     }
 
-    return from.connect(layer.nodes[layer.nodes.length - 1], Methods.Connection.ONE_TO_ONE, 1);
+    return from.connect(layer.nodes[layer.nodes.length - 1], methods.connection.ONE_TO_ONE, 1);
   };
 
   return layer;

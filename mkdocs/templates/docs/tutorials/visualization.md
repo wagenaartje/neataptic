@@ -44,11 +44,11 @@ Create a html file. Copy and paste this template if you want:
 **Step 3** Create a network. You can do that in any of the following ways:
 
 ```javascript
-var network = Architect.Random(2, 20, 2, 2);
+var network = architect.Random(2, 20, 2, 2);
 ```
 
 ```javascript
-var network = Architect.Perceptron(2, 10, 10, 2);
+var network = architect.Perceptron(2, 10, 10, 2);
 ```
 
 Or if you want to be more advanced, construct your own:
@@ -70,7 +70,7 @@ for(var i = 0; i < nodes.length-1; i++){
   }
 }
 
-var network = Architect.Construct(nodes);
+var network = architect.Construct(nodes);
 ```
 
 **Step 4** Retrieve data and draw a graph

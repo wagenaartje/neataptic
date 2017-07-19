@@ -258,7 +258,12 @@
           <h1 style="margin-bottom: 0px;">Cost</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\methods\cost.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
-          <p><a href="https://en.wikipedia.org/wiki/Loss_functions_for_classification">Cost functions</a> play an important role in neural networks. They give neural networks an indication of 'how wrong' they are; a.k.a. how far they are from the desired output. But also in fitness functions, cost functions play an imporant role. Without the help of the MSE function, the <a href="https://wagenaartje.github.io/neataptic/articles/evolvexor/">Evolve XOR</a> example would never have worked.</p>
+          <p><a href="https://en.wikipedia.org/wiki/Loss_functions_for_classification">Cost functions</a>
+play an important role in neural networks. They give neural networks an indication
+of 'how wrong' they are; a.k.a. how far they are from the desired output. But
+also in fitness functions, cost functions play an imporant role. Without the
+help of the MSE function, the <a href="https://wagenaartje.github.io/neataptic/articles/evolvexor/">Evolve XOR</a>
+example would never have worked.</p>
 <h3 id="methods">Methods</h3>
 <p>At the moment, there are 7 built-in mutation methods (all for networks):</p>
 <table>
@@ -271,50 +276,54 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function">Methods.Cost.CROSS_ENTROPY</a></td>
+<td><a href="http://neuralnetworksanddeeplearning.com/chap3.html#the_cross-entropy_cost_function">methods.cost.CROSS_ENTROPY</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/106c195cc961bd026ad949ad5ff89f3cde845e2c" /></td>
 <td></td>
 </tr>
 <tr>
-<td><a href="https://en.wikipedia.org/wiki/Mean_squared_error">Methods.Cost.MSE</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Mean_squared_error">methods.cost.MSE</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/67b9ac7353c6a2710e35180238efe54faf4d9c15" /></td>
 <td></td>
 </tr>
 <tr>
-<td><a href="https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-30164-8_884">Methods.Cost.BINARY</a></td>
+<td><a href="https://link.springer.com/referenceworkentry/10.1007%2F978-0-387-30164-8_884">methods.cost.BINARY</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/aa1123a619eb4566439c92655d3f6331aa69c1d1" /></td>
 <td></td>
 </tr>
 <tr>
-<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_error">Methods.Cost.MAE</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_error">methods.cost.MAE</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/3ef87b78a9af65e308cf4aa9acf6f203efbdeded" /></td>
 <td></td>
 </tr>
 <tr>
-<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_percentage_error">Methods.Cost.MAPE</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Mean_absolute_percentage_error">methods.cost.MAPE</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/b2557e2cbee5f1cbf3c9b474878df86d1e74189a" /></td>
 <td></td>
 </tr>
 <tr>
-<td><a href="../none">Methods.Cost.MSLE</a></td>
+<td><a href="../none">methods.cost.MSLE</a></td>
 <td>none</td>
 <td></td>
 </tr>
 <tr>
-<td><a href="https://en.wikipedia.org/wiki/Hinge_loss">Methods.Cost.HINGE</a></td>
+<td><a href="https://en.wikipedia.org/wiki/Hinge_loss">methods.cost.HINGE</a></td>
 <td><img alt="" src="https://wikimedia.org/api/rest_v1/media/math/render/svg/a5f42d461f1a28b27438e8f1641e042ff2e40102" /></td>
 <td></td>
 </tr>
 </tbody>
 </table>
 <h3 id="usage">Usage</h3>
-<p>Before experimenting with any of the loss functions, note that not every loss function might 'work' for your network. Some networks have nodes with activation functions that can have negative values; this will create some weird error values with some cost methods. So if you don't know what you're doing: stick to any of the first three cost methods!</p>
+<p>Before experimenting with any of the loss functions, note that not every loss
+function might 'work' for your network. Some networks have nodes with activation
+functions that can have negative values; this will create some weird error values
+with some cost methods. So if you don't know what you're doing: stick to any of
+the first three cost methods!</p>
 <pre><code class="javascript">myNetwork.train(trainingData, {
   log: 1,
   iterations: 500,
   error: 0.03,
   rate: 0.05,
-  cost: Methods.Cost.METHOD
+  cost: methods.cost.METHOD
 });
 </code></pre>
         </div>

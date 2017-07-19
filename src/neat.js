@@ -2,15 +2,15 @@
 module.exports = Neat;
 
 /* Import */
-var Methods = require('./methods/methods');
-var Network = require('./network');
+var Network = require('./architecture/network');
+var methods = require('./methods/methods');
 
 /* Easier variable naming */
-var Selection = Methods.Selection;
+var selection = methods.selection;
 
-/*******************************************************************************************
+/*******************************************************************************
                                          NEAT
-*******************************************************************************************/
+*******************************************************************************/
 
 function Neat (input, output, fitness, options) {
   this.input = input; // The input size of the networks
@@ -27,13 +27,17 @@ function Neat (input, output, fitness, options) {
   this.mutationRate = options.mutationRate || 0.3;
   this.mutationAmount = options.mutationAmount || 1;
 
-  this.selection = options.selection || Methods.Selection.POWER;
-  this.crossover = options.crossover || [Methods.Crossover.SINGLE_POINT,
-    Methods.Crossover.TWO_POINT,
-    Methods.Crossover.UNIFORM,
-    Methods.Crossover.AVERAGE
+  this.fitnessPopulation = options.fitnessPopulation || false;
+
+  this.selection = options.selection || methods.selection.POWER;
+  this.crossover = options.crossover || [
+    methods.crossover.SINGLE_POINT,
+    methods.crossover.TWO_POINT,
+    methods.crossover.UNIFORM,
+    methods.crossover.AVERAGE
   ];
-  this.mutation = options.mutation || Methods.Mutation.FFW;
+  this.mutation = options.mutation || methods.Mutation.FFW;
+
   this.template = options.network || false;
 
   // Generation counter
@@ -65,19 +69,21 @@ Neat.prototype = {
   /**
    * Evaluates, selects, breeds and mutates population
    */
-  evolve: function () {
+  evolve: async function () {
     // Check if evaluated, sort the population
     if (this.population[this.population.length - 1].score == null) {
-      this.evaluate();
+      await this.evaluate();
     }
     this.sort();
+
+    var fittest = Network.fromJSON(this.population[0].toJSON());
+    fittest.score = this.population[0].score;
 
     var newPopulation = [];
 
     // Elitism
     var elitists = [];
-    var i;
-    for (i = 0; i < this.elitism; i++) {
+    for (var i = 0; i < this.elitism; i++) {
       elitists.push(this.population[i]);
     }
 
@@ -95,9 +101,7 @@ Neat.prototype = {
     this.population = newPopulation;
     this.mutate();
 
-    for (i = 0; i < elitists.length; i++) {
-      this.population.push(elitists[i]);
-    }
+    this.population.push(...elitists);
 
     // Reset the scores
     for (i = 0; i < this.population.length; i++) {
@@ -105,6 +109,8 @@ Neat.prototype = {
     }
 
     this.generation++;
+
+    return fittest;
   },
 
   /**
@@ -135,12 +141,15 @@ Neat.prototype = {
   /**
    * Evaluates the current population
    */
-  evaluate: function () {
-    for (var i = 0; i < this.population.length; i++) {
-      var genome = this.population[i];
-      if (this.clear) genome.clear();
-      var score = this.fitness(genome);
-      this.population[i].score = score;
+  evaluate: async function () {
+    if (this.fitnessPopulation) {
+      await this.fitness(this.population);
+    } else {
+      for (var i = 0; i < this.population.length; i++) {
+        var genome = this.population[i];
+        if (this.clear) genome.clear();
+        genome.score = await this.fitness(genome);
+      }
     }
   },
 
@@ -189,12 +198,12 @@ Neat.prototype = {
   getParent: function () {
     var i;
     switch (this.selection) {
-      case Selection.POWER:
+      case selection.POWER:
         if (this.population[0].score < this.population[1].score) this.sort();
 
         var index = Math.floor(Math.pow(Math.random(), this.selection.power) * this.population.length);
         return this.population[index];
-      case Selection.FITNESS_PROPORTIONATE:
+      case selection.FITNESS_PROPORTIONATE:
         // As negative fitnesses are possible
         // https://stackoverflow.com/questions/16186686/genetic-algorithm-handling-negative-fitness-values
         // this is unnecessarily run for every individual, should be changed
@@ -221,9 +230,9 @@ Neat.prototype = {
 
         // if all scores equal, return random genome
         return this.population[Math.floor(Math.random() * this.population.length)];
-      case Selection.TOURNAMENT:
+      case selection.TOURNAMENT:
         if (this.selection.size > this.popsize) {
-          throw new Error('Your tournament size should be lower than the population size, please change Methods.Selection.TOURNAMENT.size');
+          throw new Error('Your tournament size should be lower than the population size, please change methods.selection.TOURNAMENT.size');
         }
 
         // Create a tournament

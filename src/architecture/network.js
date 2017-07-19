@@ -818,6 +818,13 @@ Network.prototype = {
     var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
+    if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
+      console.warn(
+        `Multithreading is automatically enabled, but for small datasets, we
+        encourage using just 1 thread!`
+      );
+    }
+
     var start = Date.now();
 
     if (typeof options.iterations === 'undefined' && typeof options.error === 'undefined') {
@@ -925,7 +932,7 @@ Network.prototype = {
     }
 
     return {
-      error: error,
+      error: -error,
       iterations: neat.generation,
       time: Date.now() - start
     };
@@ -1036,7 +1043,7 @@ Network.prototype = {
       let node = this.nodes[i];
       node.index = i;
       activations.push(node.activation);
-      states.push(node.states);
+      states.push(node.state);
     }
 
     for (i = this.input; i < this.nodes.length; i++) {

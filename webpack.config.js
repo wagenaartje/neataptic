@@ -6,7 +6,6 @@ var data = {
   context: __dirname,
   entry: {
     'dist/neataptic': './src/neataptic.js',
-    'dist/neataptic.min': './src/neataptic.js',
   },
   output: {
     path: './',
@@ -16,15 +15,9 @@ var data = {
   },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.BannerPlugin(license()),
-    /*new webpack.optimize.UglifyJsPlugin({
-      include: /\.min\.js$/,
-      minimize: true
-    })*/
+    new webpack.BannerPlugin(license())
   ]
 }
 
 data.entry[`mkdocs/theme/cdn/${version}/neataptic`] = './src/neataptic.js'
-data.entry[`mkdocs/theme/cdn/${version}/neataptic.min`] = './src/neataptic.js'
-
 module.exports = data;

@@ -51,7 +51,7 @@ TestWorker.prototype = {
       var activate = ${snippets.activate.toString()};
       var set;
 
-      var onmessage = function (e) {
+      this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
           A = new Float64Array(e.data.activations);
           S = new Float64Array(e.data.states);

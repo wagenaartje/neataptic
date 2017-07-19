@@ -56,7 +56,7 @@ network.activate([1,1]); // 0.9824...
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript
-var myNetwork = new architect.LSTM(1,10,5,1);
+var myNetwork = new architect.LSTM(1, 10, 5, 1);
 ```
 
 Or built your <b>own</b> network with pre-built layers:

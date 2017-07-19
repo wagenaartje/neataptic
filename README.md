@@ -23,7 +23,7 @@
 Neataptic offers flexible neural networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. This flexibility allows networks to be shaped for your dataset through neuro-evolution, which is done using multiple threads.
 
 ```js
-// this network learns the XOR gate
+// this network learns the XOR gate (through neuro-evolution)
 var network = new Network(2,1);
 
 var trainingSet = [
@@ -42,21 +42,15 @@ await network.evolve(trainingSet, {
 Neataptic also backpropagates more than 5x faster than competitors. [Run the tests yourself](https://jsfiddle.net/tuet004f/11/). This is an example of regular training in Neataptic:
 
 ```js
-// this network learns the AND gate
-var network = new architect.Perceptron(2, 2, 1);
+// this network learns the XOR gate (through backpropagation)
+var network = new architect.Perceptron(2, 4, 1);
 
-var trainingSet = [
-  { input: [0,0], output: [0] },
-  { input: [0,1], output: [0] },
-  { input: [1,0], output: [0] },
-  { input: [1,1], output: [1] }
-];
-
+// training set same as in above example
 network.train(trainingSet, {
-  error: 0.001
+  error: 0.01
 });
 
-network.activate([1,1]); // 0.9524...
+network.activate([1,1]); // 0.9824...
 ```
 
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:

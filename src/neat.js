@@ -36,7 +36,7 @@ function Neat (input, output, fitness, options) {
     methods.crossover.UNIFORM,
     methods.crossover.AVERAGE
   ];
-  this.mutation = options.mutation || methods.Mutation.FFW;
+  this.mutation = options.mutation || methods.mutation.FFW;
 
   this.template = options.network || false;
 

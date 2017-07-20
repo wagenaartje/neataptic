@@ -20,16 +20,43 @@
 
 <hr>
 
-_Version 1.3.0 is a beta version, please use version 1.2.34 if you experience any issues!_
+Neataptic offers flexible neural networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. This flexibility allows networks to be shaped for your dataset through neuro-evolution, which is done using multiple threads.
 
-Neataptic offers extremely flexible networks; neurons and synapses can be removed with a single line of code. No fixed architecture is required for neural networks to function at all. An important aspect that Neataptic introduces is the evolution of neural-networks: for every problem, a neural network can be evolved.
+```js
+// this network learns the XOR gate (through neuro-evolution)
+var network = new Network(2,1);
 
-Neataptic trains more than 5x faster than competitors. [Run the tests yourself](https://jsfiddle.net/tuet004f/11/).
+var trainingSet = [
+  { input: [0,0], output: [0] },
+  { input: [0,1], output: [1] },
+  { input: [1,0], output: [1] },
+  { input: [1,1], output: [0] }
+];
+
+await network.evolve(trainingSet, {
+  equal: true,
+  error: 0.03
+ });
+```
+
+Neataptic also backpropagates more than 5x faster than competitors. [Run the tests yourself](https://jsfiddle.net/tuet004f/11/). This is an example of regular training in Neataptic:
+
+```js
+// this network learns the XOR gate (through backpropagation)
+var network = new architect.Perceptron(2, 4, 1);
+
+// training set same as in above example
+network.train(trainingSet, {
+  error: 0.01
+});
+
+network.activate([1,1]); // 0.9824...
+```
 
 Use any of the <b>6</b> built-in networks with customisable sizes to create a network:
 
 ```javascript
-var myNetwork = new architect.LSTM(1,10,5,1);
+var myNetwork = new architect.LSTM(1, 10, 5, 1);
 ```
 
 Or built your <b>own</b> network with pre-built layers:
@@ -63,63 +90,6 @@ Neural networks can be used for nearly anything; driving a car, playing a game a
 the website only displays a small amount of examples. If you have an interesting project that you want to share with other users
 of Neataptic, feel free to create a pull request!
 
-Basic XOR example:
-
-```js
-var network = new architect.Perceptron(2,4,1);
-
-// Train the XOR gate
-network.train([{ input: [0,0], output: [0] },
-               { input: [0,1], output: [1] },
-               { input: [1,0], output: [1] },
-               { input: [1,1], output: [0] }]);
-
-network.activate([0,1]); // 0.9824...
-```
-
-Or predict timeseries with a NARX network ([run it here yourself](https://jsfiddle.net/wagenaartje/1o7t91yk/2/)):
-
-```javascript
-var narx = new architect.NARX(1, 5, 1, 3, 3);
-
-// Train a sequence: 00100100..
-narx.train([
-  { input: [0], output: [0] },
-  { input: [0], output: [0] },
-  { input: [0], output: [1] },
-  { input: [1], output: [0] },
-  { input: [0], output: [0] },
-  { input: [0], output: [0] },
-  { input: [0], output: [1] }
-]);
-
-narx.activate([0]); // 0.0275
-narx.activate([0]); // 0.0370
-narx.activate([0]); // 0.8695
-```
-
-You can also evolve neural networks to perform as an XOR gate (in sequence):
-
-```js
-// this network even learns to do an XOR sequence (recurrent)
-var network = new Network(1,1);
-
-// trainingSet = XOR sequence
-await network.evolve(trainingSet, {
-  mutation: methods.mutation.ALL,
-  equal: true,
-  popSize: 100,
-  elitism: 10,
-  amount: 10
-});
-
-network.activate([0]); // 0.0398
-network.activate([1]); // 0.9711
-network.activate([1]); // 0.0008
-network.activate([0]); // 0.9756
-```
-
-More:
 <details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/neuroevolution/">Neuroevolution examples</a> (supervised)</summary>
 </details>
@@ -140,30 +110,22 @@ More:
 </details>
 &zwnj;
 
-I need your opinion [here](https://github.com/wagenaartje/neataptic/issues/15)!
-
 ## Usage
 Head over to the [wiki](https://wagenaartje.github.io/neataptic/docs/) for detailed usage. If you want to visualise your graphs, head
 over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) folder.
 
 ## Install
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
+
 ```html
 <script src="https://wagenaartje.github.io/neataptic/cdn/1.3.2/neataptic.js"></script>
-```
-
-If you are experiencing any issues, please use the older, stable version:
-```html
-<script src="https://wagenaartje.github.io/neataptic/cdn/1.2.34/neataptic.js"></script>
 ```
 
 Installing with node is also possible:
 
 ```javascript
-npm install neataptic 1.2.34
+npm install neataptic
 ```
-
-Only use the latest version if you aren't afraid of bugs.
 
 ## Further notices
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop

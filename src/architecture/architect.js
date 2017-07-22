@@ -224,18 +224,18 @@ var architect = {
       // Input to all memory cells
       if (options.inputToDeep && i > 0) {
         let input = inputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
-        inputGate.gate(input, methods.Gating.INPUT);
+        inputGate.gate(input, methods.gating.INPUT);
       }
 
       // Optional connections
       if (options.memoryToMemory) {
         let input = memoryCell.connect(memoryCell, methods.connection.ALL_TO_ELSE);
-        inputGate.gate(input, methods.Gating.INPUT);
+        inputGate.gate(input, methods.gating.INPUT);
       }
 
       if (options.outputToMemory) {
         let input = outputLayer.connect(memoryCell, methods.connection.ALL_TO_ALL);
-        inputGate.gate(input, methods.Gating.INPUT);
+        inputGate.gate(input, methods.gating.INPUT);
       }
 
       if (options.outputToGates) {

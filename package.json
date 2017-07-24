@@ -41,8 +41,5 @@
   "homepage": "http://wagenaartje.github.io/neataptic/",
   "engines": {
     "node": ">=8"
-  },
-  "dependencies": {
-    "stocks.js": "0.0.2"
   }
 }

@@ -5,9 +5,7 @@ keywords: cost function, loss function, mse, cross entropy, optimize
 [Cost functions](https://en.wikipedia.org/wiki/Loss_functions_for_classification)
 play an important role in neural networks. They give neural networks an indication
 of 'how wrong' they are; a.k.a. how far they are from the desired output. But
-also in fitness functions, cost functions play an imporant role. Without the
-help of the MSE function, the [Evolve XOR](https://wagenaartje.github.io/neataptic/articles/evolvexor/)
-example would never have worked.
+also in fitness functions, cost functions play an important role. 
 
 ### Methods
 

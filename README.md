@@ -118,7 +118,7 @@ over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) 
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 
 ```html
-<script src="https://wagenaartje.github.io/neataptic/cdn/1.3.3/neataptic.js"></script>
+<script src="https://wagenaartje.github.io/neataptic/cdn/1.3.4/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

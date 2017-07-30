@@ -1,21 +1,18 @@
-var Network = neataptic.Network;
-var Methods = neataptic.Methods;
-var Architect = neataptic.Architect;
+var { Network, methods, architect } = neataptic;
 
-var network = new Network(2,1);
-$( document ).ready(function() {
+var network = new Network(2, 1);
+$(document).ready(function () {
   refresh();
   activate();
 });
 
-
-function mutate(method){
+function mutate (method) {
   network.mutate(method);
   refresh();
   activate();
 }
 
-function activate(){
+function activate () {
   var in1 = $('.input1').val();
   var in2 = $('.input2').val();
 

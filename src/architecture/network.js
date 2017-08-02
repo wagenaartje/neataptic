@@ -839,6 +839,7 @@ Network.prototype = {
     if (threads === 1) {
       // Create the fitness function
       fitnessFunction = function (genome) {
+        if (options.clear) genome.clear();
         var score = 0;
         for (var i = 0; i < amount; i++) {
           score -= genome.test(set, cost).error;
@@ -877,6 +878,7 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
+            if (options.clear) genome.clear();
 
             worker.evaluate(genome).then(function (result) {
               genome.score = -result;
@@ -923,8 +925,8 @@ Network.prototype = {
       }
     }
 
-    if(threads > 1){
-      for(var i = 0; i < workers.length; i++) workers[i].terminate();
+    if (threads > 1) {
+      for (var i = 0; i < workers.length; i++) workers[i].terminate();
     }
 
     if (typeof bestGenome !== 'undefined') {

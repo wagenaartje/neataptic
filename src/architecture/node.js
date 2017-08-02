@@ -298,6 +298,7 @@ Node.prototype = {
    * Clear the context of the node
    */
   clear: function () {
+    this.activation = 0;
     for (var i = 0; i < this.connections.in.length; i++) {
       var connection = this.connections.in[i];
 
@@ -306,6 +307,11 @@ Node.prototype = {
         nodes: [],
         values: []
       };
+    }
+
+    for (i = 0; i < this.connections.gated.length; i++) {
+      let conn = this.connections.gated[i];
+      conn.gain = 0;
     }
 
     this.error.responsibility = this.error.projected = this.error.gated = 0;

@@ -298,7 +298,6 @@ Node.prototype = {
    * Clear the context of the node
    */
   clear: function () {
-    this.activation = 0;
     for (var i = 0; i < this.connections.in.length; i++) {
       var connection = this.connections.in[i];
 

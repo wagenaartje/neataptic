@@ -28,16 +28,15 @@ var snippets = {
     for (var i = 0; i < data[0]; i++) A[i] = input[i];
     for (i = 2; i < data.length; i++) {
       let index = data[i++];
-      S[index] = data[i++]; // bias
+      let bias = data[i++];
       let squash = data[i++];
+      let selfweight = data[i++];
+      let selfgater = data[i++];
+
+      S[index] = (selfgater === -1 ? 1 : A[selfgater]) * selfweight * S[index] + bias;
+
       while (data[i] !== -2) {
-        if (index === A[data[i]]) { // selfconn
-          S[index] += S[data[i++]] * data[i++] *
-            (data[i++] === -1 ? 1 : A[data[i - 1]]);
-        } else { // normal conn
-          S[index] += A[data[i++]] * data[i++] *
-            (data[i++] === -1 ? 1 : A[data[i - 1]]);
-        }
+        S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
       }
       A[index] = F[squash](S[index]);
     }

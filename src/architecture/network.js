@@ -1055,6 +1055,9 @@ Network.prototype = {
       conns.push(node.bias);
       conns.push(squashes.indexOf(node.squash.name));
 
+      conns.push(node.connections.self.weight);
+      conns.push(node.connections.self.gater == null ? -1 : node.connections.self.gater.index);
+
       for (var j = 0; j < node.connections.in.length; j++) {
         let conn = node.connections.in[j];
 
@@ -1062,6 +1065,7 @@ Network.prototype = {
         conns.push(conn.weight);
         conns.push(conn.gater == null ? -1 : conn.gater.index);
       }
+
       conns.push(-2); // stop token -> next node
     }
 

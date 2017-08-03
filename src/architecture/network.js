@@ -819,7 +819,7 @@ Network.prototype = {
     var amount = options.amount || 1;
 
     if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
-      console.warn(
+      if (config.warnings) console.warn(
         `Multithreading is automatically enabled, but for small datasets, we
         encourage using just 1 thread!`
       );

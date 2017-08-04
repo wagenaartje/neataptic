@@ -397,8 +397,9 @@ Network.prototype = {
           break;
         }
 
-        // Select a random gater node and connection
-        var node = this.nodes[Math.floor(Math.random() * this.nodes.length)];
+        // Select a random gater node and connection, can't be gated by input
+        var index = Math.floor(Math.random() * (this.nodes.length - this.input) + this.input);
+        var node = this.nodes[index];
         var conn = possible[Math.floor(Math.random() * possible.length)];
 
         // Gate the connection with the node

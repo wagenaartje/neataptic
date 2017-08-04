@@ -53,7 +53,7 @@ Node.prototype = {
       this.activation = input;
       return this.activation;
     }
-
+    
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -291,6 +291,7 @@ Node.prototype = {
       var index = this.connections.gated.indexOf(connection);
       this.connections.gated.splice(index, 1);
       connection.gater = null;
+      connection.gain = 1;
     }
   },
 

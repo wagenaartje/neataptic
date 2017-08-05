@@ -2,7 +2,7 @@
 module.exports = TestWorker;
 
 /* Import */
-var snippets = require('../snippets');
+var snippets = require('../../snippets');
 
 /*******************************************************************************
                                 WEBWORKER
@@ -28,7 +28,9 @@ TestWorker.prototype = {
         conns: serialzed[2].buffer
       };
 
-      this.worker.onmessage = function (e) {
+      var _that = this.worker;
+      this.worker.onmessage = function callback (e) {
+        _that.removeEventListener(e.type, callback);
         var error = new Float64Array(e.data.buffer)[0];
         resolve(error);
       };

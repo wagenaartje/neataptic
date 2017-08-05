@@ -4,7 +4,7 @@
 
 var multi = {
   /** Workers */
-  workers: require('./workers'),
+  workers: require('./workers/workers'),
 
   /** Snippets */
   snippets: require('./snippets'),

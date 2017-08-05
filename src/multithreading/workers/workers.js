@@ -3,7 +3,12 @@
 *******************************************************************************/
 
 var workers = {
-  TestWorker: require('./workers/testworker')
+  node: {
+    TestWorker: require('./node/testworker')
+  },
+  browser: {
+    TestWorker: require('./browser/testworker')
+  }
 };
 
 /** Export */

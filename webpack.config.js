@@ -1,9 +1,10 @@
 /* Import */
 var fs = require('fs');
 var webpack = require('webpack');
-var version = require('./package.json').version;
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 /* Update readme and read license */
+var version = require('./package.json').version;
 var readme = fs.readFileSync('README.md', 'utf-8').replace(
   /cdn\/(.*)\/neataptic.js/, `cdn/${version}/neataptic.js`
 );
@@ -26,6 +27,15 @@ module.exports = {
   },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.BannerPlugin(license)
-  ]
+    new webpack.BannerPlugin(license),
+    new CopyWebpackPlugin([
+      { from: 'src/multithreading/workers/node/worker.js', to: 'dist' }
+    ])
+  ],
+  externals: [
+    'child_process'
+  ],
+  node: {
+    __dirname: false
+  }
 };

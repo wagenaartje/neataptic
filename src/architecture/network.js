@@ -852,17 +852,19 @@ Network.prototype = {
         return score / amount;
       };
     } else {
-      if (typeof window === 'undefined') {
-        throw new Error('Multithreading is not yet supported by Neataptic for Node.js');
-      }
-
       // Serialize the dataset
       var converted = multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
-      for (var i = 0; i < threads; i++) {
-        workers.push(new multi.workers.TestWorker(converted, cost));
+      if (typeof window === 'undefined') {
+        for (var i = 0; i < threads; i++) {
+          workers.push(new multi.workers.node.TestWorker(converted, cost));
+        }
+      } else {
+        for (var i = 0; i < threads; i++) {
+          workers.push(new multi.workers.browser.TestWorker(converted, cost));
+        }
       }
 
       fitnessFunction = function (population) {

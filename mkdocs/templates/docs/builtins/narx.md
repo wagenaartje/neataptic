@@ -13,6 +13,7 @@ var network = new architect.NARX(inputSize, hiddenLayers, outputSize, previousIn
 ```
 
 A quick explanation of each argument:
+
 * `inputSize`: the amount of input nodes
 * `hiddenLayers`: an array containing hidden layer sizes, e.g. `[10,20,10]`. If only one hidden layer, can be a number (of nodes)
 * `outputSize`: the amount of output nodes

@@ -867,10 +867,10 @@ Network.prototype = {
         }
       }
 
-      fitnessFunction = function (population) {
+      fitnessFunction = function (population) { // why take pop here
         return new Promise((resolve, reject) => {
           // Create a queue
-          var queue = neat.population.slice();
+          var queue = neat.population.slice(); // and here?? DEBUG
           var done = 0;
 
           // Start worker function

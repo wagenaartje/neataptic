@@ -3,13 +3,14 @@ module.exports = TestWorker;
 
 /* Import */
 var cp = require('child_process');
+var path = require('path');
 
 /*******************************************************************************
                                 WEBWORKER
 *******************************************************************************/
 
 function TestWorker (dataSet, cost) {
-  this.worker = cp.fork(__dirname + '/worker');
+  this.worker = cp.fork(path.join(__dirname, '/worker'));
 
   this.worker.send({ set: dataSet, cost: cost.name });
 }

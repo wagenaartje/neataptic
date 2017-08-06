@@ -28,9 +28,7 @@ TestWorker.prototype = {
         conns: serialzed[2].buffer
       };
 
-      var _that = this.worker;
-      this.worker.onmessage = function callback (e) {
-        _that.removeEventListener(e.type, callback);
+      this.worker.onmessage = function (e) {
         var error = new Float64Array(e.data.buffer)[0];
         resolve(error);
       };

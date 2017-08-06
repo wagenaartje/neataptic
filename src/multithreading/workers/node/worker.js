@@ -1,5 +1,6 @@
-var snippets = require('./neataptic').multi.snippets;
-var methods = require('./neataptic').methods;
+var neataptic = require('./neataptic');
+var snippets = neataptic.multi.snippets;
+var methods = neataptic.methods;
 
 var set, cost;
 var A, S, data;

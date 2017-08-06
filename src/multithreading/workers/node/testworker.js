@@ -21,9 +21,9 @@ TestWorker.prototype = {
       var serialized = network.serialize();
 
       var data = {
-        activations: [].slice.call(serialized[0]),
-        states: [].slice.call(serialized[1]),
-        conns: [].slice.call(serialized[2])
+        activations: serialized[0],
+        states: serialized[1],
+        conns: serialized[2]
       };
 
       var _that = this.worker;

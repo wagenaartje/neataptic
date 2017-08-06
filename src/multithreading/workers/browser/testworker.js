@@ -23,9 +23,9 @@ TestWorker.prototype = {
       var serialzed = network.serialize();
 
       var data = {
-        activations: serialzed[0].buffer,
-        states: serialzed[1].buffer,
-        conns: serialzed[2].buffer
+        activations: new Float64Array(serialzed[0]).buffer,
+        states: new Float64Array(serialzed[1]).buffer,
+        conns: new Float64Array(serialzed[2]).buffer
       };
 
       this.worker.onmessage = function (e) {

@@ -2338,11 +2338,6 @@ Network.prototype = {
       conns.push(-2); // stop token -> next node
     }
 
-    // Convert to Float64Arrays
-    activations = new Float64Array(activations);
-    states = new Float64Array(states);
-    conns = new Float64Array(conns);
-
     return [activations, states, conns];
   }
 };
@@ -4249,9 +4244,9 @@ TestWorker.prototype = {
       var serialzed = network.serialize();
 
       var data = {
-        activations: serialzed[0].buffer,
-        states: serialzed[1].buffer,
-        conns: serialzed[2].buffer
+        activations: new Float64Array(serialzed[0]).buffer,
+        states: new Float64Array(serialzed[1]).buffer,
+        conns: new Float64Array(serialzed[2]).buffer
       };
 
       this.worker.onmessage = function (e) {
@@ -4324,9 +4319,9 @@ TestWorker.prototype = {
       var serialized = network.serialize();
 
       var data = {
-        activations: [].slice.call(serialized[0]),
-        states: [].slice.call(serialized[1]),
-        conns: [].slice.call(serialized[2])
+        activations: serialized[0],
+        states: serialized[1],
+        conns: serialized[2]
       };
 
       var _that = this.worker;

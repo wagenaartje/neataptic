@@ -1072,11 +1072,6 @@ Network.prototype = {
       conns.push(-2); // stop token -> next node
     }
 
-    // Convert to Float64Arrays
-    activations = new Float64Array(activations);
-    states = new Float64Array(states);
-    conns = new Float64Array(conns);
-
     return [activations, states, conns];
   }
 };

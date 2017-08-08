@@ -2,7 +2,7 @@
 module.exports = TestWorker;
 
 /* Import */
-var snippets = require('../../snippets');
+var multi = require('../../multi');
 
 /*******************************************************************************
                                 WEBWORKER
@@ -44,12 +44,12 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var F = [${snippets.activations.toString()}];
+      var F = [${multi.activations.toString()}];
       var cost = ${cost.toString()};
-      var snippets = {
-        processSerializedSet: ${snippets.processSerializedSet.toString()},
-        testSerializedSet: ${snippets.testSerializedSet.toString()},
-        activate: ${snippets.activate.toString()}
+      var multi = {
+        deserializeDataSet: ${multi.deserializeDataSet.toString()},
+        testSerializedSet: ${multi.testSerializedSet.toString()},
+        activateSerializedNetwork: ${multi.activateSerializedNetwork.toString()}
       };
 
       this.onmessage = function (e) {
@@ -63,7 +63,7 @@ TestWorker.prototype = {
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = snippets.processSerializedSet(new Float64Array(e.data.set));
+          set = snippets.deserializeDataSet(new Float64Array(e.data.set));
         }
       };`;
 

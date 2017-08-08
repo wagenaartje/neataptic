@@ -2,7 +2,7 @@ var { multi, methods } = require('./neataptic');
 
 var set = [];
 var cost;
-var F = multi.snippets.activations;
+var F = multi.activations;
 
 process.on('message', function (e) {
   if (typeof e.set === 'undefined') {
@@ -10,11 +10,11 @@ process.on('message', function (e) {
     var S = e.states;
     var data = e.conns;
 
-    var result = multi.snippets.testSerializedSet(set, cost, A, S, data, F);
+    var result = multi.testSerializedSet(set, cost, A, S, data, F);
 
     process.send(result);
   } else {
     cost = methods.cost[e.cost];
-    set = multi.snippets.processSerializedSet(e.set);
+    set = multi.deserializeDataSet(e.set);
   }
 });

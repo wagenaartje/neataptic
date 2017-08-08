@@ -33,7 +33,7 @@
 		exports["neataptic"] = factory(require("child_process"));
 	else
 		root["neataptic"] = factory(root["child_process"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_24__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_23__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -99,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 25);
+/******/ 	return __webpack_require__(__webpack_require__.s = 24);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -112,13 +112,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 var methods = {
   activation: __webpack_require__(9),
-  mutation: __webpack_require__(18),
-  selection: __webpack_require__(20),
-  crossover: __webpack_require__(16),
-  cost: __webpack_require__(15),
-  gating: __webpack_require__(17),
-  connection: __webpack_require__(14),
-  rate: __webpack_require__(19)
+  mutation: __webpack_require__(17),
+  selection: __webpack_require__(19),
+  crossover: __webpack_require__(15),
+  cost: __webpack_require__(14),
+  gating: __webpack_require__(16),
+  connection: __webpack_require__(13),
+  rate: __webpack_require__(18)
 };
 
 /** Export */
@@ -2590,10 +2590,7 @@ Network.crossOver = function (network1, network2, equal) {
 
 var multi = {
   /** Workers */
-  workers: __webpack_require__(23),
-
-  /** Snippets */
-  snippets: __webpack_require__(10),
+  workers: __webpack_require__(22),
 
   /** Serializes a dataset */
   serializeDataSet: function (dataSet) {
@@ -2610,7 +2607,84 @@ var multi = {
     }
 
     return serialized;
+  },
+
+  /** Activate a serialized network */
+  activateSerializedNetwork: function (input, A, S, data, F) {
+    for (var i = 0; i < data[0]; i++) A[i] = input[i];
+    for (i = 2; i < data.length; i++) {
+      let index = data[i++];
+      let bias = data[i++];
+      let squash = data[i++];
+      let selfweight = data[i++];
+      let selfgater = data[i++];
+
+      S[index] = (selfgater === -1 ? 1 : A[selfgater]) * selfweight * S[index] + bias;
+
+      while (data[i] !== -2) {
+        S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
+      }
+      A[index] = F[squash](S[index]);
+    }
+
+    var output = [];
+    for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
+    return output;
+  },
+
+  /** Deserializes a dataset to an array of arrays */
+  deserializeDataSet: function (serializedSet) {
+    var set = [];
+
+    var sampleSize = serializedSet[0] + serializedSet[1];
+    for (var i = 0; i < (serializedSet.length - 2) / sampleSize; i++) {
+      let input = [];
+      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + serializedSet[0]; j++) {
+        input.push(serializedSet[j]);
+      }
+      let output = [];
+      for (j = 2 + i * sampleSize + serializedSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+        output.push(serializedSet[j]);
+      }
+      set.push(input);
+      set.push(output);
+    }
+
+    return set;
+  },
+
+  /** A list of compiled activation functions in a certain order */
+  activations: [
+    function (x) { return 1 / (1 + Math.exp(-x)); },
+    function (x) { return Math.tanh(x); },
+    function (x) { return x; },
+    function (x) { return x > 0 ? 1 : 0; },
+    function (x) { return x > 0 ? x : 0; },
+    function (x) { return x / (1 + Math.abs(x)); },
+    function (x) { return Math.sin(x); },
+    function (x) { return Math.exp(-Math.pow(x, 2)); },
+    function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
+    function (x) { return x > 0 ? 1 : -1; },
+    function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
+    function (x) { return Math.max(-1, Math.min(1, x)); },
+    function (x) { return Math.abs(x); },
+    function (x) { return 1 - x; },
+    function (x) {
+      var a = 1.6732632423543772848170429916717;
+      return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
+    }
+  ]
+};
+
+multi.testSerializedSet = function (set, cost, A, S, data, F) {
+  // Calculate how much samples are in the set
+  var error = 0;
+  for (var i = 0; i < set.length; i += 2) {
+    let output = multi.activateSerializedNetwork(set[i], A, S, data, F);
+    error += cost(set[i + 1], output);
   }
+
+  return error / (set.length / 2);
 };
 
 /* Export */
@@ -2992,94 +3066,6 @@ module.exports = activation;
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports) {
-
-/*******************************************************************************
-                                  SNIPPETS
-*******************************************************************************/
-
-var snippets = {
-  activations: [
-    function (x) { return 1 / (1 + Math.exp(-x)); },
-    function (x) { return Math.tanh(x); },
-    function (x) { return x; },
-    function (x) { return x > 0 ? 1 : 0; },
-    function (x) { return x > 0 ? x : 0; },
-    function (x) { return x / (1 + Math.abs(x)); },
-    function (x) { return Math.sin(x); },
-    function (x) { return Math.exp(-Math.pow(x, 2)); },
-    function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
-    function (x) { return x > 0 ? 1 : -1; },
-    function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
-    function (x) { return Math.max(-1, Math.min(1, x)); },
-    function (x) { return Math.abs(x); },
-    function (x) { return 1 - x; },
-    function (x) {
-      var a = 1.6732632423543772848170429916717;
-      return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
-    }
-  ],
-
-  activate: function (input, A, S, data, F) {
-    for (var i = 0; i < data[0]; i++) A[i] = input[i];
-    for (i = 2; i < data.length; i++) {
-      let index = data[i++];
-      let bias = data[i++];
-      let squash = data[i++];
-      let selfweight = data[i++];
-      let selfgater = data[i++];
-
-      S[index] = (selfgater === -1 ? 1 : A[selfgater]) * selfweight * S[index] + bias;
-
-      while (data[i] !== -2) {
-        S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
-      }
-      A[index] = F[squash](S[index]);
-    }
-
-    var output = [];
-    for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
-    return output;
-  },
-
-  processSerializedSet: function (serializedSet) {
-    var set = [];
-
-    var sampleSize = serializedSet[0] + serializedSet[1];
-    for (var i = 0; i < (serializedSet.length - 2) / sampleSize; i++) {
-      let input = [];
-      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + serializedSet[0]; j++) {
-        input.push(serializedSet[j]);
-      }
-      let output = [];
-      for (j = 2 + i * sampleSize + serializedSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
-        output.push(serializedSet[j]);
-      }
-      set.push(input);
-      set.push(output);
-    }
-
-    return set;
-  }
-};
-
-snippets.testSerializedSet = function (set, cost, A, S, data, F) {
-  // Calculate how much samples are in the set
-  var error = 0;
-  for (var i = 0; i < set.length; i += 2) {
-    let output = snippets.activate(set[i], A, S, data, F);
-    error += cost(set[i + 1], output);
-  }
-
-  return error / (set.length / 2);
-};
-
-/** Export */
-module.exports = snippets;
-
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
@@ -3454,7 +3440,7 @@ module.exports = architect;
 
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -3682,10 +3668,10 @@ var substr = 'ab'.substr(-1) === 'b'
     }
 ;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -3875,7 +3861,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3900,7 +3886,7 @@ module.exports = connection;
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3979,7 +3965,7 @@ module.exports = cost;
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4009,7 +3995,7 @@ module.exports = crossover;
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4034,7 +4020,7 @@ module.exports = gating;
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
@@ -4147,7 +4133,7 @@ module.exports = mutation;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4196,7 +4182,7 @@ module.exports = rate;
 
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4225,14 +4211,14 @@ module.exports = selection;
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Export */
 module.exports = TestWorker;
 
 /* Import */
-var snippets = __webpack_require__(10);
+var multi = __webpack_require__(7);
 
 /*******************************************************************************
                                 WEBWORKER
@@ -4274,12 +4260,12 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var F = [${snippets.activations.toString()}];
+      var F = [${multi.activations.toString()}];
       var cost = ${cost.toString()};
-      var snippets = {
-        processSerializedSet: ${snippets.processSerializedSet.toString()},
-        testSerializedSet: ${snippets.testSerializedSet.toString()},
-        activate: ${snippets.activate.toString()}
+      var multi = {
+        deserializeDataSet: ${multi.deserializeDataSet.toString()},
+        testSerializedSet: ${multi.testSerializedSet.toString()},
+        activateSerializedNetwork: ${multi.activateSerializedNetwork.toString()}
       };
 
       this.onmessage = function (e) {
@@ -4293,7 +4279,7 @@ TestWorker.prototype = {
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = snippets.processSerializedSet(new Float64Array(e.data.set));
+          set = snippets.deserializeDataSet(new Float64Array(e.data.set));
         }
       };`;
 
@@ -4303,15 +4289,15 @@ TestWorker.prototype = {
 
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Export */
 module.exports = TestWorker;
 
 /* Import */
-var cp = __webpack_require__(24);
-var path = __webpack_require__(12);
+var cp = __webpack_require__(23);
+var path = __webpack_require__(11);
 
 /*******************************************************************************
                                 WEBWORKER
@@ -4351,7 +4337,7 @@ TestWorker.prototype = {
 
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*******************************************************************************
@@ -4360,10 +4346,10 @@ TestWorker.prototype = {
 
 var workers = {
   node: {
-    TestWorker: __webpack_require__(22)
+    TestWorker: __webpack_require__(21)
   },
   browser: {
-    TestWorker: __webpack_require__(21)
+    TestWorker: __webpack_require__(20)
   }
 };
 
@@ -4372,19 +4358,19 @@ module.exports = workers;
 
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_24__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   methods: __webpack_require__(0),
   Connection: __webpack_require__(3),
-  architect: __webpack_require__(11),
+  architect: __webpack_require__(10),
   Network: __webpack_require__(6),
   config: __webpack_require__(2),
   Group: __webpack_require__(4),

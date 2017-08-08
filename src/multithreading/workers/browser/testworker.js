@@ -49,7 +49,7 @@ TestWorker.prototype = {
       var cost = ${cost.toString()};
       var test = ${snippets.testSerializedSet.toString()};
       var activate = ${snippets.activate.toString()};
-      var set;
+      var set = [];
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
@@ -57,12 +57,25 @@ TestWorker.prototype = {
           S = new Float64Array(e.data.states);
           data = new Float64Array(e.data.conns);
 
-          var error = test(set);
+          var error = test();
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = new Float64Array(e.data.set);
+          var dataSet = new Float64Array(e.data.set);
+          var sampleSize = dataSet[0] + dataSet[1];
+          for (var i = 0; i < (dataSet.length - 2) / sampleSize; i++) {
+            let input = [];
+            for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + dataSet[0]; j++) {
+              input.push(dataSet[j]);
+            }
+            let output = [];
+            for (j = 2 + i * sampleSize + dataSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+              output.push(dataSet[j]);
+            }
+            set.push(input);
+            set.push(output);
+          }
         }
       };`;
 

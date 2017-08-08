@@ -1,10 +1,9 @@
 var neataptic = require('./neataptic');
-var snippets = neataptic.multi.snippets;
-var methods = neataptic.methods;
 
-var set, cost;
+var set = [];
+var cost;
 var A, S, data;
-var F = snippets.activations;
+var F = neataptic.multi.snippets.activations;
 
 function activate (input) {
   for (var i = 0; i < data[0]; i++) A[i] = input[i];
@@ -29,37 +28,41 @@ function activate (input) {
 }
 
 function testSet () {
-  var inOut = set[0] + set[1];
-
   // Calculate how much samples are in the set
   var error = 0;
-  for (var i = 0; i < (set.length - 2) / inOut; i++) {
-    let input = [];
-    for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
-      input.push(set[j]);
-    }
-    let target = [];
-    for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
-      target.push(set[j]);
-    }
-
-    let output = activate(input);
-    error += cost(target, output);
+  for (var i = 0; i < set.length / 2; i++) {
+    let output = activate(set[i]);
+    error += cost(set[i + 1], output);
   }
 
-  return error / ((set.length - 2) / inOut);
+  return error / (set.length / 2);
 }
 
 process.on('message', function (e) {
-  if (typeof e.set !== 'undefined') {
-    set = e.set;
-    cost = methods.cost[e.cost];
-  } else {
+  if (typeof e.set === 'undefined') {
     A = e.activations;
     S = e.states;
     data = e.conns;
 
     var result = testSet();
+
     process.send(result);
+  } else {
+    cost = neataptic.methods.cost[e.cost];
+
+    var dataSet = e.set;
+    var sampleSize = dataSet[0] + dataSet[1];
+    for (var i = 0; i < (dataSet.length - 2) / sampleSize; i++) {
+      let input = [];
+      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + dataSet[0]; j++) {
+        input.push(dataSet[j]);
+      }
+      let output = [];
+      for (j = 2 + i * sampleSize + dataSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+        output.push(dataSet[j]);
+      }
+      set.push(input);
+      set.push(output);
+    }
   }
 });

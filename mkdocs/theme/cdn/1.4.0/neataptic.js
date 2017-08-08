@@ -3042,26 +3042,15 @@ var snippets = {
     return output;
   },
 
-  testSerializedSet: function (set) {
-    var inOut = set[0] + set[1];
-
+  testSerializedSet: function () {
     // Calculate how much samples are in the set
     var error = 0;
-    for (var i = 0; i < (set.length - 2) / inOut; i++) {
-      let input = [];
-      for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
-        input.push(set[j]);
-      }
-      let target = [];
-      for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
-        target.push(set[j]);
-      }
-
-      let output = activate(input);
-      error += cost(target, output);
+    for (var i = 0; i < set.length / 2; i++) {
+      let output = activate(set[i]);
+      error += cost(set[i + 1], output);
     }
 
-    return error / ((set.length - 2) / inOut);
+    return error / (set.length / 2);
   }
 };
 
@@ -4270,7 +4259,7 @@ TestWorker.prototype = {
       var cost = ${cost.toString()};
       var test = ${snippets.testSerializedSet.toString()};
       var activate = ${snippets.activate.toString()};
-      var set;
+      var set = [];
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
@@ -4278,12 +4267,25 @@ TestWorker.prototype = {
           S = new Float64Array(e.data.states);
           data = new Float64Array(e.data.conns);
 
-          var error = test(set);
+          var error = test();
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = new Float64Array(e.data.set);
+          var dataSet = new Float64Array(e.data.set);
+          var sampleSize = dataSet[0] + dataSet[1];
+          for (var i = 0; i < (dataSet.length - 2) / sampleSize; i++) {
+            let input = [];
+            for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + dataSet[0]; j++) {
+              input.push(dataSet[j]);
+            }
+            let output = [];
+            for (j = 2 + i * sampleSize + dataSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+              output.push(dataSet[j]);
+            }
+            set.push(input);
+            set.push(output);
+          }
         }
       };`;
 

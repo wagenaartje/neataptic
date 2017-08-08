@@ -46,26 +46,15 @@ var snippets = {
     return output;
   },
 
-  testSerializedSet: function (set) {
-    var inOut = set[0] + set[1];
-
+  testSerializedSet: function () {
     // Calculate how much samples are in the set
     var error = 0;
-    for (var i = 0; i < (set.length - 2) / inOut; i++) {
-      let input = [];
-      for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
-        input.push(set[j]);
-      }
-      let target = [];
-      for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
-        target.push(set[j]);
-      }
-
-      let output = activate(input);
-      error += cost(target, output);
+    for (var i = 0; i < set.length / 2; i++) {
+      let output = activate(set[i]);
+      error += cost(set[i + 1], output);
     }
 
-    return error / ((set.length - 2) / inOut);
+    return error / (set.length / 2);
   }
 };
 

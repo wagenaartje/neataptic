@@ -24,7 +24,7 @@ var snippets = {
     }
   ],
 
-  activate: function (input) {
+  activate: function (input, A, S, data, F) {
     for (var i = 0; i < data[0]; i++) A[i] = input[i];
     for (i = 2; i < data.length; i++) {
       let index = data[i++];
@@ -46,16 +46,36 @@ var snippets = {
     return output;
   },
 
-  testSerializedSet: function () {
-    // Calculate how much samples are in the set
-    var error = 0;
-    for (var i = 0; i < set.length / 2; i++) {
-      let output = activate(set[i]);
-      error += cost(set[i + 1], output);
+  processSerializedSet: function (serializedSet) {
+    var set = [];
+
+    var sampleSize = serializedSet[0] + serializedSet[1];
+    for (var i = 0; i < (serializedSet.length - 2) / sampleSize; i++) {
+      let input = [];
+      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + serializedSet[0]; j++) {
+        input.push(serializedSet[j]);
+      }
+      let output = [];
+      for (j = 2 + i * sampleSize + serializedSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+        output.push(serializedSet[j]);
+      }
+      set.push(input);
+      set.push(output);
     }
 
-    return error / (set.length / 2);
+    return set;
   }
+};
+
+snippets.testSerializedSet = function (set, cost, A, S, data, F) {
+  // Calculate how much samples are in the set
+  var error = 0;
+  for (var i = 0; i < set.length; i += 2) {
+    let output = snippets.activate(set[i], A, S, data, F);
+    error += cost(set[i + 1], output);
+  }
+
+  return error / (set.length / 2);
 };
 
 /** Export */

@@ -44,38 +44,26 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var A, S, data;
       var F = [${snippets.activations.toString()}];
       var cost = ${cost.toString()};
-      var test = ${snippets.testSerializedSet.toString()};
-      var activate = ${snippets.activate.toString()};
-      var set = [];
+      var snippets = {
+        processSerializedSet: ${snippets.processSerializedSet.toString()},
+        testSerializedSet: ${snippets.testSerializedSet.toString()},
+        activate: ${snippets.activate.toString()}
+      };
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
-          A = new Float64Array(e.data.activations);
-          S = new Float64Array(e.data.states);
-          data = new Float64Array(e.data.conns);
+          var A = new Float64Array(e.data.activations);
+          var S = new Float64Array(e.data.states);
+          var data = new Float64Array(e.data.conns);
 
-          var error = test();
+          var error = snippets.testSerializedSet(set, cost, A, S, data, F);
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          var dataSet = new Float64Array(e.data.set);
-          var sampleSize = dataSet[0] + dataSet[1];
-          for (var i = 0; i < (dataSet.length - 2) / sampleSize; i++) {
-            let input = [];
-            for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + dataSet[0]; j++) {
-              input.push(dataSet[j]);
-            }
-            let output = [];
-            for (j = 2 + i * sampleSize + dataSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
-              output.push(dataSet[j]);
-            }
-            set.push(input);
-            set.push(output);
-          }
+          set = snippets.processSerializedSet(new Float64Array(e.data.set));
         }
       };`;
 

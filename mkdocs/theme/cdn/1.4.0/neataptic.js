@@ -3020,7 +3020,7 @@ var snippets = {
     }
   ],
 
-  activate: function (input) {
+  activate: function (input, A, S, data, F) {
     for (var i = 0; i < data[0]; i++) A[i] = input[i];
     for (i = 2; i < data.length; i++) {
       let index = data[i++];
@@ -3042,16 +3042,36 @@ var snippets = {
     return output;
   },
 
-  testSerializedSet: function () {
-    // Calculate how much samples are in the set
-    var error = 0;
-    for (var i = 0; i < set.length / 2; i++) {
-      let output = activate(set[i]);
-      error += cost(set[i + 1], output);
+  processSerializedSet: function (serializedSet) {
+    var set = [];
+
+    var sampleSize = serializedSet[0] + serializedSet[1];
+    for (var i = 0; i < (serializedSet.length - 2) / sampleSize; i++) {
+      let input = [];
+      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + serializedSet[0]; j++) {
+        input.push(serializedSet[j]);
+      }
+      let output = [];
+      for (j = 2 + i * sampleSize + serializedSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
+        output.push(serializedSet[j]);
+      }
+      set.push(input);
+      set.push(output);
     }
 
-    return error / (set.length / 2);
+    return set;
   }
+};
+
+snippets.testSerializedSet = function (set, cost, A, S, data, F) {
+  // Calculate how much samples are in the set
+  var error = 0;
+  for (var i = 0; i < set.length; i += 2) {
+    let output = snippets.activate(set[i], A, S, data, F);
+    error += cost(set[i + 1], output);
+  }
+
+  return error / (set.length / 2);
 };
 
 /** Export */
@@ -4254,38 +4274,26 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var A, S, data;
       var F = [${snippets.activations.toString()}];
       var cost = ${cost.toString()};
-      var test = ${snippets.testSerializedSet.toString()};
-      var activate = ${snippets.activate.toString()};
-      var set = [];
+      var snippets = {
+        processSerializedSet: ${snippets.processSerializedSet.toString()},
+        testSerializedSet: ${snippets.testSerializedSet.toString()},
+        activate: ${snippets.activate.toString()}
+      };
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
-          A = new Float64Array(e.data.activations);
-          S = new Float64Array(e.data.states);
-          data = new Float64Array(e.data.conns);
+          var A = new Float64Array(e.data.activations);
+          var S = new Float64Array(e.data.states);
+          var data = new Float64Array(e.data.conns);
 
-          var error = test();
+          var error = snippets.testSerializedSet(set, cost, A, S, data, F);
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          var dataSet = new Float64Array(e.data.set);
-          var sampleSize = dataSet[0] + dataSet[1];
-          for (var i = 0; i < (dataSet.length - 2) / sampleSize; i++) {
-            let input = [];
-            for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + dataSet[0]; j++) {
-              input.push(dataSet[j]);
-            }
-            let output = [];
-            for (j = 2 + i * sampleSize + dataSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
-              output.push(dataSet[j]);
-            }
-            set.push(input);
-            set.push(output);
-          }
+          set = snippets.processSerializedSet(new Float64Array(e.data.set));
         }
       };`;
 

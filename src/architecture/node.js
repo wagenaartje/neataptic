@@ -53,7 +53,7 @@ Node.prototype = {
       this.activation = input;
       return this.activation;
     }
-    
+
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -392,13 +392,7 @@ Node.fromJSON = function (json) {
   node.bias = json.bias;
   node.type = json.type;
   node.mask = json.mask;
-
-  for (var squash in methods.activation) {
-    if (methods.activation[squash].name === json.squash) {
-      node.squash = methods.activation[squash];
-      break;
-    }
-  }
+  node.squash = methods.activation[json.squash];
 
   return node;
 };

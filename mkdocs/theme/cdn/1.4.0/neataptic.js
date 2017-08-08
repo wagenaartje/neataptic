@@ -184,7 +184,7 @@ Node.prototype = {
       this.activation = input;
       return this.activation;
     }
-    
+
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -523,13 +523,7 @@ Node.fromJSON = function (json) {
   node.bias = json.bias;
   node.type = json.type;
   node.mask = json.mask;
-
-  for (var squash in methods.activation) {
-    if (methods.activation[squash].name === json.squash) {
-      node.squash = methods.activation[squash];
-      break;
-    }
-  }
+  node.squash = methods.activation[json.squash];
 
   return node;
 };
@@ -2688,7 +2682,9 @@ multi.testSerializedSet = function (set, cost, A, S, data, F) {
 };
 
 /* Export */
-module.exports = multi;
+for (var i in multi) {
+  module.exports[i] = multi[i];
+}
 
 
 /***/ }),
@@ -4236,12 +4232,12 @@ function TestWorker (dataSet, cost) {
 TestWorker.prototype = {
   evaluate: function (network) {
     return new Promise((resolve, reject) => {
-      var serialzed = network.serialize();
+      var serialized = network.serialize();
 
       var data = {
-        activations: new Float64Array(serialzed[0]).buffer,
-        states: new Float64Array(serialzed[1]).buffer,
-        conns: new Float64Array(serialzed[2]).buffer
+        activations: new Float64Array(serialized[0]).buffer,
+        states: new Float64Array(serialized[1]).buffer,
+        conns: new Float64Array(serialized[2]).buffer
       };
 
       this.worker.onmessage = function (e) {
@@ -4274,12 +4270,12 @@ TestWorker.prototype = {
           var S = new Float64Array(e.data.states);
           var data = new Float64Array(e.data.conns);
 
-          var error = snippets.testSerializedSet(set, cost, A, S, data, F);
+          var error = multi.testSerializedSet(set, cost, A, S, data, F);
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = snippets.deserializeDataSet(new Float64Array(e.data.set));
+          set = multi.deserializeDataSet(new Float64Array(e.data.set));
         }
       };`;
 

@@ -102,4 +102,6 @@ multi.testSerializedSet = function (set, cost, A, S, data, F) {
 };
 
 /* Export */
-module.exports = multi;
+for (var i in multi) {
+  module.exports[i] = multi[i];
+}

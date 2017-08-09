@@ -260,8 +260,6 @@ Node.prototype = {
       return this.activation;
     }
 
-    this.old = this.state;
-
     // All activation sources coming from the node itself
     this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
 
@@ -273,9 +271,11 @@ Node.prototype = {
     }
 
     // Squash the values received
-    this.activation = this.squash(this.state) * this.mask;
-    this.derivative = this.squash(this.state, true);
+    this.activation = this.squash(this.state);
 
+    for (i = 0; i < this.connections.gated.length; i++) {
+      this.connections.gated[i].gain = this.activation;
+    }
 
     return this.activation;
   },

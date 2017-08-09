@@ -3,9 +3,7 @@ var chai = require('chai');
 var assert = chai.assert;
 
 /* Shorten var names */
-var Network = neataptic.Network;
-var methods = neataptic.methods;
-var config = neataptic.config;
+var { Network, methods, config } = neataptic;
 
 /* Turn off warnings */
 config.warnings = false;

@@ -56,6 +56,7 @@ Network.prototype = {
    */
   activate: function (input, training) {
     var output = [];
+
     // Activate nodes chronologically
     for (var i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].type === 'input') {
@@ -68,6 +69,28 @@ Network.prototype = {
         this.nodes[i].activate();
       }
     }
+
+    return output;
+  },
+
+  /**
+   * Activates the network without calculating elegibility traces and such
+   */
+  noTraceActivate: function (input) {
+    var output = [];
+
+    // Activate nodes chronologically
+    for (var i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i].type === 'input') {
+        this.nodes[i].noTraceActivate(input[i]);
+      } else if (this.nodes[i].type === 'output') {
+        var activation = this.nodes[i].noTraceActivate();
+        output.push(activation);
+      } else {
+        this.nodes[i].noTraceActivate();
+      }
+    }
+
     return output;
   },
 
@@ -607,7 +630,7 @@ Network.prototype = {
   /**
    * Tests a set and returns the error and elapsed time
    */
-  test: function (set, cost) {
+  test: function (set, cost = methods.cost.MSE) {
     // Check if dropout is enabled, set correct mask
     var i;
     if (this.dropout) {
@@ -618,7 +641,6 @@ Network.prototype = {
       }
     }
 
-    cost = cost || methods.cost.MSE;
     var error = 0;
     var start = Date.now();
 
@@ -626,6 +648,27 @@ Network.prototype = {
       let input = set[i].input;
       let target = set[i].output;
       let output = this.activate(input);
+      error += cost(target, output);
+    }
+
+    error /= set.length;
+
+    var results = {
+      error: error,
+      time: Date.now() - start
+    };
+
+    return results;
+  },
+
+  noTraceTest: function (set, cost = methods.cost.MSE) {
+    var error = 0;
+    var start = Date.now();
+
+    for (var i = 0; i < set.length; i++) {
+      let input = set[i].input;
+      let target = set[i].output;
+      let output = this.noTraceActivate(input);
       error += cost(target, output);
     }
 
@@ -843,7 +886,7 @@ Network.prototype = {
       fitnessFunction = function (genome) {
         var score = 0;
         for (var i = 0; i < amount; i++) {
-          score -= genome.test(set, cost).error;
+          score -= genome.noTraceTest(set, cost).error;
         }
 
         score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;

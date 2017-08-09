@@ -33,7 +33,8 @@ module.exports = {
     ])
   ],
   externals: [
-    'child_process'
+    'child_process',
+    'os'
   ],
   node: {
     __dirname: false

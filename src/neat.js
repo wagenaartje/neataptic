@@ -61,7 +61,7 @@ Neat.prototype = {
       } else {
         copy = new Network(this.input, this.output);
       }
-      copy.score = null;
+      copy.score = undefined;
       this.population.push(copy);
     }
   },
@@ -71,7 +71,7 @@ Neat.prototype = {
    */
   evolve: async function () {
     // Check if evaluated, sort the population
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       await this.evaluate();
     }
     this.sort();
@@ -105,7 +105,7 @@ Neat.prototype = {
 
     // Reset the scores
     for (i = 0; i < this.population.length; i++) {
-      this.population[i].score = null;
+      this.population[i].score = undefined;
     }
 
     this.generation++;
@@ -143,6 +143,11 @@ Neat.prototype = {
    */
   evaluate: async function () {
     if (this.fitnessPopulation) {
+      if (this.clear) {
+        for (var i = 0; i < this.population.length; i++) {
+          this.population[i].clear();
+        }
+      }
       await this.fitness(this.population);
     } else {
       for (var i = 0; i < this.population.length; i++) {
@@ -167,11 +172,13 @@ Neat.prototype = {
    */
   getFittest: function () {
     // Check if evaluated
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       this.evaluate();
     }
+    if (this.population[0].score < this.population[1].score) {
+      this.sort();
+    }
 
-    this.sort();
     return this.population[0];
   },
 
@@ -179,7 +186,7 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
   getAverage: function () {
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       this.evaluate();
     }
 

@@ -36,8 +36,8 @@ function Network (input, output) {
   // Create input and output nodes
   var i;
   for (i = 0; i < this.input + this.output; i++) {
-    var type = (i < this.input) ? 'input' : 'output';
-    this.nodes.push(new Node(type, this.nodes.length));
+    var type = i < this.input ? 'input' : 'output';
+    this.nodes.push(new Node(type));
   }
 
   // Connect input nodes with output nodes directly
@@ -260,7 +260,7 @@ Network.prototype = {
 
         // Insert the new node right before the old connection.to
         var toIndex = this.nodes.indexOf(connection.to);
-        var node = new Node('hidden', this.nodes.length);
+        var node = new Node('hidden');
 
         // Random squash function
         node.mutate(mutation.MOD_ACTIVATION);
@@ -816,14 +816,15 @@ Network.prototype = {
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
     var cost = options.cost || methods.cost.MSE;
-    var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
-      if (config.warnings) console.warn(
-        `Multithreading is automatically enabled, but for small datasets, we
-        encourage using just 1 thread!`
-      );
+    var threads = options.threads;
+    if (typeof threads === 'undefined') {
+      if (typeof window === 'undefined') { // Node.js
+        threads = require('os').cpus().length;
+      } else { // Browser
+        threads = navigator.hardwareConcurrency;
+      }
     }
 
     var start = Date.now();
@@ -840,7 +841,6 @@ Network.prototype = {
     if (threads === 1) {
       // Create the fitness function
       fitnessFunction = function (genome) {
-        if (options.clear) genome.clear();
         var score = 0;
         for (var i = 0; i < amount; i++) {
           score -= genome.test(set, cost).error;
@@ -867,10 +867,10 @@ Network.prototype = {
         }
       }
 
-      fitnessFunction = function (population) { // why take pop here
+      fitnessFunction = function (population) {
         return new Promise((resolve, reject) => {
           // Create a queue
-          var queue = neat.population.slice(); // and here?? DEBUG
+          var queue = population.slice();
           var done = 0;
 
           // Start worker function
@@ -881,7 +881,6 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            if (options.clear) genome.clear();
 
             worker.evaluate(genome).then(function (result) {
               genome.score = -result;

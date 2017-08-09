@@ -32,7 +32,8 @@ describe('Neat', function () {
       equal: true,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.03
+      error: 0.03,
+      threads: 1
     });
 
     assert.isBelow(results.error, 0.03);
@@ -53,7 +54,8 @@ describe('Neat', function () {
       equal: true,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.03
+      error: 0.03,
+      threads: 1
     });
 
     assert.isBelow(results.error, 0.03);
@@ -75,7 +77,8 @@ describe('Neat', function () {
       equal: true,
       elitism: 10,
       mutationRate: 0.5,
-      error: 0.03
+      error: 0.03,
+      threads: 1
     });
 
     assert.isBelow(results.error, 0.03);

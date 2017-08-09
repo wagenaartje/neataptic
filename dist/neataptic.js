@@ -26,14 +26,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("child_process"));
+		module.exports = factory(require("child_process"), require("os"));
 	else if(typeof define === 'function' && define.amd)
-		define(["child_process"], factory);
+		define(["child_process", "os"], factory);
 	else if(typeof exports === 'object')
-		exports["neataptic"] = factory(require("child_process"));
+		exports["neataptic"] = factory(require("child_process"), require("os"));
 	else
-		root["neataptic"] = factory(root["child_process"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_23__) {
+		root["neataptic"] = factory(root["child_process"], root["os"]);
+})(this, function(__WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_24__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -99,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 24);
+/******/ 	return __webpack_require__(__webpack_require__.s = 25);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -1296,8 +1296,8 @@ function Network (input, output) {
   // Create input and output nodes
   var i;
   for (i = 0; i < this.input + this.output; i++) {
-    var type = (i < this.input) ? 'input' : 'output';
-    this.nodes.push(new Node(type, this.nodes.length));
+    var type = i < this.input ? 'input' : 'output';
+    this.nodes.push(new Node(type));
   }
 
   // Connect input nodes with output nodes directly
@@ -1520,7 +1520,7 @@ Network.prototype = {
 
         // Insert the new node right before the old connection.to
         var toIndex = this.nodes.indexOf(connection.to);
-        var node = new Node('hidden', this.nodes.length);
+        var node = new Node('hidden');
 
         // Random squash function
         node.mutate(mutation.MOD_ACTIVATION);
@@ -2076,14 +2076,15 @@ Network.prototype = {
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
     var cost = options.cost || methods.cost.MSE;
-    var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
-      if (config.warnings) console.warn(
-        `Multithreading is automatically enabled, but for small datasets, we
-        encourage using just 1 thread!`
-      );
+    var threads = options.threads;
+    if (typeof threads === 'undefined') {
+      if (typeof window === 'undefined') { // Node.js
+        threads = __webpack_require__(24).cpus().length;
+      } else { // Browser
+        threads = navigator.hardwareConcurrency;
+      }
     }
 
     var start = Date.now();
@@ -2100,7 +2101,6 @@ Network.prototype = {
     if (threads === 1) {
       // Create the fitness function
       fitnessFunction = function (genome) {
-        if (options.clear) genome.clear();
         var score = 0;
         for (var i = 0; i < amount; i++) {
           score -= genome.test(set, cost).error;
@@ -2127,10 +2127,10 @@ Network.prototype = {
         }
       }
 
-      fitnessFunction = function (population) { // why take pop here
+      fitnessFunction = function (population) {
         return new Promise((resolve, reject) => {
           // Create a queue
-          var queue = neat.population.slice(); // and here?? DEBUG
+          var queue = population.slice();
           var done = 0;
 
           // Start worker function
@@ -2141,7 +2141,6 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            if (options.clear) genome.clear();
 
             worker.evaluate(genome).then(function (result) {
               genome.score = -result;
@@ -2754,7 +2753,7 @@ Neat.prototype = {
       } else {
         copy = new Network(this.input, this.output);
       }
-      copy.score = null;
+      copy.score = undefined;
       this.population.push(copy);
     }
   },
@@ -2764,7 +2763,7 @@ Neat.prototype = {
    */
   evolve: async function () {
     // Check if evaluated, sort the population
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       await this.evaluate();
     }
     this.sort();
@@ -2798,7 +2797,7 @@ Neat.prototype = {
 
     // Reset the scores
     for (i = 0; i < this.population.length; i++) {
-      this.population[i].score = null;
+      this.population[i].score = undefined;
     }
 
     this.generation++;
@@ -2836,6 +2835,11 @@ Neat.prototype = {
    */
   evaluate: async function () {
     if (this.fitnessPopulation) {
+      if (this.clear) {
+        for (var i = 0; i < this.population.length; i++) {
+          this.population[i].clear();
+        }
+      }
       await this.fitness(this.population);
     } else {
       for (var i = 0; i < this.population.length; i++) {
@@ -2860,11 +2864,13 @@ Neat.prototype = {
    */
   getFittest: function () {
     // Check if evaluated
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       this.evaluate();
     }
+    if (this.population[0].score < this.population[1].score) {
+      this.sort();
+    }
 
-    this.sort();
     return this.population[0];
   },
 
@@ -2872,7 +2878,7 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
   getAverage: function () {
-    if (this.population[this.population.length - 1].score == null) {
+    if (typeof this.population[this.population.length - 1].score === 'undefined') {
       this.evaluate();
     }
 
@@ -2990,11 +2996,11 @@ Neat.prototype = {
 var activation = {
   LOGISTIC: function (x, derivate) {
     var fx = 1 / (1 + Math.exp(-x));
-    if (!derivate) { return fx; }
+    if (!derivate) return fx;
     return fx * (1 - fx);
   },
   TANH: function (x, derivate) {
-    if (derivate) { return 1 - Math.pow(Math.tanh(x), 2); }
+    if (derivate) return 1 - Math.pow(Math.tanh(x), 2);
     return Math.tanh(x);
   },
   IDENTITY: function (x, derivate) {
@@ -3004,26 +3010,26 @@ var activation = {
     return derivate ? 0 : x > 0 ? 1 : 0;
   },
   RELU: function (x, derivate) {
-    if (derivate) { return x > 0 ? 1 : 0; }
+    if (derivate) return x > 0 ? 1 : 0;
     return x > 0 ? x : 0;
   },
   SOFTSIGN: function (x, derivate) {
     var d = 1 + Math.abs(x);
-    if (derivate) { return x / Math.pow(d, 2); }
+    if (derivate) return x / Math.pow(d, 2);
     return x / d;
   },
   SINUSOID: function (x, derivate) {
-    if (derivate) { return Math.cos(x); }
+    if (derivate) return Math.cos(x);
     return Math.sin(x);
   },
   GAUSSIAN: function (x, derivate) {
     var d = Math.exp(-Math.pow(x, 2));
-    if (derivate) { return -2 * x * d; }
+    if (derivate) return -2 * x * d;
     return d;
   },
   BENT_IDENTITY: function (x, derivate) {
     var d = Math.sqrt(Math.pow(x, 2) + 1);
-    if (derivate) { return x / (2 * d) + 1; }
+    if (derivate) return x / (2 * d) + 1;
     return (d - 1) / 2 + x;
   },
   BIPOLAR: function (x, derivate) {
@@ -3031,19 +3037,19 @@ var activation = {
   },
   BIPOLAR_SIGMOID: function (x, derivate) {
     var d = 2 / (1 + Math.exp(-x)) - 1;
-    if (derivate) { return 1 / 2 * (1 + d) * (1 - d); }
+    if (derivate) return 1 / 2 * (1 + d) * (1 - d);
     return d;
   },
   HARD_TANH: function (x, derivate) {
-    if (derivate) { return x > -1 && x < 1 ? 1 : 0; }
+    if (derivate) return x > -1 && x < 1 ? 1 : 0;
     return Math.max(-1, Math.min(1, x));
   },
   ABSOLUTE: function (x, derivate) {
-    if (derivate) { return x < 0 ? -1 : 1; }
+    if (derivate) return x < 0 ? -1 : 1;
     return Math.abs(x);
   },
   INVERSE: function (x, derivate) {
-    if (derivate) { return -1; }
+    if (derivate) return -1;
     return 1 - x;
   },
   // https://arxiv.org/pdf/1706.02515.pdf
@@ -4000,10 +4006,10 @@ module.exports = crossover;
 
 // Specifies how to gate a connection between two groups of multiple neurons
 var gating = {
-  OUTPUT: { // not yet implemented
+  OUTPUT: {
     name: 'OUTPUT'
   },
-  INPUT: { // not yet implemented
+  INPUT: {
     name: 'INPUT'
   },
   SELF: {
@@ -4361,6 +4367,12 @@ module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
 
 /***/ }),
 /* 24 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_24__;
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {

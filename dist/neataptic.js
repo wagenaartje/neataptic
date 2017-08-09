@@ -1940,27 +1940,6 @@ Network.prototype = {
     for (i = 0; i < set.length; i++) {
       let input = set[i].input;
       let target = set[i].output;
-      let output = this.activate(input);
-      error += cost(target, output);
-    }
-
-    error /= set.length;
-
-    var results = {
-      error: error,
-      time: Date.now() - start
-    };
-
-    return results;
-  },
-
-  noTraceTest: function (set, cost = methods.cost.MSE) {
-    var error = 0;
-    var start = Date.now();
-
-    for (var i = 0; i < set.length; i++) {
-      let input = set[i].input;
-      let target = set[i].output;
       let output = this.noTraceActivate(input);
       error += cost(target, output);
     }
@@ -2179,7 +2158,7 @@ Network.prototype = {
       fitnessFunction = function (genome) {
         var score = 0;
         for (var i = 0; i < amount; i++) {
-          score -= genome.noTraceTest(set, cost).error;
+          score -= genome.test(set, cost).error;
         }
 
         score -= (genome.nodes.length - genome.input - genome.output + genome.connections.length + genome.gates.length) * growth;

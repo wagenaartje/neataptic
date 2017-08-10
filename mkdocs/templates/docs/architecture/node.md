@@ -29,6 +29,16 @@ var node = new Node();
 node.activate(); // 0.4923128591923
 ```
 
+### noTraceActivate
+Actives the node. Calculates the state from all the input connections, adds the bias, and 'squashes' it.
+Does not calculate traces, so this can't be used to backpropagate afterwards.
+That's also why it's quite a bit faster than regular `activate`.
+
+```javascript
+var node = new Node();
+node.noTraceActivate(); // 0.4923128591923
+```
+
 ### propagate
 After an activation, you can teach the node what should have been the correct
 output (a.k.a. train). This is done by backpropagating the error. To use the

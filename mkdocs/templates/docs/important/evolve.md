@@ -43,7 +43,7 @@ This penalty will get added on top of the error. Your growth should be a very sm
 * `log` - If set to _n_, will output every _n_ iterations (_log : 1_ will log every iteration)
 * `schedule` -  You can schedule tasks to happen every _n_ iterations. An example of usage is _schedule : { function: function(){console.log(Date.now)}, iterations: 5}_. This will log the time every 5 iterations. This option allows for complex scheduled tasks during evolution.
 * `clear` - If set to _true_, will clear the network after every activation. This is useful for evolving recurrent networks, more importantly for timeseries prediction. Default: _false_
-* `threads` - Specify the amount of threads to use. Not supported for Node.js. Default value for browsers is the amount of cores in your CPU.
+* `threads` - Specify the amount of threads to use. Default value is the amount of cores in your CPU. Set to _1_ if you are evolving on a small dataset.
 
 Please note that you can also specify _any_ of the options that are specified on
 the [neat page](../neat.md).

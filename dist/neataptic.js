@@ -2784,7 +2784,7 @@ Neat.prototype = {
    */
   sort: function () {
     this.population.sort(function (a, b) {
-      return b.score - a.score;
+      return a.score - b.score;
     });
   },
 

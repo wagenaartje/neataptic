@@ -2247,7 +2247,11 @@ Network.prototype = {
     }
 
     if (typeof bestGenome !== 'undefined') {
-      for (i in bestGenome) this[i] = bestGenome[i];
+      this.nodes = bestGenome.nodes;
+      this.connections = bestGenome.connections;
+      this.selfconns = bestGenome.selfconns;
+      this.gates = bestGenome.gates;
+
       if (options.clear) this.clear();
     }
 

@@ -264,12 +264,14 @@
 <pre><code class="js">var network = new architect.NARX(inputSize, hiddenLayers, outputSize, previousInput, previousOutput);
 </code></pre>
 
-<p>A quick explanation of each argument:
-<em> <code>inputSize</code>: the amount of input nodes
-</em> <code>hiddenLayers</code>: an array containing hidden layer sizes, e.g. <code>[10,20,10]</code>. If only one hidden layer, can be a number (of nodes)
-<em> <code>outputSize</code>: the amount of output nodes
-</em> <code>previousInput</code>: the amount of previous inputs you want it to remember
-* <code>previousOutput</code>: the amount of previous outputs you want it to remember</p>
+<p>A quick explanation of each argument:</p>
+<ul>
+<li><code>inputSize</code>: the amount of input nodes</li>
+<li><code>hiddenLayers</code>: an array containing hidden layer sizes, e.g. <code>[10,20,10]</code>. If only one hidden layer, can be a number (of nodes)</li>
+<li><code>outputSize</code>: the amount of output nodes</li>
+<li><code>previousInput</code>: the amount of previous inputs you want it to remember</li>
+<li><code>previousOutput</code>: the amount of previous outputs you want it to remember</li>
+</ul>
 <p>Example:</p>
 <pre><code class="javascript">var narx = new architect.NARX(1, 5, 1, 3, 3);
 

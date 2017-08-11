@@ -26,14 +26,14 @@
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("child_process"), require("os"));
+		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(["child_process", "os"], factory);
+		define([], factory);
 	else if(typeof exports === 'object')
-		exports["neataptic"] = factory(require("child_process"), require("os"));
+		exports["neataptic"] = factory();
 	else
-		root["neataptic"] = factory(root["child_process"], root["os"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_23__, __WEBPACK_EXTERNAL_MODULE_24__) {
+		root["neataptic"] = factory();
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -99,7 +99,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 25);
+/******/ 	return __webpack_require__(__webpack_require__.s = 21);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -112,13 +112,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 var methods = {
   activation: __webpack_require__(9),
-  mutation: __webpack_require__(17),
-  selection: __webpack_require__(19),
-  crossover: __webpack_require__(15),
-  cost: __webpack_require__(14),
-  gating: __webpack_require__(16),
-  connection: __webpack_require__(13),
-  rate: __webpack_require__(18)
+  mutation: __webpack_require__(16),
+  selection: __webpack_require__(18),
+  crossover: __webpack_require__(14),
+  cost: __webpack_require__(13),
+  gating: __webpack_require__(15),
+  connection: __webpack_require__(12),
+  rate: __webpack_require__(17)
 };
 
 /** Export */
@@ -184,7 +184,7 @@ Node.prototype = {
       this.activation = input;
       return this.activation;
     }
-
+    
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -245,36 +245,6 @@ Node.prototype = {
           connection.xtrace.values.push(this.derivative * connection.elegibility * influence);
         }
       }
-    }
-
-    return this.activation;
-  },
-
-  /**
-   * Activates the node without calculating elegibility traces and such
-   */
-  noTraceActivate: function (input) {
-    // Check if an input is given
-    if (typeof input !== 'undefined') {
-      this.activation = input;
-      return this.activation;
-    }
-
-    // All activation sources coming from the node itself
-    this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
-
-    // Activation sources coming from connections
-    var i;
-    for (i = 0; i < this.connections.in.length; i++) {
-      var connection = this.connections.in[i];
-      this.state += connection.from.activation * connection.weight * connection.gain;
-    }
-
-    // Squash the values received
-    this.activation = this.squash(this.state);
-
-    for (i = 0; i < this.connections.gated.length; i++) {
-      this.connections.gated[i].gain = this.activation;
     }
 
     return this.activation;
@@ -506,14 +476,13 @@ Node.prototype = {
    * Checks if this node is projecting to the given node
    */
   isProjectingTo: function (node) {
-    if (node === this && this.connections.self.weight !== 0) return true;
-
     for (var i = 0; i < this.connections.out.length; i++) {
       var conn = this.connections.out[i];
       if (conn.to === node) {
         return true;
       }
     }
+    if (node === this && this.connections.self.weight !== 0) return true;
     return false;
   },
 
@@ -521,15 +490,13 @@ Node.prototype = {
    * Checks if the given node is projecting to this node
    */
   isProjectedBy: function (node) {
-    if (node === this && this.connections.self.weight !== 0) return true;
-
     for (var i = 0; i < this.connections.in.length; i++) {
       var conn = this.connections.in[i];
       if (conn.from === node) {
         return true;
       }
     }
-
+    if (node === this && this.connections.self.weight !== 0) return true;
     return false;
   },
 
@@ -556,7 +523,13 @@ Node.fromJSON = function (json) {
   node.bias = json.bias;
   node.type = json.type;
   node.mask = json.mask;
-  node.squash = methods.activation[json.squash];
+
+  for (var squash in methods.activation) {
+    if (methods.activation[squash].name === json.squash) {
+      node.squash = methods.activation[squash];
+      break;
+    }
+  }
 
   return node;
 };
@@ -1329,8 +1302,8 @@ function Network (input, output) {
   // Create input and output nodes
   var i;
   for (i = 0; i < this.input + this.output; i++) {
-    var type = i < this.input ? 'input' : 'output';
-    this.nodes.push(new Node(type));
+    var type = (i < this.input) ? 'input' : 'output';
+    this.nodes.push(new Node(type, this.nodes.length));
   }
 
   // Connect input nodes with output nodes directly
@@ -1349,7 +1322,6 @@ Network.prototype = {
    */
   activate: function (input, training) {
     var output = [];
-
     // Activate nodes chronologically
     for (var i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].type === 'input') {
@@ -1362,28 +1334,6 @@ Network.prototype = {
         this.nodes[i].activate();
       }
     }
-
-    return output;
-  },
-
-  /**
-   * Activates the network without calculating elegibility traces and such
-   */
-  noTraceActivate: function (input) {
-    var output = [];
-
-    // Activate nodes chronologically
-    for (var i = 0; i < this.nodes.length; i++) {
-      if (this.nodes[i].type === 'input') {
-        this.nodes[i].noTraceActivate(input[i]);
-      } else if (this.nodes[i].type === 'output') {
-        var activation = this.nodes[i].noTraceActivate();
-        output.push(activation);
-      } else {
-        this.nodes[i].noTraceActivate();
-      }
-    }
-
     return output;
   },
 
@@ -1576,7 +1526,7 @@ Network.prototype = {
 
         // Insert the new node right before the old connection.to
         var toIndex = this.nodes.indexOf(connection.to);
-        var node = new Node('hidden');
+        var node = new Node('hidden', this.nodes.length);
 
         // Random squash function
         node.mutate(mutation.MOD_ACTIVATION);
@@ -1923,7 +1873,7 @@ Network.prototype = {
   /**
    * Tests a set and returns the error and elapsed time
    */
-  test: function (set, cost = methods.cost.MSE) {
+  test: function (set, cost) {
     // Check if dropout is enabled, set correct mask
     var i;
     if (this.dropout) {
@@ -1934,13 +1884,14 @@ Network.prototype = {
       }
     }
 
+    cost = cost || methods.cost.MSE;
     var error = 0;
     var start = Date.now();
 
     for (i = 0; i < set.length; i++) {
       let input = set[i].input;
       let target = set[i].output;
-      let output = this.noTraceActivate(input);
+      let output = this.activate(input);
       error += cost(target, output);
     }
 
@@ -2131,15 +2082,14 @@ Network.prototype = {
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
     var cost = options.cost || methods.cost.MSE;
+    var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    var threads = options.threads;
-    if (typeof threads === 'undefined') {
-      if (typeof window === 'undefined') { // Node.js
-        threads = __webpack_require__(24).cpus().length;
-      } else { // Browser
-        threads = navigator.hardwareConcurrency;
-      }
+    if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
+      if (config.warnings) console.warn(
+        `Multithreading is automatically enabled, but for small datasets, we
+        encourage using just 1 thread!`
+      );
     }
 
     var start = Date.now();
@@ -2156,6 +2106,7 @@ Network.prototype = {
     if (threads === 1) {
       // Create the fitness function
       fitnessFunction = function (genome) {
+        if (options.clear) genome.clear();
         var score = 0;
         for (var i = 0; i < amount; i++) {
           score -= genome.test(set, cost).error;
@@ -2167,25 +2118,23 @@ Network.prototype = {
         return score / amount;
       };
     } else {
+      if (typeof window === 'undefined') {
+        throw new Error('Multithreading is not yet supported by Neataptic for Node.js');
+      }
+
       // Serialize the dataset
       var converted = multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
-      if (typeof window === 'undefined') {
-        for (var i = 0; i < threads; i++) {
-          workers.push(new multi.workers.node.TestWorker(converted, cost));
-        }
-      } else {
-        for (var i = 0; i < threads; i++) {
-          workers.push(new multi.workers.browser.TestWorker(converted, cost));
-        }
+      for (var i = 0; i < threads; i++) {
+        workers.push(new multi.workers.TestWorker(converted, cost));
       }
 
       fitnessFunction = function (population) {
         return new Promise((resolve, reject) => {
           // Create a queue
-          var queue = population.slice();
+          var queue = neat.population.slice();
           var done = 0;
 
           // Start worker function
@@ -2196,6 +2145,7 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
+            if (options.clear) genome.clear();
 
             worker.evaluate(genome).then(function (result) {
               genome.score = -result;
@@ -2385,6 +2335,11 @@ Network.prototype = {
 
       conns.push(-2); // stop token -> next node
     }
+
+    // Convert to Float64Arrays
+    activations = new Float64Array(activations);
+    states = new Float64Array(states);
+    conns = new Float64Array(conns);
 
     return [activations, states, conns];
   }
@@ -2638,7 +2593,10 @@ Network.crossOver = function (network1, network2, equal) {
 
 var multi = {
   /** Workers */
-  workers: __webpack_require__(22),
+  workers: __webpack_require__(19),
+
+  /** Snippets */
+  snippets: __webpack_require__(10),
 
   /** Serializes a dataset */
   serializeDataSet: function (dataSet) {
@@ -2655,90 +2613,11 @@ var multi = {
     }
 
     return serialized;
-  },
-
-  /** Activate a serialized network */
-  activateSerializedNetwork: function (input, A, S, data, F) {
-    for (var i = 0; i < data[0]; i++) A[i] = input[i];
-    for (i = 2; i < data.length; i++) {
-      let index = data[i++];
-      let bias = data[i++];
-      let squash = data[i++];
-      let selfweight = data[i++];
-      let selfgater = data[i++];
-
-      S[index] = (selfgater === -1 ? 1 : A[selfgater]) * selfweight * S[index] + bias;
-
-      while (data[i] !== -2) {
-        S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
-      }
-      A[index] = F[squash](S[index]);
-    }
-
-    var output = [];
-    for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
-    return output;
-  },
-
-  /** Deserializes a dataset to an array of arrays */
-  deserializeDataSet: function (serializedSet) {
-    var set = [];
-
-    var sampleSize = serializedSet[0] + serializedSet[1];
-    for (var i = 0; i < (serializedSet.length - 2) / sampleSize; i++) {
-      let input = [];
-      for (var j = 2 + i * sampleSize; j < 2 + i * sampleSize + serializedSet[0]; j++) {
-        input.push(serializedSet[j]);
-      }
-      let output = [];
-      for (j = 2 + i * sampleSize + serializedSet[0]; j < 2 + i * sampleSize + sampleSize; j++) {
-        output.push(serializedSet[j]);
-      }
-      set.push(input);
-      set.push(output);
-    }
-
-    return set;
-  },
-
-  /** A list of compiled activation functions in a certain order */
-  activations: [
-    function (x) { return 1 / (1 + Math.exp(-x)); },
-    function (x) { return Math.tanh(x); },
-    function (x) { return x; },
-    function (x) { return x > 0 ? 1 : 0; },
-    function (x) { return x > 0 ? x : 0; },
-    function (x) { return x / (1 + Math.abs(x)); },
-    function (x) { return Math.sin(x); },
-    function (x) { return Math.exp(-Math.pow(x, 2)); },
-    function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
-    function (x) { return x > 0 ? 1 : -1; },
-    function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
-    function (x) { return Math.max(-1, Math.min(1, x)); },
-    function (x) { return Math.abs(x); },
-    function (x) { return 1 - x; },
-    function (x) {
-      var a = 1.6732632423543772848170429916717;
-      return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
-    }
-  ]
-};
-
-multi.testSerializedSet = function (set, cost, A, S, data, F) {
-  // Calculate how much samples are in the set
-  var error = 0;
-  for (var i = 0; i < set.length; i += 2) {
-    let output = multi.activateSerializedNetwork(set[i], A, S, data, F);
-    error += cost(set[i + 1], output);
   }
-
-  return error / (set.length / 2);
 };
 
 /* Export */
-for (var i in multi) {
-  module.exports[i] = multi[i];
-}
+module.exports = multi;
 
 
 /***/ }),
@@ -2808,7 +2687,7 @@ Neat.prototype = {
       } else {
         copy = new Network(this.input, this.output);
       }
-      copy.score = undefined;
+      copy.score = null;
       this.population.push(copy);
     }
   },
@@ -2818,7 +2697,7 @@ Neat.prototype = {
    */
   evolve: async function () {
     // Check if evaluated, sort the population
-    if (typeof this.population[this.population.length - 1].score === 'undefined') {
+    if (this.population[this.population.length - 1].score == null) {
       await this.evaluate();
     }
     this.sort();
@@ -2852,7 +2731,7 @@ Neat.prototype = {
 
     // Reset the scores
     for (i = 0; i < this.population.length; i++) {
-      this.population[i].score = undefined;
+      this.population[i].score = null;
     }
 
     this.generation++;
@@ -2890,11 +2769,6 @@ Neat.prototype = {
    */
   evaluate: async function () {
     if (this.fitnessPopulation) {
-      if (this.clear) {
-        for (var i = 0; i < this.population.length; i++) {
-          this.population[i].clear();
-        }
-      }
       await this.fitness(this.population);
     } else {
       for (var i = 0; i < this.population.length; i++) {
@@ -2919,13 +2793,11 @@ Neat.prototype = {
    */
   getFittest: function () {
     // Check if evaluated
-    if (typeof this.population[this.population.length - 1].score === 'undefined') {
+    if (this.population[this.population.length - 1].score == null) {
       this.evaluate();
     }
-    if (this.population[0].score < this.population[1].score) {
-      this.sort();
-    }
 
+    this.sort();
     return this.population[0];
   },
 
@@ -2933,7 +2805,7 @@ Neat.prototype = {
    * Returns the average fitness of the current population
    */
   getAverage: function () {
-    if (typeof this.population[this.population.length - 1].score === 'undefined') {
+    if (this.population[this.population.length - 1].score == null) {
       this.evaluate();
     }
 
@@ -3051,11 +2923,11 @@ Neat.prototype = {
 var activation = {
   LOGISTIC: function (x, derivate) {
     var fx = 1 / (1 + Math.exp(-x));
-    if (!derivate) return fx;
+    if (!derivate) { return fx; }
     return fx * (1 - fx);
   },
   TANH: function (x, derivate) {
-    if (derivate) return 1 - Math.pow(Math.tanh(x), 2);
+    if (derivate) { return 1 - Math.pow(Math.tanh(x), 2); }
     return Math.tanh(x);
   },
   IDENTITY: function (x, derivate) {
@@ -3065,26 +2937,26 @@ var activation = {
     return derivate ? 0 : x > 0 ? 1 : 0;
   },
   RELU: function (x, derivate) {
-    if (derivate) return x > 0 ? 1 : 0;
+    if (derivate) { return x > 0 ? 1 : 0; }
     return x > 0 ? x : 0;
   },
   SOFTSIGN: function (x, derivate) {
     var d = 1 + Math.abs(x);
-    if (derivate) return x / Math.pow(d, 2);
+    if (derivate) { return x / Math.pow(d, 2); }
     return x / d;
   },
   SINUSOID: function (x, derivate) {
-    if (derivate) return Math.cos(x);
+    if (derivate) { return Math.cos(x); }
     return Math.sin(x);
   },
   GAUSSIAN: function (x, derivate) {
     var d = Math.exp(-Math.pow(x, 2));
-    if (derivate) return -2 * x * d;
+    if (derivate) { return -2 * x * d; }
     return d;
   },
   BENT_IDENTITY: function (x, derivate) {
     var d = Math.sqrt(Math.pow(x, 2) + 1);
-    if (derivate) return x / (2 * d) + 1;
+    if (derivate) { return x / (2 * d) + 1; }
     return (d - 1) / 2 + x;
   },
   BIPOLAR: function (x, derivate) {
@@ -3092,19 +2964,19 @@ var activation = {
   },
   BIPOLAR_SIGMOID: function (x, derivate) {
     var d = 2 / (1 + Math.exp(-x)) - 1;
-    if (derivate) return 1 / 2 * (1 + d) * (1 - d);
+    if (derivate) { return 1 / 2 * (1 + d) * (1 - d); }
     return d;
   },
   HARD_TANH: function (x, derivate) {
-    if (derivate) return x > -1 && x < 1 ? 1 : 0;
+    if (derivate) { return x > -1 && x < 1 ? 1 : 0; }
     return Math.max(-1, Math.min(1, x));
   },
   ABSOLUTE: function (x, derivate) {
-    if (derivate) return x < 0 ? -1 : 1;
+    if (derivate) { return x < 0 ? -1 : 1; }
     return Math.abs(x);
   },
   INVERSE: function (x, derivate) {
-    if (derivate) return -1;
+    if (derivate) { return -1; }
     return 1 - x;
   },
   // https://arxiv.org/pdf/1706.02515.pdf
@@ -3123,6 +2995,85 @@ module.exports = activation;
 
 /***/ }),
 /* 10 */
+/***/ (function(module, exports) {
+
+/*******************************************************************************
+                                  SNIPPETS
+*******************************************************************************/
+
+var snippets = {
+  activations: [
+    function (x) { return 1 / (1 + Math.exp(-x)); },
+    function (x) { return Math.tanh(x); },
+    function (x) { return x; },
+    function (x) { return x > 0 ? 1 : 0; },
+    function (x) { return x > 0 ? x : 0; },
+    function (x) { return x / (1 + Math.abs(x)); },
+    function (x) { return Math.sin(x); },
+    function (x) { return Math.exp(-Math.pow(x, 2)); },
+    function (x) { return (Math.sqrt(Math.pow(x, 2) + 1) - 1) / 2 + x; },
+    function (x) { return x > 0 ? 1 : -1; },
+    function (x) { return 2 / (1 + Math.exp(-x)) - 1; },
+    function (x) { return Math.max(-1, Math.min(1, x)); },
+    function (x) { return Math.abs(x); },
+    function (x) { return 1 - x; },
+    function (x) {
+      var a = 1.6732632423543772848170429916717;
+      return (x > 0 ? x : a * Math.exp(x) - a) * 1.0507009873554804934193349852946;
+    }
+  ],
+
+  activate: function (input) {
+    for (var i = 0; i < data[0]; i++) A[i] = input[i];
+    for (i = 2; i < data.length; i++) {
+      let index = data[i++];
+      let bias = data[i++];
+      let squash = data[i++];
+      let selfweight = data[i++];
+      let selfgater = data[i++];
+
+      S[index] = (selfgater === -1 ? 1 : A[selfgater]) * selfweight * S[index] + bias;
+
+      while (data[i] !== -2) {
+        S[index] += A[data[i++]] * data[i++] * (data[i++] === -1 ? 1 : A[data[i - 1]]);
+      }
+      A[index] = F[squash](S[index]);
+    }
+
+    var output = [];
+    for (i = A.length - data[1]; i < A.length; i++) output.push(A[i]);
+    return output;
+  },
+
+  testSerializedSet: function (set) {
+    var inOut = set[0] + set[1];
+
+    // Calculate how much samples are in the set
+    var error = 0;
+    for (var i = 0; i < (set.length - 2) / inOut; i++) {
+      let input = [];
+      for (var j = 2 + i * inOut; j < 2 + i * inOut + set[0]; j++) {
+        input.push(set[j]);
+      }
+      let target = [];
+      for (j = 2 + i * inOut + set[0]; j < 2 + i * inOut + inOut; j++) {
+        target.push(set[j]);
+      }
+
+      let output = activate(input);
+      error += cost(target, output);
+    }
+
+    return error / ((set.length - 2) / inOut);
+  }
+};
+
+/** Export */
+module.exports = snippets;
+
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
@@ -3497,428 +3448,7 @@ module.exports = architect;
 
 
 /***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(process) {// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-exports.resolve = function() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : process.cwd();
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-};
-
-// path.normalize(path)
-// posix version
-exports.normalize = function(path) {
-  var isAbsolute = exports.isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isAbsolute).join('/');
-
-  if (!path && !isAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isAbsolute ? '/' : '') + path;
-};
-
-// posix version
-exports.isAbsolute = function(path) {
-  return path.charAt(0) === '/';
-};
-
-// posix version
-exports.join = function() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return exports.normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-};
-
-
-// path.relative(from, to)
-// posix version
-exports.relative = function(from, to) {
-  from = exports.resolve(from).substr(1);
-  to = exports.resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-};
-
-exports.sep = '/';
-exports.delimiter = ':';
-
-exports.dirname = function(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-};
-
-
-exports.basename = function(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-};
-
-
-exports.extname = function(path) {
-  return splitPath(path)[3];
-};
-
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b'
-    ? function (str, start, len) { return str.substr(start, len) }
-    : function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    }
-;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
-
-/***/ }),
 /* 12 */
-/***/ (function(module, exports) {
-
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -3943,7 +3473,7 @@ module.exports = connection;
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4022,7 +3552,7 @@ module.exports = cost;
 
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4052,7 +3582,7 @@ module.exports = crossover;
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4061,10 +3591,10 @@ module.exports = crossover;
 
 // Specifies how to gate a connection between two groups of multiple neurons
 var gating = {
-  OUTPUT: {
+  OUTPUT: { // not yet implemented
     name: 'OUTPUT'
   },
-  INPUT: {
+  INPUT: { // not yet implemented
     name: 'INPUT'
   },
   SELF: {
@@ -4077,7 +3607,7 @@ module.exports = gating;
 
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* Import */
@@ -4190,7 +3720,7 @@ module.exports = mutation;
 
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4239,7 +3769,7 @@ module.exports = rate;
 
 
 /***/ }),
-/* 19 */
+/* 18 */
 /***/ (function(module, exports) {
 
 /*******************************************************************************
@@ -4268,6 +3798,22 @@ module.exports = selection;
 
 
 /***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*******************************************************************************
+                                  WORKERS
+*******************************************************************************/
+
+var workers = {
+  TestWorker: __webpack_require__(20)
+};
+
+/** Export */
+module.exports = workers;
+
+
+/***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4275,7 +3821,7 @@ module.exports = selection;
 module.exports = TestWorker;
 
 /* Import */
-var multi = __webpack_require__(7);
+var snippets = __webpack_require__(10);
 
 /*******************************************************************************
                                 WEBWORKER
@@ -4293,12 +3839,12 @@ function TestWorker (dataSet, cost) {
 TestWorker.prototype = {
   evaluate: function (network) {
     return new Promise((resolve, reject) => {
-      var serialized = network.serialize();
+      var serialzed = network.serialize();
 
       var data = {
-        activations: new Float64Array(serialized[0]).buffer,
-        states: new Float64Array(serialized[1]).buffer,
-        conns: new Float64Array(serialized[2]).buffer
+        activations: serialzed[0].buffer,
+        states: serialzed[1].buffer,
+        conns: serialzed[2].buffer
       };
 
       this.worker.onmessage = function (e) {
@@ -4317,26 +3863,25 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var F = [${multi.activations.toString()}];
+      var A, S, data;
+      var F = [${snippets.activations.toString()}];
       var cost = ${cost.toString()};
-      var multi = {
-        deserializeDataSet: ${multi.deserializeDataSet.toString()},
-        testSerializedSet: ${multi.testSerializedSet.toString()},
-        activateSerializedNetwork: ${multi.activateSerializedNetwork.toString()}
-      };
+      var test = ${snippets.testSerializedSet.toString()};
+      var activate = ${snippets.activate.toString()};
+      var set;
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
-          var A = new Float64Array(e.data.activations);
-          var S = new Float64Array(e.data.states);
-          var data = new Float64Array(e.data.conns);
+          A = new Float64Array(e.data.activations);
+          S = new Float64Array(e.data.states);
+          data = new Float64Array(e.data.conns);
 
-          var error = multi.testSerializedSet(set, cost, A, S, data, F);
+          var error = test(set);
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = multi.deserializeDataSet(new Float64Array(e.data.set));
+          set = new Float64Array(e.data.set);
         }
       };`;
 
@@ -4349,91 +3894,10 @@ TestWorker.prototype = {
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* Export */
-module.exports = TestWorker;
-
-/* Import */
-var cp = __webpack_require__(23);
-var path = __webpack_require__(11);
-
-/*******************************************************************************
-                                WEBWORKER
-*******************************************************************************/
-
-function TestWorker (dataSet, cost) {
-  this.worker = cp.fork(path.join(__dirname, '/worker'));
-
-  this.worker.send({ set: dataSet, cost: cost.name });
-}
-
-TestWorker.prototype = {
-  evaluate: function (network) {
-    return new Promise((resolve, reject) => {
-      var serialized = network.serialize();
-
-      var data = {
-        activations: serialized[0],
-        states: serialized[1],
-        conns: serialized[2]
-      };
-
-      var _that = this.worker;
-      this.worker.on('message', function callback (e) {
-        _that.removeListener('message', callback);
-        resolve(e);
-      });
-
-      this.worker.send(data);
-    });
-  },
-
-  terminate: function () {
-    this.worker.kill();
-  }
-};
-
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*******************************************************************************
-                                  WORKERS
-*******************************************************************************/
-
-var workers = {
-  node: {
-    TestWorker: __webpack_require__(21)
-  },
-  browser: {
-    TestWorker: __webpack_require__(20)
-  }
-};
-
-/** Export */
-module.exports = workers;
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_23__;
-
-/***/ }),
-/* 24 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_24__;
-
-/***/ }),
-/* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;var Neataptic = {
   methods: __webpack_require__(0),
   Connection: __webpack_require__(3),
-  architect: __webpack_require__(10),
+  architect: __webpack_require__(11),
   Network: __webpack_require__(6),
   config: __webpack_require__(2),
   Group: __webpack_require__(4),

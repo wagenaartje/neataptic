@@ -2,7 +2,7 @@
 module.exports = TestWorker;
 
 /* Import */
-var snippets = require('../snippets');
+var multi = require('../../multi');
 
 /*******************************************************************************
                                 WEBWORKER
@@ -20,12 +20,12 @@ function TestWorker (dataSet, cost) {
 TestWorker.prototype = {
   evaluate: function (network) {
     return new Promise((resolve, reject) => {
-      var serialzed = network.serialize();
+      var serialized = network.serialize();
 
       var data = {
-        activations: serialzed[0].buffer,
-        states: serialzed[1].buffer,
-        conns: serialzed[2].buffer
+        activations: new Float64Array(serialized[0]).buffer,
+        states: new Float64Array(serialized[1]).buffer,
+        conns: new Float64Array(serialized[2]).buffer
       };
 
       this.worker.onmessage = function (e) {
@@ -44,25 +44,26 @@ TestWorker.prototype = {
 
   _createBlobString: function (cost) {
     var source = `
-      var A, S, data;
-      var F = [${snippets.activations.toString()}];
+      var F = [${multi.activations.toString()}];
       var cost = ${cost.toString()};
-      var test = ${snippets.testSerializedSet.toString()};
-      var activate = ${snippets.activate.toString()};
-      var set;
+      var multi = {
+        deserializeDataSet: ${multi.deserializeDataSet.toString()},
+        testSerializedSet: ${multi.testSerializedSet.toString()},
+        activateSerializedNetwork: ${multi.activateSerializedNetwork.toString()}
+      };
 
       this.onmessage = function (e) {
         if(typeof e.data.set === 'undefined'){
-          A = new Float64Array(e.data.activations);
-          S = new Float64Array(e.data.states);
-          data = new Float64Array(e.data.conns);
+          var A = new Float64Array(e.data.activations);
+          var S = new Float64Array(e.data.states);
+          var data = new Float64Array(e.data.conns);
 
-          var error = test(set);
+          var error = multi.testSerializedSet(set, cost, A, S, data, F);
 
           var answer = { buffer: new Float64Array([error ]).buffer };
           postMessage(answer, [answer.buffer]);
         } else {
-          set = new Float64Array(e.data.set);
+          set = multi.deserializeDataSet(new Float64Array(e.data.set));
         }
       };`;
 

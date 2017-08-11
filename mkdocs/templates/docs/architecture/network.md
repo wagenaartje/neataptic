@@ -32,6 +32,20 @@ myNetwork.activate([0.8, 1, 0.21]); // gives: [0.49, 0.51]
 </details>
 
 <details>
+  <summary>noTraceActivate</summary>
+   Activates the network. It will activate all the nodes in activation order and produce an output.
+   Does not calculate traces, so backpropagation is not possible afterwards. That makes
+   it faster than the regular `activate` function.
+
+<pre>
+// Create a network
+var myNetwork = new Network(3, 2);
+
+myNetwork.noTraceActivate([0.8, 1, 0.21]); // gives: [0.49, 0.51]
+</pre>
+</details>
+
+<details>
   <summary>propagate</summary>
    This function allows you to teach the network. If you want to do more complex
    training, use the <code>network.train()</code> function. The arguments for

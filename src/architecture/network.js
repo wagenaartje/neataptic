@@ -36,8 +36,8 @@ function Network (input, output) {
   // Create input and output nodes
   var i;
   for (i = 0; i < this.input + this.output; i++) {
-    var type = (i < this.input) ? 'input' : 'output';
-    this.nodes.push(new Node(type, this.nodes.length));
+    var type = i < this.input ? 'input' : 'output';
+    this.nodes.push(new Node(type));
   }
 
   // Connect input nodes with output nodes directly
@@ -56,6 +56,7 @@ Network.prototype = {
    */
   activate: function (input, training) {
     var output = [];
+
     // Activate nodes chronologically
     for (var i = 0; i < this.nodes.length; i++) {
       if (this.nodes[i].type === 'input') {
@@ -68,6 +69,28 @@ Network.prototype = {
         this.nodes[i].activate();
       }
     }
+
+    return output;
+  },
+
+  /**
+   * Activates the network without calculating elegibility traces and such
+   */
+  noTraceActivate: function (input) {
+    var output = [];
+
+    // Activate nodes chronologically
+    for (var i = 0; i < this.nodes.length; i++) {
+      if (this.nodes[i].type === 'input') {
+        this.nodes[i].noTraceActivate(input[i]);
+      } else if (this.nodes[i].type === 'output') {
+        var activation = this.nodes[i].noTraceActivate();
+        output.push(activation);
+      } else {
+        this.nodes[i].noTraceActivate();
+      }
+    }
+
     return output;
   },
 
@@ -260,7 +283,7 @@ Network.prototype = {
 
         // Insert the new node right before the old connection.to
         var toIndex = this.nodes.indexOf(connection.to);
-        var node = new Node('hidden', this.nodes.length);
+        var node = new Node('hidden');
 
         // Random squash function
         node.mutate(mutation.MOD_ACTIVATION);
@@ -607,7 +630,7 @@ Network.prototype = {
   /**
    * Tests a set and returns the error and elapsed time
    */
-  test: function (set, cost) {
+  test: function (set, cost = methods.cost.MSE) {
     // Check if dropout is enabled, set correct mask
     var i;
     if (this.dropout) {
@@ -618,14 +641,13 @@ Network.prototype = {
       }
     }
 
-    cost = cost || methods.cost.MSE;
     var error = 0;
     var start = Date.now();
 
     for (i = 0; i < set.length; i++) {
       let input = set[i].input;
       let target = set[i].output;
-      let output = this.activate(input);
+      let output = this.noTraceActivate(input);
       error += cost(target, output);
     }
 
@@ -816,14 +838,15 @@ Network.prototype = {
     var targetError = typeof options.error !== 'undefined' ? options.error : 0.05;
     var growth = typeof options.growth !== 'undefined' ? options.growth : 0.0001;
     var cost = options.cost || methods.cost.MSE;
-    var threads = options.threads || (typeof navigator === 'undefined' ? 1 : navigator.hardwareConcurrency);
     var amount = options.amount || 1;
 
-    if (threads > 1 && set[0].input.length + set[0].output.length < 100) {
-      if (config.warnings) console.warn(
-        `Multithreading is automatically enabled, but for small datasets, we
-        encourage using just 1 thread!`
-      );
+    var threads = options.threads;
+    if (typeof threads === 'undefined') {
+      if (typeof window === 'undefined') { // Node.js
+        threads = require('os').cpus().length;
+      } else { // Browser
+        threads = navigator.hardwareConcurrency;
+      }
     }
 
     var start = Date.now();
@@ -840,7 +863,6 @@ Network.prototype = {
     if (threads === 1) {
       // Create the fitness function
       fitnessFunction = function (genome) {
-        if (options.clear) genome.clear();
         var score = 0;
         for (var i = 0; i < amount; i++) {
           score -= genome.test(set, cost).error;
@@ -852,23 +874,25 @@ Network.prototype = {
         return score / amount;
       };
     } else {
-      if (typeof window === 'undefined') {
-        throw new Error('Multithreading is not yet supported by Neataptic for Node.js');
-      }
-
       // Serialize the dataset
       var converted = multi.serializeDataSet(set);
 
       // Create workers, send datasets
       var workers = [];
-      for (var i = 0; i < threads; i++) {
-        workers.push(new multi.workers.TestWorker(converted, cost));
+      if (typeof window === 'undefined') {
+        for (var i = 0; i < threads; i++) {
+          workers.push(new multi.workers.node.TestWorker(converted, cost));
+        }
+      } else {
+        for (var i = 0; i < threads; i++) {
+          workers.push(new multi.workers.browser.TestWorker(converted, cost));
+        }
       }
 
       fitnessFunction = function (population) {
         return new Promise((resolve, reject) => {
           // Create a queue
-          var queue = neat.population.slice();
+          var queue = population.slice();
           var done = 0;
 
           // Start worker function
@@ -879,7 +903,6 @@ Network.prototype = {
             }
 
             var genome = queue.shift();
-            if (options.clear) genome.clear();
 
             worker.evaluate(genome).then(function (result) {
               genome.score = -result;
@@ -1069,11 +1092,6 @@ Network.prototype = {
 
       conns.push(-2); // stop token -> next node
     }
-
-    // Convert to Float64Arrays
-    activations = new Float64Array(activations);
-    states = new Float64Array(states);
-    conns = new Float64Array(conns);
 
     return [activations, states, conns];
   }

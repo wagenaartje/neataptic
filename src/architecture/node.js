@@ -53,7 +53,7 @@ Node.prototype = {
       this.activation = input;
       return this.activation;
     }
-    
+
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -114,6 +114,36 @@ Node.prototype = {
           connection.xtrace.values.push(this.derivative * connection.elegibility * influence);
         }
       }
+    }
+
+    return this.activation;
+  },
+
+  /**
+   * Activates the node without calculating elegibility traces and such
+   */
+  noTraceActivate: function (input) {
+    // Check if an input is given
+    if (typeof input !== 'undefined') {
+      this.activation = input;
+      return this.activation;
+    }
+
+    // All activation sources coming from the node itself
+    this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
+
+    // Activation sources coming from connections
+    var i;
+    for (i = 0; i < this.connections.in.length; i++) {
+      var connection = this.connections.in[i];
+      this.state += connection.from.activation * connection.weight * connection.gain;
+    }
+
+    // Squash the values received
+    this.activation = this.squash(this.state);
+
+    for (i = 0; i < this.connections.gated.length; i++) {
+      this.connections.gated[i].gain = this.activation;
     }
 
     return this.activation;
@@ -345,13 +375,14 @@ Node.prototype = {
    * Checks if this node is projecting to the given node
    */
   isProjectingTo: function (node) {
+    if (node === this && this.connections.self.weight !== 0) return true;
+
     for (var i = 0; i < this.connections.out.length; i++) {
       var conn = this.connections.out[i];
       if (conn.to === node) {
         return true;
       }
     }
-    if (node === this && this.connections.self.weight !== 0) return true;
     return false;
   },
 
@@ -359,13 +390,15 @@ Node.prototype = {
    * Checks if the given node is projecting to this node
    */
   isProjectedBy: function (node) {
+    if (node === this && this.connections.self.weight !== 0) return true;
+
     for (var i = 0; i < this.connections.in.length; i++) {
       var conn = this.connections.in[i];
       if (conn.from === node) {
         return true;
       }
     }
-    if (node === this && this.connections.self.weight !== 0) return true;
+
     return false;
   },
 
@@ -392,13 +425,7 @@ Node.fromJSON = function (json) {
   node.bias = json.bias;
   node.type = json.type;
   node.mask = json.mask;
-
-  for (var squash in methods.activation) {
-    if (methods.activation[squash].name === json.squash) {
-      node.squash = methods.activation[squash];
-      break;
-    }
-  }
+  node.squash = methods.activation[json.squash];
 
   return node;
 };

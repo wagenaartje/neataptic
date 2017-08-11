@@ -4,10 +4,10 @@
 
 // Specifies how to gate a connection between two groups of multiple neurons
 var gating = {
-  OUTPUT: { // not yet implemented
+  OUTPUT: {
     name: 'OUTPUT'
   },
-  INPUT: { // not yet implemented
+  INPUT: {
     name: 'INPUT'
   },
   SELF: {

@@ -131,6 +131,8 @@ npm install neataptic
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop
 Neataptic.
 
+The neuro-evolution algorithm used is the [Instinct](https://medium.com/@ThomasWagenaar/neuro-evolution-on-steroids-82bd14ddc2f6) algorithm. 
+
 <hr>
 
 You made it all the way down! If you appreciate this repo and want to support the development of it, please consider donating :thumbsup:

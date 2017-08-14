@@ -379,7 +379,7 @@ Network.prototype = {
         var possible = [];
         for (i = this.input; i < this.nodes.length; i++) {
           let node = this.nodes[i];
-          if (this.selfconns.indexOf(node.connections.self) === -1) {
+          if (node.connections.self.weight === 0) {
             possible.push(node);
           }
         }
@@ -954,7 +954,11 @@ Network.prototype = {
     }
 
     if (typeof bestGenome !== 'undefined') {
-      for (i in bestGenome) this[i] = bestGenome[i];
+      this.nodes = bestGenome.nodes;
+      this.connections = bestGenome.connections;
+      this.selfconns = bestGenome.selfconns;
+      this.gates = bestGenome.gates;
+
       if (options.clear) this.clear();
     }
 
@@ -997,7 +1001,7 @@ Network.prototype = {
 
       var functionIndex = present.indexOf(node.squash.name);
 
-      if (present.indexOf(node.squash.name) === -1) {
+      if (functionIndex === -1) {
         functionIndex = present.length;
         present.push(node.squash.name);
         functions.push(node.squash.toString());

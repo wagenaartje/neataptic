@@ -281,7 +281,7 @@ Node.prototype = {
         this.connections.out.splice(i, 1);
         let j = conn.to.connections.in.indexOf(conn);
         conn.to.connections.in.splice(j, 1);
-        if (conn.gater !== null) this.ungate(conn);
+        if (conn.gater !== null) conn.gater.ungate(conn);
         break;
       }
     }

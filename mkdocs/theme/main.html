@@ -23,7 +23,7 @@
     <link rel="stylesheet" type="text/css" href="{{ base_url }}/custom.css">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+    <link rel="shortcut icon" href="http://i.imgur.com/rPZtAOc.png">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
@@ -66,7 +66,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-left"  href="{{ base_url }}"><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
           <a class="navbar-brand" href="{{ base_url }}"><p class="brand">Neataptic</p></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
@@ -82,7 +81,8 @@
       </div>
     </nav>
 
-    <div class="container">
+    {% if page.title != 'Home' %}
+    <div class="container" style="margin-top: 60px">
       <div class="row">
         <!-- Sidebar -->
         <div class="col-sm-2 col-md-2 col-lg-2">
@@ -115,20 +115,32 @@
         </div>
 
         <!-- Content -->
-        {% if page.title != 'Home' %}
         <div class="col-sm-10 col-md-10 col-lg-10 content">
           <h1 style="margin-bottom: 0px;">{{ page.title }}</h1>
           <p><a style="text-decoration: none" href="{{ page.edit_url }}"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
           <hr>
           {{ page.content }}
         </div>
-        {% else %}
-        <div class="col-sm-12 col-md-12 col-lg-12 content">
-          {{ page.content }}
-        </div>
-        {% endif %}
       </div>
     </div>
+    {% else %}
+    <div class="jumbotron vertical-center">
+      <div class="container text-center">
+        <div class="row">
+          <img src="http://i.imgur.com/dLPm3Lx.jpg"/>
+        </div>
+        <div class="row welcome">
+          <p>Neuro-evolution on steroids, right in the browser</p>
+          <p class="subtitle"><sup>Using the <a href="https://medium.com/@ThomasWagenaar/neuro-evolution-on-steroids-82bd14ddc2f6">Instinct</a> algorithm</sup></p>
+        </div>
+        <div class="row">
+          <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
+          <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
+          <a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Javascript (only for blogs) -->
     {% if page.title != 'Articles' %}

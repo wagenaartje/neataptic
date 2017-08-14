@@ -14,7 +14,7 @@ may always be successful. More may be added in the future!
     <button type="button" class="btn btn-default" onclick="showModal(1, 0)">Training set</button>
     <button type="button" class="btn btn-default" onclick="showModal(1, 1)">Evolve settings</button>
     <div class="btn-group">
-      <button type="button" class="btn btn-warning" onclick="run(1)">Start</button>
+      <button type="button" class="btn btn-primary" onclick="run(1)">Start</button>
       <button type="button" class="btn btn-default status1" style="display: none" onclick="showModal(1, 2)">Status</button>
       <button type="button" class="btn btn-danger error1" style="display: none">Error</button>
     </div>
@@ -30,7 +30,7 @@ may always be successful. More may be added in the future!
     <button type="button" class="btn btn-default" onclick="showModal(2, 0)">Training set</button>
     <button type="button" class="btn btn-default" onclick="showModal(2, 1)">Evolve settings</button>
     <div class="btn-group">
-      <button type="button" class="btn btn-warning" onclick="run(2)">Start</button>
+      <button type="button" class="btn btn-primary" onclick="run(2)">Start</button>
       <button type="button" class="btn btn-default status2" style="display: none" onclick="showModal(2, 2)">Status</button>
       <button type="button" class="btn btn-danger error2" style="display: none">Error</button>
     </div>
@@ -47,7 +47,7 @@ may always be successful. More may be added in the future!
     <button type="button" class="btn btn-default" onclick="showModal(3, 0)">Training set</button>
     <button type="button" class="btn btn-default" onclick="showModal(3, 1)">Evolve settings</button>
     <div class="btn-group">
-      <button type="button" class="btn btn-warning" onclick="run(3)">Start</button>
+      <button type="button" class="btn btn-primary" onclick="run(3)">Start</button>
       <button type="button" class="btn btn-default status3" style="display: none" onclick="showModal(3, 2)">Status</button>
       <button type="button" class="btn btn-danger error3" style="display: none">Error</button>
     </div>

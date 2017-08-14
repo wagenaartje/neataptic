@@ -1,22 +1,11 @@
-<p align="center">
-  <a href="https://wagenaartje.github.io/neataptic/">
-    <img src="http://i.imgur.com/0PSJuPX.png" width="200">
-  </a>
-</p>
+![](https://cdn-images-1.medium.com/max/800/1*THG2__H9YHxYIt2sulzlTw.png)
 
-<h3 align="center">
-  Neataptic
-</h3>
+### Neataptic
 
-<p align="center">
-  Backprop + neuro-evolution in the browser</a>
-</p>
+<a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
+<a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
+<a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
-  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
-  <a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
-</p>
 
 <hr>
 
@@ -118,7 +107,7 @@ over to the [graph](https://github.com/wagenaartje/neataptic/tree/master/graph) 
 Neataptic files are hosted by rawgit, just copy this link into the `<head>` tag:
 
 ```html
-<script src="https://wagenaartje.github.io/neataptic/cdn/1.4.0/neataptic.js"></script>
+<script src="https://wagenaartje.github.io/neataptic/cdn/1.4.1/neataptic.js"></script>
 ```
 
 Installing with node is also possible:

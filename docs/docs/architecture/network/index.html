@@ -23,7 +23,7 @@
     <link rel="stylesheet" type="text/css" href="../../../custom.css">
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="http://i.imgur.com/7hcY3e8.png">
+    <link rel="shortcut icon" href="http://i.imgur.com/rPZtAOc.png">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
@@ -66,7 +66,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-left"  href="../../.."><img class="navlogo" src="http://i.imgur.com/HFTBYpF.png"/></a>
           <a class="navbar-brand" href="../../.."><p class="brand">Neataptic</p></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
@@ -82,7 +81,8 @@
       </div>
     </nav>
 
-    <div class="container">
+    
+    <div class="container" style="margin-top: 60px">
       <div class="row">
         <!-- Sidebar -->
         <div class="col-sm-2 col-md-2 col-lg-2">
@@ -253,7 +253,6 @@
         </div>
 
         <!-- Content -->
-        
         <div class="col-sm-10 col-md-10 col-lg-10 content">
           <h1 style="margin-bottom: 0px;">Network</h1>
           <p><a style="text-decoration: none" href="https://github.com/wagenaartje/neataptic/edit/master/mkdocs/templates/docs\architecture\network.md"><i class="fa fa-github fa-1x"></i> Edit on Github</a></p>
@@ -277,6 +276,19 @@ var myNetwork = new architect.Perceptron(5, 20, 10, 5, 1);
 var myNetwork = new Network(3, 2);
 
 myNetwork.activate([0.8, 1, 0.21]); // gives: [0.49, 0.51]
+</pre>
+
+<p></details></p>
+<p><details>
+  <summary>noTraceActivate</summary>
+   Activates the network. It will activate all the nodes in activation order and produce an output.
+   Does not calculate traces, so backpropagation is not possible afterwards. That makes
+   it faster than the regular <code>activate</code> function.</p>
+<pre>
+// Create a network
+var myNetwork = new Network(3, 2);
+
+myNetwork.noTraceActivate([0.8, 1, 0.21]); // gives: [0.49, 0.51]
 </pre>
 
 <p></details></p>
@@ -476,9 +488,9 @@ network.set({bias: 1});
    Array of self connections
 </details></p>
         </div>
-        
       </div>
     </div>
+    
 
     <!-- Javascript (only for blogs) -->
     

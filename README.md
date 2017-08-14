@@ -1,22 +1,11 @@
-<p align="center">
-  <a href="https://wagenaartje.github.io/neataptic/">
-    <img src="http://i.imgur.com/0PSJuPX.png" width="200">
-  </a>
-</p>
+![](https://cdn-images-1.medium.com/max/800/1*THG2__H9YHxYIt2sulzlTw.png)
 
-<h3 align="center">
-  Neataptic
-</h3>
+### Neataptic
 
-<p align="center">
-  Backprop + neuro-evolution in the browser</a>
-</p>
+<a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
+<a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
+<a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
 
-<p align="center">
-  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
-  <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
-  <a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
-</p>
 
 <hr>
 

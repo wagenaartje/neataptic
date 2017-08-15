@@ -352,7 +352,9 @@ Network.prototype = {
         this.disconnect(randomConn.from, randomConn.to);
         break;
       case mutation.MOD_WEIGHT:
-        var connection = this.connections[Math.floor(Math.random() * this.connections.length)];
+        var allconnections = this.connections.concat(this.selfconns);
+
+        var connection = allconnections[Math.floor(Math.random() * allconnections.length)];
         var modification = Math.random() * (method.max - method.min) + method.min;
         connection.weight += modification;
         break;

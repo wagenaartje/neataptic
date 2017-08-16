@@ -1,4 +1,4 @@
-![](https://cdn-images-1.medium.com/max/800/1*THG2__H9YHxYIt2sulzlTw.png)
+<img src="https://cdn-images-1.medium.com/max/800/1*THG2__H9YHxYIt2sulzlTw.png" width="100%"/>
 
 ### Neataptic
 

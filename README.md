@@ -116,6 +116,8 @@ Installing with node is also possible:
 npm install neataptic
 ```
 
+Make sure you have Node.js `v7.6` or higher installed!
+
 ## Further notices
 Parts of [Synaptic](https://github.com/cazala/synaptic) where used to develop
 Neataptic.

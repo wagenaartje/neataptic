@@ -1,6 +1,6 @@
 {
   "name": "neataptic",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
@@ -41,6 +41,6 @@
   },
   "homepage": "http://wagenaartje.github.io/neataptic/",
   "engines": {
-    "node": ">=8"
+    "node": ">=7.6"
   }
 }

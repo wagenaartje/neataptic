@@ -1,4 +1,4 @@
-var { multi, methods } = require('./neataptic');
+var { multi, methods } = require('../../../neataptic');
 
 var set = [];
 var cost;

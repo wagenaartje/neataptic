@@ -73,6 +73,14 @@ The constructor comes with various options. The constructor works as follows:
 new Neat(input, output, fitnessFunction, options); // options should be an object
 ```
 
+Every generation, each genome will be tested on the `fitnessFunction`. The
+fitness function should return a score (a number). Through evolution, the
+genomes will try to _maximize_ the output of the fitness function.
+
+Negative scores are allowed.
+
+You can provide the following options in an object for the `options` argument:
+
 <details>
   <summary>popsize</summary>
    Sets the population size of each generation. Default is 50.

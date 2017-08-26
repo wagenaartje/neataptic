@@ -323,6 +323,11 @@ function endEvaluation(){
 <pre><code class="javascript">new Neat(input, output, fitnessFunction, options); // options should be an object
 </code></pre>
 
+<p>Every generation, each genome will be tested on the <code>fitnessFunction</code>. The
+fitness function should return a score (a number). Through evolution, the
+genomes will try to <em>maximize</em> the output of the fitness function.</p>
+<p>Negative scores are allowed.</p>
+<p>You can provide the following options in an object for the <code>options</code> argument:</p>
 <p><details>
   <summary>popsize</summary>
    Sets the population size of each generation. Default is 50.

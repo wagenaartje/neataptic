@@ -1,20 +1,20 @@
 /*!
  * The MIT License (MIT)
- *
+ * 
  * Copyright 2017 Thomas Wagenaar <wagenaartje@protonmail.com>. Copyright for
  * portions of Neataptic are held by Copyright 2017 Juan Cazala - cazala.com, as a
  * part of project Synaptic.
- *
+ * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE
- *
+ * 
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -2757,6 +2757,7 @@ module.exports = Neat;
 /* Import */
 var Network = __webpack_require__(6);
 var methods = __webpack_require__(0);
+var config = __webpack_require__(2);
 
 /* Easier variable naming */
 var selection = methods.selection;
@@ -2792,6 +2793,16 @@ function Neat (input, output, fitness, options) {
   this.mutation = options.mutation || methods.mutation.FFW;
 
   this.template = options.network || false;
+
+
+  this.maxNodes = options.maxNodes || Infinity;
+  this.maxConns = options.maxConns || Infinity;
+  this.maxGates = options.maxGates || Infinity;          
+
+  //allow usage of custom mutations selection method.
+  //the method is bound to "this" context so it can access the configured mutations list through "this.mutation"
+  this.mutationMethodSelect = typeof options.mutationMethodSelect == 'function' ? options.mutationMethodSelect.bind(this) : this.mutationMethodRandomSelect;
+
 
   // Generation counter
   this.generation = 0;
@@ -2877,6 +2888,31 @@ Neat.prototype = {
   },
 
   /**
+   * Selects a random mutation method for a given population and ensure that maxNodes, maxConns and maxGates are not exceeded.
+   */
+  mutationMethodRandomSelect: function(population) {
+    var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+
+    if (mutationMethod == methods.mutation.ADD_NODE && population.nodes.length >= this.maxNodes) {
+      if (config.warnings) console.warn('maxNodes exceeded!');
+      return null;
+    }
+
+    if (mutationMethod == methods.mutation.ADD_CONN && population.connections.length >= this.maxConns) {
+      if (config.warnings) console.warn('maxConns exceeded!');
+      return null;
+    }
+
+    if (mutationMethod == methods.mutation.ADD_GATE && population.gates.length >= this.maxGates) {
+      if (config.warnings) console.warn('maxGates exceeded!');
+      return null;
+    }
+
+
+    return mutationMethod;
+  },
+
+  /**
    * Mutates the given (or current) population
    */
   mutate: function () {
@@ -2884,7 +2920,7 @@ Neat.prototype = {
     for (var i = 0; i < this.population.length; i++) {
       if (Math.random() <= this.mutationRate) {
         for (var j = 0; j < this.mutationAmount; j++) {
-          var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
+          var mutationMethod = this.mutationMethodSelect(this.population[i]);
           this.population[i].mutate(mutationMethod);
         }
       }

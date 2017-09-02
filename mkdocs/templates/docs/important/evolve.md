@@ -55,7 +55,8 @@ var options = {
   mutation: methods.mutation.ALL,
   mutationRate: 0.4,
   clear: true,
-  cost: 0.03,
+  cost: methods.cost.MSE,
+  error: 0.03,
   log: 1,
   iterations: 1000
 };

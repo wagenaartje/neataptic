@@ -11,7 +11,7 @@ var cost = {
       // Avoid negative and zero numbers, use 1e-15 http://bit.ly/2p5W29A
       error -= target[i] * Math.log(Math.max(output[i], 1e-15)) + (1 - target[i]) * Math.log(1 - Math.max(output[i], 1e-15));
     }
-    return error;
+    return error / output.length;
   },
   // Mean Squared Error
   MSE: function (target, output) {

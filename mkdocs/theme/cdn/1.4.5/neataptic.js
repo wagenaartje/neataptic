@@ -2892,17 +2892,17 @@ Neat.prototype = {
 
     if (mutationMethod === methods.mutation.ADD_NODE && genome.nodes.length >= this.maxNodes) {
       if (config.warnings) console.warn('maxNodes exceeded!');
-      return null;
+      return;
     }
 
     if (mutationMethod === methods.mutation.ADD_CONN && genome.connections.length >= this.maxConns) {
       if (config.warnings) console.warn('maxConns exceeded!');
-      return null;
+      return;
     }
 
     if (mutationMethod === methods.mutation.ADD_GATE && genome.gates.length >= this.maxGates) {
       if (config.warnings) console.warn('maxGates exceeded!');
-      return null;
+      return;
     }
 
     return mutationMethod;
@@ -3998,7 +3998,7 @@ var cost = {
       // Avoid negative and zero numbers, use 1e-15 http://bit.ly/2p5W29A
       error -= target[i] * Math.log(Math.max(output[i], 1e-15)) + (1 - target[i]) * Math.log(1 - Math.max(output[i], 1e-15));
     }
-    return error;
+    return error / output.length;
   },
   // Mean Squared Error
   MSE: function (target, output) {

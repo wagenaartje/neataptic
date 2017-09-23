@@ -41,15 +41,12 @@ function Neat (input, output, fitness, options) {
 
   this.template = options.network || false;
 
-
   this.maxNodes = options.maxNodes || Infinity;
   this.maxConns = options.maxConns || Infinity;
-  this.maxGates = options.maxGates || Infinity;          
+  this.maxGates = options.maxGates || Infinity;
 
-  //allow usage of custom mutations selection method.
-  //the method is bound to "this" context so it can access the configured mutations list through "this.mutation"
-  this.mutationMethodSelect = typeof options.mutationMethodSelect == 'function' ? options.mutationMethodSelect.bind(this) : this.mutationMethodRandomSelect;
-
+  // Custom mutation selection function if given
+  this.selectMutationMethod = typeof options.mutationSelection === 'function' ? options.mutationSelection.bind(this) : this.selectMutationMethod;
 
   // Generation counter
   this.generation = 0;
@@ -135,26 +132,25 @@ Neat.prototype = {
   },
 
   /**
-   * Selects a random mutation method for a given population and ensure that maxNodes, maxConns and maxGates are not exceeded.
+   * Selects a random mutation method for a genome according to the parameters
    */
-  mutationMethodRandomSelect: function(population) {
+  selectMutationMethod: function (genome) {
     var mutationMethod = this.mutation[Math.floor(Math.random() * this.mutation.length)];
 
-    if (mutationMethod == methods.mutation.ADD_NODE && population.nodes.length >= this.maxNodes) {
+    if (mutationMethod === methods.mutation.ADD_NODE && genome.nodes.length >= this.maxNodes) {
       if (config.warnings) console.warn('maxNodes exceeded!');
-      return null;
+      return;
     }
 
-    if (mutationMethod == methods.mutation.ADD_CONN && population.connections.length >= this.maxConns) {
+    if (mutationMethod === methods.mutation.ADD_CONN && genome.connections.length >= this.maxConns) {
       if (config.warnings) console.warn('maxConns exceeded!');
-      return null;
+      return;
     }
 
-    if (mutationMethod == methods.mutation.ADD_GATE && population.gates.length >= this.maxGates) {
+    if (mutationMethod === methods.mutation.ADD_GATE && genome.gates.length >= this.maxGates) {
       if (config.warnings) console.warn('maxGates exceeded!');
-      return null;
+      return;
     }
-
 
     return mutationMethod;
   },
@@ -167,7 +163,7 @@ Neat.prototype = {
     for (var i = 0; i < this.population.length; i++) {
       if (Math.random() <= this.mutationRate) {
         for (var j = 0; j < this.mutationAmount; j++) {
-          var mutationMethod = this.mutationMethodSelect(this.population[i]);
+          var mutationMethod = this.selectMutationMethod(this.population[i]);
           this.population[i].mutate(mutationMethod);
         }
       }
@@ -178,15 +174,16 @@ Neat.prototype = {
    * Evaluates the current population
    */
   evaluate: async function () {
+    var i;
     if (this.fitnessPopulation) {
       if (this.clear) {
-        for (var i = 0; i < this.population.length; i++) {
+        for (i = 0; i < this.population.length; i++) {
           this.population[i].clear();
         }
       }
       await this.fitness(this.population);
     } else {
-      for (var i = 0; i < this.population.length; i++) {
+      for (i = 0; i < this.population.length; i++) {
         var genome = this.population[i];
         if (this.clear) genome.clear();
         genome.score = await this.fitness(genome);

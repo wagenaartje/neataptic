@@ -126,3 +126,10 @@ and have been close to the target throughout the iteration.
 
 ### Issues/future improvements
 * ... none yet! [Tell me your ideas!](https://github.com/wagenaartje/neataptic)
+
+**Forks**
+
+* [corpr8's fork](https://corpr8.github.io/neataptic-targetseeking-tron/)
+gives each neural agent its own acceleration, as well as letting each arrow
+remain in the same place after each generation. This creates a much more
+'fluid' process.

@@ -4,7 +4,7 @@
   "description": "Architecture-free neural network library with genetic algorithm implementations",
   "main": "./src/neataptic",
   "scripts": {
-    "test:src": "mocha --compilers js:babel-core/register test/src.js test",
+    "test:src": "mocha test/src.js test",
     "test:dist": "mocha test/dist.js test",
     "build:dist": "webpack",
     "build:docs": "cd mkdocs && mkdocs build --site-dir ../docs && cd ../",
@@ -13,9 +13,6 @@
     "test:travis": "npm run build:dist && npm run test:dist"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.0",
     "chai": "^4.1.2",
     "copy-webpack-plugin": "^4.0.1",
     "mocha": "^3.5.3",

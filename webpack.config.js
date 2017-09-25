@@ -31,20 +31,6 @@ module.exports = {
     library: 'neataptic',
     libraryTarget: 'umd'
   },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['env']
-          }
-        }
-      }
-    ],
-  },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.BannerPlugin(license),

@@ -13,11 +13,11 @@
     "test:travis": "npm run build:dist && npm run test:dist"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
+    "chai": "^4.1.2",
     "copy-webpack-plugin": "^4.0.1",
-    "mocha": "^2.2.4",
+    "mocha": "^3.5.3",
     "semistandard": "*",
-    "webpack": "2.2.1"
+    "webpack": "^3.6.0"
   },
   "repository": {
     "type": "git",

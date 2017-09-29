@@ -299,10 +299,15 @@ describe('Networks', function () {
       });
 
       lstm.activate([0]);
-      assert.isBelow(0.9, lstm.activate([1]), 'LSTM error');
-      assert.isBelow(lstm.activate([1]), 0.1, 'LSTM error');
-      assert.isBelow(0.9, lstm.activate([0]), 'LSTM error');
-      assert.isBelow(lstm.activate([0]), 0.1, 'LSTM error');
+
+      function getActivation(sensors) {
+        return lstm.activate(sensors)[0];
+      }
+
+      assert.isBelow(0.9, getActivation([1]), 'LSTM error');
+      assert.isBelow(getActivation([1]), 0.1, 'LSTM error');
+      assert.isBelow(0.9, getActivation([0]), 'LSTM error');
+      assert.isBelow(getActivation([0]), 0.1, 'LSTM error');
     });
     it('GRU XOR', function () {
       this.timeout(30000);
@@ -322,10 +327,15 @@ describe('Networks', function () {
       });
 
       gru.activate([0]);
-      assert.isBelow(0.9, gru.activate([1]), 'GRU error');
-      assert.isBelow(gru.activate([1]), 0.1, 'GRU error');
-      assert.isBelow(0.9, gru.activate([0]), 'GRU error');
-      assert.isBelow(gru.activate([0]), 0.1, 'GRU error');
+
+      function getActivation(sensors) {
+        return gru.activate(sensors)[0];
+      }
+
+      assert.isBelow(0.9, getActivation([1]), 'GRU error');
+      assert.isBelow(getActivation([1]), 0.1, 'GRU error');
+      assert.isBelow(0.9, getActivation([0]), 'GRU error');
+      assert.isBelow(getActivation([0]), 0.1, 'GRU error');
     });
     it('NARX Sequence', function () {
       var narx = new architect.NARX(1, 5, 1, 3, 3);

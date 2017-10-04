@@ -907,10 +907,10 @@ Network.prototype = {
             var genome = queue.shift();
 
             worker.evaluate(genome).then(function (result) {
-              genome.score = isNaN(parseFloat(result)) ? -Infinity : -result;
+              genome.score = -result;
               genome.score -= (genome.nodes.length - genome.input - genome.output +
                 genome.connections.length + genome.gates.length) * growth;
-              genome.score = isNaN(genome.score) ? -Infinity : genome.score;
+              genome.score = isNaN(parseFloat(result)) ? -Infinity : genome.score;
               startWorker(worker);
             });
           };

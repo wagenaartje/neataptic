@@ -22,11 +22,11 @@ module.exports = {
   },
   resolve: {
     modules: [
-      path.join(__dirname, 'node_modules'),
-    ],
+      path.join(__dirname, 'node_modules')
+    ]
   },
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: __dirname,
     filename: '[name].js',
     library: 'neataptic',
     libraryTarget: 'umd'
@@ -44,6 +44,6 @@ module.exports = {
     'os'
   ],
   node: {
-    __dirname: false,
+    __dirname: false
   }
 };

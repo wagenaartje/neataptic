@@ -87,7 +87,7 @@
         <!-- Sidebar -->
         <div class="col-sm-2 col-md-2 col-lg-2">
           {% if nav|length>1 %}
-            <ul id="sidebar" class="nav nav-stacked affix">
+            <ul id="sidebar" class="nav">
               {% for parent in nav %}
                 {% if parent.children and not (parent.children[0].url.isupper() or parent.children[0].url.islower()) %}
                   {% for nav_item in parent.children %}

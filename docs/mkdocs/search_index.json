@@ -7,7 +7,7 @@
         }, 
         {
             "location": "/docs/", 
-            "text": "Welcome to the documentation of Neataptic! If you are a rookie with neural networks:\ncheck out any of the tutorials on the right to get started. If you want more\ninformation about a certain part of Neataptic, it most probably is also in the\nmenu on the left. If it isn't, feel free to let me know by creating an \nissue\n.\n\n\nIf you want to implement a genetic neural network algorithm, but don't know how,\nfeel free to contact me at \nwagenaartje@protonmail.com\n!", 
+            "text": "Welcome to the documentation of Neataptic! If you are a rookie with neural networks:\ncheck out any of the tutorials on the left to get started. If you want more\ninformation about a certain part of Neataptic, it most probably is also in the\nmenu on the left. If it isn't, feel free to let me know by creating an \nissue\n.\n\n\nIf you want to implement a genetic neural network algorithm, but don't know how,\nfeel free to contact me at \nwagenaartje@protonmail.com\n!", 
             "title": "Docs"
         }, 
         {

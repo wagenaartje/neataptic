@@ -49,7 +49,7 @@ Node.prototype = {
    */
   activate: function (input) {
     // Check if an input is given
-    if (typeof input !== 'undefined') {
+    if (input !== undefined) {
       this.activation = input;
       return this.activation;
     }
@@ -126,7 +126,7 @@ Node.prototype = {
    */
   noTraceActivate: function (input) {
     // Check if an input is given
-    if (typeof input !== 'undefined') {
+    if (input !== undefined) {
       this.activation = input;
       return this.activation;
     }
@@ -354,7 +354,7 @@ Node.prototype = {
    * Mutates the node with the given method
    */
   mutate: function (method) {
-    if (typeof method === 'undefined') {
+    if (method === undefined) {
       throw new Error('No mutate method given!');
     } else if (!(method.name in methods.mutation)) {
       throw new Error('This method does not exist!');

@@ -17,7 +17,7 @@ var mutation = methods.mutation;
 *******************************************************************************/
 
 function Network (input, output) {
-  if (typeof input === 'undefined' || typeof output === 'undefined') {
+  if (input === undefined || output === undefined) {
     throw new Error('No input or output size given');
   }
 
@@ -98,7 +98,7 @@ Network.prototype = {
    * Backpropagate the network
    */
   propagate: function (rate, momentum, update, target) {
-    if (typeof target === 'undefined' || target.length !== this.output) {
+    if (target === undefined || target.length !== this.output) {
       throw new Error('Output target length should match network output length');
     }
 
@@ -269,7 +269,7 @@ Network.prototype = {
    * Mutates the network with the given method
    */
   mutate: function (method) {
-    if (typeof method === 'undefined') {
+    if (method === undefined) {
       throw new Error('No (correct) mutate method given!');
     }
 
@@ -1224,7 +1224,7 @@ Network.crossOver = function (network1, network2, equal) {
       node = random >= 0.5 ? network1.nodes[i] : network2.nodes[i];
       let other = random < 0.5 ? network1.nodes[i] : network2.nodes[i];
 
-      if (typeof node === 'undefined' || node.type === 'output') {
+      if (node === undefined || node.type === 'output') {
         node = other;
       }
     } else {
@@ -1301,7 +1301,7 @@ Network.crossOver = function (network1, network2, equal) {
   var keys2 = Object.keys(n2conns);
   for (i = keys1.length - 1; i >= 0; i--) {
     // Common gene
-    if (typeof n2conns[keys1[i]] !== 'undefined') {
+    if (n2conns[keys1[i]] !== undefined) {
       let conn = Math.random() >= 0.5 ? n1conns[keys1[i]] : n2conns[keys1[i]];
       connections.push(conn);
 
@@ -1315,7 +1315,7 @@ Network.crossOver = function (network1, network2, equal) {
   // Excess/disjoint gene
   if (score2 >= score1 || equal) {
     for (i = 0; i < keys2.length; i++) {
-      if (typeof n2conns[keys2[i]] !== 'undefined') {
+      if (n2conns[keys2[i]] !== undefined) {
         connections.push(n2conns[keys2[i]]);
       }
     }

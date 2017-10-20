@@ -10,7 +10,7 @@ function Connection (from, to, weight) {
   this.to = to;
   this.gain = 1;
 
-  this.weight = (typeof weight === 'undefined') ? Math.random() * 0.2 - 0.1 : weight;
+  this.weight = (weight === undefined) ? Math.random() * 0.2 - 0.1 : weight;
 
   this.gater = null;
   this.elegibility = 0;

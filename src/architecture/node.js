@@ -54,8 +54,8 @@ Node.prototype = {
       return this.activation;
     }
 
-    this._update_state(true);
-    this._update_traces();
+    this._updateState(true);
+    this._updateTraces();
 
     return this.activation;
   },
@@ -70,7 +70,7 @@ Node.prototype = {
       return this.activation;
     }
 
-    this._update_state(false);
+    this._updateState(false);
 
     for (let i = 0; i < this.connections.gated.length; i++) {
       this.connections.gated[i].gain = this.activation;
@@ -79,7 +79,7 @@ Node.prototype = {
     return this.activation;
   },
 
-  _update_traces: function () {
+  _updateTraces: function () {
     // Update traces
     let nodes = [];
     let nodeIdx = {};
@@ -130,7 +130,7 @@ Node.prototype = {
 
   },
 
-  _update_state: function (update_derivative) {
+  _updateState: function (update_derivative) {
     this.old = this.state;
 
     // All activation sources coming from the node itself

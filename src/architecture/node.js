@@ -72,16 +72,18 @@ Node.prototype = {
 
     // Update traces
     var nodes = [];
+    var nodeIdx = {};
     var influences = [];
 
     for (i = 0; i < this.connections.gated.length; i++) {
       let conn = this.connections.gated[i];
       let node = conn.to;
 
-      let index = nodes.indexOf(node);
-      if (index > -1) {
+     let index = nodeIdx[node];
+     if (index !== undefined) {
         influences[index] += conn.weight * conn.from.activation;
       } else {
+        nodeIdx[node] = nodes.length;
         nodes.push(node);
         influences.push(conn.weight * conn.from.activation +
           (node.connections.self.gater === this ? node.old : 0));

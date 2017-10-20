@@ -23,6 +23,7 @@ function Connection (from, to, weight) {
 
   this.xtrace = {
     nodes: [],
+    node_idx: {},
     values: []
   };
 }

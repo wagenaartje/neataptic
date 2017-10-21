@@ -331,7 +331,7 @@ the weights will be updated after the last propagation, but the deltaweights of
 the first 3 propagation will be included too. For example, this is how you can
 train node B to activate 0 when node A activates 1:</p>
 <pre><code class="javascript">var A = new Node();
-var B = new Node();
+var B = new Node('output');
 A.connect(B);
 
 var learningRate = .3;

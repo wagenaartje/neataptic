@@ -81,4 +81,27 @@ describe('Neat', function () {
 
     assert.isBelow(results.error, 0.03);
   });
+  it('XOR using efficientMutation', async function () {
+    this.timeout(40000);
+    // Train the XOR gate
+    var trainingSet = [
+      { input: [0, 0], output: [0] },
+      { input: [0, 1], output: [1] },
+      { input: [1, 0], output: [1] },
+      { input: [1, 1], output: [0] }
+    ];
+
+    var network = new Network(2, 1);
+    var results = await network.evolve(trainingSet, {
+      mutation: methods.mutation.FFW,
+      equal: true,
+      elitism: 10,
+      mutationRate: 0.5,
+      error: 0.03,
+      efficientMutation: true,
+      threads: 1
+    });
+
+    assert.isBelow(results.error, 0.03);
+  });
 });

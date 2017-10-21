@@ -59,9 +59,9 @@ Group.prototype = {
 
     for (var i = this.nodes.length - 1; i >= 0; i--) {
       if (typeof target === 'undefined') {
-        this.nodes[i].propagate(rate, momentum);
+        this.nodes[i].propagate(rate, momentum, true);
       } else {
-        this.nodes[i].propagate(rate, momentum, target[i]);
+        this.nodes[i].propagate(rate, momentum, true, target[i]);
       }
     }
   },

@@ -98,7 +98,7 @@ Network.prototype = {
    * Backpropagate the network
    */
   propagate: function (rate, momentum, update, target) {
-    if (target === undefined || target.length !== this.output) {
+    if (target !== undefined && target.length !== this.output) {
       throw new Error('Output target length should match network output length');
     }
 

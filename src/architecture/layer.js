@@ -27,7 +27,7 @@ Layer.prototype = {
   activate: function (value) {
     var values = [];
 
-    if (value === undefined || value.length !== this.nodes.length) {
+    if (value !== undefined && value.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
@@ -49,7 +49,7 @@ Layer.prototype = {
    * Propagates all the node in the group
    */
   propagate: function (rate, momentum, target) {
-    if (target === undefined || target.length !== this.nodes.length) {
+    if (target !== undefined && target.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 

@@ -115,13 +115,13 @@ Node.prototype = {
         let node = nodes[j];
         let influence = influences[j];
 
-        let index = connection_xtrace.node_idx[node];
+        let index = connection_xtrace.nodeIdx[node];
         if(index) {
             connection_xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
             connection_xtrace.values[index] + this.derivative * connection.elegibility * influence;
         } else {
           // Does not exist there yet, might be through mutation
-          connection_xtrace.node_idx[node] = connection_xtrace.nodes.length;
+          connection_xtrace.nodeIdx[node] = connection_xtrace.nodes.length;
           connection_xtrace.nodes.push(node);
           connection_xtrace.values.push(this.derivative * connection.elegibility * influence);
         }

@@ -61,7 +61,7 @@ train node B to activate 0 when node A activates 1:
 
 ```javascript
 var A = new Node();
-var B = new Node();
+var B = new Node('output');
 A.connect(B);
 
 var learningRate = .3;

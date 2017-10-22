@@ -336,7 +336,7 @@ Node.prototype = {
       connection.elegibility = 0;
       connection.xtrace = {
         nodes: [],
-        node_idx: {},
+        nodeIdx: {},
         values: []
       };
     }

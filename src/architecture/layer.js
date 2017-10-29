@@ -27,19 +27,19 @@ Layer.prototype = {
   activate: function (value) {
     var values = [];
 
-    if (typeof value !== 'undefined' && value.length !== this.nodes.length) {
+    if (value !== undefined && value.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for (var i = 0; i < this.nodes.length; i++) {
-      var activation;
-      if (typeof value === 'undefined') {
+      if (value === undefined) {
         activation = this.nodes[i].activate();
-      } else {
-        activation = this.nodes[i].activate(value[i]);
+        values.push(activation);
       }
-
-      values.push(activation);
+      else {
+        activation = this.nodes[i].activate(value[i]);
+        values.push(activation);
+      }      
     }
 
     return values;
@@ -49,13 +49,13 @@ Layer.prototype = {
    * Propagates all the node in the group
    */
   propagate: function (rate, momentum, target) {
-    if (typeof target !== 'undefined' && target.length !== this.nodes.length) {
+    if (target !== undefined && target.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for (var i = this.nodes.length - 1; i >= 0; i--) {
-      if (typeof target === 'undefined') {
-        this.nodes[i].propagate(rate, momentum, true);
+      if (target === undefined) {
+          this.nodes[i].propagate(rate, momentum, true);
       } else {
         this.nodes[i].propagate(rate, momentum, true, target[i]);
       }

@@ -49,11 +49,88 @@ Node.prototype = {
    */
   activate: function (input) {
     // Check if an input is given
-    if (typeof input !== 'undefined') {
+    if (input !== undefined) {
       this.activation = input;
       return this.activation;
     }
 
+    this._updateState(true);
+    this._updateTraces();
+
+    return this.activation;
+  },
+
+  /**
+   * Activates the node without calculating elegibility traces and such
+   */
+  noTraceActivate: function (input) {
+    // Check if an input is given
+    if (input !== undefined) {
+      this.activation = input;
+      return this.activation;
+    }
+
+    this._updateState(false);
+
+    for (let i = 0; i < this.connections.gated.length; i++) {
+      this.connections.gated[i].gain = this.activation;
+    }
+
+    return this.activation;
+  },
+
+  _updateTraces: function () {
+    // Update traces
+    let nodes = [];
+    let nodeIdx = {};
+    let influences = [];
+
+    for (let i = 0, l = this.connections.gated.length; i < l; i++) {
+      let conn = this.connections.gated[i];
+      let node = conn.to;
+
+      let index = nodeIdx[node];
+      if (index !== undefined) {
+        influences[index] += conn.weight * conn.from.activation;
+      } else {
+        nodeIdx[node] = nodes.length;
+        nodes.push(node);
+        influences.push(conn.weight * conn.from.activation +
+          (node.connections.self.gater === this ? node.old : 0));
+      }
+
+      // Adjust the gain to this nodes' activation
+      conn.gain = this.activation;
+    }
+
+    for (let i = 0, l = this.connections.in.length; i < l; i++) {
+      let connection = this.connections.in[i];
+      // Elegibility trace
+      connection.elegibility = this.connections.self.gain * this.connections.self.weight *
+        connection.elegibility + connection.from.activation * connection.gain;
+
+      // Extended trace
+      let connection_xtrace = connection.xtrace;
+      for (let j = 0; j < nodes.length; j++) {
+        let node = nodes[j];
+        let influence = influences[j];
+
+        let index = connection_xtrace.nodeIdx[node];
+        if(index) {
+            connection_xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
+            connection_xtrace.values[index] + this.derivative * connection.elegibility * influence;
+        } else {
+          // Does not exist there yet, might be through mutation
+          connection_xtrace.nodeIdx[node] = connection_xtrace.nodes.length;
+          connection_xtrace.nodes.push(node);
+          connection_xtrace.values.push(this.derivative * connection.elegibility * influence);
+        }
+      }
+    }
+
+  },
+
+  _updateState: function (update_derivative) {
     this.old = this.state;
 
     // All activation sources coming from the node itself
@@ -68,85 +145,9 @@ Node.prototype = {
 
     // Squash the values received
     this.activation = this.squash(this.state) * this.mask;
-    this.derivative = this.squash(this.state, true);
-
-    // Update traces
-    var nodes = [];
-    var influences = [];
-
-    for (i = 0; i < this.connections.gated.length; i++) {
-      let conn = this.connections.gated[i];
-      let node = conn.to;
-
-      let index = nodes.indexOf(node);
-      if (index > -1) {
-        influences[index] += conn.weight * conn.from.activation;
-      } else {
-        nodes.push(node);
-        influences.push(conn.weight * conn.from.activation +
-          (node.connections.self.gater === this ? node.old : 0));
-      }
-
-      // Adjust the gain to this nodes' activation
-      conn.gain = this.activation;
+    if(update_derivative === true) {
+      this.derivative = this.squash(this.state, true);
     }
-
-    for (i = 0; i < this.connections.in.length; i++) {
-      let connection = this.connections.in[i];
-
-      // Elegibility trace
-      connection.elegibility = this.connections.self.gain * this.connections.self.weight *
-        connection.elegibility + connection.from.activation * connection.gain;
-
-      // Extended trace
-      for (var j = 0; j < nodes.length; j++) {
-        let node = nodes[j];
-        let influence = influences[j];
-
-        let index = connection.xtrace.nodes.indexOf(node);
-
-        if (index > -1) {
-          connection.xtrace.values[index] = node.connections.self.gain * node.connections.self.weight *
-            connection.xtrace.values[index] + this.derivative * connection.elegibility * influence;
-        } else {
-          // Does not exist there yet, might be through mutation
-          connection.xtrace.nodes.push(node);
-          connection.xtrace.values.push(this.derivative * connection.elegibility * influence);
-        }
-      }
-    }
-
-    return this.activation;
-  },
-
-  /**
-   * Activates the node without calculating elegibility traces and such
-   */
-  noTraceActivate: function (input) {
-    // Check if an input is given
-    if (typeof input !== 'undefined') {
-      this.activation = input;
-      return this.activation;
-    }
-
-    // All activation sources coming from the node itself
-    this.state = this.connections.self.gain * this.connections.self.weight * this.state + this.bias;
-
-    // Activation sources coming from connections
-    var i;
-    for (i = 0; i < this.connections.in.length; i++) {
-      var connection = this.connections.in[i];
-      this.state += connection.from.activation * connection.weight * connection.gain;
-    }
-
-    // Squash the values received
-    this.activation = this.squash(this.state);
-
-    for (i = 0; i < this.connections.gated.length; i++) {
-      this.connections.gated[i].gain = this.activation;
-    }
-
-    return this.activation;
   },
 
   /**
@@ -335,6 +336,7 @@ Node.prototype = {
       connection.elegibility = 0;
       connection.xtrace = {
         nodes: [],
+        nodeIdx: {},
         values: []
       };
     }
@@ -352,7 +354,7 @@ Node.prototype = {
    * Mutates the node with the given method
    */
   mutate: function (method) {
-    if (typeof method === 'undefined') {
+    if (method === undefined) {
       throw new Error('No mutate method given!');
     } else if (!(method.name in methods.mutation)) {
       throw new Error('This method does not exist!');

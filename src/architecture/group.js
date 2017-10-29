@@ -31,13 +31,13 @@ Group.prototype = {
   activate: function (value) {
     var values = [];
 
-    if (typeof value !== 'undefined' && value.length !== this.nodes.length) {
+    if (value === undefined && value.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for (var i = 0; i < this.nodes.length; i++) {
       var activation;
-      if (typeof value === 'undefined') {
+      if (value === undefined) {
         activation = this.nodes[i].activate();
       } else {
         activation = this.nodes[i].activate(value[i]);
@@ -53,12 +53,12 @@ Group.prototype = {
    * Propagates all the node in the group
    */
   propagate: function (rate, momentum, target) {
-    if (typeof target !== 'undefined' && target.length !== this.nodes.length) {
+    if (target !== undefined && target.length !== this.nodes.length) {
       throw new Error('Array with values should be same as the amount of nodes!');
     }
 
     for (var i = this.nodes.length - 1; i >= 0; i--) {
-      if (typeof target === 'undefined') {
+      if (target === undefined) {
         this.nodes[i].propagate(rate, momentum, true);
       } else {
         this.nodes[i].propagate(rate, momentum, true, target[i]);
@@ -73,7 +73,7 @@ Group.prototype = {
     var connections = [];
     var i, j;
     if (target instanceof Group) {
-      if (typeof method === 'undefined') {
+      if (method === undefined) {
         if (this !== target) {
           if (config.warnings) console.warn('No group connection specified, using ALL_TO_ALL');
           method = methods.connection.ALL_TO_ALL;
@@ -120,7 +120,7 @@ Group.prototype = {
    * Make nodes from this group gate the given connection(s)
    */
   gate: function (connections, method) {
-    if (typeof method === 'undefined') {
+    if (method === undefined) {
       throw new Error('Please specify Gating.INPUT, Gating.OUTPUT');
     }
 

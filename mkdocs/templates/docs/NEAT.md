@@ -12,11 +12,11 @@ function initNeat(){
     2,
     null,
     {
-      mutation: methods.mutation.ALL
+      mutation: Methods.mutation.ALL,
       popsize: PLAYER_AMOUNT,
       mutationRate: MUTATION_RATE,
       elitism: Math.round(ELITISM_PERCENT * PLAYER_AMOUNT),
-      network: new architect.Random(
+      network: new Architect.Random(
         1 + PLAYER_DETECTION * 3 + FOOD_DETECTION * 2,
         START_HIDDEN_SIZE,
         2

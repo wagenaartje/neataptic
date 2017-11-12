@@ -95,7 +95,7 @@ of Neataptic, feel free to create a pull request!
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/">Target seeking AI</a> (unsupervised)</summary>
 </details>
 <details>
-<summary><a href="https://wagenaartje.github.io/neataptic/articles/crossover/">Crossover playground</a></summary>
+<summary><a href="https://wagenaartje.github.io/neataptic/articles/playground/">Playground</a></summary>
 </details>
 &zwnj;
 

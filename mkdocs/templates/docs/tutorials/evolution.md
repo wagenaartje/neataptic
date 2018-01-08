@@ -70,7 +70,7 @@ Check out the evolution options [here](../architecture/network.md) and [here](..
 * `popsize: 100` - The default population size is 50, but 100 worked better for me.
 * `elitism: 10` - I want to keep the fittest 10% of the population to the next generation without breeding them.
 * `log: 10` - I want to log the status every 10 iterations.
-* `error: 0.03` - I want the evolution process when the error is below 0.03;
+* `error: 0.03` - I want the evolution process to stop when the error is below 0.03;
 * `iterations: 1000` - I want the evolution process to stop after 1000 iterations if the target error hasn't been reached yet.
 * `mutationRate: 0.5` - I want to increase the mutation rate to surpass possible local optima.
 

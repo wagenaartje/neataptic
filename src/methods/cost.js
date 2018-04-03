@@ -55,7 +55,7 @@ var cost = {
     var sumTarget = 0;
     for (var i = 0; i < output.length; i++) {
       error += Math.abs(target[i] - output[i]);
-	  sumTarget += target[i];
+      sumTarget += target[i];
     }
 
     return error / sumTarget;

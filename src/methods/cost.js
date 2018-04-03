@@ -52,7 +52,7 @@ var cost = {
   // Weighted Absolute Percentage Error
   WAPE: function (target, output) {
     var error = 0;
-	var sumTarget = 0;
+    var sumTarget = 0;
     for (var i = 0; i < output.length; i++) {
       error += Math.abs(target[i] - output[i]);
 	  sumTarget += target[i];

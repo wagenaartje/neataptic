@@ -4,7 +4,7 @@
 
 <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/v/neataptic.svg?style=flat-square"></a>
 <a href="https://www.npmjs.com/package/neataptic"><img src="https://img.shields.io/npm/dm/neataptic.svg?style=flat-square"></a>
-<a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a>
+<a href="https://travis-ci.org/wagenaartje/neataptic"><img src="https://img.shields.io/travis/wagenaartje/neataptic/master.svg?style=flat-square"></a> [![Slack](https://slack.bri.im/badge.svg)](https://slack.bri.im)
 
 
 <hr>

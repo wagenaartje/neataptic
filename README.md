@@ -95,6 +95,9 @@ of Neataptic, feel free to create a pull request!
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/targetseeking/">Target seeking AI</a> (unsupervised)</summary>
 </details>
 <details>
+  <summary><a href="https://github.com/zonetti/snake-neural-network/">Snake game AI</a> (unsupervised)</summary>
+</details>
+<details>
 <summary><a href="https://wagenaartje.github.io/neataptic/articles/playground/">Playground</a></summary>
 </details>
 &zwnj;

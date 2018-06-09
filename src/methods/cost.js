@@ -49,6 +49,17 @@ var cost = {
 
     return error / output.length;
   },
+  // Weighted Absolute Percentage Error
+  WAPE: function (target, output) {
+    var error = 0;
+    var sumTarget = 0;
+    for (var i = 0; i < output.length; i++) {
+      error += Math.abs(target[i] - output[i]);
+      sumTarget += target[i];
+    }
+
+    return error / sumTarget;
+  },
   // Mean Squared Logarithmic Error
   MSLE: function (target, output) {
     var error = 0;

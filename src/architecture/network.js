@@ -588,7 +588,8 @@ Network.prototype = {
       }
 
       if (options.schedule && iteration % options.schedule.iterations === 0) {
-        options.schedule.function({ error: error, iteration: iteration });
+        var scheduleResult = options.schedule.function({ error: error, iteration: iteration });
+        if (scheduleResult === false) break;
       }
     }
 
@@ -947,7 +948,8 @@ Network.prototype = {
       }
 
       if (options.schedule && neat.generation % options.schedule.iterations === 0) {
-        options.schedule.function({ fitness: fitness, error: -error, iteration: neat.generation });
+        var scheduleResult = options.schedule.function({ fitness: fitness, error: -error, iteration: neat.generation });
+        if (scheduleResult === false) break;
       }
     }
 

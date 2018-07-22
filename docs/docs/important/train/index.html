@@ -5,17 +5,17 @@
     <!-- Meta data -->
     <meta charset="UTF-8">
 
-    
+
     <meta name="description" content="Documentation of the train function, used to train neural networks in Neataptic.">
-    
 
-    
+
+
     <meta name="keywords" content="train, backpropagation, neural-network, dropout, momentum, learning rate">
-    
 
-    
+
+
     <meta name="author" content="Thomas Wagenaar">
-    
+
 
     <!-- CSS -->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -81,174 +81,174 @@
       </div>
     </nav>
 
-    
+
     <div class="container" style="margin-top: 60px">
       <div class="row">
         <!-- Sidebar -->
         <div class="col-sm-2 col-md-2 col-lg-2">
-          
+
             <ul id="sidebar" class="nav">
-              
-                
-            
-                
-                  
-                    
-                        
-                    
-                  
-                    
+
+
+
+
+
+
+
+
+
+
                       <li><a href="../../tutorials/tutorials/">Tutorials</a></li>
                       <ul>
-                      
+
                           <li class="">
                               <a href="../../tutorials/training/">Training</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../tutorials/evolution/">Evolution</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../tutorials/normalization/">Normalization</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../tutorials/visualization/">Visualization</a>
                           </li>
-                      
+
                       </ul>
-                      
-                  
-                    
+
+
+
                       <li><a href="../important/">Important functions</a></li>
                       <ul>
-                      
+
                           <li class="active">
                               <a href="./">Train</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../evolve/">Evolve</a>
                           </li>
-                      
+
                       </ul>
-                      
-                  
-                    
+
+
+
                       <li><a href="../../builtins/builtins/">Built-in networks</a></li>
                       <ul>
-                      
+
                           <li class="">
                               <a href="../../builtins/perceptron/">Perceptron</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../builtins/lstm/">LSTM</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../builtins/gru/">GRU</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../builtins/narx/">NARX</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../builtins/random/">Random</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../builtins/hopfield/">Hopfield</a>
                           </li>
-                      
+
                       </ul>
-                      
-                  
-                    
+
+
+
                       <li><a href="../../architecture/architecture/">Architecture</a></li>
                       <ul>
-                      
+
                           <li class="">
                               <a href="../../architecture/construct/">Construct</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/network/">Network</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/layer/">Layer</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/group/">Group</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/node/">Node</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/connection/">Connection</a>
                           </li>
-                      
+
                       </ul>
-                      
-                  
-                    
+
+
+
                       <li><a href="../../methods/methods/">Methods</a></li>
                       <ul>
-                      
+
                           <li class="">
                               <a href="../../methods/regularization/">Regularization</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/mutation/">Mutation</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/selection/">Selection</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/activation/">Activation</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/cost/">Cost</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../architecture/connection/">Connection</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/gating/">Gating</a>
                           </li>
-                      
+
                           <li class="">
                               <a href="../../methods/rate/">Rate</a>
                           </li>
-                      
+
                       </ul>
-                      
-                  
-                    
-                        
+
+
+
+
                         <li class="">
                             <a href="../../neat/">NEAT</a>
                         </li>
-                      
-                    
-                  
-                
-            
-                
-            
-          
+
+
+
+
+
+
+
+
           </ul>
         </div>
 
@@ -290,7 +290,7 @@ network.activate([0,1]); // 0.9824...
 <li><code>dropout</code> - Sets the dropout of the hidden network nodes. Read more about it on the <a href="../../methods/regularization/">regularization</a> page. Default: <em>0</em>.</li>
 <li><code>shuffle</code> - When set to <em>true</em>, will shuffle the training data every iteration. A good option to use if your network is performing less in cross validation than in the real training set. Default: <em>false</em></li>
 <li><code>iterations</code> - Sets the amount of iterations the process will maximally run, even when the target error has not been reached. Default: <em>NaN</em></li>
-<li><code>schedule</code> - You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(data){console.log(Date.now, data.error)}, iterations: 5}</em>. This will log the time and error every 5 iterations. This option allows for complex scheduled tasks during training.</li>
+<li><code>schedule</code> - You can schedule tasks to happen every <em>n</em> iterations. An example of usage is <em>schedule : { function: function(data){console.log(Date.now, data.error)}, iterations: 5}</em>. This will log the time and error every 5 iterations.  If the function returns false, training will stop. This option allows for complex scheduled tasks during training and for complex early stopping.</li>
 <li><code>clear</code> - If set to <em>true</em>, will clear the network after every activation. This is useful for training <a href="../../builtins/lstm/">LSTM</a>'s, more importantly for timeseries prediction. Default: <em>false</em></li>
 <li><code>momentum</code> - Sets the momentum of the weight change. More info <a href="https://www.willamette.edu/~gorr/classes/cs449/momrate.html">here</a>. Default: <em>0</em></li>
 <li><code>ratePolicy</code> - Sets the rate policy for your training. This allows your rate to be dynamic, see the <a href="../../methods/rate/">rate policies page</a>. Default: <em>methods.rate.FIXED()</em></li>
@@ -357,46 +357,46 @@ network.train(trainingSet, {
         </div>
       </div>
     </div>
-    
+
 
     <!-- Javascript (only for blogs) -->
-    
-      
-        
-      
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
-        
-          
-            
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-          
-        
-      
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <script>
       $("table").each(function(){

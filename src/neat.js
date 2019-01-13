@@ -139,17 +139,17 @@ Neat.prototype = {
 
     if (mutationMethod === methods.mutation.ADD_NODE && genome.nodes.length >= this.maxNodes) {
       if (config.warnings) console.warn('maxNodes exceeded!');
-      return;
+      return null;
     }
 
     if (mutationMethod === methods.mutation.ADD_CONN && genome.connections.length >= this.maxConns) {
       if (config.warnings) console.warn('maxConns exceeded!');
-      return;
+      return null;
     }
 
     if (mutationMethod === methods.mutation.ADD_GATE && genome.gates.length >= this.maxGates) {
       if (config.warnings) console.warn('maxGates exceeded!');
-      return;
+      return null;
     }
 
     return mutationMethod;

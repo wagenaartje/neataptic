@@ -41,7 +41,7 @@ A.connect(C);
 B.connect(C);
 
 // Construct a network
-var network = architect.Construct([A, B, C, D]);
+var network = architect.Construct([A, B, C]);
 ```
 
 Keep in mind that you must always specify your input groups/nodes in **activation order**. Input and output nodes will automatically get sorted out, but all hidden nodes will be activated in the order that they were given.
